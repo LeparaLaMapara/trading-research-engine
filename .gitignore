@@ -1,0 +1,16 @@
+.env
+tokens.json
+.venv/
+__pycache__/
+*.pyc
+# Local data: databases, snapshots, and generated reports never belong in git.
+*.db
+*.sqlite
+data/
+*.parquet
+*.csv
+
+# Build artifacts
+*.egg-info/
+build/
+dist/
