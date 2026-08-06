@@ -1,0 +1,61 @@
+# Render blueprint for the trading research engine.
+#
+# One background worker with a persistent disk. The worker runs scripts/scheduler.py, which
+# fetches bars, (optionally) logs telemetry, and runs the Claude+Gemini council + backtest
+# on a schedule. The disk keeps data/ (telemetry, market bars, Failure Registry, calibration)
+# across deploys, so the learning loop accumulates.
+#
+# Secrets are sync:false -> set them in the Render dashboard (or via the API). They reuse the
+# same values as the local .env (cTrader creds + tokens, Anthropic + Gemini keys).
+#
+# Nothing here trades live: the worker only reads prices, runs offline backtests, and calls
+# the LLM APIs. The risk layer stays fail-closed.
+
+services:
+  - type: worker
+    name: trading-research-engine
+    runtime: python
+    plan: starter            # 512 MB. Bump to standard (2 GB) if scipy/backtests OOM.
+    buildCommand: pip install -e ".[llm]"
+    startCommand: python scripts/scheduler.py
+    autoDeploy: true
+    disk:
+      name: data
+      mountPath: /opt/render/project/src/data   # the repo's data/ dir -> persists
+      sizeGB: 1
+    envVars:
+      - key: CTRADER_CLIENT_ID
+        sync: false
+      - key: CTRADER_CLIENT_SECRET
+        sync: false
+      - key: CTRADER_ENV
+        value: live
+      - key: CTRADER_ACCOUNT_ID
+        sync: false
+      - key: CTRADER_ACCESS_TOKEN
+        sync: false
+      - key: CTRADER_REFRESH_TOKEN
+        sync: false
+      - key: TOKEN_STORE
+        value: data/tokens.json      # on the persistent disk; refreshed tokens survive
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: COUNCIL_ANTHROPIC_MODEL
+        value: claude-opus-5
+      - key: COUNCIL_GEMINI_MODEL
+        value: gemini-2.5-flash
+      # Scheduler knobs
+      - key: RESEARCH_SYMBOLS
+        value: EURUSD,USDJPY,XAUUSD
+      - key: RESEARCH_PERIOD
+        value: H1
+      - key: RESEARCH_ROUNDS
+        value: "6"
+      - key: RESEARCH_INTERVAL_S
+        value: "86400"
+      - key: BARS_DAYS
+        value: "180"
+      - key: TELEMETRY_WINDOW_S
+        value: "0"
