@@ -1,0 +1,60 @@
+name: research
+
+# Free scheduled research on GitHub Actions (Render's free tier has no workers/cron/disk).
+# Runs one council + backtest cycle on a schedule and on manual dispatch. The Failure
+# Registry and calibration scoreboard persist between runs via the Actions cache.
+on:
+  schedule:
+    - cron: "0 5 * * *"     # daily 05:00 UTC (07:00 SAST)
+  workflow_dispatch: {}       # manual "Run workflow" button
+
+concurrency:
+  group: research
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      CTRADER_CLIENT_ID: ${{ secrets.CTRADER_CLIENT_ID }}
+      CTRADER_CLIENT_SECRET: ${{ secrets.CTRADER_CLIENT_SECRET }}
+      CTRADER_ENV: live
+      CTRADER_ACCOUNT_ID: ${{ secrets.CTRADER_ACCOUNT_ID }}
+      CTRADER_ACCESS_TOKEN: ${{ secrets.CTRADER_ACCESS_TOKEN }}
+      CTRADER_REFRESH_TOKEN: ${{ secrets.CTRADER_REFRESH_TOKEN }}
+      TOKEN_STORE: data/tokens.json
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      COUNCIL_ANTHROPIC_MODEL: claude-opus-5
+      COUNCIL_GEMINI_MODEL: gemini-2.5-flash
+      RESEARCH_PERIOD: H1
+      RESEARCH_ROUNDS: "6"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Restore accumulated memory (registry, calibration, bars, telemetry)
+        uses: actions/cache@v4
+        with:
+          path: data
+          key: research-data-${{ github.run_id }}
+          restore-keys: |
+            research-data-
+      - name: Install
+        run: pip install -e ".[llm]"
+      - name: Run one research cycle
+        run: |
+          set +e
+          for S in EURUSD USDJPY XAUUSD; do
+            echo "::group::fetch bars $S"
+            python -m market.bars --symbol "$S" --period "$RESEARCH_PERIOD" --days 180
+            echo "::endgroup::"
+          done
+          for S in EURUSD USDJPY XAUUSD; do
+            echo "::group::experiment $S"
+            python -m research.experiment --symbol "$S" --period "$RESEARCH_PERIOD" --rounds "$RESEARCH_ROUNDS"
+            echo "::endgroup::"
+          done
+          exit 0
