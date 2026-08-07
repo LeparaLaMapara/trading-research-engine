@@ -65,8 +65,40 @@ def _actual_metrics(summary: dict, n_bars: int, period: str) -> dict:
     }
 
 
+def _paper_proposals(symbol: str, period: str, n: int, committed_at: str):
+    """Fetch real papers via the Scout, map to strategies, persist the cards, and build
+    StrategyProposals (with falsifiable predictions) for the harness to judge. Real papers
+    in, real backtests out; the identifier on every card is a fetched arXiv id."""
+    import uuid
+
+    from council.proposer import Proposer
+    from research.cards import CardStore
+    from research.schemas import StrategyProposal
+    from scout.scout import Scout
+    from strategy.registry import rung_of
+
+    scout = Scout(backend=get_backend("anthropic"))
+    store = CardStore()
+    proposer = Proposer(get_backend("mock"))   # used only for its falsifiable-bound defaults
+    out = []
+    for card in scout.discover(n):
+        store.save(card)                        # persist every fetched card (memory + dashboard)
+        print(f"[scout] {card.identifier} -> {card.mapped_kind or 'no mapping'}: "
+              f"{card.title[:70]}")
+        if not card.mapped_kind:
+            continue
+        p = StrategyProposal(id=str(uuid.uuid4()), kind=card.mapped_kind,
+                             params=card.mapped_params or {}, rung=rung_of(card.mapped_kind),
+                             symbol=symbol, period=period,
+                             agent=f"scout:{card.identifier}", rationale=card.market_claim[:200])
+        p.prediction = proposer._prediction_for(p, committed_at)
+        out.append((p, p.prediction, {"concerns": [], "source": card.identifier}))
+    store.close()
+    return out
+
+
 def run_experiment(symbol: str, period: str, rounds: int, max_rung: int,
-                   min_dsr: float = MIN_DSR, seed: int = 0) -> dict:
+                   min_dsr: float = MIN_DSR, seed: int = 0, from_papers: int = 0) -> dict:
     bars = load_bars(symbol, period)
     if bars.empty:
         raise SystemExit(f"no bars for {symbol} {period}. Fetch first: "
@@ -81,27 +113,13 @@ def run_experiment(symbol: str, period: str, rounds: int, max_rung: int,
     print(f"[experiment] session filter: "
           f"{'ON, ' + str(len(allowed)) + ' hours' if use_session else 'OFF (telemetry too sparse)'}")
 
-    # Cross-model council: Claude proposes, Gemini red-teams (each falls back to the mock
-    # backend if its key is missing). This is the spec's adversarial design.
-    council = Council(proposer_backend=get_backend("anthropic"),
-                      redteam_backend=get_backend("gemini"))
     registry = FailureRegistry()
     calib = Calibration()
-
     trials: list[dict] = []
-    proposed_this_run: list[dict] = []   # kinds already tried this run -> drives diversity
-    for r in range(rounds):
-        seen = registry.all()
-        # Ask the proposer to avoid both logged failures AND anything already tried this run,
-        # so a single run climbs the ladder instead of repeating one favoured kind.
-        context = {"symbol": symbol, "period": period, "max_rung": max_rung,
-                   "seen_failures": [f for f in seen if f.get("symbol") == symbol]
-                   + proposed_this_run}
-        committed_at = time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())
-        rd = council.run_round(context, r, committed_at)
-        proposal, prediction, critique = rd["proposal"], rd["prediction"], rd["critique"]
-        proposed_this_run.append({"strategy_kind": proposal.kind, "symbol": symbol})
 
+    def process(proposal, prediction, critique) -> None:
+        """Judge one proposal (from the council or a paper): validate -> registry check ->
+        assumption test -> session filter -> walk-forward backtest -> score the prediction."""
         ok, reasons = validate_proposal({"kind": proposal.kind, "params": proposal.params})
         if not ok:
             registry.add(strategy_kind=proposal.kind, symbol=symbol, killed_at_stage="spec",
@@ -109,28 +127,46 @@ def run_experiment(symbol: str, period: str, rounds: int, max_rung: int,
                          generalisable_lesson="reject this pattern at spec time",
                          proposing_agent=proposal.agent, created_ts=time.time())
             trials.append({"proposal": proposal, "verdict": "REJECTED", "reason": reasons})
-            continue
-
+            return
         if registry.matches(proposal.kind, symbol):
             trials.append({"proposal": proposal, "verdict": "SKIPPED",
                            "reason": ["repeats a logged failure"]})
-            continue
-
+            return
         assumptions = run_assumptions(bars["close"])
         base = build_strategy(proposal.kind, proposal.params)
         strat = _SessionWrapped(base, sfilter) if sfilter else base
         wfr = wf.walk_forward(bars, strat, costs, period)
-
         pred_id = calib.record(prediction)
         actual = _actual_metrics(wfr["dev_summary"], wfr["n_bars"], period)
         calib.score(pred_id, actual)
-
         trials.append({
             "proposal": proposal, "prediction": prediction, "critique": critique,
             "assumption_verdict": assumptions.get("verdict", ""),
             "wf": wfr, "actual": actual,
             "per_obs_sharpe": wf.per_obs_sharpe(wfr["dev_net_returns"]),
         })
+
+    committed_at = time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())
+    if from_papers > 0:
+        # Source proposals from REAL papers the Scout fetched and mapped to strategies.
+        for proposal, prediction, critique in _paper_proposals(symbol, period, from_papers,
+                                                               committed_at):
+            process(proposal, prediction, critique)
+    else:
+        # Cross-model council: Claude proposes, Gemini red-teams (each falls back to the mock
+        # backend if its key is missing). This is the spec's adversarial design.
+        council = Council(proposer_backend=get_backend("anthropic"),
+                          redteam_backend=get_backend("gemini"))
+        proposed_this_run: list[dict] = []   # kinds tried this run -> drives diversity
+        for r in range(rounds):
+            seen = registry.all()
+            context = {"symbol": symbol, "period": period, "max_rung": max_rung,
+                       "seen_failures": [f for f in seen if f.get("symbol") == symbol]
+                       + proposed_this_run}
+            rd = council.run_round(context, r, committed_at)
+            proposal, prediction, critique = rd["proposal"], rd["prediction"], rd["critique"]
+            proposed_this_run.append({"strategy_kind": proposal.kind, "symbol": symbol})
+            process(proposal, prediction, critique)
 
     # Multiple-testing correction needs the spread of Sharpes ACROSS all real trials.
     tested = [t for t in trials if "wf" in t]
@@ -203,8 +239,11 @@ def main() -> None:
     p.add_argument("--max-rung", type=int, default=5)
     p.add_argument("--min-dsr", type=float, default=MIN_DSR)
     p.add_argument("--seed", type=int, default=0)
+    p.add_argument("--from-papers", type=int, default=0,
+                   help="source proposals from N real papers the Scout fetches (instead of the council)")
     args = p.parse_args()
-    res = run_experiment(args.symbol, args.period, args.rounds, args.max_rung, args.min_dsr, args.seed)
+    res = run_experiment(args.symbol, args.period, args.rounds, args.max_rung, args.min_dsr,
+                         args.seed, from_papers=args.from_papers)
     report = format_report(res)
     print(report)
     with open("data/experiment_report.txt", "w", encoding="utf-8") as f:

@@ -10,6 +10,12 @@ import os
 from abc import ABC, abstractmethod
 
 import numpy as np
+from dotenv import load_dotenv
+
+# Ensure .env is loaded no matter which entry point imports the backends (a standalone
+# `python -m scout.scout` doesn't import config.settings). No-op when there is no .env
+# (e.g. CI/Render, where the keys are real environment variables).
+load_dotenv()
 
 
 def _extract_json(text: str) -> str:

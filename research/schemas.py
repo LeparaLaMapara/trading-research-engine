@@ -66,6 +66,10 @@ class TransferCard:
     assumptions_required: list[str] = field(default_factory=list)
     data_required: str = ""
     failure_regime: str = ""
+    url: str = ""
+    abstract: str = ""            # the fetched text the card was grounded in (anti-hallucination)
+    mapped_kind: str | None = None    # implementable strategy kind this paper maps to, or None
+    mapped_params: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
         return asdict(self)
