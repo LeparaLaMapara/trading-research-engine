@@ -250,6 +250,12 @@ def main() -> None:
         f.write(report)
     print("\nsaved -> data/experiment_report.txt")
 
+    # Push results to Supabase for the dashboard (no-op if SUPABASE_* not set).
+    from research import supabase_sink
+    if supabase_sink.enabled():
+        supabase_sink.push_experiment(res)
+        print("pushed results to Supabase")
+
 
 if __name__ == "__main__":
     main()

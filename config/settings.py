@@ -17,6 +17,10 @@ LATENCY_INTERVAL_S = int(os.environ.get("LATENCY_INTERVAL_S", "30"))
 
 SAST = "Africa/Johannesburg"
 
+# Supabase (shared store for the dashboard). Server-side only: use the service-role key.
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "")
+
 # Email delivery (SMTP). For Gmail, SMTP_PASS must be a 16-char App Password.
 SMTP_HOST = os.environ.get("SMTP_HOST", "smtp.gmail.com")
 SMTP_PORT = int(os.environ.get("SMTP_PORT", "465"))
