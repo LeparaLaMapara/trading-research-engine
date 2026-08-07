@@ -30,6 +30,8 @@ jobs:
       COUNCIL_GEMINI_MODEL: gemini-2.5-flash
       RESEARCH_PERIOD: H1
       RESEARCH_ROUNDS: "6"
+      SUPABASE_URL: https://bprargrqppufeuewryze.supabase.co
+      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -44,6 +46,8 @@ jobs:
             research-data-
       - name: Install
         run: pip install -e ".[llm]"
+      - name: Snapshot account balance -> Supabase
+        run: python -m market.account || true
       - name: Run one research cycle
         run: |
           set +e
