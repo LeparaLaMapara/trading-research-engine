@@ -44,7 +44,7 @@ def _dashboard_data() -> dict:
     strategies = _sb_get(
         "trading_strategies",
         "select=run_ts,symbol,kind,source,verdict,dev_sharpe,holdout_sharpe,total_return,"
-        "max_drawdown,dsr,pnl_on_10&order=run_ts.desc&limit=50")
+        "max_drawdown,dsr,pnl_on_10,pnl_on_200&order=run_ts.desc&limit=60")
     calibration = _sb_get("trading_calibration", "select=*&order=field_accuracy.desc")
     cards = _sb_get("trading_cards", "select=identifier,title,mapped_kind,url&order=created_ts.desc&limit=20")
     return {"balance": balance[0] if balance else None,
@@ -145,11 +145,21 @@ a{color:var(--acc);text-decoration:none}
 <div id="cfg"></div>
 <div class="wrap">
   <div>
-    <div class="card"><h2>Account balance</h2><div class="bal" id="bal">—</div><div class="mut" id="balts"></div></div>
-    <div class="card"><h2>Strategies tried &middot; how much each would have made/lost (on $10)</h2>
+    <div class="card"><h2>Your real money</h2>
+      <div style="display:flex;gap:32px;flex-wrap:wrap;align-items:baseline">
+        <div><div class="mut">put in</div><div class="bal">$10</div></div>
+        <div><div class="mut">balance now</div><div class="bal" id="bal">&mdash;</div></div>
+        <div><div class="mut">actually made / lost</div><div class="bal" style="color:var(--mut)">$0.00</div></div>
+      </div>
+      <div class="mut" id="balts" style="margin-top:8px">No strategy has traded live &mdash; your $10 is untouched. Everything below is simulation on past prices.</div>
+    </div>
+    <div class="card"><h2>Simulated &middot; what each strategy WOULD have made or lost</h2>
+      <div class="note" style="margin:0 0 12px">Hypothetical, not real trades: these are backtests on the last ~6 months of prices. <b>FAIL</b> means it did not clear our trustworthiness bar &mdash; so even a small simulated gain is not a real edge.</div>
       <div class="scroll"><table id="strat"><thead><tr>
-        <th>kind</th><th>sym</th><th>src</th><th>verdict</th><th>Sharpe</th><th>holdout</th><th>DSR</th><th>maxDD</th><th>$ / $10</th>
-      </tr></thead><tbody></tbody></table></div></div>
+        <th>strategy</th><th>market</th><th>verdict</th><th>return</th><th>on your&nbsp;$10</th><th>if you'd used&nbsp;$200</th>
+      </tr></thead><tbody></tbody></table></div>
+      <div class="mut" style="margin-top:8px">At $10 you can't place even the smallest real trade, so the <b>$200</b> column is the more realistic "if it were funded" view.</div>
+    </div>
     <div class="card"><h2>Agent calibration (are their confident predictions right?)</h2>
       <table id="cal"><thead><tr><th>agent</th><th>predictions</th><th>field accuracy</th><th>confidence</th></tr></thead><tbody></tbody></table></div>
     <div class="card"><h2>Scout finds (real papers fetched)</h2><div class="scroll"><table id="cards"><thead><tr><th>paper</th><th>maps to</th></tr></thead><tbody></tbody></table></div></div>
@@ -162,18 +172,20 @@ a{color:var(--acc);text-decoration:none}
 </div>
 <script>
 const $=s=>document.querySelector(s);
-function money(x){return (x>=0?'+':'')+x.toFixed(2)}
+function dollars(x){return (x<0?'-$':'+$')+Math.abs(x).toFixed(2)}
+function cls(x){return x>=0?'pos':'neg'}
 async function load(){
   const d=await (await fetch('/api/data')).json();
   if(!d.configured){document.getElementById('cfg').innerHTML='<div class="note">Supabase not configured yet (set SUPABASE_URL and SUPABASE_KEY). Showing empty data; chat still works.</div>'}
-  if(d.balance){$('#bal').textContent=(d.balance.balance??'—')+' '+(d.balance.currency||'');$('#balts').textContent='as of '+(d.balance.ts||'').replace('T',' ').slice(0,16)}
+  if(d.balance){$('#bal').textContent='$'+(d.balance.balance??'—')}
   const sb=$('#strat tbody');sb.innerHTML='';
-  (d.strategies||[]).forEach(s=>{const pnl=s.pnl_on_10??0;const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${s.kind}</td><td>${s.symbol}</td><td>${s.source||''}</td>
+  (d.strategies||[]).forEach(s=>{const ret=s.total_return,p10=s.pnl_on_10,p200=s.pnl_on_200;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${s.kind}</td><td>${s.symbol}</td>
     <td><span class="pill ${s.verdict}">${s.verdict||''}</span></td>
-    <td>${s.dev_sharpe??''}</td><td>${s.holdout_sharpe??''}</td><td>${(s.dsr??0).toFixed?.(2)??s.dsr??''}</td>
-    <td>${s.max_drawdown!=null?(s.max_drawdown*100).toFixed(0)+'%':''}</td>
-    <td class="${pnl>=0?'pos':'neg'}">${s.pnl_on_10!=null?money(pnl):''}</td>`;sb.appendChild(tr)});
+    <td class="${ret!=null?cls(ret):''}">${ret!=null?(ret*100).toFixed(1)+'%':'—'}</td>
+    <td class="${p10!=null?cls(p10):''}">${p10!=null?dollars(p10):'—'}</td>
+    <td class="${p200!=null?cls(p200):''}">${p200!=null?dollars(p200):'—'}</td>`;sb.appendChild(tr)});
   const cb=$('#cal tbody');cb.innerHTML='';
   (d.calibration||[]).forEach(c=>{const tr=document.createElement('tr');
     tr.innerHTML=`<td>${c.agent}</td><td>${c.n_predictions??''}</td><td>${(c.field_accuracy??0).toFixed?.(2)??''}</td><td>${(c.mean_confidence??0).toFixed?.(2)??''}</td>`;cb.appendChild(tr)});
