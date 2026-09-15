@@ -32,7 +32,16 @@ class AccountFetcher:
     def on_trader(self, message: object) -> None:
         t = Protobuf.extract(message).trader
         balance = t.balance / (10 ** t.moneyDigits)     # cents -> real, per moneyDigits
-        print(f"account {t.ctidTraderAccountId}  balance={balance}")
+        # Leverage decides the margin on every trade, and therefore the whole risk table.
+        # It was INFERRED as 1:100 from an August rejection and was actually 1:50, which
+        # doubled the real margin. Read it, never guess it.
+        leverage = (t.leverageInCents / 100.0) if getattr(t, "leverageInCents", 0) else None
+        print(f"account {t.ctidTraderAccountId}  balance={balance}  "
+              f"leverage=1:{leverage:g}" if leverage else
+              f"account {t.ctidTraderAccountId}  balance={balance}  leverage=unknown")
+        if leverage:
+            print(f"   margin for 0.01 lot EURUSD at this leverage: "
+                  f"${1150.0 / leverage:,.2f}")
         supabase_sink.push_account(balance, balance, "USD", str(t.ctidTraderAccountId))
         if reactor.running:
             reactor.stop()

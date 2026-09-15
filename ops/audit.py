@@ -211,11 +211,23 @@ def check_account_can_still_trade() -> Check:
                      "can trade is unknown.", "ACCOUNT_BALANCE_USD unset")
     floor = rebet_floor_zar(zar)
     balance_zar = balance_usd * zar
-    if balance_zar <= floor:
+    from research.goals import MIN_LOT_MARGIN_USD
+    margin_zar = MIN_LOT_MARGIN_USD * zar
+    if balance_zar <= margin_zar:
         return Check("account_can_still_trade", "Can the account still place a trade?", FAIL,
-                     f"There is R{balance_zar:,.0f} left, below the R{floor:,.0f} needed to "
-                     f"place even the smallest trade. It cannot continue without more money.",
-                     f"balance={balance_zar:.2f} floor={floor:.2f}")
+                     f"There is R{balance_zar:,.0f} left, below the R{margin_zar:,.0f} needed "
+                     f"just to open the smallest possible trade. It cannot trade at all "
+                     f"without more money.",
+                     f"balance={balance_zar:.2f} margin={margin_zar:.2f}")
+    if balance_zar <= floor:
+        # Enough to OPEN a position is not enough to HOLD one through a normal loss. Saying
+        # "cannot trade" here would be wrong, and would hide what is actually binding.
+        return Check("account_can_still_trade", "Can the account still place a trade?", FAIL,
+                     f"There is R{balance_zar:,.0f}. One smallest trade would tie up "
+                     f"R{margin_zar:,.0f} of that as margin, leaving too little to absorb a "
+                     f"normal loss before the broker closes it. About R{floor:,.0f} is needed "
+                     f"to trade with any room.",
+                     f"balance={balance_zar:.2f} margin={margin_zar:.2f} floor={floor:.2f}")
     return Check("account_can_still_trade", "Can the account still place a trade?", PASS,
                  f"R{balance_zar:,.0f} is above the R{floor:,.0f} floor.",
                  f"balance={balance_zar:.2f}")

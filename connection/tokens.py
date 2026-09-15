@@ -43,12 +43,68 @@ def _normalise(payload: dict[str, Any]) -> dict[str, Any]:
     return tokens
 
 
+_REMOTE_TABLE = "ctrader_tokens"
+_REMOTE_ROW = "default"
+
+
+def _remote_headers(write: bool) -> dict[str, str]:
+    return {"apikey": settings.SUPABASE_KEY,
+            "Authorization": f"Bearer {settings.SUPABASE_KEY}",
+            "Content-Type": "application/json",
+            ("Content-Profile" if write else "Accept-Profile"): settings.SUPABASE_SCHEMA}
+
+
+def _remote_load() -> dict[str, Any]:
+    """The shared token store the hosted OAuth service writes to."""
+    if not (settings.SUPABASE_URL and settings.SUPABASE_KEY):
+        return {}
+    try:
+        import requests
+        r = requests.get(f"{settings.SUPABASE_URL}/rest/v1/{_REMOTE_TABLE}",
+                         params={"id": f"eq.{_REMOTE_ROW}", "select": "*"},
+                         headers=_remote_headers(False), timeout=20)
+        r.raise_for_status()
+        rows = r.json()
+        return rows[0] if rows else {}
+    except Exception:
+        return {}
+
+
+def _remote_save(tokens: dict[str, Any]) -> None:
+    if not (settings.SUPABASE_URL and settings.SUPABASE_KEY):
+        return
+    try:
+        import requests
+        requests.post(f"{settings.SUPABASE_URL}/rest/v1/{_REMOTE_TABLE}",
+                      headers={**_remote_headers(True),
+                               "Prefer": "resolution=merge-duplicates"},
+                      json=[{"id": _REMOTE_ROW,
+                             "access_token": tokens.get("access_token"),
+                             "refresh_token": tokens.get("refresh_token"),
+                             "token_type": tokens.get("token_type"),
+                             "expires_in": tokens.get("expires_in"),
+                             "obtained_at": tokens.get("obtained_at")}],
+                      timeout=20).raise_for_status()
+    except Exception:
+        pass
+
+
 def load() -> dict[str, Any]:
-    """File first; fall back to env-var seed."""
+    """File, then the shared store, then the env-var seed.
+
+    The env seed is LAST on purpose. It used to be the fallback right after the file, and
+    because the repo secrets went stale in August the daily run spent five weeks
+    authenticating with a token the broker had already rejected -- while reporting success.
+    The shared store is written by the hosted OAuth service, so a re-authorisation anywhere
+    fixes every consumer at once, with nothing to paste.
+    """
     store = settings.TOKEN_STORE
     if store and os.path.exists(store):
         with open(store) as f:
             return json.load(f)
+    remote = _remote_load()
+    if remote.get("access_token"):
+        return remote
     seed_access = os.environ.get("CTRADER_ACCESS_TOKEN")
     seed_refresh = os.environ.get("CTRADER_REFRESH_TOKEN")
     if seed_access or seed_refresh:
@@ -57,11 +113,13 @@ def load() -> dict[str, Any]:
 
 
 def save(tokens: dict[str, Any]) -> None:
+    # Write both: the local file for speed, the shared store so a refresh here does not
+    # leave the hosted service and CI holding the superseded token.
     store = settings.TOKEN_STORE
-    if not store:
-        return
-    with open(store, "w") as f:
-        json.dump(tokens, f, indent=2)
+    if store:
+        with open(store, "w") as f:
+            json.dump(tokens, f, indent=2)
+    _remote_save(tokens)
 
 
 def refresh(refresh_token: str | None = None) -> dict[str, Any]:

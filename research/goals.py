@@ -25,12 +25,21 @@ from a model.
 from __future__ import annotations
 
 import math
+import os
 from dataclasses import asdict, dataclass
 
 # --- The account's physical constraints, measured, not assumed. -----------------------
 # From the broker's own symbol spec (data/telemetry.db) and the NOT_ENOUGH_MONEY rejection
 # of 2026-08-11, which proved margin on the minimum position exceeds $10.
-MIN_LOT_MARGIN_USD = 11.50      # 0.01 lots EURUSD at 1:100
+#
+# LEVERAGE WAS WRONG UNTIL 2026-09-15. It had been inferred as 1:100 from that rejection,
+# and everything downstream was built on it. The cTrader grant screen then showed the account
+# holding the money (login 6133776) is 1:50, which DOUBLES the margin per trade. This is why
+# `ProtoOATraderUpdatedEvent` carries `leverageInCents` and why it must be read rather than
+# guessed: the whole risk table hangs off this one number.
+MIN_LOT_NOTIONAL_USD = 1150.0   # 0.01 lots EURUSD = 1000 EUR at ~1.15
+ACCOUNT_LEVERAGE = float(os.environ.get("ACCOUNT_LEVERAGE", "50"))
+MIN_LOT_MARGIN_USD = MIN_LOT_NOTIONAL_USD / ACCOUNT_LEVERAGE
 TYPICAL_STOP_PIPS = 30.0
 PIP_VALUE_MIN_LOT_USD = 0.10
 STOP_COST_USD = TYPICAL_STOP_PIPS * PIP_VALUE_MIN_LOT_USD          # 3.00
@@ -49,6 +58,9 @@ DEFAULT_ZAR_PER_USD = 18.0
 # of the best-known quantitative funds.
 NOISE_SHARPE_AT_1000_TRIALS = 1.63
 WORLD_CLASS_SHARPE = 2.5
+# Above this chance of being unable to trade again, a goal is refused however small the
+# required skill looks. Risking more per trade always flatters the required Sharpe.
+MAX_ACCEPTABLE_RUIN = 0.35
 
 
 @dataclass
@@ -94,6 +106,41 @@ def risk_per_trade_fraction(equity_zar: float, zar_per_usd: float = DEFAULT_ZAR_
     """
     equity_usd = max(equity_zar / zar_per_usd, 1e-9)
     return min(STOP_COST_USD / equity_usd, 1.0)
+
+
+def horizon_outcome(start: float, target: float, floor: float, f: float,
+                    n_trades: int, cost_frac: float, seed: int = 7,
+                    paths: int = 20000) -> tuple[float, float]:
+    """P(reach target), P(fall to floor) WITHIN the horizon, with no edge.
+
+    Why a simulation rather than the closed form. The first-passage formula answers "does it
+    hit the floor *ever*", and with costs dragging the drift negative the honest answer to
+    that is eventually yes, for any stake. Over one year that is not the question anyone is
+    asking, and reporting it made a well-funded account look doomed (94% ruin on R5,400) while
+    a tiny one looked fine. This bounds the walk by the trades that actually fit in the
+    horizon.
+
+    The model: each trade wins or loses f of equity on a coin flip, minus costs. No edge is
+    assumed, deliberately, because none has been demonstrated. Seeded, so it is re-runnable
+    and gives the same answer every time.
+    """
+    import numpy as np
+    if start <= floor or target <= start or n_trades <= 0 or f <= 0:
+        return (0.0, 0.0)
+    rng = np.random.default_rng(seed)
+    up, dn = math.log(target / start), math.log(start / floor)
+    # Log return per trade, win or lose, with the cost applied either way.
+    win, loss = math.log(1 + f) - cost_frac, math.log(1 - f) - cost_frac
+    steps = np.where(rng.random((paths, n_trades)) < 0.5, win, loss)
+    walk = np.cumsum(steps, axis=1)
+    # Whichever barrier is touched first decides the path.
+    hit_up = np.argmax(walk >= up, axis=1)
+    hit_dn = np.argmax(walk <= -dn, axis=1)
+    got_up = (walk >= up).any(axis=1)
+    got_dn = (walk <= -dn).any(axis=1)
+    reached = got_up & (~got_dn | (hit_up < hit_dn))
+    ruined = got_dn & (~got_up | (hit_dn < hit_up))
+    return (float(reached.mean()), float(ruined.mean()))
 
 
 def _first_passage_up(a: float, b: float, mu: float, s2: float) -> float:
@@ -144,26 +191,47 @@ def assess(spec: GoalSpec, trades_per_year: int = DEFAULT_TRADES_PER_YEAR,
     # Costs alone give a negative drift: this is why a system with no edge loses slowly
     # instead of breaking even.
     cost_frac = COST_PER_TRADE_USD / max(start / zar_per_usd, 1e-9)
-    mu = -cost_frac
-    s2 = f * f
-    p_up = _first_passage_up(a, b, mu, s2)
+    p_up, p_ruin = horizon_outcome(start, target, floor, f, int(n_trades), cost_frac)
 
-    feasible = required_sharpe <= WORLD_CLASS_SHARPE and target > start and start > floor
+    # Feasible means BOTH: the skill required is humanly achievable, AND the attempt does not
+    # probably destroy the account first. Without the second clause the model rewarded raising
+    # risk per trade, because that lowers the required Sharpe while raising ruin - exactly the
+    # behaviour that empties a small account.
+    feasible = (required_sharpe <= WORLD_CLASS_SHARPE and target > start and start > floor
+                and p_ruin <= MAX_ACCEPTABLE_RUIN)
 
     rands = lambda v: f"R{v:,.0f}"  # noqa: E731 - local formatting shorthand
     if target <= start:
         verdict = (f"That goal does not ask for growth: it starts at {rands(start)} and asks "
                    f"for {rands(target)}.")
     elif start <= floor:
-        verdict = (f"The account is at {rands(start)}, at or below the {rands(floor)} floor "
-                   f"where it can no longer place even the smallest trade. Nothing can be "
-                   f"attempted until it is funded above that.")
+        # Two different thresholds, and conflating them is misleading. Opening the smallest
+        # trade needs only the margin. Surviving the stop on it without the broker force
+        # closing you needs margin plus room to lose. Say which one is binding.
+        margin_zar = MIN_LOT_MARGIN_USD * zar_per_usd
+        if start > margin_zar:
+            verdict = (f"The account is at {rands(start)}. One smallest-size trade would tie "
+                       f"up {rands(margin_zar)} of that as margin, leaving too little to "
+                       f"absorb a normal loss without the broker closing the position for "
+                       f"you. It needs about {rands(floor)} to trade with any room to "
+                       f"breathe.")
+        else:
+            verdict = (f"The account is at {rands(start)}, below the {rands(margin_zar)} "
+                       f"needed just to open the smallest possible trade. Nothing can be "
+                       f"attempted until it is funded above that.")
     elif feasible:
         verdict = (f"To turn {rands(start)} into {rands(target)} in {days} days the engine "
                    f"needs to earn {required_return*100:.0f}%, which works out to "
                    f"{required_annual*100:.0f}% a year. At the smallest trade this account "
                    f"can place, that needs skill worth a Sharpe of about "
                    f"{required_sharpe:.2f}. That is demanding but not impossible.")
+    elif required_sharpe <= WORLD_CLASS_SHARPE and p_ruin > MAX_ACCEPTABLE_RUIN:
+        verdict = (f"Reaching {rands(target)} from {rands(start)} in {days} days is possible "
+                   f"on skill alone, but not safely: each trade has to risk "
+                   f"{f*100:.0f}% of the account, and that gives a {p_ruin*100:.0f}% chance "
+                   f"of dropping below {rands(floor)} and not being able to trade at all "
+                   f"before it ever gets there. More money in, or a longer deadline, fixes "
+                   f"this. Risking more does not.")
     else:
         verdict = (f"To turn {rands(start)} into {rands(target)} in {days} days the engine "
                    f"would need to earn {required_return*100:.0f}%, which works out to "
@@ -193,7 +261,7 @@ def assess(spec: GoalSpec, trades_per_year: int = DEFAULT_TRADES_PER_YEAR,
         required_sharpe=round(required_sharpe, 3),
         risk_per_trade_pct=round(f * 100, 2),
         prob_reach_target_no_edge=round(p_up, 4),
-        prob_hit_floor_no_edge=round(1.0 - p_up, 4),
+        prob_hit_floor_no_edge=round(p_ruin, 4),
         floor_zar=round(floor, 2),
         verdict_plain=verdict,
         context_plain=context,
