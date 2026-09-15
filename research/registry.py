@@ -94,6 +94,7 @@ class FailureRegistry:
                     period TEXT,
                     stage TEXT,
                     per_obs_sharpe REAL,
+                    dsr REAL,
                     n_bars INTEGER,
                     created_ts REAL
                 )
@@ -103,6 +104,9 @@ class FailureRegistry:
             # Columns added after the first release. SQLite has no IF NOT EXISTS for columns,
             # so probe and add. Existing rows keep NULLs, which read as "no variant recorded"
             # and therefore never match a hard tabu -- the safe direction.
+            trial_cols = {r["name"] for r in conn.execute("PRAGMA table_info(trials)")}
+            if "dsr" not in trial_cols:
+                conn.execute("ALTER TABLE trials ADD COLUMN dsr REAL")
             existing = {r["name"] for r in conn.execute("PRAGMA table_info(failures)")}
             for col, decl in (
                 ("variant", "TEXT"),
@@ -186,6 +190,23 @@ class FailureRegistry:
                 ),
             )
             return int(cur.lastrowid)
+
+    def set_trial_dsr(self, trial_id: int, dsr: float) -> None:
+        """Record the deflated Sharpe once multiple-testing correction has been applied.
+
+        Kept on the trial row so "the best this engine has ever achieved" is answerable in
+        the SAME units it is later compared against. Comparing a deflated Sharpe to a
+        per-observation Sharpe made every cycle look like a record, which in turn credited
+        every lesson every time and made the win rate meaningless.
+        """
+        with self._connect() as conn:
+            conn.execute("UPDATE trials SET dsr=? WHERE trial_id=?", (float(dsr), trial_id))
+
+    def best_dsr(self) -> float:
+        """Best deflated Sharpe ever recorded. 0.0 when nothing has been scored yet."""
+        with self._connect() as conn:
+            row = conn.execute("SELECT MAX(dsr) AS m FROM trials").fetchone()
+        return float(row["m"] or 0.0)
 
     def record_trial(self, kind: str, params: dict | None, symbol: str, period: str,
                      stage: str, per_obs_sharpe: float | None = None,

@@ -33,6 +33,7 @@ from config import settings
 from council.backends import get_backend
 from council.orchestrator import Council
 from research.calibration import Calibration
+from research.lessons import LessonStore, lessons_from_cycle
 from research.registry import FailureRegistry
 from strategy.base import Strategy
 from strategy.registry import build_strategy, rung_of
@@ -98,6 +99,26 @@ def _paper_proposals(symbol: str, period: str, n: int, committed_at: str):
     return out
 
 
+def _track_record(calib: Calibration, agent: str) -> dict:
+    """The agent's own scored history, so it can be told how right it has actually been."""
+    try:
+        c = calib.agent_calibration(agent)
+    except Exception:
+        return {}
+    n = c.get("n_predictions") or c.get("predictions") or 0
+    if not n:
+        return {}
+    acc = c.get("field_accuracy")
+    note = ""
+    if acc is not None:
+        note = (f"You have committed {n} falsifiable predictions and been right about "
+                f"{acc*100:.0f}% of the fields. ")
+        if acc < 0.5:
+            note += ("You are wrong more often than right, so state weaker claims and say "
+                     "plainly when you do not know.")
+    return {"n_predictions": n, "field_accuracy": acc, "note": note}
+
+
 def run_experiment(symbol: str, period: str, rounds: int, max_rung: int,
                    min_dsr: float = MIN_DSR, seed: int = 0, from_papers: int = 0) -> dict:
     bars = load_bars(symbol, period)
@@ -116,6 +137,14 @@ def run_experiment(symbol: str, period: str, rounds: int, max_rung: int,
 
     registry = FailureRegistry()
     calib = Calibration()
+    lessons = LessonStore()
+    # The playbook shown to the proposer this cycle. Shown now, credited later only if the
+    # cycle actually beat the historical best -- that is what makes the win rate mean anything.
+    active_lessons = lessons.active()
+    shown_fps = [ln["fingerprint"] for ln in active_lessons]
+    lessons.mark_shown(shown_fps)
+    # Same units on both sides of the comparison. See registry.set_trial_dsr.
+    best_before = registry.best_dsr()
     trials: list[dict] = []
 
     def process(proposal, prediction, critique) -> None:
@@ -154,13 +183,14 @@ def run_experiment(symbol: str, period: str, rounds: int, max_rung: int,
         actual = _actual_metrics(wfr["dev_summary"], wfr["n_bars"], period)
         calib.score(pred_id, actual)
         per_obs = wf.per_obs_sharpe(wfr["dev_net_returns"])
-        registry.record_trial(proposal.kind, proposal.params, symbol, period,
-                              stage="backtest", per_obs_sharpe=per_obs, n_bars=wfr["n_bars"])
+        trial_id = registry.record_trial(proposal.kind, proposal.params, symbol, period,
+                                         stage="backtest", per_obs_sharpe=per_obs,
+                                         n_bars=wfr["n_bars"])
         trials.append({
             "proposal": proposal, "prediction": prediction, "critique": critique,
             "assumption_verdict": assumptions.get("verdict", ""),
             "wf": wfr, "actual": actual,
-            "per_obs_sharpe": per_obs,
+            "per_obs_sharpe": per_obs, "trial_id": trial_id,
         })
 
     committed_at = time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())
@@ -191,7 +221,14 @@ def run_experiment(symbol: str, period: str, rounds: int, max_rung: int,
                        "guidance": "A family that failed is NOT banned. Propose a genuinely "
                                    "different parameterisation, or a different family, and "
                                    "state the economic mechanism: who is on the other side of "
-                                   "this trade and why do they accept the loss."}
+                                   "this trade and why do they accept the loss.",
+                       # What the engine has learned, best-proven first.
+                       "lessons": [ln["lesson"] for ln in active_lessons],
+                       # The proposer's OWN track record. It has been making falsifiable
+                       # predictions and being scored on them since August and had never once
+                       # been told the result. An agent that is never shown its errors cannot
+                       # correct them.
+                       "your_track_record": _track_record(calib, "anthropic")}
             rd = council.run_round(context, r, committed_at)
             proposal, prediction, critique = rd["proposal"], rd["prediction"], rd["critique"]
             proposed_this_run.append({"strategy_kind": proposal.kind, "symbol": symbol})
@@ -211,6 +248,8 @@ def run_experiment(symbol: str, period: str, rounds: int, max_rung: int,
     for t in tested:
         dsr = wf.deflated_sharpe_ratio(t["wf"]["dev_net_returns"], honest_n, sharpe_std)
         t["dsr"] = dsr
+        if t.get("trial_id"):
+            registry.set_trial_dsr(t["trial_id"], dsr)
         hold = t["wf"]["holdout_summary"]
         hold_sharpe = hold["sharpe"] if hold else 0.0
         passed = dsr >= min_dsr and hold_sharpe > 0 and t["wf"]["dev_summary"]["sharpe"] > 0
@@ -227,9 +266,22 @@ def run_experiment(symbol: str, period: str, rounds: int, max_rung: int,
                          proposing_agent=t["proposal"].agent, created_ts=time.time(),
                          params=t["proposal"].params, period=period, n_bars=t["wf"]["n_bars"])
 
+    # --- learning: did this cycle beat anything, and what is worth remembering? --------
+    best_now = max((float(t.get("dsr") or 0.0) for t in tested), default=0.0)
+    if best_now > best_before:
+        # The lessons that were on screen get the credit. Crude attribution, but measured;
+        # the alternative is assuming memory helps, which is how memory stores rot.
+        lessons.mark_helped(shown_fps)
+    for text, evidence in lessons_from_cycle(trials, symbol, honest_n):
+        lessons.add(text, evidence, category="cycle")
+    retired = lessons.evict()
+    if retired:
+        print(f"[lessons] retired {len(retired)} lesson(s) that never helped")
+    print(f"[lessons] {lessons.summary()}  best DSR before={best_before:.3f} now={best_now:.3f}")
+
     return {"symbol": symbol, "period": period, "trials": trials, "tested": tested,
             "registry": registry, "calibration": calib, "sharpe_std": sharpe_std,
-            "min_dsr": min_dsr}
+            "min_dsr": min_dsr, "lessons": lessons, "honest_n": honest_n}
 
 
 def format_report(res: dict) -> str:
