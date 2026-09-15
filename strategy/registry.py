@@ -13,6 +13,7 @@ from strategy.benchmark import BuyHold, RandomEntry
 from strategy.ma_trend import MovingAverageTrend
 from strategy.mean_reversion import MeanReversion
 from strategy.multi_timeframe import MultiTimeframeTrend
+from strategy.kalman_level import KalmanLevel
 from strategy.ou_reversion import OUReversion
 from strategy.vol_scaled import VolScaledTrend
 
@@ -28,6 +29,9 @@ RUNGS: dict[int, list[str]] = {
     # with walk_forward_refit: scoring a fitted model without refitting shows it its own
     # training data and reports a number that means nothing.
     6: ["ou_reversion"],
+    # Rung 7: state-space models. The quantity traded is a LATENT variable inferred from
+    # noisy observations, and the model reports its own uncertainty. Built on TFiltersPy.
+    7: ["kalman_level"],
 }
 
 _BUILDERS = {
@@ -38,6 +42,7 @@ _BUILDERS = {
     "multi_timeframe": MultiTimeframeTrend,
     "mean_reversion": MeanReversion,
     "ou_reversion": OUReversion,
+    "kalman_level": KalmanLevel,
 }
 
 

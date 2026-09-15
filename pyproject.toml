@@ -13,6 +13,10 @@ dependencies = [
     "statsmodels>=0.14",
     "python-dotenv>=1.0",
     "tzdata>=2024.1",
+    # Bayesian state estimation for the rung-7 models. The owner's own published package
+    # (ubunye-ai-ecosystems/tfilterspy), so this adds no third-party modelling dependency.
+    # Verified not to disturb the protobuf 3.20.1 pin that ctrader-open-api requires.
+    "tfilterspy>=1.0.6",
 ]
 
 [project.optional-dependencies]

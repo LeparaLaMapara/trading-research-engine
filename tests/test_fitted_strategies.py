@@ -164,3 +164,57 @@ def test_non_fitted_strategies_still_use_the_plain_harness():
     bars = ou_series(3000)
     r = wf.walk_forward(bars, build_strategy("ma_trend", {}), COSTS, "H1")
     assert r["dev_summary"] is not None
+
+
+# ------------------------------------------------- rung 7: state-space (TFiltersPy)
+
+
+def local_level(n=20000, q_ratio=1e-3, r_sd=0.0005, seed=3) -> pd.DataFrame:
+    """Price as a noisy observation of a latent level that wanders. The model's own world."""
+    r = np.random.default_rng(seed)
+    lvl = np.cumsum(r.standard_normal(n) * np.sqrt(q_ratio * r_sd ** 2)) + 1.15
+    return pd.DataFrame({"ts_utc": np.arange(n) * 3600, "close": lvl + r.standard_normal(n) * r_sd})
+
+
+def test_kalman_recovers_the_signal_to_noise_ratio():
+    """R is profiled against each candidate ratio. Estimating R once from the one-bar changes
+    double-counts the process noise (var(diff) = Q + 2R) and biased the ratio ~3x low."""
+    from strategy.kalman_level import KalmanLevel
+    for q_true in (1e-4, 1e-2):
+        p = KalmanLevel().fit(local_level(4000, q_ratio=q_true, seed=1)).fitted_params
+        assert p["tradable"]
+        assert 0.3 < p["q_over_r"] / q_true < 3.0
+
+
+def test_kalman_is_above_the_ou_rung_and_is_fitted():
+    from strategy.kalman_level import KalmanLevel
+    assert rung_of("kalman_level") > rung_of("ou_reversion")
+    assert isinstance(build_strategy("kalman_level", {}), FittedStrategy)
+    assert (KalmanLevel().generate_signals(local_level(500)) == 0).all()
+
+
+def test_kalman_finds_a_latent_level_when_one_exists():
+    from strategy.kalman_level import KalmanLevel
+    r = wf.walk_forward_refit(local_level(), lambda: KalmanLevel(), COSTS, "H1")
+    assert r["evaluable"] and r["dev_summary"]["sharpe"] > 1.0
+
+
+def test_kalman_parameter_estimates_are_stable_across_folds():
+    """Unstable estimates mean noise-chasing. Identical ones mean a measured property."""
+    from strategy.kalman_level import KalmanLevel
+    r = wf.walk_forward_refit(local_level(), lambda: KalmanLevel(), COSTS, "H1")
+    qs = [p["q_over_r"] for p in r["fold_params"] if p and p.get("tradable")]
+    assert len(qs) >= 2 and max(qs) / min(qs) < 3.0
+
+
+def test_kalman_finds_nothing_in_a_random_walk():
+    """The discrimination test. A model that scores well on a driftless random walk after
+    costs is reporting lookahead, not skill."""
+    from strategy.kalman_level import KalmanLevel
+    r = np.random.default_rng(7)
+    n = 20000
+    walk = pd.DataFrame({"ts_utc": np.arange(n) * 3600,
+                         "close": 1.15 + np.cumsum(r.standard_normal(n) * 0.0005)})
+    res = wf.walk_forward_refit(walk, lambda: KalmanLevel(), COSTS, "H1")
+    if res["evaluable"]:
+        assert res["dev_summary"]["sharpe"] < 2.0
