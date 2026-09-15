@@ -30,6 +30,7 @@ import time
 
 from ctrader_open_api import Protobuf
 from ctrader_open_api.messages.OpenApiMessages_pb2 import (
+    ProtoOAExpectedMarginReq,
     ProtoOAGetTrendbarsReq,
     ProtoOAReconcileReq,
     ProtoOATraderReq,
@@ -57,6 +58,7 @@ class Preflight:
         self.symbol_id: int | None = None
         self.spec = None
         self.balance: float | None = None
+        self.broker_margin: float | None = None
         self.leverage: float | None = None
         self.conn = CTraderConnection(on_ready=self.on_ready,
                                       on_symbol_spec=self.on_spec)
@@ -76,8 +78,8 @@ class Preflight:
             return
         record(f"Find {self.symbol}", PASS, f"id {self.symbol_id}")
         self._steps = [self.check_accounts, self.check_balance, self.check_spec,
-                       self.check_history, self.check_positions, self.check_order_dry_run,
-                       self.check_risk_refuses, self.finish]
+                       self.check_history, self.check_positions, self.check_expected_margin,
+                       self.check_order_dry_run, self.check_risk_refuses, self.finish]
         self.next_step()
 
     def next_step(self) -> None:
@@ -174,6 +176,45 @@ class Preflight:
                        "something is already open; close it before trading tests")
             else:
                 record("Account is flat before any test", PASS, "nothing open")
+        self._send(req, ok)
+
+    def check_expected_margin(self) -> None:
+        """ASK the broker what an order will cost in margin, rather than computing it.
+
+        Every margin figure in this project so far was derived from an assumed leverage,
+        and that assumption was wrong by a factor of two (1:100 inferred, 1:50 actual). The
+        broker will simply tell us, and the answer differs per symbol, per side and under
+        dynamic leverage rules we do not model. `NOT_ENOUGH_MONEY` in August was this
+        question going unasked.
+        """
+        if not self.spec:
+            record("Ask the broker what margin an order needs", FAIL, "no symbol spec")
+            return self.next_step()
+        req = ProtoOAExpectedMarginReq()
+        req.ctidTraderAccountId = self.conn.account_id
+        req.symbolId = self.symbol_id
+        req.volume.append(int(self.spec.minVolume))
+
+        def ok(message):
+            res = Protobuf.extract(message)
+            digits = getattr(res, "moneyDigits", 2) or 2
+            for em in res.margin:
+                buy = em.buyMargin / (10 ** digits)
+                sell = em.sellMargin / (10 ** digits)
+                self.broker_margin = buy
+                record("Ask the broker what margin an order needs", PASS,
+                       f"buy ${buy:,.2f} / sell ${sell:,.2f} for the minimum size")
+                if self.leverage:
+                    ours = 1150.0 / self.leverage
+                    gap = abs(ours - buy)
+                    record("Does our computed margin match the broker's", 
+                           PASS if gap < max(1.0, buy * 0.15) else FAIL,
+                           f"we compute ${ours:,.2f}, broker says ${buy:,.2f}")
+                if self.balance is not None:
+                    record("Is the minimum order affordable, per the broker", 
+                           PASS if buy <= self.balance else FAIL,
+                           f"${buy:,.2f} needed against ${self.balance:,.2f} available")
+                break
         self._send(req, ok)
 
     def check_order_dry_run(self) -> None:

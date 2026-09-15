@@ -53,9 +53,15 @@ import pandas as pd
 
 from strategy.base import FittedStrategy
 
-# Signal-to-noise ratios searched at fit time. Spanning six orders of magnitude covers
-# "the level barely moves" through to "the level is essentially the price".
-Q_OVER_R_GRID = np.logspace(-6, 0, 25)
+# Signal-to-noise ratios searched at fit time.
+#
+# The ceiling was 1.0 and it BOUND on real EURUSD: every fold fitted exactly 1.0, the
+# likelihood wanted to keep going, and the resulting filter was artificially sluggish. With
+# the range opened up the peak is near q/R = 56, which is the data saying the level moves
+# far more than the observation noise, i.e. the price IS the level and there is nothing to
+# filter out. A grid whose edge binds is a measurement error, not a result -- which is what
+# `at_grid_edge` is there to catch.
+Q_OVER_R_GRID = np.logspace(-6, 3, 37)
 MIN_TRAIN_BARS = 200
 
 
