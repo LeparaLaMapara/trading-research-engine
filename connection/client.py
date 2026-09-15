@@ -51,6 +51,7 @@ class CTraderConnection:
         self.on_symbol_spec = on_symbol_spec
         self.account_id: int | None = int(settings.ACCOUNT_ID) if settings.ACCOUNT_ID else None
         self.name_to_id: dict[str, int] = {}
+        self.accounts: list = []      # every account the token reaches, filled during setup
         self._access_token: str | None = None
         self._refresh_attempted = False
         self.client = Client(HOST, EndPoints.PROTOBUF_PORT, TcpProtocol)
@@ -110,6 +111,9 @@ class CTraderConnection:
         elif message.payloadType == ProtoOAGetAccountListByAccessTokenRes().payloadType:
             res = Protobuf.extract(message)
             accounts = list(res.ctidTraderAccount)
+            # Keep it. The connection already asks for this during setup, and anything that
+            # re-requests it triggers the account-auth branch again and gets ALREADY_LOGGED_IN.
+            self.accounts = accounts
             if not accounts:
                 print("token grants no trading accounts.", file=sys.stderr)
                 reactor.stop()

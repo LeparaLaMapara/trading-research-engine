@@ -43,5 +43,7 @@ python -m telemetry.costmap               # build the spread-by-hour cost map
 1c backtest harness → 1d risk layer (needs owner's §1 numbers) → 1e first simple strategy →
 1f explainer/weekly report → then Scout / Council / calibration / failure registry.
 
-See `CLAUDE.md` for the charter and hard rules, and
+See `docs/ARCHITECTURE.md` for the architecture and the long-term direction (the current
+cTrader integration is Venue Adapter #1, not the boundary of the system),
+`CLAUDE.md` for the charter and hard rules, and
 `../.claude/plans/glistening-crunching-forest.md` for the full Phase 1 plan.

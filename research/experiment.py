@@ -35,7 +35,7 @@ from council.orchestrator import Council
 from research.calibration import Calibration
 from research.lessons import LessonStore, lessons_from_cycle
 from research.registry import FailureRegistry
-from strategy.base import Strategy
+from strategy.base import FittedStrategy, Strategy
 from strategy.registry import build_strategy, rung_of
 from strategy.validator import validate_proposal
 
@@ -177,8 +177,24 @@ def run_experiment(symbol: str, period: str, rounds: int, max_rung: int,
             return
         assumptions = run_assumptions(bars["close"])
         base = build_strategy(proposal.kind, proposal.params)
-        strat = _SessionWrapped(base, sfilter) if sfilter else base
-        wfr = wf.walk_forward(bars, strat, costs, period)
+        # A strategy that estimates its parameters MUST be refitted before each test window.
+        # Running one through the non-refitting harness scores it on its own training data.
+        if isinstance(base, FittedStrategy):
+            def _make():
+                inner = build_strategy(proposal.kind, proposal.params)
+                return _SessionWrapped(inner, sfilter) if sfilter else inner
+            wfr = wf.walk_forward_refit(bars, _make, costs, period)
+            if not wfr.get("evaluable", True):
+                # Not evaluated is not the same as failed. Recording a zero here would put a
+                # meaningless number into the leaderboard and into the deflation statistics.
+                registry.record_trial(proposal.kind, proposal.params, symbol, period,
+                                      stage="not_evaluable")
+                trials.append({"proposal": proposal, "verdict": "NOT EVALUABLE",
+                               "reason": [wfr.get("why_not", "insufficient history")]})
+                return
+        else:
+            strat = _SessionWrapped(base, sfilter) if sfilter else base
+            wfr = wf.walk_forward(bars, strat, costs, period)
         pred_id = calib.record(prediction)
         actual = _actual_metrics(wfr["dev_summary"], wfr["n_bars"], period)
         calib.score(pred_id, actual)

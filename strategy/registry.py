@@ -13,6 +13,7 @@ from strategy.benchmark import BuyHold, RandomEntry
 from strategy.ma_trend import MovingAverageTrend
 from strategy.mean_reversion import MeanReversion
 from strategy.multi_timeframe import MultiTimeframeTrend
+from strategy.ou_reversion import OUReversion
 from strategy.vol_scaled import VolScaledTrend
 
 # Rung -> the strategy kinds that sit at that complexity level.
@@ -22,6 +23,11 @@ RUNGS: dict[int, list[str]] = {
     3: ["vol_scaled"],
     4: ["multi_timeframe"],
     5: ["mean_reversion"],
+    # Rung 6 is where parameters start being ESTIMATED from data rather than chosen by a
+    # human. Everything here implements FittedStrategy, and the experiment loop must score it
+    # with walk_forward_refit: scoring a fitted model without refitting shows it its own
+    # training data and reports a number that means nothing.
+    6: ["ou_reversion"],
 }
 
 _BUILDERS = {
@@ -31,6 +37,7 @@ _BUILDERS = {
     "vol_scaled": VolScaledTrend,
     "multi_timeframe": MultiTimeframeTrend,
     "mean_reversion": MeanReversion,
+    "ou_reversion": OUReversion,
 }
 
 

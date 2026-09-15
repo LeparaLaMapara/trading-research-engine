@@ -76,6 +76,9 @@ def parse_args() -> argparse.Namespace:
                    help="open direction (a probe measures cost; direction is not a view)")
     p.add_argument("--confirm", action="store_true",
                    help="ACTUALLY trade. Without this it is a dry run and sends nothing.")
+    p.add_argument("--allow-live", action="store_true",
+                   help="Permit --confirm against a LIVE account. Without it, a confirmed "
+                        "probe aborts unless the BROKER reports the account as demo.")
     p.add_argument("--db", default="data/trade_log.db", help="trade log path")
     return p.parse_args()
 
@@ -86,6 +89,7 @@ CONFIRMED = ARGS.confirm
 
 class Probe:
     def __init__(self) -> None:
+        self.accounts = []          # filled from the broker; drives the pre-send safety check
         self.client = Client(HOST, EndPoints.PROTOBUF_PORT, TcpProtocol)
         self.client.setConnectedCallback(self._on_connected)
         self.client.setDisconnectedCallback(self._on_disconnected)
@@ -217,8 +221,49 @@ class Probe:
             print("\nDRY RUN -- nothing sent. Re-run with --confirm to trade.")
             self._stop(0)
             return
+        # Belt and braces before anything is transmitted. The account id and the endpoint both
+        # come from configuration, and configuration on this project has been wrong more than
+        # once (leverage inferred as 1:100 when it was 1:50; an API id mistaken for a login
+        # number). So ask the BROKER whether this account is live, rather than trusting
+        # CTRADER_ENV, and refuse unless the operator explicitly said live was intended.
+        try:
+            is_demo = self._broker_says_demo()
+        except Exception as exc:  # noqa: BLE001
+            print(f"ABORT: safety check failed ({type(exc).__name__}: {exc}). Nothing sent.",
+                  file=sys.stderr)
+            self._stop(2)
+            return
+        if is_demo is None:
+            print("ABORT: could not confirm from the broker whether this account is demo or "
+                  "live. Refusing to send.", file=sys.stderr)
+            self._stop(2)
+            return
+        if not is_demo and not ARGS.allow_live:
+            print(f"ABORT: account {self.account_id} is LIVE and --allow-live was not given. "
+                  f"Nothing was sent.", file=sys.stderr)
+            self._stop(2)
+            return
+        print("  safety         broker reports this account as "
+              + ("DEMO" if is_demo else "LIVE (explicitly allowed)"))
         reactor.callLater(CLOSE_TIMEOUT_S, self._close_timeout)
         self._send_open()
+
+    def _broker_says_demo(self):
+        """Ask the account list, not the config. None means we could not tell, and that is
+        treated as a refusal rather than as permission.
+
+        Any exception in here returns None too. An earlier version read the wrong attribute,
+        raised inside a Twisted callback, and was swallowed whole: no abort, no error, exit
+        code 0. It happened to send nothing, but by accident rather than by design. A safety
+        check that can fail silently is not a safety check.
+        """
+        try:
+            for a in getattr(self, "accounts", None) or []:
+                if a.ctidTraderAccountId == self.account_id:
+                    return not a.isLive
+        except Exception as exc:  # noqa: BLE001 - refuse on anything unexpected
+            print(f"safety check raised {type(exc).__name__}: {exc}", file=sys.stderr)
+        return None
 
     def _record_entry(self, deal) -> None:
         self.entry_price = deal.executionPrice if deal.HasField("executionPrice") else None
@@ -303,6 +348,9 @@ class Probe:
         elif pt == ProtoOAGetAccountListByAccessTokenRes().payloadType:
             res = Protobuf.extract(message)
             accounts = list(res.ctidTraderAccount)
+            # Kept so the pre-send safety check can ask the BROKER whether this account is
+            # live. It was being fetched and discarded.
+            self.accounts = accounts
             if not accounts:
                 print("token grants no trading accounts.", file=sys.stderr)
                 self._stop(1)
