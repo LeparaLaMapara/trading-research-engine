@@ -131,16 +131,30 @@ def horizon_outcome(start: float, target: float, floor: float, f: float,
     up, dn = math.log(target / start), math.log(start / floor)
     # Log return per trade, win or lose, with the cost applied either way.
     win, loss = math.log(1 + f) - cost_frac, math.log(1 - f) - cost_frac
-    steps = np.where(rng.random((paths, n_trades)) < 0.5, win, loss)
-    walk = np.cumsum(steps, axis=1)
-    # Whichever barrier is touched first decides the path.
-    hit_up = np.argmax(walk >= up, axis=1)
-    hit_dn = np.argmax(walk <= -dn, axis=1)
-    got_up = (walk >= up).any(axis=1)
-    got_dn = (walk <= -dn).any(axis=1)
-    reached = got_up & (~got_dn | (hit_up < hit_dn))
-    ruined = got_dn & (~got_up | (hit_dn < hit_up))
-    return (float(reached.mean()), float(ruined.mean()))
+
+    # Simulated in CHUNKS rather than as one array. The whole grid at 20,000 paths is a
+    # single 38MB float64 allocation, which failed outright on a machine that was busy with
+    # other work. A number the family reads off a dashboard must not depend on there being
+    # tens of megabytes of contiguous memory free, and float32 is far more precision than a
+    # barrier-crossing count needs.
+    chunk = 2000
+    reached_n = ruined_n = 0
+    done = 0
+    while done < paths:
+        m = min(chunk, paths - done)
+        steps = np.where(rng.random((m, n_trades), dtype=np.float32) < 0.5,
+                         np.float32(win), np.float32(loss))
+        walk = np.cumsum(steps, axis=1, dtype=np.float32)
+        got_up = (walk >= up).any(axis=1)
+        got_dn = (walk <= -dn).any(axis=1)
+        # Whichever barrier is touched first decides the path.
+        hit_up = np.argmax(walk >= up, axis=1)
+        hit_dn = np.argmax(walk <= -dn, axis=1)
+        reached_n += int((got_up & (~got_dn | (hit_up < hit_dn))).sum())
+        ruined_n += int((got_dn & (~got_up | (hit_dn < hit_up))).sum())
+        done += m
+        del steps, walk
+    return (reached_n / paths, ruined_n / paths)
 
 
 def _first_passage_up(a: float, b: float, mu: float, s2: float) -> float:
