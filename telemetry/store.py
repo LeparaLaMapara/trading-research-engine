@@ -128,11 +128,26 @@ class Store:
             tuple(spec.get(c) for c in cols))
         self.conn.commit()
 
+    # Commit on COUNT or on TIME, whichever comes first. Count alone was enough to make a
+    # working logger indistinguishable from a broken one: in a quiet session (after the New
+    # York close, 14 spot events in 80 seconds was measured) the buffer takes many minutes to
+    # reach 100, so the table sits frozen and the only way to tell the difference is to wait.
+    # On this project that ambiguity has been expensive.
+    COMMIT_EVERY_TICKS = 100
+    COMMIT_EVERY_SECONDS = 20.0
+
     def _tick_commit(self) -> None:
         self._uncommitted += 1
-        if self._uncommitted >= 100:
+        now = time.time()
+        last = getattr(self, "_last_commit_ts", None)
+        if last is None:
+            self._last_commit_ts = now
+            last = now
+        if (self._uncommitted >= self.COMMIT_EVERY_TICKS
+                or now - last >= self.COMMIT_EVERY_SECONDS):
             self.conn.commit()
             self._uncommitted = 0
+            self._last_commit_ts = now
 
     def commit(self) -> None:
         self.conn.commit()

@@ -28,6 +28,19 @@ import time
 from config.instruments import asset_class_of, universe
 
 
+def _bars_stored(symbol: str, period: str) -> int:
+    """Ground truth: how many bars are actually in the store for this symbol."""
+    import sqlite3
+    try:
+        c = sqlite3.connect("data/market.db")
+        n = c.execute("SELECT COUNT(*) FROM bars WHERE symbol=? AND period=?",
+                      (symbol.upper(), period.upper())).fetchone()[0]
+        c.close()
+        return int(n)
+    except Exception:
+        return 0
+
+
 def main() -> int:
     p = argparse.ArgumentParser(description="Fetch deep history for the research universe.")
     p.add_argument("--years", type=float, default=6.0)
@@ -44,9 +57,12 @@ def main() -> int:
         r = subprocess.run([sys.executable, "-m", "market.bars", "--symbol", sym,
                             "--period", args.period, "--years", str(args.years)],
                            capture_output=True, text=True, timeout=900)
-        tail = [ln for ln in r.stdout.splitlines() if "total" in ln or "stored" in ln]
-        if r.returncode == 0 and tail:
-            print(f"      {tail[-1]}")
+        # Verify the DATABASE, not the exit code or the log line. Three symbols reported
+        # success and stored nothing when a concurrent process held the account session:
+        # the fetch failed silently and the script believed its own stdout.
+        stored = _bars_stored(sym, args.period)
+        if r.returncode == 0 and stored > 0:
+            print(f"      {stored:,} bars stored")
             ok.append(sym)
         else:
             # A symbol the account cannot reach is a finding, not a crash. Keep going.
