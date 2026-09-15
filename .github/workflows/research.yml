@@ -50,6 +50,9 @@ jobs:
         run: python -m market.account || true
       - name: Run one research cycle
         run: |
+          # Individual symbols may fail (broker hiccup, thin data) without failing the run,
+          # but the cycle as a whole must produce something. Until 2026-09-15 this step ended
+          # in a bare `exit 0`, so forty days of runs that tested NOTHING reported success.
           set +e
           for S in EURUSD USDJPY XAUUSD; do
             echo "::group::fetch bars $S"
@@ -58,7 +61,28 @@ jobs:
           done
           for S in EURUSD USDJPY XAUUSD; do
             echo "::group::experiment $S"
-            python -m research.experiment --symbol "$S" --period "$RESEARCH_PERIOD" --rounds "$RESEARCH_ROUNDS"
+            python -m research.experiment --symbol "$S" --period "$RESEARCH_PERIOD" --rounds "$RESEARCH_ROUNDS" \
+              | tee "cycle_$S.log"
             echo "::endgroup::"
           done
-          exit 0
+          set -e
+          echo "::group::cycle health"
+          TESTED=$(grep -ho "deflating against N=[0-9]* candidates ever scored ([0-9]* tested this run)" cycle_*.log \
+                   | sed -E 's/.*\(([0-9]+) tested this run\)/\1/' | paste -sd+ - | bc)
+          TESTED=${TESTED:-0}
+          echo "candidates actually backtested this cycle: $TESTED"
+          if [ "$TESTED" -eq 0 ]; then
+            echo "::error::Research cycle tested 0 candidates. The loop is not learning."
+            echo "Every proposal was rejected or skipped before the backtest stage. Check the"
+            echo "failure registry tabu rules and the council output before trusting any"
+            echo "later run. Failing deliberately so this cannot hide behind a green tick."
+            exit 1
+          fi
+          echo "::endgroup::"
+      - name: Self-check
+        # Runs last and is allowed to fail the whole job. Deterministic, no model in the path,
+        # so nothing can argue it down. This is the step that would have caught the five weeks
+        # of green-but-dead runs. `if: always()` because a broken cycle is exactly when the
+        # audit matters most.
+        if: always()
+        run: python -m ops.audit

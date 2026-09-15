@@ -12,6 +12,8 @@ from abc import ABC, abstractmethod
 import numpy as np
 from dotenv import load_dotenv
 
+from council.budget import GUARD
+
 # Ensure .env is loaded no matter which entry point imports the backends (a standalone
 # `python -m scout.scout` doesn't import config.settings). No-op when there is no .env
 # (e.g. CI/Render, where the keys are real environment variables).
@@ -149,14 +151,23 @@ class AnthropicBackend(ModelBackend):
         # Current default per Claude API guidance. Override with COUNCIL_ANTHROPIC_MODEL.
         self.model = os.environ.get("COUNCIL_ANTHROPIC_MODEL", "claude-opus-5")
 
+    MAX_TOKENS = 4096
+
     def complete(self, system: str, user: str) -> str:
+        # Refuse before spending, not after. Opus 5 thinks by default and thinking bills as
+        # output, so the guard plans against the full max_tokens ceiling.
+        GUARD.check(self.model, system, user, self.MAX_TOKENS)
         # Opus 5 thinks by default; give room so the JSON body is not truncated.
         msg = self._client.messages.create(
             model=self.model,
-            max_tokens=4096,
+            max_tokens=self.MAX_TOKENS,
             system=system,
             messages=[{"role": "user", "content": user}],
         )
+        usage = getattr(msg, "usage", None)
+        GUARD.record(self.model,
+                     int(getattr(usage, "input_tokens", 0) or 0),
+                     int(getattr(usage, "output_tokens", 0) or 0))
         parts = [b.text for b in msg.content if getattr(b, "type", None) == "text"]
         return _extract_json("".join(parts))
 
@@ -183,11 +194,16 @@ class GeminiBackend(ModelBackend):
         return requests.post(f"{self.BASE}/{self.model}:generateContent",
                              headers=headers, params=params, json=body, timeout=60)
 
+    MAX_TOKENS = 2048
+
     def complete(self, system: str, user: str) -> str:
+        # Gemini is not in the price table, so the guard prices it at the worst known rate.
+        # That over-estimates, which is the safe direction for a cap.
+        GUARD.check(self.model, system, user, self.MAX_TOKENS)
         body = {
             "systemInstruction": {"parts": [{"text": system}]},
             "contents": [{"role": "user", "parts": [{"text": user}]}],
-            "generationConfig": {"maxOutputTokens": 2048, "temperature": 0.6},
+            "generationConfig": {"maxOutputTokens": self.MAX_TOKENS, "temperature": 0.6},
         }
         # API-key form first; on auth failure retry as a Bearer token.
         resp = self._post({}, {"key": self.api_key}, body)
@@ -195,6 +211,10 @@ class GeminiBackend(ModelBackend):
             resp = self._post({"Authorization": f"Bearer {self.api_key}"}, {}, body)
         resp.raise_for_status()
         data = resp.json()
+        um = data.get("usageMetadata", {})
+        GUARD.record(self.model,
+                     int(um.get("promptTokenCount", 0) or 0),
+                     int(um.get("candidatesTokenCount", 0) or 0))
         parts = data.get("candidates", [{}])[0].get("content", {}).get("parts", [])
         text = "".join(p.get("text", "") for p in parts)
         return _extract_json(text)

@@ -3,7 +3,7 @@
 For each round:
   Council PROPOSES a strategy (mock offline, or Claude+Gemini with API keys)
     -> validator rejects prohibited patterns (martingale etc.)     [spec time]
-    -> skip if it repeats a logged failure                          [Failure Registry]
+    -> skip only an identical re-run, tabu expires, aspiration wins [Failure Registry]
     -> Assumption Tester checks the series                          [cheap kill]
     -> Session filter restricts to cheap hours (from telemetry)
     -> Walk-forward backtest with real measured costs               [the ONLY judge]
@@ -18,6 +18,7 @@ Run:  python -m research.experiment --symbol EURUSD --period H1 --rounds 6
 from __future__ import annotations
 
 import argparse
+import sys
 import time
 
 import numpy as np
@@ -125,12 +126,25 @@ def run_experiment(symbol: str, period: str, rounds: int, max_rung: int,
             registry.add(strategy_kind=proposal.kind, symbol=symbol, killed_at_stage="spec",
                          cause_category="prohibited_pattern", plain_english="; ".join(reasons),
                          generalisable_lesson="reject this pattern at spec time",
-                         proposing_agent=proposal.agent, created_ts=time.time())
+                         proposing_agent=proposal.agent, created_ts=time.time(),
+                         params=proposal.params, period=period, n_bars=len(bars))
+            registry.record_trial(proposal.kind, proposal.params, symbol, period, stage="spec")
             trials.append({"proposal": proposal, "verdict": "REJECTED", "reason": reasons})
             return
-        if registry.matches(proposal.kind, symbol):
-            trials.append({"proposal": proposal, "verdict": "SKIPPED",
-                           "reason": ["repeats a logged failure"]})
+        # Hard tabu applies to an identical re-run only, and expires. A family that failed once
+        # under one parameterisation is NOT blocked -- it is penalised in the proposer context.
+        # Aspiration: a candidate whose committed prediction beats the incumbent best runs
+        # regardless, so remembered failure can never become a permanent veto.
+        best_so_far = max((t["actual"]["sharpe"] for t in trials if "actual" in t), default=0.0)
+        predicted = float(getattr(prediction, "sharpe_gt", 0.0) or 0.0)
+        aspires = predicted > best_so_far
+        skip, why = registry.is_tabu(proposal.kind, proposal.params, symbol, period,
+                                     n_bars=len(bars), aspiration=aspires)
+        if skip:
+            # Counted against N even though it was not re-run: the deflation bar depends on
+            # what was TRIED, and a skip that is not counted makes overfitting worse.
+            registry.record_trial(proposal.kind, proposal.params, symbol, period, stage="tabu")
+            trials.append({"proposal": proposal, "verdict": "SKIPPED", "reason": [why]})
             return
         assumptions = run_assumptions(bars["close"])
         base = build_strategy(proposal.kind, proposal.params)
@@ -139,11 +153,14 @@ def run_experiment(symbol: str, period: str, rounds: int, max_rung: int,
         pred_id = calib.record(prediction)
         actual = _actual_metrics(wfr["dev_summary"], wfr["n_bars"], period)
         calib.score(pred_id, actual)
+        per_obs = wf.per_obs_sharpe(wfr["dev_net_returns"])
+        registry.record_trial(proposal.kind, proposal.params, symbol, period,
+                              stage="backtest", per_obs_sharpe=per_obs, n_bars=wfr["n_bars"])
         trials.append({
             "proposal": proposal, "prediction": prediction, "critique": critique,
             "assumption_verdict": assumptions.get("verdict", ""),
             "wf": wfr, "actual": actual,
-            "per_obs_sharpe": wf.per_obs_sharpe(wfr["dev_net_returns"]),
+            "per_obs_sharpe": per_obs,
         })
 
     committed_at = time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())
@@ -160,9 +177,21 @@ def run_experiment(symbol: str, period: str, rounds: int, max_rung: int,
         proposed_this_run: list[dict] = []   # kinds tried this run -> drives diversity
         for r in range(rounds):
             seen = registry.all()
+            # Steer the proposer BEFORE it spends a token: hand it the exact variants already
+            # tested and a soft per-family penalty. Previously the skip happened after the
+            # proposal came back, so the council was billed for output that was discarded.
+            kinds = {f.get("strategy_kind") for f in seen if f.get("symbol") == symbol}
+            penalties = {k: round(registry.family_penalty(k, symbol), 2) for k in kinds if k}
             context = {"symbol": symbol, "period": period, "max_rung": max_rung,
                        "seen_failures": [f for f in seen if f.get("symbol") == symbol]
-                       + proposed_this_run}
+                       + proposed_this_run,
+                       "family_penalties": penalties,
+                       "tried_variants": [f.get("params_json") for f in seen
+                                          if f.get("symbol") == symbol and f.get("params_json")],
+                       "guidance": "A family that failed is NOT banned. Propose a genuinely "
+                                   "different parameterisation, or a different family, and "
+                                   "state the economic mechanism: who is on the other side of "
+                                   "this trade and why do they accept the loss."}
             rd = council.run_round(context, r, committed_at)
             proposal, prediction, critique = rd["proposal"], rd["prediction"], rd["critique"]
             proposed_this_run.append({"strategy_kind": proposal.kind, "symbol": symbol})
@@ -171,8 +200,16 @@ def run_experiment(symbol: str, period: str, rounds: int, max_rung: int,
     # Multiple-testing correction needs the spread of Sharpes ACROSS all real trials.
     tested = [t for t in trials if "wf" in t]
     sharpe_std = float(np.std([t["per_obs_sharpe"] for t in tested])) if len(tested) > 1 else 0.1
+    # N is the HONEST trial count: every candidate this engine has ever scored, across every
+    # run, not the handful tested in this one. E[max SR] grows with N, so a search that ran
+    # thousands of candidates historically must clear a much higher bar than a fresh one.
+    # Using len(tested) here (the original bug) understated N by orders of magnitude and made
+    # the deflated Sharpe far too easy to pass.
+    honest_n = max(registry.effective_n(), len(tested), 2)
+    print(f"[experiment] deflating against N={honest_n} candidates ever scored "
+          f"({len(tested)} tested this run)")
     for t in tested:
-        dsr = wf.deflated_sharpe_ratio(t["wf"]["dev_net_returns"], max(len(tested), 2), sharpe_std)
+        dsr = wf.deflated_sharpe_ratio(t["wf"]["dev_net_returns"], honest_n, sharpe_std)
         t["dsr"] = dsr
         hold = t["wf"]["holdout_summary"]
         hold_sharpe = hold["sharpe"] if hold else 0.0
@@ -185,8 +222,10 @@ def run_experiment(symbol: str, period: str, rounds: int, max_rung: int,
                          killed_at_stage="backtest", cause_category=cause,
                          plain_english=f"DSR={dsr:.2f}, dev Sharpe={t['wf']['dev_summary']['sharpe']}, "
                                        f"holdout Sharpe={hold_sharpe}",
-                         generalisable_lesson=f"{t['proposal'].kind} did not survive on {symbol}",
-                         proposing_agent=t["proposal"].agent, created_ts=time.time())
+                         generalisable_lesson=f"{t['proposal'].kind} did not survive on {symbol} "
+                                              f"with params {t['proposal'].params}",
+                         proposing_agent=t["proposal"].agent, created_ts=time.time(),
+                         params=t["proposal"].params, period=period, n_bars=t["wf"]["n_bars"])
 
     return {"symbol": symbol, "period": period, "trials": trials, "tested": tested,
             "registry": registry, "calibration": calib, "sharpe_std": sharpe_std,
@@ -242,6 +281,13 @@ def main() -> None:
     p.add_argument("--from-papers", type=int, default=0,
                    help="source proposals from N real papers the Scout fetches (instead of the council)")
     args = p.parse_args()
+    # The report contains sigma and other non-ASCII characters. A Windows console defaults to
+    # cp1252 and raises UnicodeEncodeError on them, which killed the run AFTER all the work
+    # was done. CI runs UTF-8 so this never showed there.
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):  # pragma: no cover - non-reconfigurable stream
+        pass
     res = run_experiment(args.symbol, args.period, args.rounds, args.max_rung, args.min_dsr,
                          args.seed, from_papers=args.from_papers)
     report = format_report(res)

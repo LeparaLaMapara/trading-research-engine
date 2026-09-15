@@ -16,11 +16,14 @@ def enabled() -> bool:
     return bool(settings.SUPABASE_URL and settings.SUPABASE_KEY)
 
 
-def _headers(upsert: bool = False) -> dict:
+def _headers(upsert: bool = False, write: bool = True) -> dict:
     h = {
         "apikey": settings.SUPABASE_KEY,
         "Authorization": f"Bearer {settings.SUPABASE_KEY}",
         "Content-Type": "application/json",
+        # Target this project's own schema. Without these the request hits `public`, where
+        # these tables no longer live.
+        "Content-Profile" if write else "Accept-Profile": settings.SUPABASE_SCHEMA,
     }
     if upsert:
         h["Prefer"] = "resolution=merge-duplicates"

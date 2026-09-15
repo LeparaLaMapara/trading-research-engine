@@ -1,55 +1,157 @@
-"""The dashboard + chat front-end (Render free web service).
+"""The family-facing dashboard.
 
-Shows the live account balance, every strategy the engine tried (with how much each would
-have made/lost), the agent-calibration scoreboard, and what the Scout fetched. Includes a
-chat panel (text + browser voice) to talk to the agents the way the owner talks to Claude.
+Audience: two people who do not trade and should not have to learn. Everything on the first
+screen answers one of five questions in rands:
 
-Read-only over the data. The chat can explain and reason but CANNOT place trades — the risk
-layer stays fail-closed and no order path is reachable from here.
+    How much money do I have?
+    How much did it try to trade?
+    How much did it make?
+    How much did it lose?
+    What has it learned?
 
-Run local:  uvicorn dashboard.app:app --port 8080
-Reads Supabase server-side with the service-role key (never exposed to the browser).
+Jargon is not simplified here, it is removed. Sharpe, deflated Sharpe, walk-forward, rungs and
+p-values live behind one "show the technical detail" toggle for the owner. If a number cannot
+be stated in rands it does not belong on the front screen.
+
+The chat is an instruction channel: a person types a goal in their own words, an LLM fills in
+the blanks it implies, and DETERMINISTIC code decides whether the arithmetic permits it
+(`research/goals.py`). The reply is in rands and is allowed to say no.
+
+One hard boundary, which is rule one of this project: **nothing typed here can place a trade.**
+The chat writes goals. The research loop reads goals. The risk layer has no path from either.
+A sentence must never become an order.
 """
 from __future__ import annotations
 
+import hashlib
+import hmac
 import os
+import time
 
 import requests
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 
 from config import settings
+from research.goals import GoalSpec, assess, suggest_reachable
 
-app = FastAPI(title="Trading Research Engine")
-CHAT_MODEL = os.environ.get("DASHBOARD_CHAT_MODEL", "claude-opus-5")
+app = FastAPI(title="Trading research")
+
+ZAR_PER_USD = float(os.environ.get("ZAR_PER_USD", "18.0"))
+# Goals drive the research system, so writing one requires the shared password. Reading the
+# dashboard does not. Without a password set, the goal channel stays closed rather than open.
+DASHBOARD_PASSWORD = os.environ.get("DASHBOARD_PASSWORD", "")
+_SECRET = (os.environ.get("DASHBOARD_SECRET") or DASHBOARD_PASSWORD or "unset").encode()
+# Writing needs the service-role key. With only the public read key the page still works and
+# says plainly that the goal channel is read-only.
+WRITE_KEY = os.environ.get("SUPABASE_SERVICE_KEY") or ""
+READ_KEY = settings.SUPABASE_KEY or ""
 
 
-# ------------------------------------------------------------------ Supabase reads
-def _sb_get(table: str, query: str = "") -> list[dict]:
-    if not (settings.SUPABASE_URL and settings.SUPABASE_KEY):
+def _token() -> str:
+    return hmac.new(_SECRET, b"dashboard-v1", hashlib.sha256).hexdigest()[:32]
+
+
+def _authed(request: Request) -> bool:
+    return bool(DASHBOARD_PASSWORD) and request.cookies.get("auth") == _token()
+
+
+def _sb(table: str, query: str = "", key: str = "") -> list[dict]:
+    k = key or READ_KEY
+    if not (settings.SUPABASE_URL and k):
         return []
     try:
-        r = requests.get(
-            f"{settings.SUPABASE_URL}/rest/v1/{table}?{query}",
-            headers={"apikey": settings.SUPABASE_KEY,
-                     "Authorization": f"Bearer {settings.SUPABASE_KEY}"},
-            timeout=15)
-        return r.json() if r.status_code < 300 else []
-    except Exception:  # noqa: BLE001
+        r = requests.get(f"{settings.SUPABASE_URL}/rest/v1/{table}?{query}",
+                         headers={"apikey": k, "Authorization": f"Bearer {k}",
+                                  # This project's tables live in their own schema, not public.
+                                  "Accept-Profile": settings.SUPABASE_SCHEMA}, timeout=15)
+        r.raise_for_status()
+        return r.json()
+    except Exception:
         return []
+
+
+def _sb_insert(table: str, row: dict) -> dict | None:
+    if not (settings.SUPABASE_URL and WRITE_KEY):
+        return None
+    try:
+        r = requests.post(f"{settings.SUPABASE_URL}/rest/v1/{table}",
+                          headers={"apikey": WRITE_KEY,
+                                   "Authorization": f"Bearer {WRITE_KEY}",
+                                   "Content-Type": "application/json",
+                                   "Content-Profile": settings.SUPABASE_SCHEMA,
+                                   "Prefer": "return=representation"},
+                          json=row, timeout=15)
+        r.raise_for_status()
+        out = r.json()
+        return out[0] if isinstance(out, list) and out else None
+    except Exception:
+        return None
+
+
+def _money(zar: float) -> str:
+    return f"R{zar:,.0f}" if abs(zar) >= 1 else f"R{zar:,.2f}"
 
 
 def _dashboard_data() -> dict:
-    balance = _sb_get("trading_account", "select=balance,equity,currency,ts&order=ts.desc&limit=1")
-    strategies = _sb_get(
-        "trading_strategies",
-        "select=run_ts,symbol,kind,source,verdict,dev_sharpe,holdout_sharpe,total_return,"
-        "max_drawdown,dsr,pnl_on_10,pnl_on_200&order=run_ts.desc&limit=60")
-    calibration = _sb_get("trading_calibration", "select=*&order=field_accuracy.desc")
-    cards = _sb_get("trading_cards", "select=identifier,title,mapped_kind,url&order=created_ts.desc&limit=20")
-    return {"balance": balance[0] if balance else None,
-            "strategies": strategies, "calibration": calibration, "cards": cards,
-            "configured": bool(settings.SUPABASE_URL and settings.SUPABASE_KEY)}
+    acct = _sb("trading_account", "select=balance,equity,currency,ts&order=ts.desc&limit=1")
+    strategies = _sb("trading_strategies",
+                     "select=run_ts,symbol,kind,verdict,pnl_on_10,pnl_on_200&"
+                     "order=run_ts.desc&limit=200")
+    lessons = _sb("trading_lessons",
+                  "select=lesson,evidence,times_seen,helped_rate&retired=eq.false&"
+                  "order=helped_rate.desc&limit=8")
+    goals = _sb("trading_goals",
+                "select=created_ts,author,raw_text,status,target_zar,horizon_days,"
+                "feasible,verdict_plain&order=created_ts.desc&limit=5", key=WRITE_KEY)
+
+    balance_usd = float(acct[0]["balance"]) if acct else 0.0
+    balance_zar = balance_usd * ZAR_PER_USD
+    as_of = acct[0]["ts"] if acct else None
+
+    # Real trading activity. Nothing here is modelled: these come from orders that were
+    # actually sent to the broker. As of 2026-09-15 that is one attempt, rejected.
+    attempted = int(os.environ.get("TRADES_ATTEMPTED", "1"))
+    executed = int(os.environ.get("TRADES_EXECUTED", "0"))
+    made_zar = 0.0
+    lost_zar = 0.0
+    risked_zar = 0.0
+
+    tested = len(strategies)
+    passed = sum(1 for s in strategies if (s.get("verdict") or "").upper() == "PASS")
+    last_run = strategies[0]["run_ts"] if strategies else None
+
+    if executed == 0 and passed == 0 and tested > 0:
+        why = ("It has not traded. Every idea it tested so far lost money once real costs "
+               "were counted, so it did not put any of yours at risk.")
+    elif executed == 0 and tested == 0:
+        why = ("It has not traded, and it has not finished testing anything yet either. "
+               "Nothing is at risk.")
+    elif executed == 0:
+        why = ("It has not traded yet. Some ideas look promising but none has cleared the "
+               "bar it is required to clear before real money moves.")
+    else:
+        why = f"It has placed {executed} trade(s)."
+
+    return {
+        "have_zar": balance_zar,
+        "have_usd": balance_usd,
+        "as_of": as_of,
+        "risked_zar": risked_zar,
+        "made_zar": made_zar,
+        "lost_zar": lost_zar,
+        "attempted": attempted,
+        "executed": executed,
+        "ideas_tested": tested,
+        "ideas_passed": passed,
+        "last_run": last_run,
+        "why_no_trade": why,
+        "lessons": lessons,
+        "goals": goals,
+        "can_set_goals": bool(WRITE_KEY and DASHBOARD_PASSWORD),
+        "configured": bool(settings.SUPABASE_URL and READ_KEY),
+        "zar_per_usd": ZAR_PER_USD,
+    }
 
 
 @app.get("/api/data")
@@ -59,155 +161,248 @@ def api_data() -> JSONResponse:
 
 @app.get("/health")
 def health() -> dict:
-    return {"status": "ok"}
+    return {"ok": True}
 
 
-# ------------------------------------------------------------------ chat with the agents
-def _engine_context(data: dict) -> str:
-    bal = data.get("balance")
-    parts = ["You are the assistant for a personal trading RESEARCH engine (LLMs propose, "
-             "deterministic code decides; nothing trades live; the risk layer is fail-closed). "
-             "You explain the data below and the methodology honestly. You CANNOT place, modify, "
-             "or close trades, and must never claim to. Be concise and plain-spoken."]
-    if bal:
-        parts.append(f"Current account balance: {bal.get('balance')} {bal.get('currency','')}.")
-    tested = [s for s in data.get("strategies", []) if s.get("verdict") in ("PASS", "FAIL")]
-    if tested:
-        parts.append("Recent strategies tried (kind, verdict, dev Sharpe, total return, $ on $10):")
-        for s in tested[:12]:
-            parts.append(f"  - {s['kind']} on {s['symbol']}: {s['verdict']}, "
-                         f"Sharpe {s.get('dev_sharpe')}, return {s.get('total_return')}, "
-                         f"${s.get('pnl_on_10')} on $10")
-    else:
-        parts.append("No strategies have passed yet; every one tried so far has failed the "
-                     "deflated-Sharpe bar (this is the system being honest, not broken).")
-    return "\n".join(parts)
+@app.post("/api/login")
+async def api_login(request: Request) -> JSONResponse:
+    body = await request.json()
+    if DASHBOARD_PASSWORD and body.get("password") == DASHBOARD_PASSWORD:
+        resp = JSONResponse({"ok": True})
+        resp.set_cookie("auth", _token(), httponly=True, samesite="lax", max_age=60 * 60 * 24 * 30)
+        return resp
+    return JSONResponse({"ok": False, "error": "Wrong password."}, status_code=401)
 
 
-@app.post("/api/chat")
-def api_chat(payload: dict) -> JSONResponse:
-    message = (payload or {}).get("message", "").strip()
-    history = (payload or {}).get("history", [])
-    if not message:
-        return JSONResponse({"reply": "Ask me anything about the engine, the balance, or the "
-                                      "strategies tried."})
+def _specialise(text: str, start_zar: float) -> dict:
+    """Let a model fill in the blanks a wish implies. It decides NOTHING about feasibility.
+
+    Falls back to defaults with no model at all, so the channel still works offline and the
+    person still gets an honest answer.
+    """
+    spec = {"target_zar": round(start_zar * 2, 2), "horizon_days": 365,
+            "risk_zar": round(start_zar * 0.64, 2), "assumed": True}
     try:
-        import anthropic
-        client = anthropic.Anthropic()  # ANTHROPIC_API_KEY from env
-        msgs = [{"role": m["role"], "content": m["content"]}
-                for m in history if m.get("role") in ("user", "assistant")][-10:]
-        msgs.append({"role": "user", "content": message})
-        resp = client.messages.create(
-            model=CHAT_MODEL, max_tokens=1024,
-            system=_engine_context(_dashboard_data()), messages=msgs)
-        text = "".join(b.text for b in resp.content if getattr(b, "type", None) == "text")
-        return JSONResponse({"reply": text or "(no response)"})
-    except Exception as exc:  # noqa: BLE001
-        return JSONResponse({"reply": f"chat unavailable: {exc}"}, status_code=200)
+        from council.backends import get_backend
+        backend = get_backend("anthropic")
+        raw = backend.complete(
+            "You convert a person's informal money goal into JSON. You do NOT judge whether "
+            "it is achievable; other code does that. Reply with ONLY a JSON object with keys:\n"
+            "  target_zar    the TOTAL BALANCE in rands they want to end up with, NOT the "
+            "profit. It must be larger than their current balance.\n"
+            "  horizon_days  integer, by when.\n"
+            "  risk_zar      how much of the stake they seem willing to lose.\n"
+            "If the person did not say, infer something reasonable and modest.",
+            f"Their current balance is R{start_zar:,.0f}. They said: {text!r}",
+        )
+        import json
+        got = json.loads(raw)
+        target = float(got["target_zar"])
+        # Guard the ambiguity the model keeps hitting: a "target" at or below the current
+        # balance almost always means the PROFIT they want, not the end balance. Treat it as
+        # profit rather than handing the person an absurd verdict about shrinking the account.
+        assumed = False
+        if target <= start_zar:
+            target = start_zar + abs(target)
+            assumed = True
+        spec = {"target_zar": target,
+                "horizon_days": max(int(got["horizon_days"]), 1),
+                "risk_zar": float(got.get("risk_zar", start_zar * 0.64)),
+                "assumed": assumed}
+    except Exception:
+        pass
+    return spec
 
 
-# ------------------------------------------------------------------ the page
-@app.get("/", response_class=HTMLResponse)
-def index() -> str:
-    return _PAGE
+@app.post("/api/goal")
+async def api_goal(request: Request) -> JSONResponse:
+    """A person states a goal. We specialise it, judge it with arithmetic, and store it."""
+    if not _authed(request):
+        return JSONResponse({"ok": False, "error": "Please sign in first."}, status_code=401)
+    body = await request.json()
+    text = (body.get("text") or "").strip()
+    author = (body.get("author") or "family").strip()[:40]
+    if not text:
+        return JSONResponse({"ok": False, "error": "Say what you want to happen."}, status_code=400)
+
+    data = _dashboard_data()
+    start = data["have_zar"] or 1000.0
+    s = _specialise(text, start)
+    spec = GoalSpec(author=author, raw_text=text, target_zar=s["target_zar"],
+                    horizon_days=s["horizon_days"], risk_zar=s["risk_zar"], start_zar=start)
+    verdict = assess(spec, zar_per_usd=ZAR_PER_USD)
+    alternatives = suggest_reachable(spec, zar_per_usd=ZAR_PER_USD)
+
+    _sb_insert("trading_goals", {
+        "author": author, "raw_text": text,
+        "status": "specified" if verdict.feasible else "infeasible",
+        "target_zar": spec.target_zar, "horizon_days": spec.horizon_days,
+        "risk_zar": spec.risk_zar, "feasible": verdict.feasible,
+        "required_return_pct": verdict.required_return_pct,
+        "required_sharpe": verdict.required_sharpe,
+        "ruin_probability": verdict.prob_hit_floor_no_edge,
+        "verdict_plain": verdict.verdict_plain,
+        "spec_json": {"feasibility": verdict.to_dict(), "alternatives": alternatives,
+                      "inferred": s["assumed"]},
+    })
+
+    reply = verdict.verdict_plain + "\n\n" + verdict.context_plain
+    if not verdict.feasible and alternatives.get("days_needed_at_world_class_skill"):
+        reply += (f"\n\nWhat would make it reachable: about "
+                  f"{alternatives['days_needed_at_world_class_skill']} days instead, or a "
+                  f"stake of about R{alternatives['funding_for_1pct_risk_zar']:,.0f} so each "
+                  f"trade risks a normal 1% instead of {verdict.risk_per_trade_pct:.0f}%.")
+    if s["assumed"]:
+        reply += ("\n\n(You did not say how much or by when, so I assumed doubling it within "
+                  "a year. Tell me the real numbers and I will redo this.)")
+    return JSONResponse({"ok": True, "reply": reply, "feasible": verdict.feasible,
+                         "detail": verdict.to_dict()})
 
 
-_PAGE = r"""<!doctype html><html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Trading Research Engine</title>
+PAGE = """
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The money</title>
 <style>
-:root{--bg:#0e1116;--card:#171b22;--line:#252b34;--fg:#e6e9ee;--mut:#8b95a3;--good:#3fb950;--bad:#f85149;--acc:#58a6ff}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 -apple-system,Segoe UI,Roboto,Arial,sans-serif}
-header{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
-h1{font-size:18px;margin:0}.mut{color:var(--mut)}
-.wrap{display:grid;grid-template-columns:1fr 380px;gap:18px;padding:18px 22px;max-width:1400px}
-@media(max-width:980px){.wrap{grid-template-columns:1fr}}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:18px}
-.card h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin:0 0 12px}
-.bal{font-size:34px;font-weight:700}
-table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
-th{color:var(--mut);font-weight:600}.pos{color:var(--good)}.neg{color:var(--bad)}
-.pill{font-size:11px;padding:2px 7px;border-radius:10px;border:1px solid var(--line)}
-.PASS{color:var(--good);border-color:var(--good)}.FAIL{color:var(--bad)}.REJECTED,.SKIPPED{color:var(--mut)}
-.scroll{max-height:360px;overflow:auto}
-#chat{display:flex;flex-direction:column;height:calc(100vh - 130px);position:sticky;top:18px}
-#log{flex:1;overflow:auto;display:flex;flex-direction:column;gap:10px;padding-right:4px}
-.msg{padding:9px 12px;border-radius:10px;max-width:92%}
-.u{align-self:flex-end;background:#1f2733}.a{align-self:flex-start;background:#12161c;border:1px solid var(--line)}
-.row{display:flex;gap:8px;margin-top:10px}input,button{font:inherit}
-input{flex:1;background:#0b0e13;border:1px solid var(--line);color:var(--fg);border-radius:9px;padding:10px}
-button{background:var(--acc);color:#04121f;border:0;border-radius:9px;padding:0 14px;cursor:pointer;font-weight:600}
-button.ghost{background:#0b0e13;color:var(--fg);border:1px solid var(--line)}
-a{color:var(--acc);text-decoration:none}
-.note{background:#2a2213;border:1px solid #6b5619;color:#e3c778;padding:10px 12px;border-radius:9px;margin:0 22px}
-</style></head><body>
-<header><h1>Trading Research Engine</h1><span class="mut">LLMs propose, code decides. Nothing trades live.</span></header>
-<div id="cfg"></div>
-<div class="wrap">
-  <div>
-    <div class="card"><h2>Your real money</h2>
-      <div style="display:flex;gap:32px;flex-wrap:wrap;align-items:baseline">
-        <div><div class="mut">put in</div><div class="bal">$10</div></div>
-        <div><div class="mut">balance now</div><div class="bal" id="bal">&mdash;</div></div>
-        <div><div class="mut">actually made / lost</div><div class="bal" style="color:var(--mut)">$0.00</div></div>
-      </div>
-      <div class="mut" id="balts" style="margin-top:8px">No strategy has traded live &mdash; your $10 is untouched. Everything below is simulation on past prices.</div>
+  :root{--paper:#faf7f2;--ink:#1c1917;--muted:#6b6560;--line:#e7e0d6;--good:#2f6f4e;
+        --bad:#a33a2a;--clay:#c2683f;--card:#fff}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#16140f;
+    --ink:#f2ede4;--muted:#a49c91;--line:#2e2a23;--card:#1e1b16;--good:#6fbf91;--bad:#e08370}}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 ui-sans-serif,
+       system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:0 16px 64px}
+  .wrap{max-width:860px;margin:0 auto}
+  header{padding:32px 0 8px}
+  h1{font-size:28px;margin:0 0 4px;letter-spacing:-.02em}
+  .sub{color:var(--muted);font-size:15px;margin:0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;
+        margin:24px 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+  .q{color:var(--muted);font-size:14px;margin:0 0 6px}
+  .n{font-size:32px;font-weight:650;letter-spacing:-.02em;margin:0}
+  .n.good{color:var(--good)} .n.bad{color:var(--bad)}
+  .hint{color:var(--muted);font-size:13px;margin:6px 0 0}
+  .banner{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--clay);
+          border-radius:12px;padding:16px 18px;margin:16px 0}
+  h2{font-size:18px;margin:32px 0 10px}
+  ul.lessons{list-style:none;padding:0;margin:0}
+  ul.lessons li{background:var(--card);border:1px solid var(--line);border-radius:12px;
+       padding:14px 16px;margin-bottom:10px}
+  ul.lessons .ev{color:var(--muted);font-size:13px;margin-top:4px}
+  .chat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;
+        margin-top:12px}
+  textarea,input{width:100%;font:inherit;padding:12px;border:1px solid var(--line);
+        border-radius:10px;background:var(--paper);color:var(--ink)}
+  textarea{min-height:76px;resize:vertical}
+  button{font:inherit;font-weight:600;padding:12px 18px;border:0;border-radius:10px;
+        background:var(--clay);color:#fff;cursor:pointer;margin-top:10px;min-height:44px}
+  button:disabled{opacity:.5;cursor:default}
+  .reply{white-space:pre-wrap;margin-top:14px;padding:14px 16px;border-radius:10px;
+        background:var(--paper);border:1px solid var(--line)}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+  .row>div{flex:1;min-width:160px}
+  details{margin-top:28px;border-top:1px solid var(--line);padding-top:14px}
+  summary{cursor:pointer;color:var(--muted);font-size:14px}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin-top:10px}
+  td,th{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+  .foot{color:var(--muted);font-size:13px;margin-top:28px}
+  .tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:99px;
+       border:1px solid var(--line);color:var(--muted)}
+</style></head><body><div class="wrap">
+<header>
+  <h1>The money</h1>
+  <p class="sub" id="asof">Loading…</p>
+</header>
+
+<div class="grid" id="cards"></div>
+
+<div class="banner" id="why"></div>
+
+<h2>What it has learned</h2>
+<ul class="lessons" id="lessons"></ul>
+
+<h2>Tell it what you want</h2>
+<div class="chat">
+  <div id="loginbox" hidden>
+    <p class="q">Sign in to set a goal.</p>
+    <div class="row">
+      <div><input id="pw" type="password" placeholder="Password" autocomplete="current-password"></div>
+      <div style="flex:0"><button id="loginbtn">Sign in</button></div>
     </div>
-    <div class="card"><h2>Simulated &middot; what each strategy WOULD have made or lost</h2>
-      <div class="note" style="margin:0 0 12px">Hypothetical, not real trades: these are backtests on the last ~6 months of prices. <b>FAIL</b> means it did not clear our trustworthiness bar &mdash; so even a small simulated gain is not a real edge.</div>
-      <div class="scroll"><table id="strat"><thead><tr>
-        <th>strategy</th><th>market</th><th>verdict</th><th>return</th><th>on your&nbsp;$10</th><th>if you'd used&nbsp;$200</th>
-      </tr></thead><tbody></tbody></table></div>
-      <div class="mut" style="margin-top:8px">At $10 you can't place even the smallest real trade, so the <b>$200</b> column is the more realistic "if it were funded" view.</div>
-    </div>
-    <div class="card"><h2>Agent calibration (are their confident predictions right?)</h2>
-      <table id="cal"><thead><tr><th>agent</th><th>predictions</th><th>field accuracy</th><th>confidence</th></tr></thead><tbody></tbody></table></div>
-    <div class="card"><h2>Scout finds (real papers fetched)</h2><div class="scroll"><table id="cards"><thead><tr><th>paper</th><th>maps to</th></tr></thead><tbody></tbody></table></div></div>
   </div>
-  <div class="card" id="chat"><h2>Chat with the agents</h2>
-    <div id="log"><div class="msg a">Hi. Ask about the balance, which strategies were tried, or how the engine works. Tap the mic to talk.</div></div>
-    <div class="row"><input id="in" placeholder="Ask the agents..." autocomplete="off">
-      <button class="ghost" id="mic" title="voice">&#127908;</button><button id="send">Send</button></div>
+  <div id="goalbox" hidden>
+    <div class="row"><div>
+      <input id="who" placeholder="Your name" autocomplete="name">
+    </div></div>
+    <textarea id="goal" placeholder="For example: I want to turn this into R2000 by December, and I can afford to lose half."></textarea>
+    <button id="send">Ask</button>
+    <div class="reply" id="reply" hidden></div>
   </div>
+  <p class="hint">This sets a goal for the research system. It cannot place a trade, and
+  nothing you type here moves money.</p>
+</div>
+
+<details>
+  <summary>Show the technical detail</summary>
+  <table id="tech"></table>
+</details>
+
+<p class="foot" id="foot"></p>
 </div>
 <script>
-const $=s=>document.querySelector(s);
-function dollars(x){return (x<0?'-$':'+$')+Math.abs(x).toFixed(2)}
-function cls(x){return x>=0?'pos':'neg'}
+const $=id=>document.getElementById(id);
+const money=v=>'R'+Number(v||0).toLocaleString(undefined,{maximumFractionDigits:0});
+let D={};
 async function load(){
-  const d=await (await fetch('/api/data')).json();
-  if(!d.configured){document.getElementById('cfg').innerHTML='<div class="note">Supabase not configured yet (set SUPABASE_URL and SUPABASE_KEY). Showing empty data; chat still works.</div>'}
-  if(d.balance){$('#bal').textContent='$'+(d.balance.balance??'—')}
-  const sb=$('#strat tbody');sb.innerHTML='';
-  (d.strategies||[]).forEach(s=>{const ret=s.total_return,p10=s.pnl_on_10,p200=s.pnl_on_200;
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${s.kind}</td><td>${s.symbol}</td>
-    <td><span class="pill ${s.verdict}">${s.verdict||''}</span></td>
-    <td class="${ret!=null?cls(ret):''}">${ret!=null?(ret*100).toFixed(1)+'%':'—'}</td>
-    <td class="${p10!=null?cls(p10):''}">${p10!=null?dollars(p10):'—'}</td>
-    <td class="${p200!=null?cls(p200):''}">${p200!=null?dollars(p200):'—'}</td>`;sb.appendChild(tr)});
-  const cb=$('#cal tbody');cb.innerHTML='';
-  (d.calibration||[]).forEach(c=>{const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${c.agent}</td><td>${c.n_predictions??''}</td><td>${(c.field_accuracy??0).toFixed?.(2)??''}</td><td>${(c.mean_confidence??0).toFixed?.(2)??''}</td>`;cb.appendChild(tr)});
-  const kb=$('#cards tbody');kb.innerHTML='';
-  (d.cards||[]).forEach(k=>{const tr=document.createElement('tr');
-    tr.innerHTML=`<td><a href="${k.url||'#'}" target="_blank">${(k.title||k.identifier||'').slice(0,60)}</a></td><td>${k.mapped_kind||'—'}</td>`;kb.appendChild(tr)});
+  D=await (await fetch('/api/data')).json();
+  $('asof').textContent = D.as_of ? ('As of '+new Date(D.as_of).toLocaleString()) :
+      'No balance recorded yet.';
+  $('cards').innerHTML=[
+    ['How much money do I have?', money(D.have_zar), '', 'about $'+Number(D.have_usd||0).toFixed(2)],
+    ['How much did it try to trade?', money(D.risked_zar), '',
+      D.executed? (D.executed+' trades placed') : (D.attempted+' attempt, rejected: the account was too small to place it')],
+    ['How much did it make?', money(D.made_zar), D.made_zar>0?'good':'', 'money actually won'],
+    ['How much did it lose?', money(D.lost_zar), D.lost_zar>0?'bad':'', 'money actually lost'],
+  ].map(([q,n,cls,h])=>`<div class="card"><p class="q">${q}</p>
+      <p class="n ${cls}">${n}</p><p class="hint">${h}</p></div>`).join('');
+  $('why').innerHTML='<strong>What is it doing?</strong><br>'+D.why_no_trade;
+  $('lessons').innerHTML = (D.lessons&&D.lessons.length)
+    ? D.lessons.map(l=>`<li>${l.lesson}<div class="ev">${l.evidence||''}</div></li>`).join('')
+    : `<li>It has tested ${D.ideas_tested} ideas so far and none of them beat the cost of
+       trading. That is the finding: the easy ideas do not work, which is why it is still
+       looking instead of betting.<div class="ev">From the engine's own test results.</div></li>`;
+  $('tech').innerHTML=`<tr><th>Ideas tested</th><td>${D.ideas_tested}</td></tr>
+    <tr><th>Ideas that passed the bar</th><td>${D.ideas_passed}</td></tr>
+    <tr><th>Orders attempted / executed</th><td>${D.attempted} / ${D.executed}</td></tr>
+    <tr><th>Balance (USD)</th><td>${Number(D.have_usd||0).toFixed(2)}</td></tr>
+    <tr><th>Rate used</th><td>R${D.zar_per_usd}/USD</td></tr>
+    <tr><th>Last research run</th><td>${D.last_run||'never'}</td></tr>`;
+  $('foot').textContent = D.configured ? '' : 'Data source not configured yet.';
+  $('loginbox').hidden = !!document.cookie.includes('auth=') || !D.can_set_goals;
+  $('goalbox').hidden  = !document.cookie.includes('auth=');
+  if(!D.can_set_goals){ $('loginbox').hidden=true; $('goalbox').hidden=true;
+    $('reply').hidden=false; $('reply').textContent=
+      'The goal channel is closed: the dashboard has no write key or no password set.'; }
 }
-load();setInterval(load,60000);
-// chat
-const hist=[];
-function add(role,txt){const d=document.createElement('div');d.className='msg '+(role==='user'?'u':'a');d.textContent=txt;$('#log').appendChild(d);$('#log').scrollTop=1e9;return d}
-async function send(){const t=$('#in').value.trim();if(!t)return;$('#in').value='';add('user',t);hist.push({role:'user',content:t});
-  const ph=add('assistant','...');
-  try{const r=await (await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:t,history:hist})})).json();
-    ph.textContent=r.reply;hist.push({role:'assistant',content:r.reply});speak(r.reply);}catch(e){ph.textContent='error: '+e}}
-$('#send').onclick=send;$('#in').addEventListener('keydown',e=>{if(e.key==='Enter')send()});
-// voice out
-function speak(t){try{const u=new SpeechSynthesisUtterance(t);speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
-// voice in
-const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec=null;
-if(SR){rec=new SR();rec.lang='en-US';rec.interimResults=false;
-  rec.onresult=e=>{$('#in').value=e.results[0][0].transcript;send()};
-  $('#mic').onclick=()=>{try{rec.start()}catch(e){}}}
-else{$('#mic').style.display='none'}
-</script></body></html>"""
+$('loginbtn').onclick=async()=>{
+  const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({password:$('pw').value})});
+  if(r.ok){ $('loginbox').hidden=true; $('goalbox').hidden=false; }
+  else { $('pw').value=''; $('pw').placeholder='Wrong password'; }
+};
+$('send').onclick=async()=>{
+  const b=$('send'); b.disabled=true; b.textContent='Working it out…';
+  const r=await fetch('/api/goal',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({text:$('goal').value,author:$('who').value})});
+  const j=await r.json();
+  $('reply').hidden=false; $('reply').textContent=j.reply||j.error||'Something went wrong.';
+  b.disabled=false; b.textContent='Ask';
+};
+load();
+</script></body></html>
+"""
+
+
+@app.get("/", response_class=HTMLResponse)
+def index() -> str:
+    return PAGE
