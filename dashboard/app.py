@@ -95,9 +95,11 @@ def _money(zar: float) -> str:
 
 def _dashboard_data() -> dict:
     acct = _sb("trading_account", "select=balance,equity,currency,ts&order=ts.desc&limit=1")
+    history = _sb("trading_account", "select=balance,ts&order=ts.asc&limit=400")
     strategies = _sb("trading_strategies",
-                     "select=run_ts,symbol,kind,verdict,pnl_on_10,pnl_on_200&"
+                     "select=run_ts,symbol,kind,verdict,total_return,pnl_on_10,pnl_on_200&"
                      "order=run_ts.desc&limit=200")
+    audit = _sb("ops_checks", "select=ran_at,check_id,status&order=ran_at.desc&limit=400")
     lessons = _sb("trading_lessons",
                   "select=lesson,evidence,times_seen,helped_rate&retired=eq.false&"
                   "order=helped_rate.desc&limit=8")
@@ -133,10 +135,56 @@ def _dashboard_data() -> dict:
     else:
         why = f"It has placed {executed} trade(s)."
 
+    # --- data shaped for the charts -------------------------------------------------
+    # Balance in rands over time. One reading is not a line, and the chart says so
+    # rather than drawing a flat stub that looks like a measurement.
+    balance_series = [{"t": r["ts"], "v": float(r["balance"]) * ZAR_PER_USD} for r in history]
+
+    # What each tested idea WOULD have done to this stake. Hypothetical, from backtests,
+    # and labelled as such everywhere it appears. Never mixed with real money.
+    outcomes = []
+    for s in strategies[:24]:
+        tr = s.get("total_return")
+        if tr is None:
+            continue
+        outcomes.append({"label": f"{s.get('kind','?')} {s.get('symbol','')}".strip(),
+                         "zar": float(tr) * balance_zar,
+                         "pct": round(float(tr) * 100, 1),
+                         "verdict": (s.get("verdict") or "").upper()})
+
+    # Audit history as one row per check, one cell per day, most recent last.
+    by_day: dict[str, dict[str, str]] = {}
+    rank = {"PASS": 0, "UNKNOWN": 1, "FAIL": 2}
+    for r in audit:
+        day = (r.get("ran_at") or "")[:10]
+        if not day:
+            continue
+        slot = by_day.setdefault(day, {})
+        cid = r["check_id"]
+        # Worst status wins for a day: a check that failed once that day did fail.
+        if cid not in slot or rank.get(r["status"], 1) > rank.get(slot[cid], 0):
+            slot[cid] = r["status"]
+    days = sorted(by_day)[-21:]
+    check_ids = sorted({c for d in by_day.values() for c in d})
+    audit_grid = {"days": days, "checks": check_ids,
+                  "cells": [[by_day.get(d, {}).get(c, "") for d in days] for c in check_ids]}
+
+    from research.goals import rebet_floor_zar
+    goal_target = None
+    for g in goals:
+        if g.get("target_zar"):
+            goal_target = float(g["target_zar"])
+            break
+
     return {
         "have_zar": balance_zar,
         "have_usd": balance_usd,
         "as_of": as_of,
+        "balance_series": balance_series,
+        "outcomes": outcomes,
+        "audit_grid": audit_grid,
+        "floor_zar": round(rebet_floor_zar(ZAR_PER_USD), 2),
+        "goal_target_zar": goal_target,
         "risked_zar": risked_zar,
         "made_zar": made_zar,
         "lost_zar": lost_zar,
@@ -192,11 +240,19 @@ def _specialise(text: str, start_zar: float) -> dict:
             "profit. It must be larger than their current balance.\n"
             "  horizon_days  integer, by when.\n"
             "  risk_zar      how much of the stake they seem willing to lose.\n"
-            "If the person did not say, infer something reasonable and modest.",
+            "  is_goal       false if the message is not a money goal at all (a greeting, a "
+            "test, a question, chit-chat). When false, set the other fields to null.\n"
+            "If they stated a goal but left out how much or by when, infer something "
+            "reasonable and modest. Do NOT invent a goal out of a message that is not one.",
             f"Their current balance is R{start_zar:,.0f}. They said: {text!r}",
         )
         import json
         got = json.loads(raw)
+        if got.get("is_goal") is False or got.get("target_zar") is None:
+            # Not a goal. Manufacturing a target from a greeting produced a nonsense R200
+            # objective in testing; saying so is better than inventing numbers.
+            return {"not_a_goal": True, "target_zar": 0.0, "horizon_days": 0,
+                    "risk_zar": 0.0, "assumed": False}
         target = float(got["target_zar"])
         # Guard the ambiguity the model keeps hitting: a "target" at or below the current
         # balance almost always means the PROFIT they want, not the end balance. Treat it as
@@ -228,6 +284,11 @@ async def api_goal(request: Request) -> JSONResponse:
     data = _dashboard_data()
     start = data["have_zar"] or 1000.0
     s = _specialise(text, start)
+    if s.get("not_a_goal"):
+        return JSONResponse({"ok": True, "feasible": None, "reply":
+            "That does not look like a money goal, so I have not recorded one. Tell me what "
+            "you want to end up with and by when, for example: turn this into R2000 by "
+            "December, and I can afford to lose half."})
     spec = GoalSpec(author=author, raw_text=text, target_zar=s["target_zar"],
                     horizon_days=s["horizon_days"], risk_zar=s["risk_zar"], start_zar=start)
     verdict = assess(spec, zar_per_usd=ZAR_PER_USD)
@@ -308,6 +369,35 @@ PAGE = """
   .foot{color:var(--muted);font-size:13px;margin-top:28px}
   .tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:99px;
        border:1px solid var(--line);color:var(--muted)}
+
+  /* --- visualisation roles. Dark steps are chosen for the dark surface, not flipped,
+         and are declared under both the OS media query and the theme stamp. --- */
+  .viz{color-scheme:light;
+       --grid:#e7e0d6; --axis:#6b6560;
+       --gain:#2a78d6;      /* diverging: money gained */
+       --loss:#e34948;      /* diverging: money lost   */
+       --mid:#f0efec;       /* neutral midpoint        */
+       --line-1:#2a78d6;    /* single series           */
+       --ok:#0ca30c; --unknown:#fab219; --bad:#d03b3b}   /* status, never themed */
+  @media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])) .viz{
+       color-scheme:dark; --grid:#2e2a23; --axis:#a49c91;
+       --gain:#3987e5; --loss:#e66767; --mid:#383835; --line-1:#3987e5}}
+  :root[data-theme="dark"] .viz{color-scheme:dark; --grid:#2e2a23; --axis:#a49c91;
+       --gain:#3987e5; --loss:#e66767; --mid:#383835; --line-1:#3987e5}
+  .viz{background:var(--card);border:1px solid var(--line);border-radius:14px;
+       padding:18px;margin-bottom:12px;position:relative}
+  .viz h3{font-size:15px;margin:0 0 2px;font-weight:650}
+  .viz .cap{color:var(--muted);font-size:13px;margin:0 0 12px}
+  .viz svg{width:100%;height:auto;display:block;overflow:visible;margin-inline:auto}
+  .viz .empty{color:var(--muted);font-size:14px;padding:18px 0}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:13px;
+          color:var(--muted)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .sw{width:10px;height:10px;border-radius:3px;display:inline-block}
+  .tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--paper);
+       font-size:12px;padding:6px 9px;border-radius:8px;opacity:0;transition:opacity .1s;
+       white-space:nowrap;z-index:5}
+  .hypo{border-left:4px solid var(--clay)}
 </style></head><body><div class="wrap">
 <header>
   <h1>The money</h1>
@@ -317,6 +407,33 @@ PAGE = """
 <div class="grid" id="cards"></div>
 
 <div class="banner" id="why"></div>
+
+<div class="viz" id="viz-stand">
+  <h3>Where your money stands</h3>
+  <p class="cap" id="cap-stand"></p>
+  <div id="stand"></div>
+</div>
+
+<div class="viz" id="viz-balance">
+  <h3>Your money over time</h3>
+  <p class="cap">Real money in the account. Nothing here is a projection.</p>
+  <div id="balance"></div>
+</div>
+
+<div class="viz" id="viz-health">
+  <h3>Has the system been working?</h3>
+  <p class="cap">One column per day. The system checks itself and cannot mark its own
+     homework: a check it could not run counts as a problem.</p>
+  <div id="health"></div>
+</div>
+
+<div class="viz hypo" id="viz-ideas">
+  <h3>What each idea would have done to your money</h3>
+  <p class="cap"><strong>None of this happened.</strong> These are tests against past
+     prices, showing what each idea would have done to your stake if it had been used.
+     No real money was involved.</p>
+  <div id="ideas"></div>
+</div>
 
 <h2>What it has learned</h2>
 <ul class="lessons" id="lessons"></ul>
@@ -376,7 +493,12 @@ async function load(){
     <tr><th>Orders attempted / executed</th><td>${D.attempted} / ${D.executed}</td></tr>
     <tr><th>Balance (USD)</th><td>${Number(D.have_usd||0).toFixed(2)}</td></tr>
     <tr><th>Rate used</th><td>R${D.zar_per_usd}/USD</td></tr>
-    <tr><th>Last research run</th><td>${D.last_run||'never'}</td></tr>`;
+    <tr><th>Last research run</th><td>${D.last_run||'never'}</td></tr>
+    <tr><th>Smallest trade needs</th><td>R${Math.round(D.floor_zar||0)}</td></tr>`
+    + (D.outcomes||[]).map(o=>`<tr><th>${o.label}</th><td>${o.pct}% =
+        ${o.zar<0?'-':'+'}R${Math.abs(Math.round(o.zar))} on your stake
+        (${o.verdict||'?'}) — hypothetical</td></tr>`).join('');
+  drawStand(); drawBalance(); drawHealth(); drawIdeas();
   $('foot').textContent = D.configured ? '' : 'Data source not configured yet.';
   $('loginbox').hidden = !!document.cookie.includes('auth=') || !D.can_set_goals;
   $('goalbox').hidden  = !document.cookie.includes('auth=');
@@ -384,6 +506,161 @@ async function load(){
     $('reply').hidden=false; $('reply').textContent=
       'The goal channel is closed: the dashboard has no write key or no password set.'; }
 }
+// ---------------------------------------------------------------- charts
+// Hand-rolled SVG: no chart library, so the page stays small and there is nothing
+// to go stale. Every mark gets a hover tooltip; status is carried by a glyph as well
+// as colour, because red and green are 4.1 apart for deuteranopia and colour alone
+// would make the health strip unreadable for a colourblind viewer.
+const SVGNS='http://www.w3.org/2000/svg';
+function el(n,a={}){const e=document.createElementNS(SVGNS,n);
+  for(const k in a)e.setAttribute(k,a[k]);return e;}
+function tipFor(host){let t=host.querySelector('.tip');
+  if(!t){t=document.createElement('div');t.className='tip';host.appendChild(t);}return t;}
+function hover(host,node,text){
+  const t=tipFor(host);
+  node.addEventListener('pointerenter',ev=>{t.textContent=text;t.style.opacity=1;});
+  node.addEventListener('pointermove',ev=>{const r=host.getBoundingClientRect();
+    t.style.left=(ev.clientX-r.left+12)+'px';t.style.top=(ev.clientY-r.top-34)+'px';});
+  node.addEventListener('pointerleave',()=>{t.style.opacity=0;});
+}
+function empty(id,msg){$(id).innerHTML='<p class="empty">'+msg+'</p>';}
+
+// 1. Where the money stands: one track, three markers. Not a gauge - a position on a line.
+function drawStand(){
+  const host=$('viz-stand'), now=D.have_zar||0, floor=D.floor_zar||0,
+        target=D.goal_target_zar||Math.max(now*2,floor*3);
+  const W=720,H=104,L=12,R=12,max=Math.max(target,floor,now)*1.12||1;
+  const x=v=>L+(W-L-R)*(v/max);
+  const s=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img',
+    'aria-label':`Balance R${Math.round(now)}, floor R${Math.round(floor)}, target R${Math.round(target)}`});
+  s.appendChild(el('rect',{x:L,y:34,width:W-L-R,height:8,rx:4,fill:'var(--mid)'}));
+  // the reachable band: from the floor up to the target
+  s.appendChild(el('rect',{x:x(floor),y:34,width:Math.max(x(target)-x(floor),0),height:8,rx:4,
+                           fill:'var(--gain)','fill-opacity':.18}));
+  const mark=(v,label,color,above,tier)=>{
+    const g=el('g'), drop=(tier||0)*16;
+    g.appendChild(el('line',{x1:x(v),x2:x(v),y1:above?20:42,y2:above?38:56+drop,
+                             stroke:color,'stroke-width':2,'stroke-linecap':'round'}));
+    g.appendChild(el('circle',{cx:x(v),cy:38,r:5,fill:color,stroke:'var(--card)','stroke-width':2}));
+    const t=el('text',{x:x(v),y:above?14:70+drop,'text-anchor':'middle','font-size':12,
+                       fill:'var(--axis)'});
+    t.textContent=label; g.appendChild(t); s.appendChild(g);
+    hover(host,g,`${label}: R${Math.round(v).toLocaleString()}`);
+  };
+  // Labels below the track collide when two values are close, so the second one drops
+  // to a lower line instead of overprinting the first.
+  const below=[[floor,'Smallest trade possible','var(--loss)'],[target,'Goal','var(--gain)']]
+    .sort((a,b)=>a[0]-b[0]);
+  let lastX=-1e9, tier=0;
+  below.forEach(([v,label,color])=>{
+    tier = (x(v)-lastX < 150) ? 1-tier : 0;
+    mark(v,label,color,false,tier); lastX=x(v);
+  });
+  mark(now,'You have R'+Math.round(now).toLocaleString(),'var(--line-1)',true,0);
+  s.style.maxWidth=W+'px';
+  $('stand').innerHTML=''; $('stand').appendChild(s);
+  $('cap-stand').textContent = now<floor
+    ? `You are below the amount needed to place even the smallest trade, so nothing can be attempted until there is at least R${Math.round(floor).toLocaleString()} in the account.`
+    : `There is enough to trade. The goal is R${Math.round(target).toLocaleString()}.`;
+}
+
+// 2. Money over time. One reading is not a line, and we say so instead of drawing a stub.
+function drawBalance(){
+  const host=$('viz-balance'), d=(D.balance_series||[]);
+  if(d.length<2){ empty('balance', d.length
+      ? 'Only one reading so far, taken '+new Date(d[0].t).toLocaleDateString()+
+        '. The line starts once there are two.'
+      : 'No readings yet.'); return; }
+  const W=720,H=200,P={t:14,r:14,b:26,l:52};
+  const xs=d.map(p=>new Date(p.t).getTime()), ys=d.map(p=>p.v);
+  const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(0,...ys),y1=Math.max(...ys)*1.08||1;
+  const X=v=>P.l+(W-P.l-P.r)*((v-x0)/((x1-x0)||1));
+  const Y=v=>H-P.b-(H-P.t-P.b)*((v-y0)/((y1-y0)||1));
+  const s=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img','aria-label':'Balance over time'});
+  for(let i=0;i<=3;i++){ const v=y0+(y1-y0)*i/3;
+    s.appendChild(el('line',{x1:P.l,x2:W-P.r,y1:Y(v),y2:Y(v),stroke:'var(--grid)','stroke-width':1}));
+    const t=el('text',{x:P.l-8,y:Y(v)+4,'text-anchor':'end','font-size':11,fill:'var(--axis)'});
+    t.textContent='R'+Math.round(v).toLocaleString(); s.appendChild(t); }
+  s.appendChild(el('path',{d:d.map((p,i)=>(i?'L':'M')+X(new Date(p.t).getTime())+' '+Y(p.v)).join(' '),
+    fill:'none',stroke:'var(--line-1)','stroke-width':2,'stroke-linejoin':'round','stroke-linecap':'round'}));
+  d.forEach(p=>{const c=el('circle',{cx:X(new Date(p.t).getTime()),cy:Y(p.v),r:4,
+      fill:'var(--line-1)',stroke:'var(--card)','stroke-width':2});
+    const hit=el('circle',{cx:X(new Date(p.t).getTime()),cy:Y(p.v),r:12,fill:'transparent'});
+    s.appendChild(c); s.appendChild(hit);
+    hover(host,hit,new Date(p.t).toLocaleDateString()+': R'+Math.round(p.v).toLocaleString());});
+  s.style.maxWidth=W+'px';
+  $('balance').innerHTML=''; $('balance').appendChild(s);
+}
+
+// 3. Health strip. Status carries a GLYPH as well as colour - never colour alone.
+const GLYPH={PASS:'✓',UNKNOWN:'?',FAIL:'✕'};
+const SCOL={PASS:'var(--ok)',UNKNOWN:'var(--unknown)',FAIL:'var(--bad)'};
+const SNAME={PASS:'Fine',UNKNOWN:'Could not tell',FAIL:'A problem'};
+function drawHealth(){
+  const host=$('viz-health'), g=D.audit_grid||{days:[],checks:[],cells:[]};
+  if(!g.days.length){ empty('health','The system has not checked itself yet.'); return; }
+  const cw=Math.min(30,Math.max(16,620/g.days.length)), rh=26, L=210;
+  const W=L+g.days.length*cw+10, H=g.checks.length*rh+24;
+  const s=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img','aria-label':'System health by day'});
+  g.checks.forEach((cid,r)=>{
+    const t=el('text',{x:0,y:r*rh+rh/2+4+18,'font-size':12,fill:'var(--axis)'});
+    t.textContent=cid.replace(/_/g,' ').slice(0,30); s.appendChild(t);
+    g.cells[r].forEach((st,c)=>{
+      if(!st) return;
+      const X=L+c*cw, Y=r*rh+18;
+      // 2px gap between cells so adjacent fills never touch
+      const cell=el('rect',{x:X+1,y:Y+1,width:cw-3,height:rh-5,rx:4,fill:SCOL[st],
+                            'fill-opacity':.22,stroke:SCOL[st],'stroke-width':1.5});
+      const gl=el('text',{x:X+(cw-2)/2,y:Y+rh/2+3,'text-anchor':'middle','font-size':12,
+                          fill:'var(--ink)'});
+      gl.textContent=GLYPH[st]||'';
+      s.appendChild(cell); s.appendChild(gl);
+      hover(host,cell,`${g.days[c]} - ${cid.replace(/_/g,' ')}: ${SNAME[st]}`);
+    });
+  });
+  s.style.maxWidth=W+'px';
+  $('health').innerHTML=''; $('health').appendChild(s);
+  $('health').insertAdjacentHTML('beforeend','<div class="legend">'+
+    Object.keys(GLYPH).map(k=>`<span><span class="sw" style="background:${SCOL[k]}"></span>`+
+      `${GLYPH[k]} ${SNAME[k]}</span>`).join('')+'</div>');
+}
+
+// 4. What each idea would have done. Diverging around zero: gained one side, lost the other.
+function drawIdeas(){
+  const host=$('viz-ideas'), d=(D.outcomes||[]);
+  if(!d.length){ empty('ideas','No ideas have been tested yet.'); return; }
+  const rh=24, L=150, W=720, H=d.length*rh+30, mid=L+(W-L-70)/2;
+  const max=Math.max(...d.map(o=>Math.abs(o.zar)),1);
+  const half=(W-L-70)/2;
+  const s=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img','aria-label':'Hypothetical outcome per idea'});
+  s.appendChild(el('line',{x1:mid,x2:mid,y1:14,y2:H-16,stroke:'var(--grid)','stroke-width':1}));
+  d.forEach((o,i)=>{
+    const y=i*rh+18, w=Math.max(Math.abs(o.zar)/max*half,2), gain=o.zar>=0;
+    const t=el('text',{x:0,y:y+13,'font-size':12,fill:'var(--axis)'});
+    t.textContent=o.label.slice(0,22); s.appendChild(t);
+    // 4px rounded data-end, anchored to the zero baseline
+    const bar=el('rect',{x:gain?mid:mid-w,y:y+3,width:w,height:rh-9,rx:4,
+                         fill:gain?'var(--gain)':'var(--loss)'});
+    s.appendChild(bar);
+    // A long bar's value goes INSIDE it; outside it would overprint the row label.
+    const inside=w>46;
+    const v=el('text',{x:gain?(inside?mid+w-6:mid+w+6):(inside?mid-w+6:mid-w-6),y:y+14,
+                       'font-size':11,'text-anchor':gain?(inside?'end':'start'):(inside?'start':'end'),
+                       fill:inside?'var(--card)':'var(--muted)'});
+    v.textContent=(gain?'+':'-')+'R'+Math.abs(Math.round(o.zar)).toLocaleString();
+    s.appendChild(v);
+    hover(host,bar,`${o.label}: ${gain?'would have gained':'would have lost'} R`+
+      `${Math.abs(Math.round(o.zar)).toLocaleString()} (${o.pct}%)`);
+  });
+  s.style.maxWidth=W+'px';
+  $('ideas').innerHTML=''; $('ideas').appendChild(s);
+  const lost=d.filter(o=>o.zar<0).length;
+  $('ideas').insertAdjacentHTML('beforeend','<div class="legend">'+
+    `<span><span class="sw" style="background:var(--loss)"></span>Would have lost money</span>`+
+    `<span><span class="sw" style="background:var(--gain)"></span>Would have made money</span>`+
+    `<span>${lost} of ${d.length} lost money</span></div>`);
+}
+
 $('loginbtn').onclick=async()=>{
   const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({password:$('pw').value})});

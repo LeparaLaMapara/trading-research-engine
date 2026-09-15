@@ -34,9 +34,14 @@ def _on_message(client, message):
     elif pt == ProtoOAGetAccountListByAccessTokenRes().payloadType:
         res = Protobuf.extract(message)
         print(f"accounts granted by this token: {len(res.ctidTraderAccount)}")
+        print("  NOTE: ctidTraderAccountId is the API's internal id. traderLogin is the")
+        print("  account number the broker shows you, and the one you deposit into. They")
+        print("  are different numbers, and confusing them sends money to the wrong place.")
         for a in res.ctidTraderAccount:
             kind = "LIVE" if a.isLive else "DEMO"
-            print(f"  ctidTraderAccountId={a.ctidTraderAccountId}  {kind}")
+            login = getattr(a, "traderLogin", None)
+            print(f"  ctidTraderAccountId={a.ctidTraderAccountId}  "
+                  f"traderLogin={login if login else '(not returned)'}  {kind}")
         if reactor.running:
             reactor.stop()
     elif pt == ProtoOAErrorRes().payloadType:
