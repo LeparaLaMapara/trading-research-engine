@@ -304,3 +304,48 @@ def suggest_reachable(spec: GoalSpec, zar_per_usd: float = DEFAULT_ZAR_PER_USD,
     out["funding_for_1pct_risk_zar"] = round(STOP_COST_USD * 100 * zar_per_usd, 2)
     out["floor_zar"] = round(rebet_floor_zar(zar_per_usd), 2)
     return out
+
+
+# --- the owner's own funding condition -------------------------------------------------
+#
+# Stated 2026-09-16: "the 5,000 I will add once I see even 1% return of what I currently
+# have". That is a good condition and it is encoded here rather than left in a chat log,
+# so the dashboard and the engine read the SAME number instead of each carrying a copy
+# that can drift.
+#
+# It is deliberately a RETURN condition, not a Sharpe or a DSR. Those are the engine's
+# internal bars and the owner has said he cannot check them by inspection. A realised
+# percentage of a real balance is checkable by anyone.
+FIRST_MILESTONE_PCT = 0.01
+FIRST_MILESTONE_UNLOCK_ZAR = 5000.0
+
+
+def milestone_progress(baseline_zar: float, current_zar: float,
+                       pct: float = FIRST_MILESTONE_PCT,
+                       unlock_zar: float = FIRST_MILESTONE_UNLOCK_ZAR) -> dict:
+    """How far the account is from the owner's stated funding milestone.
+
+    `baseline_zar` is the balance the milestone is measured FROM, which is the first
+    balance ever recorded rather than the highest. Measuring from a peak would let a
+    deposit or a lucky day reset the bar and quietly make it easier.
+
+    Progress is reported CLAMPED to [0, 1] for the progress bar, alongside the unclamped
+    gap, so a loss shows as 0% complete and a widened gap rather than as a negative bar
+    that reads like a different kind of number.
+    """
+    if baseline_zar <= 0:
+        return {"evaluable": False, "why_not": "no starting balance recorded",
+                "baseline_zar": baseline_zar, "current_zar": current_zar,
+                "target_zar": 0.0, "gap_zar": 0.0, "progress": 0.0, "reached": False,
+                "pct": pct, "unlock_zar": unlock_zar}
+    target = baseline_zar * (1.0 + pct)
+    gained = current_zar - baseline_zar
+    needed = target - baseline_zar
+    return {
+        "evaluable": True, "why_not": "",
+        "baseline_zar": baseline_zar, "current_zar": current_zar,
+        "target_zar": target, "gap_zar": target - current_zar,
+        "progress": max(0.0, min(1.0, gained / needed)) if needed > 0 else 0.0,
+        "reached": current_zar >= target,
+        "pct": pct, "unlock_zar": unlock_zar,
+    }

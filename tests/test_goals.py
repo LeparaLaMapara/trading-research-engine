@@ -6,6 +6,8 @@ than accepted and quietly missed.
 """
 from __future__ import annotations
 
+import pytest
+
 from research.goals import (
     WORLD_CLASS_SHARPE,
     GoalSpec,
@@ -135,3 +137,50 @@ def test_the_simulation_is_reproducible():
     a = assess(spec(target=1080.0, days=365, start=540.0))
     b = assess(spec(target=1080.0, days=365, start=540.0))
     assert a.prob_hit_floor_no_edge == b.prob_hit_floor_no_edge
+
+
+# ------------------------------------------------------------------ the funding milestone
+
+
+def test_milestone_target_is_one_percent_above_the_baseline():
+    from research.goals import milestone_progress
+    m = milestone_progress(540.0, 540.0)
+    assert m["evaluable"] is True
+    assert m["target_zar"] == pytest.approx(545.4)
+    assert m["gap_zar"] == pytest.approx(5.4)
+    assert m["progress"] == 0.0
+    assert m["reached"] is False
+
+
+def test_milestone_is_reached_exactly_at_the_target():
+    from research.goals import milestone_progress
+    assert milestone_progress(540.0, 545.4)["reached"] is True
+    assert milestone_progress(540.0, 545.39)["reached"] is False
+
+
+def test_milestone_progress_is_clamped_on_a_loss():
+    """A loss reads as 0% complete with a wider gap, never as a negative bar."""
+    from research.goals import milestone_progress
+    m = milestone_progress(540.0, 500.0)
+    assert m["progress"] == 0.0
+    assert m["gap_zar"] > 5.4
+    assert m["reached"] is False
+
+
+def test_milestone_progress_is_clamped_above():
+    from research.goals import milestone_progress
+    assert milestone_progress(540.0, 10_000.0)["progress"] == 1.0
+
+
+def test_milestone_is_measured_from_the_baseline_not_the_peak():
+    """Measuring from a peak would let a deposit silently reset the bar."""
+    from research.goals import milestone_progress
+    assert (milestone_progress(540.0, 700.0)["target_zar"]
+            == milestone_progress(540.0, 100.0)["target_zar"])
+
+
+def test_milestone_refuses_without_a_starting_balance():
+    from research.goals import milestone_progress
+    m = milestone_progress(0.0, 100.0)
+    assert m["evaluable"] is False
+    assert "starting balance" in m["why_not"]

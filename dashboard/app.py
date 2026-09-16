@@ -169,7 +169,13 @@ def _dashboard_data() -> dict:
     audit_grid = {"days": days, "checks": check_ids,
                   "cells": [[by_day.get(d, {}).get(c, "") for d in days] for c in check_ids]}
 
-    from research.goals import rebet_floor_zar
+    from research.goals import milestone_progress, rebet_floor_zar
+    # The owner's own funding condition: one 1% gain on what is already there unlocks the
+    # next R5,000. Measured from the FIRST balance ever recorded, not the highest, so a
+    # deposit cannot reset the bar. See research.goals.milestone_progress.
+    baseline_zar = (float(history[0]["balance"]) * ZAR_PER_USD) if history else balance_zar
+    milestone = milestone_progress(baseline_zar, balance_zar)
+
     goal_target = None
     for g in goals:
         if g.get("target_zar"):
@@ -184,6 +190,7 @@ def _dashboard_data() -> dict:
         "outcomes": outcomes,
         "audit_grid": audit_grid,
         "floor_zar": round(rebet_floor_zar(ZAR_PER_USD), 2),
+        "milestone": milestone,
         "goal_target_zar": goal_target,
         "risked_zar": risked_zar,
         "made_zar": made_zar,
@@ -398,11 +405,25 @@ PAGE = """
        font-size:12px;padding:6px 9px;border-radius:8px;opacity:0;transition:opacity .1s;
        white-space:nowrap;z-index:5}
   .hypo{border-left:4px solid var(--clay)}
+  .mile{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--clay);
+        border-radius:14px;padding:16px 18px;margin:24px 0 0}
+  .mile .top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+             align-items:baseline}
+  .mile .lab{font-size:15px}
+  .mile .amt{font-size:20px;letter-spacing:-.01em}
+  .bar{height:10px;border-radius:999px;background:var(--line);margin:12px 0 8px;
+       overflow:hidden}
+  .bar>i{display:block;height:100%;background:var(--clay);border-radius:999px}
+  .mile.done{border-left-color:var(--good)}
+  .mile.done .bar>i{background:var(--good)}
+  .mile .hint{color:var(--muted);font-size:13px;margin:0}
 </style></head><body><div class="wrap">
 <header>
   <h1>The money</h1>
   <p class="sub" id="asof">Loading…</p>
 </header>
+
+<div class="mile" id="mile" hidden></div>
 
 <div class="grid" id="cards"></div>
 
@@ -482,6 +503,31 @@ async function load(){
     ['How much did it lose?', money(D.lost_zar), D.lost_zar>0?'bad':'', 'money actually lost'],
   ].map(([q,n,cls,h])=>`<div class="card"><p class="q">${q}</p>
       <p class="n ${cls}">${n}</p><p class="hint">${h}</p></div>`).join('');
+function renderMilestone(m){
+  const box=$('mile');
+  if(!m||!m.evaluable){ box.hidden=true; return; }
+  box.hidden=false;
+  const pct=Math.round((m.progress||0)*100);
+  const done=!!m.reached;
+  box.className='mile'+(done?' done':'');
+  // The status is carried by the WORDS, not by the bar colour: red and green sit about
+  // 4 units apart in perceptual difference for a colour-blind reader, so colour alone
+  // would not be readable. Same rule as the charts below.
+  const head = done
+    ? 'Target reached. The next R'+Number(m.unlock_zar).toLocaleString()+' can go in.'
+    : 'Next step: earn R'+Number(m.gap_zar).toFixed(2)+' more';
+  const hint = done
+    ? 'It grew R'+Number(m.baseline_zar).toFixed(2)+' to R'+Number(m.current_zar).toFixed(2)
+      +', which is the 1% you asked to see first.'
+    : 'You said you would add R'+Number(m.unlock_zar).toLocaleString()+' after seeing '
+      +'1% back. That is R'+Number(m.target_zar).toFixed(2)+' in the account, from the '
+      +'R'+Number(m.baseline_zar).toFixed(2)+' it started with.';
+  box.innerHTML='<div class="top"><span class="lab">'+head+'</span>'
+    +'<span class="amt">'+pct+'%</span></div>'
+    +'<div class="bar"><i style="width:'+Math.max(pct,1)+'%"></i></div>'
+    +'<p class="hint">'+hint+'</p>';
+}
+  renderMilestone(D.milestone);
   $('why').innerHTML='<strong>What is it doing?</strong><br>'+D.why_no_trade;
   $('lessons').innerHTML = (D.lessons&&D.lessons.length)
     ? D.lessons.map(l=>`<li>${l.lesson}<div class="ev">${l.evidence||''}</div></li>`).join('')

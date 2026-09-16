@@ -33,6 +33,7 @@ from config import settings
 from council.backends import get_backend
 from council.orchestrator import Council
 from research.calibration import Calibration
+from research.cost_ceiling import COST_CEILING_SR, probe_cost
 from research.lessons import LessonStore, lessons_from_cycle
 from research.registry import FailureRegistry
 from strategy.base import FittedStrategy, Strategy
@@ -120,7 +121,8 @@ def _track_record(calib: Calibration, agent: str) -> dict:
 
 
 def run_experiment(symbol: str, period: str, rounds: int, max_rung: int,
-                   min_dsr: float = MIN_DSR, seed: int = 0, from_papers: int = 0) -> dict:
+                   min_dsr: float = MIN_DSR, seed: int = 0, from_papers: int = 0,
+                   cost_ceiling: float = COST_CEILING_SR) -> dict:
     bars = load_bars(symbol, period)
     if bars.empty:
         raise SystemExit(f"no bars for {symbol} {period}. Fetch first: "
@@ -177,12 +179,33 @@ def run_experiment(symbol: str, period: str, rounds: int, max_rung: int,
             return
         assumptions = run_assumptions(bars["close"])
         base = build_strategy(proposal.kind, proposal.params)
+
+        def _make():
+            inner = build_strategy(proposal.kind, proposal.params)
+            return _SessionWrapped(inner, sfilter) if sfilter else inner
+
+        # COST CEILING, applied BEFORE fitting or scoring. A rule that costs more than the
+        # ceiling to run is deleted, not optimised: leaving it in the tournament lets the
+        # search recover a large cost drag from a lucky fold, which is fitting the costs
+        # away rather than finding an edge. Counted against N, because it was a candidate.
+        est = probe_cost(bars, _make, costs, period, ceiling_sr=cost_ceiling)
+        if est.evaluable and not est.affordable:
+            registry.add(strategy_kind=proposal.kind, symbol=symbol,
+                         killed_at_stage="cost_ceiling", cause_category="too_expensive",
+                         plain_english=est.reason,
+                         generalisable_lesson=f"{proposal.kind} turns over too fast to pay "
+                                              f"for itself on {symbol} {period}",
+                         proposing_agent=proposal.agent, created_ts=time.time(),
+                         params=proposal.params, period=period, n_bars=len(bars))
+            registry.record_trial(proposal.kind, proposal.params, symbol, period,
+                                  stage="too_expensive")
+            trials.append({"proposal": proposal, "verdict": "TOO EXPENSIVE",
+                           "reason": [est.reason], "cost_estimate": est.to_dict()})
+            return
+
         # A strategy that estimates its parameters MUST be refitted before each test window.
         # Running one through the non-refitting harness scores it on its own training data.
         if isinstance(base, FittedStrategy):
-            def _make():
-                inner = build_strategy(proposal.kind, proposal.params)
-                return _SessionWrapped(inner, sfilter) if sfilter else inner
             wfr = wf.walk_forward_refit(bars, _make, costs, period)
             if not wfr.get("evaluable", True):
                 # Not evaluated is not the same as failed. Recording a zero here would put a
@@ -207,6 +230,7 @@ def run_experiment(symbol: str, period: str, rounds: int, max_rung: int,
             "assumption_verdict": assumptions.get("verdict", ""),
             "wf": wfr, "actual": actual,
             "per_obs_sharpe": per_obs, "trial_id": trial_id,
+            "cost_estimate": est.to_dict(),
         })
 
     committed_at = time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())
@@ -315,7 +339,9 @@ def format_report(res: dict) -> str:
             f"devSharpe={w['dev_summary']['sharpe']:>6}  holdout={hold:>6}  "
             f"DSR={t.get('dsr', 0):.2f}  splitσ={w['split_sharpe_std']}  "
             f"maxDD={w['dev_summary']['max_drawdown']*100:.0f}%")
-    rejected = [t for t in res["trials"] if t.get("verdict") in ("REJECTED", "SKIPPED")]
+    rejected = [t for t in res["trials"]
+                if t.get("verdict") in ("REJECTED", "SKIPPED", "TOO EXPENSIVE",
+                                        "NOT EVALUABLE")]
     if rejected:
         lines += ["", "## Rejected / skipped before testing"]
         for t in rejected:
@@ -345,6 +371,8 @@ def main() -> None:
     p.add_argument("--rounds", type=int, default=6)
     p.add_argument("--max-rung", type=int, default=5)
     p.add_argument("--min-dsr", type=float, default=MIN_DSR)
+    p.add_argument("--cost-ceiling", type=float, default=COST_CEILING_SR,
+                   help="delete rules costing more than this many Sharpe units/year")
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--from-papers", type=int, default=0,
                    help="source proposals from N real papers the Scout fetches (instead of the council)")
@@ -357,7 +385,8 @@ def main() -> None:
     except (AttributeError, ValueError):  # pragma: no cover - non-reconfigurable stream
         pass
     res = run_experiment(args.symbol, args.period, args.rounds, args.max_rung, args.min_dsr,
-                         args.seed, from_papers=args.from_papers)
+                         args.seed, from_papers=args.from_papers,
+                         cost_ceiling=args.cost_ceiling)
     report = format_report(res)
     print(report)
     with open("data/experiment_report.txt", "w", encoding="utf-8") as f:
