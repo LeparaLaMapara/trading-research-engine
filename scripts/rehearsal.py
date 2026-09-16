@@ -311,17 +311,12 @@ class Rehearsal:
             stage("order filled, position open", True,
                   f"position {self.position_id} at {self.entry_price}, "
                   f"stop {pos.stopLoss}, target {pos.takeProfit}")
-            if not pos.stopLoss or not pos.takeProfit:
-                # UNRESOLVED and a hard blocker for live trading. Neither absolute prices
-                # (stopLoss/takeProfit) nor relative points (relativeStopLoss/
-                # relativeTakeProfit) produced a protected position on this broker: the fill
-                # comes back with 0.0 for both. Until this is understood, every position this
-                # system opens is unprotected, and the only thing standing between it and an
-                # unbounded loss is the hold timeout plus the connection staying up.
-                stage("stop and target attached to the position", False,
-                      "UNPROTECTED: broker reports no stop or target on the filled position. "
-                      "This blocks live trading.")
-                self._unprotected = True
+            # DO NOT judge protection from this event. The ORDER_FILLED execution event
+            # does not carry the stop and target, and reading 0.0 here led to the wrong
+            # conclusion that positions were opening unprotected. scripts/stop_probe.py
+            # settled it: relative points DO attach, and the broker's own position record
+            # shows them. Ask the broker, in verify_protection below.
+            reactor.callLater(3, self.verify_protection)
             self.log.record(ts_sast=time.strftime("%Y-%m-%d %H:%M:%S"), symbol=self.symbol,
                             side=self.side, order_type="MARKET",
                             volume_lots=self.sizing.lots, filled_price=self.entry_price,
@@ -348,6 +343,38 @@ class Rehearsal:
                         filled_price=px, status="CLOSED", purpose="rehearsal",
                         note="dress rehearsal close leg")
         self.finish()
+
+    def verify_protection(self) -> None:
+        """Ask the BROKER whether the open position actually carries a stop.
+
+        This is the third time on this project that trusting an event instead of asking the
+        broker produced a wrong answer, so the rule is now explicit: protection is a fact
+        about the position, and only the position record can state it.
+        """
+        req = ProtoOAReconcileReq()
+        req.ctidTraderAccountId = self.conn.account_id
+
+        def ok(msg):
+            res = Protobuf.extract(msg)
+            mine = [p for p in res.position if p.positionId == self.position_id]
+            if not mine:
+                stage("stop and target attached (asked the broker)", False,
+                      "position not found when checking protection")
+                self._unprotected = True
+                return
+            p = mine[0]
+            protected = bool(p.stopLoss) and bool(p.takeProfit)
+            stage("stop and target attached (asked the broker)", protected,
+                  f"stop {p.stopLoss}, target {p.takeProfit}" if protected
+                  else f"UNPROTECTED: stop {p.stopLoss}, target {p.takeProfit}. "
+                       f"This blocks live trading.")
+            self._unprotected = not protected
+
+        def err(f):
+            stage("stop and target attached (asked the broker)", False,
+                  f"could not check: {str(f)[:70]}. Assume unprotected.")
+            self._unprotected = True
+        self.conn.client.send(req).addCallbacks(ok, err)
 
     def timeout_close(self) -> None:
         if self.position_id and not self._closing:
