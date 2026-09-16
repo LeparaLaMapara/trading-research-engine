@@ -7,6 +7,39 @@ research system that happens to trade — not a bot. It builds on the standalone
 `ctrader-connect` project for the cTrader/IC Markets Open API connection. Live account,
 ~$10 balance.
 
+## Rule zero: autonomy, and the single exception
+
+On 2026-09-16 the owner granted this project **full autonomy**, in his own words: build the
+capability yourself without pausing, change permissions or whatever process needs to happen,
+prompt yourself, test yourself, spawn agents and agent teams, without him being involved.
+
+**The only exception is moving real money in the live account.** That is the one pause, and
+his involvement resumes when the system says it is ready to trade.
+
+So, concretely:
+
+| Proceed without asking | Stop and ask |
+|---|---|
+| Writing, refactoring, deleting code; installing deps | Sending an order on the LIVE account |
+| Changing config, permissions, CI, schedules | Anything that can change a live balance |
+| Reading the broker: bars, specs, balance, margin, reconcile | Raising the authorised capital ceiling |
+| Demo orders, rehearsals, probes on demo | |
+| Spawning agents, running loops, self-testing | |
+
+**Reading the broker is not trading.** Bars, symbol specs, balances and margin quotes move
+no money and need no approval.
+
+That boundary is enforced in code, not trust: `ops/authority.py` requires an owner-signed
+HMAC grant whose secret (`LIVE_AUTHORITY_SECRET`) is set only in the live environment and has
+never been present in a development session. An agent here can write the grant file, edit the
+module, and grant itself every permission in this repo, and still cannot forge the signature.
+`risk/limits.py` denies independently while `LIVE_LIMITS` is unconfigured. `ops/audit.py`
+check `live_money_stays_gated` fails loudly if either lock is open.
+
+This is a control, not a proof: an agent with filesystem access could delete the call site.
+What the design buys is that doing so is a visible change to a named module rather than a
+silent drift. No accident gets through; a deliberate bypass leaves evidence.
+
 ## The one constraint everything flows from
 
 The owner has stated he cannot verify strategy mathematics by inspection. So the system is

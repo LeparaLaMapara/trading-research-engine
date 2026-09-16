@@ -16,6 +16,7 @@ import pandas as pd
 from backtest import metrics
 from backtest.harness import CostModel, run_backtest
 from config import settings
+from config.instruments import asset_class_of
 from report.explainer import explain
 from strategy.ma_trend import MovingAverageTrend
 
@@ -31,6 +32,18 @@ def load_bars(symbol: str, period: str) -> pd.DataFrame:
     finally:
         conn.close()
     return df
+
+
+#: Conservative round-trip spread assumptions, in basis points of price, for instruments
+#: with no measured telemetry. Only a fallback: anything being traded gets measured first.
+_DEFAULT_SPREAD_BPS = {
+    "fx_major": 2.0,    # EURUSD ~0.2 pips on 1.10 is ~1.8 bps
+    "fx_cross": 3.0,
+    "metal": 3.0,       # XAUUSD ~0.30 on 2000 is ~1.5 bps
+    "index": 2.0,
+    "energy": 5.0,      # XTIUSD ~0.03 on 75 is ~4 bps
+    "crypto": 15.0,     # BTCUSD tens of dollars on tens of thousands; ADA far wider
+}
 
 
 def _pip_size(symbol: str, pip_position: int | None) -> float:
@@ -65,9 +78,24 @@ def measured_cost(symbol: str, ref_price: float) -> CostModel:
         except Exception:  # noqa: BLE001
             pass
     if spread_pips is None:
-        s = symbol.upper()
-        spread_pips = 20.0 if s.startswith("XAU") else (2.0 if "JPY" in s else 1.0)
-        print(f"  (no telemetry for {symbol}; using conservative default spread {spread_pips} pips)")
+        # FALLBACK, in basis points of PRICE rather than in pips.
+        #
+        # The previous version defaulted to "1.0 pips" for anything that was not gold or a
+        # JPY cross, and then priced it with the FX pip convention of 0.0001. On BTCUSD at
+        # ~$30,000 that is 1.0 * 0.0001 / 30000, about two parts per BILLION: a spread of
+        # effectively zero on the single widest-spread instrument in the universe. Seventeen
+        # of twenty-four instruments were being costed that way, which made every one of them
+        # look affordable no matter what it did.
+        #
+        # A pip is an FX convention and it does not transfer. Basis points of price do, so
+        # the defaults below are quoted that way and converted back into this symbol's own
+        # pip units. They are deliberately pessimistic: a fallback that flatters a strategy
+        # is worse than no fallback at all.
+        bps = _DEFAULT_SPREAD_BPS.get(asset_class_of(symbol) or "", 10.0)
+        ps = _pip_size(symbol, pip_position)
+        spread_pips = (bps * 1e-4) * ref_price / ps
+        print(f"  (no telemetry for {symbol}; assuming {bps:g} bps of price = "
+              f"{spread_pips:.2f} pips at {ref_price:.2f})")
     return CostModel(spread_pips=spread_pips, pip_size=_pip_size(symbol, pip_position),
                      ref_price=ref_price)
 

@@ -35,12 +35,15 @@ warnings.filterwarnings("ignore")
 
 from backtest import walkforward as wf
 from backtest.run import load_bars, measured_cost
+from research.cost_ceiling import probe_cost
 from config.instruments import asset_class_of, universe
 from strategy.registry import build_strategy
 
 DB = "data/research.db"
-MODELS = ("ou_reversion", "kalman_level")
-MIN_BARS = 5000
+DEFAULT_MODELS = ("ou_reversion", "kalman_level", "ma_trend", "vol_scaled")
+#: Minimum history per period. D1 will never have 5,000 bars: twelve years is about 3,100,
+#: and demanding H1 depth from a daily series would silently skip the entire universe.
+MIN_BARS = {"M15": 20000, "H1": 5000, "H4": 3000, "D1": 750, "W1": 200}
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS sweep_results (
@@ -57,19 +60,35 @@ CREATE TABLE IF NOT EXISTS sweep_results (
     active_bars   TEXT,
     fold_params   TEXT,
     ran_at        REAL,
-    PRIMARY KEY (symbol, model)
+    period        TEXT NOT NULL DEFAULT 'H1',
+    cost_sr       REAL,
+    PRIMARY KEY (symbol, model, period)
 );
 """
 
 
 def _conn() -> sqlite3.Connection:
     c = sqlite3.connect(DB)
+    # Migrate the pre-period table rather than dropping it. The 27 H1 results already in
+    # there are the evidence behind "1 positive where chance predicts 7" and re-earning
+    # them would cost hours. Old rows are stamped H1, which is what they were.
+    have = {r[1] for r in c.execute("PRAGMA table_info(sweep_results)")}
+    if have and "period" not in have:
+        cols = ",".join(sorted(have))
+        c.execute("ALTER TABLE sweep_results RENAME TO sweep_results_pre_period")
+        c.executescript(SCHEMA)
+        c.execute(f"INSERT INTO sweep_results ({cols}, period) "
+                  f"SELECT {cols}, 'H1' FROM sweep_results_pre_period")
+        c.execute("DROP TABLE sweep_results_pre_period")
+        c.commit()
+        print("migrated sweep_results: existing rows stamped period=H1", flush=True)
     c.executescript(SCHEMA)
     return c
 
 
-def done_pairs(conn: sqlite3.Connection) -> set[tuple[str, str]]:
-    return {(r[0], r[1]) for r in conn.execute("SELECT symbol, model FROM sweep_results")}
+def done_pairs(conn: sqlite3.Connection, period: str) -> set[tuple[str, str]]:
+    return {(r[0], r[1]) for r in conn.execute(
+        "SELECT symbol, model FROM sweep_results WHERE period=?", (period.upper(),))}
 
 
 def record(conn: sqlite3.Connection, **row) -> None:
@@ -79,16 +98,25 @@ def record(conn: sqlite3.Connection, **row) -> None:
     conn.commit()          # commit per pair: a kill must never cost more than one result
 
 
-def evaluate(symbol: str, model: str, bars, costs) -> dict:
-    r = wf.walk_forward_refit(bars, lambda: build_strategy(model, {}), costs, "H1")
+def evaluate(symbol: str, model: str, bars, costs, period: str) -> dict:
+    # COST CEILING FIRST. A rule too expensive to run is deleted before it is fitted, so it
+    # never reaches the leaderboard and cannot win on a fold where noise paid its spread.
+    # Recorded as a result, not skipped: it was a candidate and it counts against N.
+    est = probe_cost(bars, lambda: build_strategy(model, {}), costs, period)
+    if est.evaluable and not est.affordable:
+        return {"evaluable": 0, "why_not": f"too expensive: {est.reason}",
+                "dev_sharpe": None, "holdout_sharpe": None, "cost_sr": est.cost_sr,
+                "folds_evaluated": 0, "folds_attempted": 0,
+                "active_bars": "[]", "fold_params": "[]"}
+    r = wf.walk_forward_refit(bars, lambda: build_strategy(model, {}), costs, period)
     if not r.get("evaluable", False):
         return {"evaluable": 0, "why_not": r.get("why_not", "unknown"),
-                "dev_sharpe": None, "holdout_sharpe": None,
+                "dev_sharpe": None, "holdout_sharpe": None, "cost_sr": est.cost_sr,
                 "folds_evaluated": 0, "folds_attempted": len(r.get("fold_active_bars", [])),
                 "active_bars": json.dumps(r.get("fold_active_bars", [])),
                 "fold_params": json.dumps(r.get("fold_params", []), default=str)}
     hold = r.get("holdout_summary")
-    return {"evaluable": 1, "why_not": None,
+    return {"evaluable": 1, "why_not": None, "cost_sr": est.cost_sr,
             "dev_sharpe": r["dev_summary"]["sharpe"],
             "holdout_sharpe": hold["sharpe"] if hold else None,
             "folds_evaluated": r.get("folds_evaluated"),
@@ -97,30 +125,33 @@ def evaluate(symbol: str, model: str, bars, costs) -> dict:
             "fold_params": json.dumps(r.get("fold_params", []), default=str)}
 
 
-def run(only: list[str] | None, force: bool) -> int:
+def run(only: list[str] | None, force: bool, period: str = "H1",
+        models: tuple[str, ...] = DEFAULT_MODELS) -> int:
+    period = period.upper()
     conn = _conn()
-    already = set() if force else done_pairs(conn)
+    already = set() if force else done_pairs(conn, period)
     symbols = only or universe()
-    todo = [(s, m) for s in symbols for m in MODELS if (s, m) not in already]
+    todo = [(s, m) for s in symbols for m in models if (s, m) not in already]
     print(f"{len(todo)} pairs to evaluate ({len(already)} already done)\n", flush=True)
 
     for sym in symbols:
-        pending = [m for m in MODELS if (sym, m) not in already]
+        pending = [m for m in models if (sym, m) not in already]
         if not pending:
             continue
         try:
-            bars = load_bars(sym, "H1")
+            bars = load_bars(sym, period)
         except Exception as exc:  # noqa: BLE001
             print(f"{sym:<9} load failed: {exc}", flush=True)
             continue
-        if len(bars) < MIN_BARS:
-            print(f"{sym:<9} only {len(bars):,} bars, skipped", flush=True)
+        floor = MIN_BARS.get(period, 1000)
+        if len(bars) < floor:
+            print(f"{sym:<9} only {len(bars):,} {period} bars (need {floor:,}), skipped", flush=True)
             continue
         costs = measured_cost(sym, ref_price=float(bars["close"].mean()))
         for model in pending:
             t0 = time.time()
             try:
-                res = evaluate(sym, model, bars, costs)
+                res = evaluate(sym, model, bars, costs, period)
             except MemoryError:
                 print(f"{sym:<9} {model:<14} MemoryError, machine is loaded; skipping",
                       flush=True)
@@ -129,7 +160,7 @@ def run(only: list[str] | None, force: bool) -> int:
                 print(f"{sym:<9} {model:<14} FAILED: {type(exc).__name__}: {exc}", flush=True)
                 continue
             record(conn, symbol=sym, asset_class=asset_class_of(sym), model=model,
-                   n_bars=len(bars), ran_at=time.time(), **res)
+                   period=period, n_bars=len(bars), ran_at=time.time(), **res)
             if res["evaluable"]:
                 print(f"{sym:<9} {model:<14} dev {res['dev_sharpe']:>7.3f}  "
                       f"holdout {str(res['holdout_sharpe'])[:7]:>7}  "
@@ -144,18 +175,19 @@ def run(only: list[str] | None, force: bool) -> int:
     return 0
 
 
-def report() -> int:
+def report(period: str | None = None) -> int:
     conn = _conn()
     rows = list(conn.execute(
         "SELECT symbol, asset_class, model, evaluable, dev_sharpe, holdout_sharpe, "
-        "folds_evaluated, folds_attempted, why_not FROM sweep_results "
+        "folds_evaluated, folds_attempted, why_not, period FROM sweep_results "
+        + (f"WHERE period='{period.upper()}' " if period else "") +
         "ORDER BY evaluable DESC, holdout_sharpe DESC"))
     if not rows:
         print("no results yet")
         return 0
     print(f"{'symbol':<9}{'class':<11}{'model':<15}{'dev OOF':>9}{'holdout':>9}  folds")
     print("-" * 72)
-    for s, c, m, ev, d, h, fe, fa, why in rows:
+    for s, c, m, ev, d, h, fe, fa, why, per in rows:
         if not ev:
             print(f"{s:<9}{c or '':<11}{m:<15}{'--':>9}{'--':>9}  NOT EVALUABLE")
             continue
@@ -177,12 +209,15 @@ def main() -> int:
     p.add_argument("--report", action="store_true", help="print what has been recorded")
     p.add_argument("--symbols", nargs="*", default=None)
     p.add_argument("--force", action="store_true", help="re-run pairs already recorded")
+    p.add_argument("--period", default="H1")
+    p.add_argument("--models", nargs="*", default=list(DEFAULT_MODELS))
     a = p.parse_args()
     try:
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     except (AttributeError, ValueError):
         pass
-    return report() if a.report else run(a.symbols, a.force)
+    return (report(a.period if a.report else None) if a.report
+            else run(a.symbols, a.force, a.period, tuple(a.models)))
 
 
 if __name__ == "__main__":

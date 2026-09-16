@@ -243,6 +243,22 @@ class Probe:
                   f"Nothing was sent.", file=sys.stderr)
             self._stop(2)
             return
+        if not is_demo:
+            # --allow-live is a command-line flag, and anything that can build a command
+            # line can pass it. That was adequate when a person typed every run; it is not
+            # adequate now the engine runs itself. Real money additionally requires the
+            # owner's signed grant, which cannot be produced without a secret this session
+            # has never held. See ops/authority.py.
+            from ops.authority import live_trading_permitted
+            grant = live_trading_permitted(self.account_id)
+            if not grant.permitted:
+                print(f"ABORT: account {self.account_id} is LIVE and there is no valid "
+                      f"owner authorisation.\n  {grant.reason}\nNothing was sent.",
+                      file=sys.stderr)
+                self._stop(2)
+                return
+            print(f"  authority      owner grant valid (ceiling "
+                  f"R{grant.max_capital_zar:,.2f})")
         print("  safety         broker reports this account as "
               + ("DEMO" if is_demo else "LIVE (explicitly allowed)"))
         reactor.callLater(CLOSE_TIMEOUT_S, self._close_timeout)

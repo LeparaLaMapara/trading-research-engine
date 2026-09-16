@@ -10,11 +10,11 @@ not restartable within a single long-lived process. This script imports no engin
 it only shells out to `python -m <module>`.
 
 Config via env vars (all optional):
-  RESEARCH_SYMBOLS   comma list (default EURUSD,USDJPY,XAUUSD)
-  RESEARCH_PERIOD    default H1
+  RESEARCH_SYMBOLS   comma list (default: the whole 24-instrument universe)
+  RESEARCH_PERIOD    default D1
   RESEARCH_ROUNDS    default 6
   RESEARCH_INTERVAL_S seconds between cycles (default 86400 = daily)
-  BARS_DAYS          history depth to fetch (default 180)
+  BARS_YEARS         history depth to fetch (default 12)
   TELEMETRY_WINDOW_S bounded telemetry logging per cycle (default 0 = skip)
 """
 from __future__ import annotations
@@ -24,12 +24,22 @@ import subprocess
 import sys
 import time
 
-SYMBOLS = [s.strip().upper() for s in
-           os.environ.get("RESEARCH_SYMBOLS", "EURUSD,USDJPY,XAUUSD").split(",") if s.strip()]
-PERIOD = os.environ.get("RESEARCH_PERIOD", "H1")
+# The universe, not three hand-picked FX pairs. The old default (EURUSD, USDJPY, XAUUSD)
+# predates the 24-instrument research universe and was researching a tenth of what the
+# engine holds, all of it dollar-correlated.
+from config.instruments import universe as _universe
+
+SYMBOLS = [s.strip().upper() for s in os.environ["RESEARCH_SYMBOLS"].split(",") if s.strip()]     if os.environ.get("RESEARCH_SYMBOLS") else _universe()
+
+# D1, not H1. Measured on EURUSD with real tick telemetry, the SAME trend rule costs 0.232
+# Sharpe units a year at H1 and 0.010 at D1: over twenty times cheaper for the same idea.
+# At H1 every strategy in the registry is above Carver's 0.13 affordability ceiling, so the
+# engine was spending its whole search on rules that arithmetic had already ruled out.
+PERIOD = os.environ.get("RESEARCH_PERIOD", "D1")
 ROUNDS = os.environ.get("RESEARCH_ROUNDS", "6")
 INTERVAL = int(os.environ.get("RESEARCH_INTERVAL_S", "86400"))
-BARS_DAYS = os.environ.get("BARS_DAYS", "180")
+# 180 days is 180 D1 bars, far too few to fit anything. Years, not days.
+BARS_YEARS = os.environ.get("BARS_YEARS", "12")
 TELEMETRY_WINDOW = int(os.environ.get("TELEMETRY_WINDOW_S", "0"))
 
 
@@ -45,16 +55,21 @@ def run(module_args: list[str], timeout: int) -> None:
 
 def cycle() -> None:
     for sym in SYMBOLS:
-        run(["market.bars", "--symbol", sym, "--period", PERIOD, "--days", BARS_DAYS], 180)
+        run(["market.bars", "--symbol", sym, "--period", PERIOD, "--years", BARS_YEARS], 300)
     if TELEMETRY_WINDOW > 0:
         run(["telemetry.logger", "--duration", str(TELEMETRY_WINDOW)], TELEMETRY_WINDOW + 90)
+    # Deterministic sweep BEFORE the council. It costs no tokens, it is resumable, and it
+    # tells the council which (instrument, model) pairs are even affordable to run.
+    run(["scripts.sweep_universe", "--period", PERIOD], 5400)
     for sym in SYMBOLS:
         run(["research.experiment", "--symbol", sym, "--period", PERIOD, "--rounds", ROUNDS], 1800)
+    run(["ops.audit"], 300)
 
 
 def main() -> None:
-    print(f"scheduler up. symbols={SYMBOLS} period={PERIOD} rounds={ROUNDS} "
+    print(f"scheduler up. {len(SYMBOLS)} symbols period={PERIOD} rounds={ROUNDS} "
           f"interval={INTERVAL}s telemetry_window={TELEMETRY_WINDOW}s", flush=True)
+    print(f"  {', '.join(SYMBOLS)}", flush=True)
     while True:
         start = time.time()
         cycle()

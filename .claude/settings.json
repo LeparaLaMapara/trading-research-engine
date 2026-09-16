@@ -1,0 +1,9 @@
+{
+  "$comment": "Project autonomy settings. The owner granted full autonomy on 2026-09-16 with one exception: moving real money in the live account. The deny list below is a convenience tripwire for the obvious live-money commands, NOT the real control. The real control is ops/authority.py (owner-signed HMAC grant) plus risk/limits.py fail-closed, both checked by ops/audit.py::check_live_money_stays_gated.",
+  "permissions": {
+    "deny": [
+      "Bash(python -m scripts.probe:*--confirm*--allow-live*)",
+      "Bash(python -m ops.authority:*--grant*)"
+    ]
+  }
+}

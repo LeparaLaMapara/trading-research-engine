@@ -302,7 +302,48 @@ def check_risk_layer_is_closed() -> Check:
                  "this is checked by hand.", "no fail-closed marker found")
 
 
+@_check
+def check_live_money_stays_gated() -> Check:
+    """Is the one boundary the owner kept still closed in THIS environment?
+
+    Added 2026-09-16, when the owner granted the project full autonomy except for moving
+    real money. Autonomy makes this check more important, not less: the thing that would
+    disarm the gate is now the same thing that runs the audit. So it is checked every
+    cycle, and an UNKNOWN here is a FAIL like everywhere else.
+    """
+    from ops import authority
+
+    reasons = []
+    secret_present = bool(os.environ.get(authority.SECRET_ENV))
+    if secret_present:
+        # The live secret has no business in a research or CI environment. If it is here,
+        # the gate can be opened by anything running here, which is the whole problem.
+        reasons.append(f"{authority.SECRET_ENV} IS SET in this environment")
+
+    permitted = authority.live_trading_permitted().permitted
+    if permitted:
+        reasons.append("a valid live-trading grant is active right now")
+
+    if reasons:
+        return Check("live_money_stays_gated",
+                     "Is real money still locked away from the automation?", FAIL,
+                     "Live trading is currently POSSIBLE from this environment. That is "
+                     "only correct if the owner deliberately opened it for a session he is "
+                     "watching. Otherwise revoke it: python -m ops.authority --revoke",
+                     "; ".join(reasons))
+
+    # The two independent locks, both reported, because either one alone is a single point.
+    from risk.limits import LIVE_LIMITS
+    return Check("live_money_stays_gated",
+                 "Is real money still locked away from the automation?", PASS,
+                 "Real money cannot be moved from here. The engine can research, backtest, "
+                 "read the broker and rehearse on demo, and it cannot place a live trade.",
+                 f"no {authority.SECRET_ENV} in environment; no valid grant; "
+                 f"LIVE_LIMITS.configured()={LIVE_LIMITS.configured()}")
+
+
 ALL_CHECKS = [
+    check_live_money_stays_gated,
     check_loop_is_learning,
     check_spend_is_buying_something,
     check_dashboard_is_current,
