@@ -28,7 +28,7 @@ jobs:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       COUNCIL_ANTHROPIC_MODEL: claude-opus-5
       COUNCIL_GEMINI_MODEL: gemini-2.5-flash
-      RESEARCH_PERIOD: H1
+      RESEARCH_PERIOD: D1   # H1 costs 20-30x more for the same rule; every H1 rule was over the cost ceiling
       RESEARCH_ROUNDS: "6"
       SUPABASE_URL: https://bprargrqppufeuewryze.supabase.co
       SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
@@ -47,7 +47,12 @@ jobs:
       - name: Install
         run: pip install -e ".[llm]"
       - name: Snapshot account balance -> Supabase
-        run: python -m market.account || true
+        run: |
+          # The self-check needs the balance to judge "can it still trade". It was UNKNOWN
+          # every day because nothing handed it over.
+          python -m market.account | tee account.log || true
+          B=$(grep -o "balance=[0-9.]*" account.log | head -1 | cut -d= -f2)
+          if [ -n "$B" ]; then echo "ACCOUNT_BALANCE_USD=$B" >> "$GITHUB_ENV"; fi
       - name: Run one research cycle
         run: |
           # Individual symbols may fail (broker hiccup, thin data) without failing the run,
@@ -56,7 +61,7 @@ jobs:
           set +e
           for S in EURUSD USDJPY XAUUSD; do
             echo "::group::fetch bars $S"
-            python -m market.bars --symbol "$S" --period "$RESEARCH_PERIOD" --days 180
+            python -m market.bars --symbol "$S" --period "$RESEARCH_PERIOD" --years 12
             echo "::endgroup::"
           done
           for S in EURUSD USDJPY XAUUSD; do
@@ -71,6 +76,9 @@ jobs:
                    | sed -E 's/.*\(([0-9]+) tested this run\)/\1/' | paste -sd+ - | bc)
           TESTED=${TESTED:-0}
           echo "candidates actually backtested this cycle: $TESTED"
+          SPEND=$(grep -ho '^\[budget\] \$[0-9.]*' cycle_*.log | sed -E 's/.*\$//' | paste -sd+ - | bc)
+          echo "LAST_RUN_SPEND_USD=${SPEND:-0}" >> "$GITHUB_ENV"
+          echo "council spend this cycle: \$${SPEND:-0}"
           if [ "$TESTED" -eq 0 ]; then
             echo "::error::Research cycle tested 0 candidates. The loop is not learning."
             echo "Every proposal was rejected or skipped before the backtest stage. Check the"

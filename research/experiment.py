@@ -392,6 +392,10 @@ def main() -> None:
     with open("data/experiment_report.txt", "w", encoding="utf-8") as f:
         f.write(report)
     print("\nsaved -> data/experiment_report.txt")
+    # The self-check matches spend against output. Without this line CI never saw a spend
+    # figure, and the audit reported $0.00 for runs that called the council every round.
+    from council.budget import GUARD
+    print(GUARD.summary())
 
     # Push results to Supabase for the dashboard (no-op if SUPABASE_* not set).
     from research import supabase_sink
