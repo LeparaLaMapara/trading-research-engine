@@ -146,9 +146,11 @@ def check_spend_is_buying_something(db_path: str = "data/research.db") -> Check:
         return Check("spend_is_buying_something", "Is the money spent producing anything?",
                      UNKNOWN, "Nothing has been spent and nothing has been tested, so there "
                      "is nothing to judge yet.", "spend=0 tested=0")
+    # Starts with a word, not a currency symbol: every finding here is read by someone who
+    # does not trade, and the suite asserts they read like sentences.
     return Check("spend_is_buying_something", "Is the money spent producing anything?", PASS,
-                 f"${spent:.2f} of thinking produced {tested} tested ideas "
-                 f"(${spent/max(tested,1):.3f} each).", f"spend={spent} tested={tested}")
+                 f"Thinking cost ${spent:.2f} and produced {tested} tested ideas, about "
+                 f"${spent/max(tested,1):.3f} each.", f"spend={spent} tested={tested}")
 
 
 @_check
