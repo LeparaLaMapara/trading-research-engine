@@ -163,6 +163,7 @@ def walk_forward_refit(bars: pd.DataFrame, make_strategy, costs: CostModel, peri
         # NOT EVALUABLE, which is different from "failed". The caller must not treat this as
         # a score of zero: nothing was measured, so nothing is known.
         return {"n_bars": n, "dev_summary": None, "dev_net_returns": pd.Series(dtype=float),
+                "holdout_net_returns": pd.Series(dtype=float),
                 "split_sharpes": [], "split_sharpe_mean": 0.0, "split_sharpe_std": 0.0,
                 "split_sharpe_min": 0.0, "holdout_summary": None,
                 "fold_params": fold_params, "fold_active_bars": fold_active,
@@ -174,12 +175,17 @@ def walk_forward_refit(bars: pd.DataFrame, make_strategy, costs: CostModel, peri
     dev_returns = pd.concat(oof_returns, ignore_index=True)
 
     holdout_summary = None
+    holdout_returns = pd.Series(dtype=float)
     if len(holdout) >= 30 and len(dev) >= min_train:
         final = make_strategy()
         if hasattr(final, "fit"):
             final.fit(dev.reset_index(drop=True))
-        holdout_summary = run_backtest(holdout.reset_index(drop=True), final, costs,
-                                       ppy).summary
+        hres = run_backtest(holdout.reset_index(drop=True), final, costs, ppy)
+        holdout_summary = hres.summary
+        # The SERIES, not only its summary. Deflation needs skew and kurtosis, and neither
+        # can be recovered from a Sharpe ratio, so a caller given only the summary has to
+        # either approximate or substitute a different series. Both were happening.
+        holdout_returns = hres.net_returns
 
     sharpes = [s["sharpe"] for s in split_summaries]
     return {
@@ -194,6 +200,7 @@ def walk_forward_refit(bars: pd.DataFrame, make_strategy, costs: CostModel, peri
         "split_sharpe_std": round(float(np.std(sharpes)), 3) if sharpes else 0.0,
         "split_sharpe_min": round(float(np.min(sharpes)), 3) if sharpes else 0.0,
         "holdout_summary": holdout_summary,
+        "holdout_net_returns": holdout_returns,
         "fold_params": fold_params,      # how stable the estimates are across time
         "fold_active_bars": fold_active,  # bars where a position was actually held
         "evaluable": True,
