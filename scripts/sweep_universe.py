@@ -196,8 +196,21 @@ def report(period: str | None = None) -> int:
 
     ev = [r for r in rows if r[3]]
     both_pos = [r for r in ev if r[4] and r[4] > 0 and r[5] and r[5] > 0]
+    # THE BASELINE, printed next to the count and never without it. If dev and holdout
+    # Sharpes were pure noise, symmetric about zero and independent, a quarter of pairs
+    # would be positive on both by luck alone. A bare count reads as a result when it is a
+    # coin-flip tally, and this report has already been read that way once.
+    expected = 0.25 * len(ev)
     print(f"\n{len(rows)} pairs recorded, {len(ev)} evaluable, "
           f"{len(both_pos)} positive on BOTH development and holdout")
+    print(f"   chance alone predicts {expected:.1f} of {len(ev)}. Observed {len(both_pos)} is "
+          + ("BELOW chance: costs are eating the signal."
+             if len(both_pos) < expected * 0.75 else
+             "ABOVE chance. Worth a closer look, not yet evidence."
+             if len(both_pos) > expected * 1.5 else
+             "AT chance: no evidence of edge either way."))
+    print("   Positive on both is the price of ADMISSION, not a pass. Nothing here is an "
+          "edge until\n   it clears the deflated-Sharpe bar against the honest trial count.")
     for r in both_pos:
         print(f"   {r[0]} {r[2]}: dev {r[4]:.3f}, holdout {r[5]:.3f}")
     conn.close()
