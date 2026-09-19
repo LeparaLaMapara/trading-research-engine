@@ -64,7 +64,8 @@ def buffered(f: np.ndarray) -> np.ndarray:
 
 
 def portfolio_returns(panel: pd.DataFrame, forecast: pd.Series, costs: pd.DataFrame,
-                      mask: pd.Series | None = None) -> pd.DataFrame:
+                      mask: pd.Series | None = None,
+                      income: pd.Series | None = None) -> pd.DataFrame:
     """Daily portfolio gross and net returns for rows selected by `mask`.
 
     The buffer and cost are computed over each instrument's WHOLE forecast path in date order,
@@ -73,13 +74,16 @@ def portfolio_returns(panel: pd.DataFrame, forecast: pd.Series, costs: pd.DataFr
     """
     df = panel[["date", "symbol", "sigma", "fwd_ret"]].copy()
     df["f"] = forecast.clip(-CAP, CAP).to_numpy()
+    # Per-bar income earned by a LONG unit of notional (e.g. an FX interest differential);
+    # a short earns its negative. Zero when not supplied.
+    df["inc"] = 0.0 if income is None else income.fillna(0.0).to_numpy()
     df = df.join(costs, on="symbol")
     df = df.sort_values(["symbol", "date"])
     df["pos"] = df.groupby("symbol")["f"].transform(lambda s: pd.Series(buffered(s.to_numpy()),
                                                                          index=s.index))
     df["notional"] = df["pos"] / df["sigma"]
     prev = df.groupby("symbol")["notional"].shift(1).fillna(0.0)
-    df["gross"] = df["notional"] * df["fwd_ret"]
+    df["gross"] = df["notional"] * (df["fwd_ret"] + df["inc"])
     df["tcost"] = (df["notional"] - prev).abs() * df["cost"]
     df["fcost"] = df["notional"].abs() * df["fin"]
     df["net"] = df["gross"] - df["tcost"] - df["fcost"]
