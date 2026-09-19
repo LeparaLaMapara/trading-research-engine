@@ -9,6 +9,8 @@ instruments divided by the number alive on that date. A common leverage factor d
 """
 from __future__ import annotations
 
+import os
+
 import numpy as np
 import pandas as pd
 
@@ -33,8 +35,29 @@ SPREAD_OVERRIDE_BPS = {
 }
 
 
+#: "measured" = broker swap fee per symbol (zoo.financing, data/swaps.json, captured
+#: 2026-09-19), falling back to the class median of measured fees; "assumed" = FINANCING above,
+#: the pre-registered values. Measured became the default the day it existed; results under
+#: "assumed" are kept for comparison.
+FINANCING_MODE = os.environ.get("ZOO_FINANCING", "measured")
+
+
+def _measured_fees(panel: pd.DataFrame) -> dict[str, float]:
+    from zoo.financing import fee_and_differential, load
+    try:
+        sw = load()
+    except OSError:
+        return {}
+    last = panel.sort_values("date").groupby("symbol")["close"].last()
+    return {s: max(fee_and_differential(sw[s], float(last[s]))[0], 0.0)
+            for s in last.index if s in sw}
+
+
 def cost_table(panel: pd.DataFrame) -> pd.DataFrame:
     """Per instrument: cost per unit notional traded, and financing per bar."""
+    fees = _measured_fees(panel) if FINANCING_MODE == "measured" else {}
+    cls_of = panel.groupby("symbol")["asset_class"].first()
+    cls_med = pd.Series(fees).groupby(cls_of.reindex(list(fees)).to_numpy()).median().to_dict()         if fees else {}
     rows = []
     for sym, g in panel.groupby("symbol"):
         cls = g["asset_class"].iloc[0]
@@ -45,7 +68,8 @@ def cost_table(panel: pd.DataFrame) -> pd.DataFrame:
             cm = measured_cost(sym, ref_price=float(g["close"].mean()))
             c = cm.cost_per_unit_turnover()
             src = "model"
-        fin = FINANCING.get(cls, 0.03) / BARS_PER_YEAR.get(cls, 260.0)
+        annual = fees.get(sym, cls_med.get(cls, FINANCING.get(cls, 0.03))) if fees             else FINANCING.get(cls, 0.03)
+        fin = annual / BARS_PER_YEAR.get(cls, 260.0)
         rows.append({"symbol": sym, "cost": c, "fin": fin, "cost_src": src})
     return pd.DataFrame(rows).set_index("symbol")
 

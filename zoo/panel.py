@@ -74,10 +74,12 @@ def _instrument_frame(symbol: str, bars: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def build_panel(symbols: list[str], db: str = MARKET_DB) -> pd.DataFrame:
+def build_panel(symbols: list[str], db: str = MARKET_DB, loader=None) -> pd.DataFrame:
+    """`loader(symbol) -> DataFrame[high, low, close] indexed by date` swaps the data source
+    (e.g. long-history files) without touching feature construction."""
     frames = []
     for s in symbols:
-        b = _daily(s, db)
+        b = loader(s) if loader else _daily(s, db)
         if len(b) > WARMUP + 250:
             frames.append(_instrument_frame(s, b))
     panel = pd.concat(frames).reset_index().rename(columns={"index": "date"})

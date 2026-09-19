@@ -1,0 +1,1000 @@
+{
+ "N": 279,
+ "luck_bar_annual": 1.2772688675168604,
+ "champion": "gru_seq",
+ "champion_dev": 0.21601422539689588,
+ "champion_ci": [
+  -0.4398381007389915,
+  0.9080032297347571
+ ],
+ "champion_dsr": 0.0017052051340128384,
+ "best_rule": "tsmom_12m",
+ "holdout": {},
+ "pooling": {
+  "ridge_pooled": -0.211,
+  "ridge_per_instrument": -0.542,
+  "ridge_per_class": -0.633
+ },
+ "table": [
+  {
+   "model": "long_risk_parity",
+   "family": "baseline",
+   "dev_sharpe": 0.4961494119162134,
+   "gross_sharpe": 1.0770706494614501,
+   "per_obs_sharpe": 0.027587058522161624,
+   "n_obs": 2493,
+   "years_positive": 6,
+   "years_total": 8,
+   "yearly": {
+    "2017": 1.962,
+    "2018": -1.77,
+    "2019": 0.839,
+    "2020": 1.051,
+    "2021": 0.923,
+    "2022": -0.871,
+    "2023": 1.09,
+    "2024": 1.078
+   },
+   "max_dd": -0.2643873034415714,
+   "turnover": 0.16406186526191474,
+   "cost_sharpe": 0.5809871919814497,
+   "dsr": 0.015826968942851703,
+   "verdict": "UNDERPOWERED"
+  },
+  {
+   "model": "gru_seq",
+   "family": "learned",
+   "dev_sharpe": 0.21601422539689588,
+   "gross_sharpe": 0.89720398540938,
+   "per_obs_sharpe": 0.012010892151676944,
+   "n_obs": 2493,
+   "years_positive": 6,
+   "years_total": 8,
+   "yearly": {
+    "2017": 0.063,
+    "2018": -1.712,
+    "2019": 0.577,
+    "2020": 0.703,
+    "2021": 0.459,
+    "2022": -0.685,
+    "2023": 1.118,
+    "2024": 1.204
+   },
+   "max_dd": -0.22907843542618683,
+   "turnover": 47.81519798177216,
+   "cost_sharpe": 0.6812218351346743,
+   "dsr": 0.0017052051340128384,
+   "verdict": "UNDERPOWERED"
+  },
+  {
+   "model": "cash",
+   "family": "baseline",
+   "dev_sharpe": 0.0,
+   "gross_sharpe": 0.0,
+   "per_obs_sharpe": 0.0,
+   "n_obs": 2493,
+   "years_positive": 0,
+   "years_total": 8,
+   "yearly": {
+    "2017": 0.0,
+    "2018": 0.0,
+    "2019": 0.0,
+    "2020": 0.0,
+    "2021": 0.0,
+    "2022": 0.0,
+    "2023": 0.0,
+    "2024": 0.0
+   },
+   "max_dd": 0.0,
+   "turnover": 0.0,
+   "cost_sharpe": 0.0,
+   "dsr": 0.0,
+   "verdict": "UNEVALUABLE"
+  },
+  {
+   "model": "ens_ml",
+   "family": "ensemble",
+   "dev_sharpe": -0.02580022727275461,
+   "gross_sharpe": 0.6715226364358851,
+   "per_obs_sharpe": -0.0014345525008477651,
+   "n_obs": 2493,
+   "years_positive": 3,
+   "years_total": 8,
+   "yearly": {
+    "2017": -0.262,
+    "2018": -0.695,
+    "2019": -0.369,
+    "2020": -0.531,
+    "2021": 0.552,
+    "2022": -0.543,
+    "2023": 0.896,
+    "2024": 1.383
+   },
+   "max_dd": -0.33536710210089105,
+   "turnover": 64.75556888681865,
+   "cost_sharpe": 0.6973202090433213,
+   "dsr": 0.0001479376390511038,
+   "verdict": "FALSIFIED"
+  },
+  {
+   "model": "extra_trees",
+   "family": "learned",
+   "dev_sharpe": -0.0962953739350091,
+   "gross_sharpe": 0.5830772640562804,
+   "per_obs_sharpe": -0.0053542462257461,
+   "n_obs": 2493,
+   "years_positive": 3,
+   "years_total": 8,
+   "yearly": {
+    "2017": -0.3,
+    "2018": -1.188,
+    "2019": -0.76,
+    "2020": -0.252,
+    "2021": 0.926,
+    "2022": -0.715,
+    "2023": 1.52,
+    "2024": 0.83
+   },
+   "max_dd": -0.43573604725799236,
+   "turnover": 59.725890116875526,
+   "cost_sharpe": 0.6793678650553552,
+   "dsr": 6.705806634245411e-05,
+   "verdict": "FALSIFIED"
+  },
+  {
+   "model": "ens_all",
+   "family": "ensemble",
+   "dev_sharpe": -0.13981735660241137,
+   "gross_sharpe": 0.5917221154192394,
+   "per_obs_sharpe": -0.0077741694464731805,
+   "n_obs": 2493,
+   "years_positive": 4,
+   "years_total": 8,
+   "yearly": {
+    "2017": 0.248,
+    "2018": -1.166,
+    "2019": -1.037,
+    "2020": -0.5,
+    "2021": 0.336,
+    "2022": -0.364,
+    "2023": 0.569,
+    "2024": 0.985
+   },
+   "max_dd": -0.4177488350341302,
+   "turnover": 64.66623620136666,
+   "cost_sharpe": 0.7315640971208478,
+   "dsr": 3.85969878470712e-05,
+   "verdict": "FALSIFIED"
+  },
+  {
+   "model": "logistic_pooled",
+   "family": "learned",
+   "dev_sharpe": -0.15139768073085652,
+   "gross_sharpe": 0.6768124080506108,
+   "per_obs_sharpe": -0.008418062337937429,
+   "n_obs": 2493,
+   "years_positive": 2,
+   "years_total": 8,
+   "yearly": {
+    "2017": -0.354,
+    "2018": -0.529,
+    "2019": -0.364,
+    "2020": -0.125,
+    "2021": 0.432,
+    "2022": -1.235,
+    "2023": -0.148,
+    "2024": 1.212
+   },
+   "max_dd": -0.29218832630186786,
+   "turnover": 75.50616232072893,
+   "cost_sharpe": 0.8282483863624077,
+   "dsr": 3.433009189972334e-05,
+   "verdict": "FALSIFIED"
+  },
+  {
+   "model": "xgb_shallow",
+   "family": "learned",
+   "dev_sharpe": -0.19672913854081667,
+   "gross_sharpe": 0.6877475155406803,
+   "per_obs_sharpe": -0.010938596575130998,
+   "n_obs": 2493,
+   "years_positive": 4,
+   "years_total": 8,
+   "yearly": {
+    "2017": -0.582,
+    "2018": -1.227,
+    "2019": -0.626,
+    "2020": -1.338,
+    "2021": 0.298,
+    "2022": 0.273,
+    "2023": 1.537,
+    "2024": 0.249
+   },
+   "max_dd": -0.5045156842755002,
+   "turnover": 87.06926640262832,
+   "cost_sharpe": 0.8843856165917979,
+   "dsr": 2.1380276807967785e-05,
+   "verdict": "FALSIFIED"
+  },
+  {
+   "model": "ridge_pooled",
+   "family": "learned",
+   "dev_sharpe": -0.21139114389162428,
+   "gross_sharpe": 0.6829454773915216,
+   "per_obs_sharpe": -0.01175383809300925,
+   "n_obs": 2493,
+   "years_positive": 2,
+   "years_total": 8,
+   "yearly": {
+    "2017": -0.075,
+    "2018": 0.912,
+    "2019": -0.671,
+    "2020": -0.487,
+    "2021": -0.178,
+    "2022": -1.052,
+    "2023": -0.023,
+    "2024": 0.675
+   },
+   "max_dd": -0.35383828865370476,
+   "turnover": 74.71937588459043,
+   "cost_sharpe": 0.894348551462109,
+   "dsr": 1.658699430330826e-05,
+   "verdict": "FALSIFIED"
+  },
+  {
+   "model": "mlp",
+   "family": "learned",
+   "dev_sharpe": -0.29732326203546056,
+   "gross_sharpe": 0.5165747695091268,
+   "per_obs_sharpe": -0.016531863250817264,
+   "n_obs": 2493,
+   "years_positive": 3,
+   "years_total": 8,
+   "yearly": {
+    "2017": -0.888,
+    "2018": -0.994,
+    "2019": 0.142,
+    "2020": -0.736,
+    "2021": -0.069,
+    "2022": -0.425,
+    "2023": 0.339,
+    "2024": 0.454
+   },
+   "max_dd": -0.46909074168773035,
+   "turnover": 89.062904514028,
+   "cost_sharpe": 0.8138213012555975,
+   "dsr": 5.270482798573864e-06,
+   "verdict": "FALSIFIED"
+  },
+  {
+   "model": "random_forest",
+   "family": "learned",
+   "dev_sharpe": -0.3277885804870414,
+   "gross_sharpe": 0.5367036264155503,
+   "per_obs_sharpe": -0.01822580564565775,
+   "n_obs": 2493,
+   "years_positive": 1,
+   "years_total": 8,
+   "yearly": {
+    "2017": -0.05,
+    "2018": -1.386,
+    "2019": -0.432,
+    "2020": -0.947,
+    "2021": -0.02,
+    "2022": -0.22,
+    "2023": 0.685,
+    "2024": -0.222
+   },
+   "max_dd": -0.5481846600380099,
+   "turnover": 83.39269192408456,
+   "cost_sharpe": 0.8645135413728714,
+   "dsr": 4.439004607878644e-06,
+   "verdict": "FALSIFIED"
+  },
+  {
+   "model": "tsmom_12m",
+   "family": "rule",
+   "dev_sharpe": -0.33188964287571593,
+   "gross_sharpe": 0.27355104898425436,
+   "per_obs_sharpe": -0.01845383423019734,
+   "n_obs": 2493,
+   "years_positive": 3,
+   "years_total": 8,
+   "yearly": {
+    "2017": 0.946,
+    "2018": -1.483,
+    "2019": -1.15,
+    "2020": 0.09,
+    "2021": -0.196,
+    "2022": -0.272,
+    "2023": -0.85,
+    "2024": 0.062
+   },
+   "max_dd": -0.4840129633361241,
+   "turnover": 15.45925482349727,
+   "cost_sharpe": 0.6055038072989647,
+   "dsr": 3.4965749694495596e-06,
+   "verdict": "FALSIFIED"
+  },
+  {
+   "model": "xgb_deep",
+   "family": "learned",
+   "dev_sharpe": -0.4362170720168647,
+   "gross_sharpe": 0.5684516598583016,
+   "per_obs_sharpe": -0.024254681362249512,
+   "n_obs": 2493,
+   "years_positive": 3,
+   "years_total": 8,
+   "yearly": {
+    "2017": -1.078,
+    "2018": -1.368,
+    "2019": -1.094,
+    "2020": -2.002,
+    "2021": 0.415,
+    "2022": 0.65,
+    "2023": 0.866,
+    "2024": -0.262
+   },
+   "max_dd": -0.6395894965598834,
+   "turnover": 105.8543050720313,
+   "cost_sharpe": 1.0045497382650126,
+   "dsr": 1.0870856511659728e-06,
+   "verdict": "FALSIFIED"
+  },
+  {
+   "model": "ridge_per_instrument",
+   "family": "learned",
+   "dev_sharpe": -0.5424896341891893,
+   "gross_sharpe": 0.38231501994618844,
+   "per_obs_sharpe": -0.030163682404143466,
+   "n_obs": 2493,
+   "years_positive": 2,
+   "years_total": 8,
+   "yearly": {
+    "2017": 0.629,
+    "2018": -0.737,
+    "2019": -2.797,
+    "2020": -0.901,
+    "2021": -0.069,
+    "2022": -0.619,
+    "2023": -0.798,
+    "2024": 1.644
+   },
+   "max_dd": -0.6768235633945301,
+   "turnover": 52.479079203576774,
+   "cost_sharpe": 0.9249519896989445,
+   "dsr": 1.928173747940816e-07,
+   "verdict": "FALSIFIED"
+  },
+  {
+   "model": "breakout",
+   "family": "rule",
+   "dev_sharpe": -0.5613665864088184,
+   "gross_sharpe": 0.09813635654400896,
+   "per_obs_sharpe": -0.031213284747904583,
+   "n_obs": 2493,
+   "years_positive": 1,
+   "years_total": 8,
+   "yearly": {
+    "2017": -0.635,
+    "2018": -0.763,
+    "2019": -1.382,
+    "2020": 0.901,
+    "2021": -1.08,
+    "2022": -0.356,
+    "2023": -1.809,
+    "2024": -0.607
+   },
+   "max_dd": -0.49832154500612763,
+   "turnover": 61.47719332983976,
+   "cost_sharpe": 0.6597652178918844,
+   "dsr": 2.4285836667447507e-07,
+   "verdict": "FALSIFIED"
+  },
+  {
+   "model": "ridge_per_class",
+   "family": "learned",
+   "dev_sharpe": -0.6327547748660901,
+   "gross_sharpe": 0.20736392853307628,
+   "per_obs_sharpe": -0.0351826336687382,
+   "n_obs": 2493,
+   "years_positive": 2,
+   "years_total": 8,
+   "yearly": {
+    "2017": -1.815,
+    "2018": -0.183,
+    "2019": -1.811,
+    "2020": -0.545,
+    "2021": 0.581,
+    "2022": -1.134,
+    "2023": -0.309,
+    "2024": 0.33
+   },
+   "max_dd": -0.6141660375931929,
+   "turnover": 66.46381524568727,
+   "cost_sharpe": 0.8404229709279963,
+   "dsr": 4.359687400181829e-08,
+   "verdict": "FALSIFIED"
+  },
+  {
+   "model": "ens_rules",
+   "family": "ensemble",
+   "dev_sharpe": -0.7873822762832557,
+   "gross_sharpe": -0.24493825602904343,
+   "per_obs_sharpe": -0.0437802815310143,
+   "n_obs": 2493,
+   "years_positive": 0,
+   "years_total": 8,
+   "yearly": {
+    "2017": -0.288,
+    "2018": -1.719,
+    "2019": -1.843,
+    "2020": -0.089,
+    "2021": -0.353,
+    "2022": -0.256,
+    "2023": -1.569,
+    "2024": -1.172
+   },
+   "max_dd": -0.751637473940277,
+   "turnover": 29.928577555621743,
+   "cost_sharpe": 0.5428989485615137,
+   "dsr": 3.4202157283564606e-09,
+   "verdict": "FALSIFIED"
+  },
+  {
+   "model": "ewmac",
+   "family": "rule",
+   "dev_sharpe": -0.8229721138031988,
+   "gross_sharpe": -0.39498413782495384,
+   "per_obs_sharpe": -0.04575915907652009,
+   "n_obs": 2493,
+   "years_positive": 0,
+   "years_total": 8,
+   "yearly": {
+    "2017": -0.2,
+    "2018": -1.391,
+    "2019": -2.084,
+    "2020": -0.267,
+    "2021": -0.553,
+    "2022": -0.414,
+    "2023": -2.001,
+    "2024": -0.88
+   },
+   "max_dd": -0.7699067128117425,
+   "turnover": 11.422548754140918,
+   "cost_sharpe": 0.4284132249395506,
+   "dsr": 1.7600135383039864e-09,
+   "verdict": "FALSIFIED"
+  },
+  {
+   "model": "xs_momentum",
+   "family": "rule",
+   "dev_sharpe": -0.9104859723781303,
+   "gross_sharpe": -0.0909195144418532,
+   "per_obs_sharpe": -0.05062513267242251,
+   "n_obs": 2493,
+   "years_positive": 2,
+   "years_total": 8,
+   "yearly": {
+    "2017": -1.871,
+    "2018": -1.889,
+    "2019": -1.962,
+    "2020": 0.077,
+    "2021": -0.446,
+    "2022": 0.378,
+    "2023": -0.326,
+    "2024": -1.929
+   },
+   "max_dd": -0.8052954445123168,
+   "turnover": 38.69443372756526,
+   "cost_sharpe": 0.8200512513726521,
+   "dsr": 4.968045012766461e-10,
+   "verdict": "FALSIFIED"
+  },
+  {
+   "model": "random_sign",
+   "family": "baseline",
+   "dev_sharpe": -1.1836451516178317,
+   "gross_sharpe": 0.3406599384332441,
+   "per_obs_sharpe": -0.06581341685167263,
+   "n_obs": 2493,
+   "years_positive": 0,
+   "years_total": 8,
+   "yearly": {
+    "2017": -2.565,
+    "2018": -0.744,
+    "2019": -1.283,
+    "2020": -1.992,
+    "2021": -1.144,
+    "2022": -0.354,
+    "2023": -0.378,
+    "2024": -1.06
+   },
+   "max_dd": -1.0246252723478164,
+   "turnover": 18.346620291496144,
+   "cost_sharpe": 1.526366050767895,
+   "dsr": 5.557898688113061e-12,
+   "verdict": "FALSIFIED"
+  },
+  {
+   "model": "short_reversal",
+   "family": "rule",
+   "dev_sharpe": -1.4057210277575205,
+   "gross_sharpe": -0.4843611780813755,
+   "per_obs_sharpe": -0.07816135084954766,
+   "n_obs": 2493,
+   "years_positive": 0,
+   "years_total": 8,
+   "yearly": {
+    "2017": -1.144,
+    "2018": -2.21,
+    "2019": -1.131,
+    "2020": -2.076,
+    "2021": -0.137,
+    "2022": -1.046,
+    "2023": -1.475,
+    "2024": -2.365
+   },
+   "max_dd": -1.2267545047059352,
+   "turnover": 137.71397706941227,
+   "cost_sharpe": 0.9226671071523556,
+   "dsr": 9.443852482099319e-15,
+   "verdict": "FALSIFIED"
+  }
+ ],
+ "champion_by_instrument": {
+  "DOTUSD": -0.947,
+  "EURCHF": -0.651,
+  "USDSGD": -0.631,
+  "GBPCHF": -0.459,
+  "USDCHF": -0.414,
+  "EURGBP": -0.238,
+  "AUDCAD": -0.237,
+  "NZDUSD": -0.178,
+  "EURCAD": -0.174,
+  "AUDNZD": -0.133,
+  "USDMXN": -0.12,
+  "XBRUSD": -0.118,
+  "GBPAUD": -0.111,
+  "EURSEK": -0.11,
+  "HK50": -0.097,
+  "AUDUSD": -0.093,
+  "USDPLN": -0.085,
+  "GBPCAD": -0.08,
+  "EURUSD": -0.069,
+  "USDCAD": -0.05,
+  "XTIUSD": -0.035,
+  "NZDJPY": -0.035,
+  "AUDJPY": -0.032,
+  "XAGUSD": -0.012,
+  "EURNZD": 0.003,
+  "USDSEK": 0.01,
+  "CADJPY": 0.019,
+  "CHINA50": 0.045,
+  "GBPJPY": 0.05,
+  "GBPUSD": 0.058,
+  "UK100": 0.064,
+  "ES35": 0.122,
+  "US2000": 0.131,
+  "STOXX50": 0.132,
+  "IT40": 0.136,
+  "USDZAR": 0.151,
+  "EURZAR": 0.162,
+  "USDNOK": 0.173,
+  "USDJPY": 0.181,
+  "BTCUSD": 0.187,
+  "DE40": 0.192,
+  "F40": 0.194,
+  "EURAUD": 0.203,
+  "EURJPY": 0.212,
+  "AUS200": 0.223,
+  "LTCUSD": 0.243,
+  "EURNOK": 0.255,
+  "XRPUSD": 0.295,
+  "XPDUSD": 0.318,
+  "BCHUSD": 0.375,
+  "JP225": 0.377,
+  "ETHUSD": 0.404,
+  "XAUUSD": 0.436,
+  "US30": 0.439,
+  "XPTUSD": 0.448,
+  "CHFJPY": 0.459,
+  "CA60": 0.478,
+  "XAUEUR": 0.558,
+  "XNGUSD": 0.57,
+  "SA40": 0.572,
+  "US500": 0.591,
+  "USTEC": 0.758,
+  "ADAUSD": 0.857,
+  "SOLUSD": 0.877
+ },
+ "costs": [
+  {
+   "symbol": "ADAUSD",
+   "cost": 0.002606,
+   "fin": 0.000411,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "AUDCAD",
+   "cost": 0.000185,
+   "fin": 3.8e-05,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "AUDJPY",
+   "cost": 5.2e-05,
+   "fin": 3.8e-05,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "AUDNZD",
+   "cost": 0.000185,
+   "fin": 3.8e-05,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "AUDUSD",
+   "cost": 4.2e-05,
+   "fin": 3.8e-05,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "AUS200",
+   "cost": 0.000123,
+   "fin": 0.000115,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "BCHUSD",
+   "cost": 0.001285,
+   "fin": 0.000411,
+   "cost_src": "override"
+  },
+  {
+   "symbol": "BTCUSD",
+   "cost": 0.000109,
+   "fin": 0.000411,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "CA60",
+   "cost": 0.000285,
+   "fin": 0.000115,
+   "cost_src": "override"
+  },
+  {
+   "symbol": "CADJPY",
+   "cost": 0.000185,
+   "fin": 3.8e-05,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "CHFJPY",
+   "cost": 0.000185,
+   "fin": 3.8e-05,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "CHINA50",
+   "cost": 0.000285,
+   "fin": 0.000115,
+   "cost_src": "override"
+  },
+  {
+   "symbol": "DE40",
+   "cost": 5.1e-05,
+   "fin": 0.000115,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "DOTUSD",
+   "cost": 0.001535,
+   "fin": 0.000411,
+   "cost_src": "override"
+  },
+  {
+   "symbol": "ES35",
+   "cost": 0.000235,
+   "fin": 0.000115,
+   "cost_src": "override"
+  },
+  {
+   "symbol": "ETHUSD",
+   "cost": 0.000783,
+   "fin": 0.000411,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "EURAUD",
+   "cost": 5.1e-05,
+   "fin": 3.8e-05,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "EURCAD",
+   "cost": 0.000185,
+   "fin": 3.8e-05,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "EURCHF",
+   "cost": 0.000185,
+   "fin": 3.8e-05,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "EURGBP",
+   "cost": 5.2e-05,
+   "fin": 3.8e-05,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "EURJPY",
+   "cost": 6.7e-05,
+   "fin": 3.8e-05,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "EURNOK",
+   "cost": 0.000435,
+   "fin": 3.8e-05,
+   "cost_src": "override"
+  },
+  {
+   "symbol": "EURNZD",
+   "cost": 0.000185,
+   "fin": 3.8e-05,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "EURSEK",
+   "cost": 0.000435,
+   "fin": 3.8e-05,
+   "cost_src": "override"
+  },
+  {
+   "symbol": "EURUSD",
+   "cost": 3.9e-05,
+   "fin": 3.8e-05,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "EURZAR",
+   "cost": 0.000785,
+   "fin": 3.8e-05,
+   "cost_src": "override"
+  },
+  {
+   "symbol": "F40",
+   "cost": 0.000135,
+   "fin": 0.000115,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "GBPAUD",
+   "cost": 0.000185,
+   "fin": 3.8e-05,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "GBPCAD",
+   "cost": 0.000185,
+   "fin": 3.8e-05,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "GBPCHF",
+   "cost": 0.000185,
+   "fin": 3.8e-05,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "GBPJPY",
+   "cost": 6e-05,
+   "fin": 3.8e-05,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "GBPUSD",
+   "cost": 4.3e-05,
+   "fin": 3.8e-05,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "HK50",
+   "cost": 0.000223,
+   "fin": 0.000115,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "IT40",
+   "cost": 0.000235,
+   "fin": 0.000115,
+   "cost_src": "override"
+  },
+  {
+   "symbol": "JP225",
+   "cost": 0.000185,
+   "fin": 0.000115,
+   "cost_src": "override"
+  },
+  {
+   "symbol": "LTCUSD",
+   "cost": 0.001285,
+   "fin": 0.000411,
+   "cost_src": "override"
+  },
+  {
+   "symbol": "NZDJPY",
+   "cost": 6e-05,
+   "fin": 3.8e-05,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "NZDUSD",
+   "cost": 4.3e-05,
+   "fin": 3.8e-05,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "SA40",
+   "cost": 0.000435,
+   "fin": 0.000115,
+   "cost_src": "override"
+  },
+  {
+   "symbol": "SOLUSD",
+   "cost": 0.001035,
+   "fin": 0.000411,
+   "cost_src": "override"
+  },
+  {
+   "symbol": "STOXX50",
+   "cost": 0.000135,
+   "fin": 0.000115,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "UK100",
+   "cost": 0.000135,
+   "fin": 0.000115,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "US2000",
+   "cost": 0.000235,
+   "fin": 0.000115,
+   "cost_src": "override"
+  },
+  {
+   "symbol": "US30",
+   "cost": 0.000135,
+   "fin": 0.000115,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "US500",
+   "cost": 7.3e-05,
+   "fin": 0.000115,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "USDCAD",
+   "cost": 4.3e-05,
+   "fin": 3.8e-05,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "USDCHF",
+   "cost": 4e-05,
+   "fin": 3.8e-05,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "USDJPY",
+   "cost": 3.9e-05,
+   "fin": 3.8e-05,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "USDMXN",
+   "cost": 0.000535,
+   "fin": 3.8e-05,
+   "cost_src": "override"
+  },
+  {
+   "symbol": "USDNOK",
+   "cost": 0.000435,
+   "fin": 3.8e-05,
+   "cost_src": "override"
+  },
+  {
+   "symbol": "USDPLN",
+   "cost": 0.000535,
+   "fin": 3.8e-05,
+   "cost_src": "override"
+  },
+  {
+   "symbol": "USDSEK",
+   "cost": 0.000435,
+   "fin": 3.8e-05,
+   "cost_src": "override"
+  },
+  {
+   "symbol": "USDSGD",
+   "cost": 0.000335,
+   "fin": 3.8e-05,
+   "cost_src": "override"
+  },
+  {
+   "symbol": "USDZAR",
+   "cost": 0.000535,
+   "fin": 3.8e-05,
+   "cost_src": "override"
+  },
+  {
+   "symbol": "USTEC",
+   "cost": 0.000135,
+   "fin": 0.000115,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "XAGUSD",
+   "cost": 0.000307,
+   "fin": 9.6e-05,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "XAUEUR",
+   "cost": 6.6e-05,
+   "fin": 9.6e-05,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "XAUUSD",
+   "cost": 5.7e-05,
+   "fin": 9.6e-05,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "XBRUSD",
+   "cost": 0.000103,
+   "fin": 0.000115,
+   "cost_src": "model"
+  },
+  {
+   "symbol": "XNGUSD",
+   "cost": 0.000635,
+   "fin": 0.000115,
+   "cost_src": "override"
+  },
+  {
+   "symbol": "XPDUSD",
+   "cost": 0.001285,
+   "fin": 9.6e-05,
+   "cost_src": "override"
+  },
+  {
+   "symbol": "XPTUSD",
+   "cost": 0.000785,
+   "fin": 9.6e-05,
+   "cost_src": "override"
+  },
+  {
+   "symbol": "XRPUSD",
+   "cost": 0.001035,
+   "fin": 0.000411,
+   "cost_src": "override"
+  },
+  {
+   "symbol": "XTIUSD",
+   "cost": 0.000181,
+   "fin": 0.000115,
+   "cost_src": "model"
+  }
+ ],
+ "data_hash": "340b8689ad4fe4a5",
+ "code": "10e7aff",
+ "seconds": 212.81452178955078
+}
