@@ -25,7 +25,7 @@ import subprocess
 import sys
 import time
 
-from config.instruments import asset_class_of, universe
+from config.instruments import asset_class_of, extended_universe, universe
 
 
 def _bars_stored(symbol: str, period: str) -> int:
@@ -47,9 +47,16 @@ def main() -> int:
     p.add_argument("--period", default="H1")
     p.add_argument("--classes", nargs="*", default=None,
                    help="limit to these asset classes (default: all)")
+    p.add_argument("--extended", action="store_true",
+                   help="include EXTENDED_UNIVERSE (research only)")
+    p.add_argument("--skip-existing", action="store_true",
+                   help="skip symbols that already have bars at this period")
     args = p.parse_args()
 
-    symbols = universe(*(args.classes or ()))
+    pick = extended_universe if args.extended else universe
+    symbols = pick(*(args.classes or ()))
+    if args.skip_existing:
+        symbols = [s for s in symbols if _bars_stored(s, args.period) == 0]
     print(f"fetching {args.years} years of {args.period} for {len(symbols)} instruments\n")
     ok, failed = [], []
     for i, sym in enumerate(symbols, 1):

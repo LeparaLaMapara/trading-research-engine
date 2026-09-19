@@ -63,6 +63,26 @@ def kinds_at_or_below(rung: int) -> list[str]:
     return out
 
 
+def effective_params(kind: str, params: dict | None) -> dict:
+    """The parameters the strategy will ACTUALLY run with: accepted keys plus defaults.
+
+    Identity must be taken from this, not from the raw proposal. On 2026-09-16 the council sent
+    two ma_trend proposals whose raw params differed only in keys the constructor drops, so
+    they hashed as different variants, ran as the same strategy, returned bit-identical
+    Sharpes, and both counted towards the multiple-testing N.
+    """
+    builder = _BUILDERS.get(kind)
+    if builder is None:
+        return dict(params or {})
+    out = {}
+    for name, p in inspect.signature(builder).parameters.items():
+        if name in (params or {}):
+            out[name] = params[name]
+        elif p.default is not inspect.Parameter.empty:
+            out[name] = p.default
+    return out
+
+
 def build_strategy(kind: str, params: dict) -> Strategy:
     """Construct a strategy by kind. Only params matching the constructor are passed, so a
     real LLM proposal carrying extra or differently-named keys degrades to the defaults

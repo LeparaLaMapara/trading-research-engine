@@ -35,9 +35,9 @@ from council.orchestrator import Council
 from research.calibration import Calibration
 from research.cost_ceiling import COST_CEILING_SR, probe_cost
 from research.lessons import LessonStore, lessons_from_cycle
-from research.registry import FailureRegistry
+from research.registry import FailureRegistry, variant_hash
 from strategy.base import FittedStrategy, Strategy
-from strategy.registry import build_strategy, rung_of
+from strategy.registry import build_strategy, effective_params, rung_of
 from strategy.validator import validate_proposal
 
 MIN_DSR = 0.95           # deflated-Sharpe bar: 95% confident the edge survives multiple testing
@@ -148,6 +148,7 @@ def run_experiment(symbol: str, period: str, rounds: int, max_rung: int,
     # Same units on both sides of the comparison. See registry.set_trial_dsr.
     best_before = registry.best_dsr()
     trials: list[dict] = []
+    ran_this_run: set[str] = set()
 
     def process(proposal, prediction, critique) -> None:
         """Judge one proposal (from the council or a paper): validate -> registry check ->
@@ -166,6 +167,16 @@ def run_experiment(symbol: str, period: str, rounds: int, max_rung: int,
         # under one parameterisation is NOT blocked -- it is penalised in the proposer context.
         # Aspiration: a candidate whose committed prediction beats the incumbent best runs
         # regardless, so remembered failure can never become a permanent veto.
+        # Identity is what will run, not what was proposed. See strategy.registry.effective_params.
+        proposal.params = effective_params(proposal.kind, proposal.params)
+        vh = variant_hash(proposal.kind, proposal.params, symbol, period)
+        if vh in ran_this_run:
+            # Same code, same bars, same costs: the result is already known exactly. Not a new
+            # trial, so it must NOT count towards N, and aspiration cannot justify re-running it.
+            trials.append({"proposal": proposal, "verdict": "SKIPPED",
+                           "reason": ["identical to a variant already run this cycle"]})
+            return
+        ran_this_run.add(vh)
         best_so_far = max((t["actual"]["sharpe"] for t in trials if "actual" in t), default=0.0)
         predicted = float(getattr(prediction, "sharpe_gt", 0.0) or 0.0)
         aspires = predicted > best_so_far

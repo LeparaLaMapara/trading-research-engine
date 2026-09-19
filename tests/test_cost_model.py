@@ -27,6 +27,15 @@ REF = {"EURUSD": 1.10, "USDJPY": 150.0, "XAUUSD": 2000.0, "XAGUSD": 25.0,
        "ADAUSD": 0.5, "EURGBP": 0.85, "GBPJPY": 190.0}
 
 
+@pytest.fixture(autouse=True)
+def _no_telemetry(monkeypatch, tmp_path):
+    """These tests are about the FALLBACK. Point telemetry at an empty file so they do not
+    change meaning when local ticks exist: from 2026-09-16 BTCUSD was measured locally, and
+    the scale-invariance test started failing on a measured spread it was never about."""
+    from config import settings
+    monkeypatch.setattr(settings, "TELEMETRY_DB", str(tmp_path / "no_telemetry.db"))
+
+
 def _bps(symbol: str, ref: float) -> float:
     return measured_cost(symbol, ref_price=ref).cost_per_unit_turnover() * 1e4
 
