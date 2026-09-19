@@ -89,12 +89,24 @@ def test_unconfigured_limits_deny():
     assert RiskOfficer().permit(**_ok()).allowed is False
 
 
-def test_live_limits_are_not_configured_and_therefore_deny():
-    """The whole safety story for the live account. If this test ever fails, someone has
-    filled in the section 1 numbers and that must be a deliberate, signed-off act."""
-    assert LIVE_LIMITS.configured() is False
-    d = RiskOfficer(LIVE_LIMITS).permit(**_ok(account_environment="live"))
-    assert d.allowed is False
+def test_live_limits_are_exactly_the_owner_signed_numbers():
+    """Signed off by the owner 2026-09-19. Any change to these numbers is a new owner decision,
+    so it must fail here first rather than drift silently."""
+    assert LIVE_LIMITS == Limits(environment="live", max_risk_per_trade_pct=0.06,
+                                 max_daily_loss_pct=0.10, max_drawdown_pct=0.40,
+                                 max_position_pct=0.50, max_open_positions=1, min_equity=20.0)
+
+
+def test_live_limits_still_refuse_what_they_should():
+    too_risky = RiskOfficer(LIVE_LIMITS).permit(account_environment="live", equity=30.0,
+                                                risk_amount=3.0, margin_required=1.0)
+    assert too_risky.allowed is False
+    below_floor = RiskOfficer(LIVE_LIMITS).permit(account_environment="live", equity=19.0,
+                                                  risk_amount=0.5, margin_required=1.0)
+    assert below_floor.allowed is False
+    wrong_env = RiskOfficer(LIVE_LIMITS).permit(account_environment="demo", equity=30.0,
+                                                risk_amount=1.0, margin_required=1.0)
+    assert wrong_env.allowed is False
 
 
 def test_demo_limits_refuse_a_live_account():

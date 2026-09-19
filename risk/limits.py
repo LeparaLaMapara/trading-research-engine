@@ -52,10 +52,20 @@ DEMO_REHEARSAL_LIMITS = Limits(
     min_equity=1000.0,
 )
 
-# Live limits stay UNCONFIGURED until the owner signs off the section 1 numbers. Every field
-# is None, so configured() is False, so permit() denies. This is the whole safety story for
-# the live account and it must not be filled in casually.
-LIVE_LIMITS = Limits(environment="live")
+# Live limits. SIGNED OFF BY THE OWNER on 2026-09-19 (session 016B1YHR1frXC3RYkNpo7vRZ,
+# answering "Do you approve these live risk limits?" with "Approve"). Sized for a ~$30 account
+# where the broker minimum already risks ~5.5% on a volatility stop. Changing any number here
+# is a new owner decision; tests/test_execution.py pins these exact values so a silent edit
+# fails the suite. Live orders ALSO need the owner-signed grant in ops/authority.py.
+LIVE_LIMITS = Limits(
+    environment="live",
+    max_risk_per_trade_pct=0.06,
+    max_daily_loss_pct=0.10,
+    max_drawdown_pct=0.40,
+    max_position_pct=0.50,
+    max_open_positions=1,
+    min_equity=20.0,          # USD, about R360: below it, stop permanently
+)
 
 
 class RiskOfficer:
