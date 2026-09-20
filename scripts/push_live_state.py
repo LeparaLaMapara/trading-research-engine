@@ -32,6 +32,10 @@ from connection.client import CTraderConnection
 
 TRADE_LOG = "data/trade_log.db"
 
+#: Timestamps are written with a trailing Z, which means UTC. time.strftime() without an
+#: argument uses LOCAL time, so the first version stamped SAST as UTC and the dashboard's
+#: freshness check reported data "-0.6 hours old", i.e. from the future. Always pass gmtime().
+
 
 def _lot_sizes() -> dict:
     """symbol -> lotSize, from the specs captured by scripts/fetch_swaps. Volume divided by
@@ -155,7 +159,7 @@ class Collector:
                 "commission_usd": (p.commission or 0) / d,
                 "opened_ts": time.strftime("%Y-%m-%dT%H:%M:%SZ",
                                            time.gmtime(td.openTimestamp / 1000)),
-                "updated_ts": time.strftime("%Y-%m-%dT%H:%M:%SZ"), "status": "OPEN",
+                "updated_ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "status": "OPEN",
                 "purpose": "live_research_trade"})
             print(f"  {sym} {side} entry {entry} now {now} stop {p.stopLoss} "
                   f"target {p.takeProfit} unrealised "
@@ -184,7 +188,7 @@ def main() -> int:
     if c.balance is not None:
         upsert("trading_account", [{"balance": c.balance, "equity": c.balance,
                                     "currency": "USD",
-                                    "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ")}], a.dry_run)
+                                    "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}], a.dry_run)
     upsert("trading_positions", c.rows, a.dry_run)
     # Anything previously OPEN that the broker no longer reports has been closed.
     open_ids = {r["position_id"] for r in c.rows}
@@ -201,7 +205,7 @@ def main() -> int:
                 requests.patch(
                     f"{settings.SUPABASE_URL}/rest/v1/trading_positions?position_id=eq.{pid}",
                     headers=_headers(), json={"status": "CLOSED",
-                                              "updated_ts": time.strftime("%Y-%m-%dT%H:%M:%SZ")},
+                                              "updated_ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())},
                     timeout=20)
             if stale:
                 print(f"  marked {len(stale)} position(s) closed")

@@ -175,28 +175,45 @@ def check_dashboard_is_current(max_age_hours: float = 48.0) -> Check:
         return Check("dashboard_is_current", "Is the dashboard showing recent numbers?",
                      UNKNOWN, "The dashboard's data source is not configured, so it is "
                      "showing nothing or something stale.", "no SUPABASE_URL/KEY")
-    r = requests.get(
-        f"{settings.SUPABASE_URL}/rest/v1/trading_strategies?select=run_ts&order=run_ts.desc&limit=1",
-        headers={"apikey": settings.SUPABASE_KEY,
-                 "Authorization": f"Bearer {settings.SUPABASE_KEY}",
-                 "Accept-Profile": settings.SUPABASE_SCHEMA}, timeout=15)
-    if r.status_code != 200:
+    # The page has three feeds now: daily research, and the hourly live push of balance and
+    # open positions. Judging freshness on the research feed alone would call the page stale
+    # at 23:00 when the account state on it is minutes old.
+    feeds = (("trading_strategies", "run_ts"), ("trading_account", "ts"),
+             ("trading_positions", "updated_ts"))
+    newest, newest_src, errors = None, "", []
+    for table, col in feeds:
+        r = requests.get(
+            f"{settings.SUPABASE_URL}/rest/v1/{table}?select={col}&order={col}.desc&limit=1",
+            headers={"apikey": settings.SUPABASE_KEY,
+                     "Authorization": f"Bearer {settings.SUPABASE_KEY}",
+                     "Accept-Profile": settings.SUPABASE_SCHEMA}, timeout=15)
+        if r.status_code != 200:
+            errors.append(f"{table} HTTP {r.status_code}")
+            continue
+        rows = r.json()
+        if rows and rows[0].get(col):
+            if newest is None or rows[0][col] > newest:
+                newest, newest_src = rows[0][col], table
+    if newest is None:
         return Check("dashboard_is_current", "Is the dashboard showing recent numbers?", FAIL,
-                     "The dashboard cannot read its data at all, so it is showing nothing.",
-                     f"HTTP {r.status_code}: {r.text[:160]}")
-    rows = r.json()
-    if not rows:
-        return Check("dashboard_is_current", "Is the dashboard showing recent numbers?", FAIL,
-                     "There is no data behind the dashboard yet.", "0 rows")
+                     "The dashboard has no data to show.",
+                     "; ".join(errors) or "0 rows in every feed")
     from datetime import datetime, timezone
-    ts = datetime.fromisoformat(rows[0]["run_ts"].replace("Z", "+00:00"))
+    ts = datetime.fromisoformat(str(newest).replace("Z", "+00:00"))
     age_h = (datetime.now(timezone.utc) - ts).total_seconds() / 3600
+    if age_h < -0.05:
+        # A future timestamp is not freshness, it is a clock or timezone bug somewhere in the
+        # writer, and it would otherwise read as the healthiest possible answer.
+        return Check("dashboard_is_current", "Is the dashboard showing recent numbers?", FAIL,
+                     "The dashboard's newest row is timestamped in the future, so its clock "
+                     "or timezone is wrong and its ages cannot be trusted.",
+                     f"{newest_src} {newest} is {-age_h:.2f}h ahead of now")
     if age_h > max_age_hours:
         return Check("dashboard_is_current", "Is the dashboard showing recent numbers?", FAIL,
                      f"The dashboard is showing numbers that are {age_h/24:.0f} days old. "
-                     f"Anyone reading it is being misled.", f"newest row {rows[0]['run_ts']}")
+                     f"Anyone reading it is being misled.", f"newest row {newest}")
     return Check("dashboard_is_current", "Is the dashboard showing recent numbers?", PASS,
-                 f"Latest data is {age_h:.0f} hours old.", rows[0]["run_ts"])
+                 f"Latest data is {age_h:.1f} hours old.", f"{newest_src} {newest}")
 
 
 @_check
@@ -301,17 +318,48 @@ def check_ci_can_fail(workflow: str = ".github/workflows/research.yml") -> Check
 
 @_check
 def check_risk_layer_is_closed() -> Check:
-    """Is the risk layer still fail-closed? This must stay true until the numbers are signed off."""
-    from risk import limits
-    src = open(limits.__file__, encoding="utf-8").read()
-    for marker in ("fail", "closed", "False"):
-        if marker.lower() in src.lower():
-            return Check("risk_layer_is_closed", "Is the safety limit still switched on?",
-                         PASS, "The risk layer still refuses to approve any trade.",
-                         "fail-closed markers present")
-    return Check("risk_layer_is_closed", "Is the safety limit still switched on?", FAIL,
-                 "The risk layer may no longer be fail-closed. Nothing should trade until "
-                 "this is checked by hand.", "no fail-closed marker found")
+    """Does the risk layer actually refuse what it should?
+
+    The previous version searched this module's SOURCE for the words "fail", "closed" or
+    "False" and passed if it found any of them. Those words appear in comments, so the check
+    could not fail, and it kept saying "refuses any trade" after the owner configured
+    LIVE_LIMITS on 2026-09-19. A check that cannot fail is decoration. This one asks the risk
+    layer to decide real orders and reports what it does.
+    """
+    from risk.limits import LIVE_LIMITS, RiskOfficer
+    officer = RiskOfficer(LIVE_LIMITS)
+    base = dict(account_environment="live", equity=30.0, margin_required=1.0, open_positions=0)
+
+    if not LIVE_LIMITS.configured():
+        d = officer.permit(risk_amount=0.10, **base)
+        if d.allowed:
+            return Check("risk_layer_is_closed", "Is the safety limit still switched on?", FAIL,
+                         "The risk layer approved a trade while its limits are not even set. "
+                         "Nothing should trade until this is checked by hand.", d.reason)
+        return Check("risk_layer_is_closed", "Is the safety limit still switched on?", PASS,
+                     "The risk layer refuses every trade: its limits are not configured.",
+                     d.reason)
+
+    lim = LIVE_LIMITS
+    over_risk = officer.permit(risk_amount=30.0 * (lim.max_risk_per_trade_pct + 0.02), **base)
+    too_poor = officer.permit(risk_amount=0.10, **{**base, "equity": lim.min_equity - 1})
+    wrong_env = officer.permit(risk_amount=0.10, **{**base, "account_environment": "demo"})
+    within = officer.permit(risk_amount=30.0 * (lim.max_risk_per_trade_pct / 2), **base)
+    refusals = {"over the per-trade limit": over_risk, "below the equity floor": too_poor,
+                "wrong account type": wrong_env}
+    leaked = [name for name, d in refusals.items() if d.allowed]
+    if leaked:
+        return Check("risk_layer_is_closed", "Is the safety limit still switched on?", FAIL,
+                     f"The risk layer APPROVED an order it must refuse: {', '.join(leaked)}.",
+                     json.dumps({k: v.reason for k, v in refusals.items()}))
+    return Check("risk_layer_is_closed", "Is the safety limit still switched on?", PASS,
+                 f"The risk layer is set to the owner's numbers (at most "
+                 f"{lim.max_risk_per_trade_pct*100:.0f}% of the account per trade, "
+                 f"{lim.max_open_positions} trade at a time, stop below "
+                 f"${lim.min_equity:.0f}) and it refuses anything outside them. Live orders "
+                 f"also need the owner's signed permission.",
+                 f"refused all 3 over-limit orders; a normal order is "
+                 f"{'allowed' if within.allowed else 'refused: ' + within.reason}")
 
 
 @_check
