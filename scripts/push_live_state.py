@@ -142,13 +142,16 @@ class Collector:
             unreal = None
             if now is not None:
                 unreal = (now - entry) * units * (1 if side == "BUY" else -1)
+            # What this position can still lose if the stop is hit. Computed here, where the
+            # contract size is known, rather than guessed by the dashboard.
+            risk = abs(entry - p.stopLoss) * units if p.stopLoss else None
             d = 10 ** getattr(p, "moneyDigits", 2)
             rows.append({
                 "position_id": str(p.positionId), "symbol": sym, "side": side,
                 "volume_lots": (td.volume / lots[sym]) if lots.get(sym) else None,
                 "entry_price": entry, "current_price": now,
                 "stop_loss": p.stopLoss or None, "take_profit": p.takeProfit or None,
-                "unrealised_usd": unreal, "swap_usd": (p.swap or 0) / d,
+                "unrealised_usd": unreal, "risk_usd": risk, "swap_usd": (p.swap or 0) / d,
                 "commission_usd": (p.commission or 0) / d,
                 "opened_ts": time.strftime("%Y-%m-%dT%H:%M:%SZ",
                                            time.gmtime(td.openTimestamp / 1000)),

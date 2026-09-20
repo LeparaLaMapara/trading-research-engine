@@ -120,25 +120,24 @@ def _dashboard_data() -> dict:
                                    "net_usd,status,purpose,note&order=ts.desc&limit=50")
     positions = _sb("trading_positions",
                     "select=position_id,symbol,side,volume_lots,entry_price,current_price,"
-                    "stop_loss,take_profit,unrealised_usd,swap_usd,opened_ts,updated_ts,status"
+                    "stop_loss,take_profit,unrealised_usd,risk_usd,swap_usd,opened_ts,updated_ts,status"
                     "&order=updated_ts.desc&limit=20")
     open_positions = [p for p in positions if (p.get("status") or "") == "OPEN"]
 
-    attempted = len(trades)
-    executed = sum(1 for t in trades if (t.get("status") or "").upper() == "FILLED")
+    # Probes and research trades are different things and must not be added together: a probe
+    # is a measurement of execution cost, deliberately opened and closed at once.
+    research = [t for t in trades if (t.get("purpose") or "") == "live_research_trade"]
+    probes = [t for t in trades if (t.get("purpose") or "").startswith("telemetry")]
+    attempted = len(research)
+    executed = sum(1 for t in research if (t.get("status") or "").upper() == "FILLED")
+    probes_done = sum(1 for t in probes if (t.get("status") or "").upper() in ("FILLED", "CLOSED"))
     realised = [float(t["net_usd"]) for t in trades if t.get("net_usd") is not None]
     made_zar = sum(x for x in realised if x > 0) * ZAR_PER_USD
     lost_zar = -sum(x for x in realised if x < 0) * ZAR_PER_USD
     unrealised_zar = sum(float(p.get("unrealised_usd") or 0.0) for p in open_positions) * ZAR_PER_USD
-    # What is actually at risk right now: distance from entry to stop on every open position.
-    risked_zar = 0.0
-    for p in open_positions:
-        try:
-            gap = abs(float(p["entry_price"]) - float(p["stop_loss"]))
-            units = float(p["volume_lots"] or 0) * 100.0 if p["symbol"].startswith("X") else None
-            risked_zar += gap * (units or 0.0) * ZAR_PER_USD
-        except (TypeError, ValueError, KeyError):
-            pass
+    # What is actually at risk right now: entry to stop, per open position, computed by the
+    # publisher where the contract size is known.
+    risked_zar = sum(float(p.get("risk_usd") or 0.0) for p in open_positions) * ZAR_PER_USD
 
     tested = len(strategies)
     passed = sum(1 for s in strategies if (s.get("verdict") or "").upper() == "PASS")
@@ -223,6 +222,7 @@ def _dashboard_data() -> dict:
         "lost_zar": lost_zar,
         "attempted": attempted,
         "executed": executed,
+        "probes_done": probes_done,
         "unrealised_zar": unrealised_zar,
         "open_positions": open_positions,
         "trades": trades,
@@ -528,7 +528,8 @@ async function load(){
   $('cards').innerHTML=[
     ['How much money do I have?', money(D.have_zar), '', 'about $'+Number(D.have_usd||0).toFixed(2)],
     ['How much did it try to trade?', money(D.risked_zar), '',
-      D.executed? (D.executed+' trades placed') : (D.attempted+' attempt, rejected: the account was too small to place it')],
+      D.open_positions&&D.open_positions.length ? 'at risk in '+D.open_positions.length+' open trade(s) if the stop is hit'
+        : (D.executed? (D.executed+' trades placed') : 'nothing at risk right now')],
     ['How much did it make?', money(D.made_zar + Math.max(D.unrealised_zar||0,0)),
       (D.made_zar + Math.max(D.unrealised_zar||0,0))>0?'good':'',
       (D.unrealised_zar>0 ? 'includes R'+Number(D.unrealised_zar).toFixed(2)+' not cashed in yet'
@@ -585,7 +586,8 @@ function renderMilestone(m){
        looking instead of betting.<div class="ev">From the engine's own test results.</div></li>`;
   $('tech').innerHTML=`<tr><th>Ideas tested</th><td>${D.ideas_tested}</td></tr>
     <tr><th>Ideas that passed the bar</th><td>${D.ideas_passed}</td></tr>
-    <tr><th>Orders attempted / executed</th><td>${D.attempted} / ${D.executed}</td></tr>
+    <tr><th>Research orders attempted / executed</th><td>${D.attempted} / ${D.executed}</td></tr>
+    <tr><th>Cost-measurement probes</th><td>${D.probes_done}</td></tr>
     <tr><th>Balance (USD)</th><td>${Number(D.have_usd||0).toFixed(2)}</td></tr>
     <tr><th>Rate used</th><td>R${D.zar_per_usd}/USD</td></tr>
     <tr><th>Last research run</th><td>${D.last_run||'never'}</td></tr>
