@@ -84,9 +84,14 @@ def check_loop_is_learning(db_path: str = "data/research.db", window: int = 30) 
         # candidates under the stages zoo_dev / carry_dev / long_history, and this check
         # reported "looked at 30, tested none". A check that fails on a new stage NAME while
         # the loop is working is a false alarm, and false alarms are how real ones get ignored.
+        # An older trial log has no per_obs_sharpe column. Ask before selecting it: a check
+        # that returns UNKNOWN because of its own query is a check that stopped watching.
+        has_score = any(r[1] == "per_obs_sharpe"
+                        for r in conn.execute("PRAGMA table_info(trials)"))
+        scored_expr = ("SUM(CASE WHEN per_obs_sharpe IS NOT NULL THEN 1 ELSE 0 END)"
+                       if has_score else "0")
         rows = conn.execute(
-            "SELECT stage, COUNT(*) n, SUM(CASE WHEN per_obs_sharpe IS NOT NULL THEN 1 ELSE 0 END) "
-            "scored FROM trials WHERE trial_id > "
+            f"SELECT stage, COUNT(*) n, {scored_expr} scored FROM trials WHERE trial_id > "
             "(SELECT COALESCE(MAX(trial_id),0) - ? FROM trials) GROUP BY stage",
             (window,),
         ).fetchall()

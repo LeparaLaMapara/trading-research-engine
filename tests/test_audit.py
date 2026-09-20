@@ -14,14 +14,38 @@ from ops import audit
 from ops.audit import FAIL, PASS, UNKNOWN, Check
 
 
-def _db(tmp_path, rows):
-    p = tmp_path / "research.db"
+def _db(tmp_path, rows, scores=None, name="research.db"):
+    """rows: one stage per trial. scores: matching per_obs_sharpe values, or None for the OLD
+    schema that has no such column (which must still be readable)."""
+    p = tmp_path / name
     c = sqlite3.connect(p)
-    c.execute("CREATE TABLE trials (trial_id INTEGER PRIMARY KEY AUTOINCREMENT, stage TEXT)")
-    c.executemany("INSERT INTO trials (stage) VALUES (?)", [(s,) for s in rows])
+    if scores is None:
+        c.execute("CREATE TABLE trials (trial_id INTEGER PRIMARY KEY AUTOINCREMENT, stage TEXT)")
+        c.executemany("INSERT INTO trials (stage) VALUES (?)", [(s,) for s in rows])
+    else:
+        c.execute("CREATE TABLE trials (trial_id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                  "stage TEXT, per_obs_sharpe REAL)")
+        c.executemany("INSERT INTO trials (stage, per_obs_sharpe) VALUES (?,?)",
+                      list(zip(rows, scores)))
     c.commit()
     c.close()
     return str(p)
+
+
+def test_new_stage_names_do_not_raise_a_false_alarm(tmp_path):
+    """The 2026-09-19 false alarm: 30 fully backtested candidates written under new stage
+    names were reported as "tested none". What makes an idea tested is that it came back with
+    a score, not the spelling of its stage."""
+    c = audit.check_loop_is_learning(
+        db_path=_db(tmp_path, ["zoo_dev"] * 20 + ["carry_dev"] * 10, [0.02] * 30))
+    assert c.status == PASS
+    assert "30 of the last 30" in c.finding
+
+
+def test_skips_are_still_caught_when_scores_exist(tmp_path):
+    c = audit.check_loop_is_learning(
+        db_path=_db(tmp_path, ["tabu"] * 18, [None] * 18, name="skips.db"))
+    assert c.status == FAIL
 
 
 def test_a_crashing_check_fails_it_does_not_skip_it():
