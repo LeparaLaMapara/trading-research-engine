@@ -33,6 +33,8 @@ from ctrader_open_api.messages.OpenApiModelMessages_pb2 import ProtoOAOrderType,
 from twisted.internet import reactor
 
 from execution.sizing import size_position
+from lab import clock as _clock
+from lab.lifecycle import OrderLifecycle
 from ops.authority import live_trading_permitted
 from risk.limits import LIVE_LIMITS, RiskOfficer
 from scripts import rehearsal as R
@@ -65,6 +67,11 @@ class LiveTrade(R.Rehearsal):
         self.side = side
         self.reason = reason
         self.sigma = daily_sigma(self.symbol)
+        # Mission step 4: the order's own timeline, measured rather than assumed.
+        self.life = OrderLifecycle(symbol=self.symbol, side=side, strategy="operator_signal")
+        off, unc = _clock.consensus(_clock.measure())
+        self.life.use_clock(off, unc)
+        self.life.mark("signal")
 
     def on_ready(self, conn) -> None:
         print(f"\n--- LIVE trade on {self.symbol} "
@@ -126,6 +133,7 @@ class LiveTrade(R.Rehearsal):
 
     def step_risk(self) -> None:
         req = ProtoOAReconcileReq(); req.ctidTraderAccountId = self.conn.account_id
+        self.life.mark("risk_start")
 
         def ok(msg):
             res = Protobuf.extract(msg)
@@ -134,6 +142,7 @@ class LiveTrade(R.Rehearsal):
                 risk_amount=self.sizing.risk_amount, margin_required=self.sizing.margin_required,
                 open_positions=len(res.position), realised_pnl_today=0.0,
                 equity_peak=self.equity)
+            self.life.mark("risk_done")
             R.stage("risk layer decides (LIVE_LIMITS)", d.allowed, d.reason)
             if not d.allowed and self.confirm:
                 self.finish()          # a dry run continues so the owner sees the full order
@@ -167,6 +176,7 @@ class LiveTrade(R.Rehearsal):
         if not self.auth.permitted:
             R.stage("send the order", False, "no live authority")
             return self.finish()
+        self.life.mark("order_created")
         req = ProtoOANewOrderReq()
         req.ctidTraderAccountId = self.conn.account_id
         req.symbolId = self.symbol_id
@@ -179,6 +189,7 @@ class LiveTrade(R.Rehearsal):
         req.comment = "first live research trade; weak evidence, see RESULTS-2026-09-19"
         self.opened_at = time.time()
         self.conn.client.send(req)
+        self.life.mark("order_sent")
         # Leave the position open under its broker-side stop and target. Stop the process once
         # protection is verified (verify_protection runs 3s after the fill).
         reactor.callLater(25, self._done_after_protection)
@@ -211,6 +222,16 @@ class LiveTrade(R.Rehearsal):
 
     def handle_execution(self, msg) -> None:
         """Same as the rehearsal, but logged as what it is: a live research trade."""
+        res = Protobuf.extract(msg)
+        # The broker's OWN stamps: the only way to see the network and matching legs.
+        if res.HasField("order") and res.order.HasField("utcLastUpdateTimestamp"):
+            self.life.mark("broker_ack", res.order.utcLastUpdateTimestamp / 1000.0)
+        if res.HasField("deal"):
+            deal = res.deal
+            stage = "final_fill" if deal.HasField("executionTimestamp") else "first_fill"
+            ts = (deal.executionTimestamp if deal.HasField("executionTimestamp")
+                  else deal.createTimestamp) / 1000.0
+            self.life.mark(stage, ts)
         super().handle_execution(msg)
         if self.position_id:
             self.log.record(ts_sast=time.strftime("%Y-%m-%d %H:%M:%S"), symbol=self.symbol,
@@ -220,6 +241,7 @@ class LiveTrade(R.Rehearsal):
                             purpose="live_research_trade", note=self.reason[:200])
 
     def handle_order_error(self, msg) -> None:
+        self.life.mark("rejected")
         super().handle_order_error(msg)
 
 
@@ -245,6 +267,10 @@ def main() -> None:
     t.run()
     failed = [x for x in R.STAGES if not x[1]]
     print()
+    if t.life.local:
+        t.life.persist()
+        print(t.life.report())
+        print()
     print(f"{len(R.STAGES) - len(failed)}/{len(R.STAGES)} stages passed")
     for n, _, d in failed:
         print(f"  - {n}: {d}")
