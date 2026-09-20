@@ -470,6 +470,12 @@ PAGE = """
 <div class="mile" id="mile" hidden></div>
 
 <div class="grid" id="cards"></div>
+<!-- PLAIN FALLBACK. Rendered on the server, before any JavaScript runs.
+     Smart TV browsers are often several years behind and either cannot run the script on this
+     page or cannot fetch its data, which left the whole screen blank with no explanation. The
+     numbers below are written into the HTML itself, so the page says something useful on any
+     browser made this decade. The script removes this block once it has drawn the real cards. -->
+<div id="plain">__PLAIN__</div>
 
 <div class="banner" id="why"></div>
 <div id="openpos"></div>
@@ -539,6 +545,8 @@ const money=v=>'R'+Number(v||0).toLocaleString(undefined,{maximumFractionDigits:
 let D={};
 async function load(){
   D=await (await fetch('/api/data')).json();
+  // The server-rendered fallback has done its job once the real cards exist.
+  var plain=$('plain'); if(plain){ plain.remove(); }
   $('asof').textContent = D.as_of ? ('As of '+new Date(D.as_of).toLocaleString()) :
       'No balance recorded yet.';
   $('cards').innerHTML=[
@@ -804,5 +812,43 @@ load();
 
 
 @app.get("/", response_class=HTMLResponse)
+def _plain_fallback() -> str:
+    """The four headline numbers as static HTML, for browsers that cannot run the page."""
+    try:
+        d = _dashboard_data()
+    except Exception as exc:                      # noqa: BLE001
+        return (f"<p class='hint'>The live numbers could not be loaded "
+                f"({type(exc).__name__}). The page will retry when you refresh.</p>")
+    rows = [("How much money do I have?", _money(d["have_zar"])),
+            ("At risk in open trades", _money(d.get("risked_zar", 0.0))),
+            ("Made so far", _money(d.get("made_zar", 0.0))),
+            ("Lost so far", _money(d.get("lost_zar", 0.0)))]
+    items = "".join(f"<div class='card'><p class='q'>{q}</p><p class='n'>{v}</p></div>"
+                    for q, v in rows)
+    open_line = ""
+    for pos in (d.get("open_positions") or [])[:3]:
+        open_line += (f"<p><strong>Trade open:</strong> {pos['side'].lower()} "
+                      f"{pos['symbol']} bought at {pos['entry_price']}, now "
+                      f"{pos.get('current_price') or '?'}. It sells itself at "
+                      f"{pos['stop_loss']} or {pos['take_profit']}.</p>")
+    return (f"<div class='grid'>{items}</div>{open_line}"
+            f"<p class='hint'>{d.get('why_no_trade','')}</p>")
+
+
+@app.get("/plain", response_class=HTMLResponse)
+def plain() -> str:
+    """A page with no JavaScript at all, for a TV or a very old browser."""
+    return ("<!doctype html><html lang='en'><head><meta charset='utf-8'>"
+            "<meta name='viewport' content='width=device-width,initial-scale=1'>"
+            "<title>Trading research, plain view</title>"
+            "<style>body{font-family:system-ui,Arial,sans-serif;background:#111;color:#eee;"
+            "padding:24px;font-size:20px}.card{border:1px solid #444;border-radius:12px;"
+            "padding:16px;margin:12px 0}.q{color:#aaa;margin:0 0 6px}.n{font-size:34px;"
+            "margin:0}.hint{color:#aaa}</style></head><body>"
+            "<h1>Trading research</h1>" + _plain_fallback() +
+            "<p class='hint'>This is the simple view. The full dashboard with charts is at /"
+            "</p></body></html>")
+
+
 def index() -> str:
-    return PAGE
+    return PAGE.replace("__PLAIN__", _plain_fallback())
