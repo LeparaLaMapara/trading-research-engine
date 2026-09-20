@@ -139,11 +139,25 @@ class LiveTrade(R.Rehearsal):
                 self.finish()          # a dry run continues so the owner sees the full order
         self._send(req, ok)
 
+    def _relative_points(self, price_distance: float) -> int:
+        """cTrader relative stop/target distance, in the API's FIXED 1e-5 price units.
+
+        Learned from a live rejection on 2026-09-20: ETHUSD BUY came back INVALID_REQUEST
+        "Relative stop loss has invalid precision". The rehearsal's formula (distance in the
+        SYMBOL's own 10^-digits units) is right only when digits == 5, which is why it passed
+        on EURUSD and failed on a 2-digit symbol. Prices on this API are scaled by a fixed
+        10^5 whatever `digits` says, and the distance must land on the symbol's own tick, so
+        it is rounded to a multiple of 10^(5 - digits).
+        """
+        step = 10 ** max(0, 5 - int(self.spec.digits))
+        raw = price_distance * 1e5
+        return int(max(round(raw / step), 1) * step)
+
     def step_place(self) -> None:
         entry = self.ask if self.side == "BUY" else self.bid
-        pp = round(self.spec.pip_size / (10 ** -self.spec.digits))
-        stop_pts = int(self.stop_pips * pp)
-        tp_pts = int(self.stop_pips * REWARD_RATIO * pp)
+        stop_distance = self.stop_pips * self.spec.pip_size
+        stop_pts = self._relative_points(stop_distance)
+        tp_pts = self._relative_points(stop_distance * REWARD_RATIO)
         R.stage("build the order with stop and target", True,
                 f"{self.side} {self.sizing.lots:g} lots @ ~{entry}, stop {stop_pts} pts, "
                 f"target {tp_pts} pts")
@@ -193,6 +207,20 @@ class LiveTrade(R.Rehearsal):
         req.volume = int(self.sizing.volume)
         self.conn.client.send(req)
         reactor.callLater(20, lambda: reactor.stop() if reactor.running else None)
+
+
+    def handle_execution(self, msg) -> None:
+        """Same as the rehearsal, but logged as what it is: a live research trade."""
+        super().handle_execution(msg)
+        if self.position_id:
+            self.log.record(ts_sast=time.strftime("%Y-%m-%d %H:%M:%S"), symbol=self.symbol,
+                            side=self.side, order_type="MARKET",
+                            volume_lots=self.sizing.lots, filled_price=self.entry_price,
+                            position_id=str(self.position_id), status="FILLED",
+                            purpose="live_research_trade", note=self.reason[:200])
+
+    def handle_order_error(self, msg) -> None:
+        super().handle_order_error(msg)
 
 
 def main() -> None:
