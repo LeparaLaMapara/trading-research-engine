@@ -17,6 +17,7 @@ warnings.filterwarnings("ignore")
 
 from backtest import walkforward as wf
 from config.instruments import extended_universe
+from research import episodes
 from scripts.train_zoo import (DB, HOLDOUT_START, ann_factor, block_bootstrap_sharpe,
                                ensemble, honest_n, max_dd, oos_forecast, sharpe)
 from zoo import models as Z
@@ -49,7 +50,9 @@ def main() -> int:
     t0 = time.time()
     p = build_panel(extended_universe())
     costs = cost_table(p)
-    fc = {n: oos_forecast(n, p, None) for n in Z.LEARNED}
+    data_id = episodes.data_hash({"symbols": sorted(p["symbol"].unique()), "rows": len(p),
+                                  "last": str(p["date"].max())})
+    fc = {n: oos_forecast(n, p, None, data_id) for n in Z.LEARNED}
     fc["ens_ml"] = ensemble(Z.ENSEMBLES["ens_ml"], fc, p)
     dev = (p["date"] >= pd.Timestamp("2017-01-01")) & (p["date"] < HOLDOUT_START)
 

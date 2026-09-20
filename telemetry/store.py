@@ -40,6 +40,18 @@ CREATE TABLE IF NOT EXISTS ticks (
 );
 CREATE INDEX IF NOT EXISTS ix_ticks_symbol_how ON ticks(symbol, hour_of_week);
 
+CREATE TABLE IF NOT EXISTS depth_quotes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ts_utc REAL NOT NULL,          -- local receive, corrected with lab.clock before use
+    symbol TEXT NOT NULL,
+    quote_id INTEGER,              -- broker's own id for the level, so deletes can be matched
+    side TEXT NOT NULL,            -- bid | ask | delete
+    price REAL,
+    size REAL,
+    event TEXT NOT NULL            -- new | deleted
+);
+CREATE INDEX IF NOT EXISTS ix_depth_symbol_ts ON depth_quotes(symbol, ts_utc);
+
 CREATE TABLE IF NOT EXISTS latency (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     ts_utc REAL NOT NULL,
@@ -125,6 +137,19 @@ class Store:
         self.conn.execute(
             f"INSERT INTO ticks ({','.join(ALL_TICK_COLS)}) "
             f"VALUES ({','.join(':' + c for c in ALL_TICK_COLS)})", row)
+        self._tick_commit()
+
+    def insert_depth(self, rows: list[dict]) -> None:
+        """A depth event is a batch of level changes; store them as they arrive, unaggregated.
+
+        Aggregating into a book snapshot here would throw away the arrival ORDER, which is the
+        whole signal in queue and imbalance research. Reconstruct the book at read time.
+        """
+        if not rows:
+            return
+        self.conn.executemany(
+            "INSERT INTO depth_quotes (ts_utc, symbol, quote_id, side, price, size, event) "
+            "VALUES (:ts_utc, :symbol, :quote_id, :side, :price, :size, :event)", rows)
         self._tick_commit()
 
     def insert_latency(self, probe: str, rtt_ms: float) -> None:

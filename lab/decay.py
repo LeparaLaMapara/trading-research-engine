@@ -20,8 +20,12 @@ from lab.replay import ResolutionError, fills_for_delay, pnl_from_fills, trade_s
 #: Operate at a fraction of the measured survival threshold, not at its edge.
 SAFETY_FACTOR = 0.25
 
-#: Measured from this machine: ProtoOAVersionReq round trip, 1,964 samples (telemetry.db).
-#: Any strategy whose threshold sits below this cannot be run from here, whatever the maths says.
+#: Measured from this machine: ProtoOAVersionReq round trip, 1,967 samples (telemetry.db).
+#:
+#: This is NOT a physical minimum. It is the observed performance of ONE location, network,
+#: broker and architecture. A VPS near the broker, a different venue, or a different transport
+#: would produce different numbers, and the right time to find out is when a validated strategy
+#: shows economic sensitivity to this range, not before.
 MEASURED_ORDER_PATH_MS = {"min": 369.0, "mean": 939.0, "max": 4941.0}
 
 REGIMES = [
@@ -92,23 +96,92 @@ def decay_curve(signals: pd.DataFrame, exec_bars: pd.DataFrame, delays_s: list[f
     return pd.DataFrame(rows)
 
 
-def survival_threshold(curve: pd.DataFrame, metric: str = "sharpe") -> tuple:
-    """(threshold, conservative target, censored) in seconds, from the measured curve.
+def crossing_bracket(curve: pd.DataFrame, metric: str = "sharpe") -> dict:
+    """Where the edge crosses zero, as an INTERVAL, because that is what was measured.
 
-    The threshold is the largest delay whose metric is still positive. A curve that is negative
-    everywhere returns (None, None, False): there is nothing to be fast enough for.
+    Reporting "threshold = 12h" when 12h was positive and 24h negative claims a precision the
+    grid does not contain: the crossing is somewhere in between. Statuses:
 
-    CENSORED matters. If the last positive bucket is also the longest delay tested, the curve
-    never crossed zero inside the range and the true threshold is somewhere beyond it. Printing
-    that as "48 hours" would be reporting the edge of the ruler as a measurement, so it is
-    flagged and must be read as "at least".
+      bracketed      the crossing lies in (lo, hi); refine to narrow it
+      censored_right positive at every delay tested, so the threshold is beyond the grid
+      no_edge        not positive anywhere, including zero delay
     """
     c = curve[curve["skipped"] == ""].sort_values("effective_delay_s")
     if c.empty or not (c[metric] > 0).any():
+        return {"status": "no_edge", "lo": None, "hi": None}
+    pos = c[c[metric] > 0]["effective_delay_s"]
+    last_pos = float(pos.max())
+    after = c[c["effective_delay_s"] > last_pos]
+    if after.empty:
+        return {"status": "censored_right", "lo": last_pos, "hi": float("inf")}
+    return {"status": "bracketed", "lo": last_pos,
+            "hi": float(after["effective_delay_s"].min())}
+
+
+def refine_bracket(signals, exec_bars, bracket: dict, cost_per_turnover: float,
+                   financing_per_day: float = 0.0, exec_period: str = "H1",
+                   bars_per_year: float = 260.0, rounds: int = 3,
+                   metric: str = "sharpe") -> tuple[pd.DataFrame, dict]:
+    """Bisect the crossing interval, at most `rounds` times, never finer than the data.
+
+    Adaptive compute: extra runs are spent ONLY where the curve transitions, not uniformly
+    across a grid that is flat at both ends.
+    """
+    from lab.replay import BAR_SECONDS
+    step = BAR_SECONDS[exec_period.upper()]
+    extra = []
+    lo, hi = bracket.get("lo"), bracket.get("hi")
+    if bracket.get("status") != "bracketed":
+        return pd.DataFrame(), bracket
+    for _ in range(rounds):
+        mid = round((lo + hi) / 2.0 / step) * step
+        if mid <= lo or mid >= hi:          # the grid is already at the data's resolution
+            break
+        row = decay_curve(signals, exec_bars, [mid], cost_per_turnover, financing_per_day,
+                          exec_period, bars_per_year)
+        extra.append(row)
+        r = row.iloc[0]
+        if r.get("skipped") or not np.isfinite(r.get(metric, np.nan)):
+            break
+        if r[metric] > 0:
+            lo = float(r["effective_delay_s"])
+        else:
+            hi = float(r["effective_delay_s"])
+    out = pd.concat(extra, ignore_index=True) if extra else pd.DataFrame()
+    return out, {"status": "bracketed", "lo": lo, "hi": hi,
+                 "resolution_limit_s": float(step)}
+
+
+def operating_target(bracket: dict) -> float | None:
+    """Conservative target: a fraction of the PESSIMISTIC end of the bracket, never the middle
+    and never the optimistic end."""
+    lo = bracket.get("lo")
+    return None if lo is None else float(lo) * SAFETY_FACTOR
+
+
+def bootstrap_metric_ci(pnl_net: np.ndarray, bars_per_year: float, block: int = 20,
+                        reps: int = 2000, seed: int = 7) -> tuple[float, float]:
+    """Block bootstrap CI for the Sharpe of one bucket: is the sign even reliable?"""
+    rng = np.random.default_rng(seed)
+    n = len(pnl_net)
+    if n < block * 3:
+        return float("nan"), float("nan")
+    out = np.empty(reps)
+    for i in range(reps):
+        starts = rng.integers(0, n - block, size=n // block + 1)
+        idx = (starts[:, None] + np.arange(block)[None, :]).ravel()[:n]
+        s = pnl_net[idx]
+        out[i] = s.mean() / s.std() * np.sqrt(bars_per_year) if s.std() > 0 else 0.0
+    return float(np.percentile(out, 2.5)), float(np.percentile(out, 97.5))
+
+
+def survival_threshold(curve: pd.DataFrame, metric: str = "sharpe") -> tuple:
+    """Kept for callers that want a single number. Prefer crossing_bracket: this returns the
+    PESSIMISTIC end of the bracket, which is the largest delay actually shown to work."""
+    b = crossing_bracket(curve, metric)
+    if b["status"] == "no_edge":
         return None, None, False
-    last_positive = float(c[c[metric] > 0]["effective_delay_s"].max())
-    censored = bool(last_positive >= float(c["effective_delay_s"].max()))
-    return last_positive, last_positive * SAFETY_FACTOR, censored
+    return b["lo"], operating_target(b), b["status"] == "censored_right"
 
 
 def feasible_from_here(threshold_s: float | None,
@@ -121,8 +194,11 @@ def feasible_from_here(threshold_s: float | None,
     worst = p["max"] / 1000.0
     typical = p["mean"] / 1000.0
     if target < typical:
-        return False, (f"needs to act within {target:.3g}s but this machine's typical order "
-                       f"path is {typical:.3g}s: INFRASTRUCTURE_INFEASIBLE from here")
+        return False, (f"needs to act within {target:.3g}s but the CURRENT path (this house, "
+                       f"this broker, this architecture) is typically {typical:.3g}s: "
+                       f"INFRASTRUCTURE_INFEASIBLE as configured. Not a law of nature: hosting "
+                       f"nearer the venue would have to be measured, and is only worth costing "
+                       f"if the edge is otherwise validated")
     if target < worst:
         return True, (f"workable on a typical {typical:.3g}s path, but the observed worst case "
                       f"of {worst:.3g}s exceeds the {target:.3g}s target: expect occasional misses")

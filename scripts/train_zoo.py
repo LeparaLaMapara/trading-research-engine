@@ -81,9 +81,15 @@ def scaled(raw_te: np.ndarray, raw_tr: np.ndarray) -> np.ndarray:
     return np.clip(np.nan_to_num(raw_te / s if s > 0 else raw_te * 0), -2, 2)
 
 
-def oos_forecast(name: str, p: pd.DataFrame, seq) -> pd.Series:
-    """Walk forward out-of-sample forecast over the development years (NaN elsewhere)."""
-    path = os.path.join(CACHE, f"{name}.parquet")
+def oos_forecast(name: str, p: pd.DataFrame, seq, data_id: str = "unversioned") -> pd.Series:
+    """Walk forward out-of-sample forecast over the development years (NaN elsewhere).
+
+    The cache is keyed by the DATA VERSION as well as the model. Keying by name alone meant a
+    refreshed panel silently reused forecasts computed on different rows: on 2026-09-20 four
+    crypto symbols were refetched, the panel changed by twelve rows, and the run died on a
+    length mismatch. A silent version skew would have been far worse than a crash.
+    """
+    path = os.path.join(CACHE, data_id, f"{name}.parquet")
     if os.path.exists(path):
         return pd.read_parquet(path)["f"].set_axis(p.index)
     fn = {**Z.BASELINES, **Z.RULES, **Z.LEARNED}[name]
@@ -110,7 +116,7 @@ def oos_forecast(name: str, p: pd.DataFrame, seq) -> pd.Series:
         out[te] = scaled(np.asarray(raw_te, float), np.asarray(raw_tr, float))
         print(f"    {name:<22}{str(y):>8}  {te.sum():>6} rows  {time.time() - t0:5.1f}s",
               flush=True)
-    os.makedirs(CACHE, exist_ok=True)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
     pd.DataFrame({"f": out.to_numpy()}).to_parquet(path)
     return out
 
@@ -176,7 +182,7 @@ def main() -> int:
     fc = {}
     for n in names:
         print(f"  {n}", flush=True)
-        fc[n] = oos_forecast(n, p, seq)
+        fc[n] = oos_forecast(n, p, seq, data_id)
     if not a.only:
         for e, members in Z.ENSEMBLES.items():
             fc[e] = ensemble(members, fc, p)

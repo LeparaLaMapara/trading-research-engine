@@ -59,6 +59,15 @@ CREATE TABLE IF NOT EXISTS latency_events (
     span_id    TEXT, parent_span_id TEXT
 );
 
+CREATE TABLE IF NOT EXISTS clock_samples (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ts_utc REAL NOT NULL,
+    server TEXT NOT NULL,
+    offset_ms REAL NOT NULL,
+    round_trip_ms REAL NOT NULL,
+    node TEXT
+);
+
 CREATE TABLE IF NOT EXISTS edge_decay (
     experiment_id TEXT NOT NULL,
     strategy   TEXT NOT NULL,
@@ -151,6 +160,36 @@ def record_latency(stage: str, value_ms: float, experiment_id: str | None = None
         c.commit()
     finally:
         c.close()
+
+
+def record_clock(samples) -> tuple:
+    """Store NTP samples and return (offset_ms, uncertainty_ms). Drift is the series of these."""
+    from lab.clock import consensus
+    c = _conn()
+    try:
+        for s in samples:
+            c.execute("INSERT INTO clock_samples (ts_utc, server, offset_ms, round_trip_ms, node)"
+                      " VALUES (?,?,?,?,?)",
+                      (s.ts_utc, s.server, s.offset_ms, s.round_trip_ms, platform.node()))
+        c.commit()
+    finally:
+        c.close()
+    return consensus(samples)
+
+
+def clock_drift(db: str = DB) -> dict:
+    """How much the local clock has moved against true time across recorded samples."""
+    c = _conn(db)
+    try:
+        rows = c.execute("SELECT ts_utc, offset_ms FROM clock_samples ORDER BY ts_utc").fetchall()
+    finally:
+        c.close()
+    if len(rows) < 2:
+        return {"n": len(rows)}
+    span_h = (rows[-1][0] - rows[0][0]) / 3600.0
+    return {"n": len(rows), "first_offset_ms": rows[0][1], "last_offset_ms": rows[-1][1],
+            "span_hours": span_h,
+            "drift_ms_per_hour": (rows[-1][1] - rows[0][1]) / span_h if span_h else 0.0}
 
 
 def percentiles(stage: str | None = None, db: str = DB) -> dict:

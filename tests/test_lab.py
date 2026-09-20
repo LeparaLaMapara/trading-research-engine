@@ -113,3 +113,52 @@ def test_regimes_come_from_seconds_not_from_names():
     assert D.regime_for(0.0005) == "ultra_low_latency"
     assert D.regime_for(30) == "seconds"
     assert D.regime_for(1800) == "minutes"
+
+
+def test_a_crossing_is_reported_as_an_interval_not_a_point():
+    """Section 15 of the brief, and a defect in the first version: 12h positive and 24h
+    negative means the crossing is SOMEWHERE BETWEEN, which is what must be reported."""
+    curve = pd.DataFrame({"effective_delay_s": [0, 12 * HOUR, 24 * HOUR],
+                          "sharpe": [0.2, 0.1, -0.1], "skipped": [""] * 3})
+    b = D.crossing_bracket(curve)
+    assert b["status"] == "bracketed"
+    assert (b["lo"], b["hi"]) == (12 * HOUR, 24 * HOUR)
+
+
+def test_positive_everywhere_is_censored_not_a_threshold():
+    curve = pd.DataFrame({"effective_delay_s": [0, HOUR, 4 * HOUR],
+                          "sharpe": [0.5, 0.4, 0.3], "skipped": [""] * 3})
+    assert D.crossing_bracket(curve)["status"] == "censored_right"
+
+
+def test_negative_everywhere_is_no_edge():
+    curve = pd.DataFrame({"effective_delay_s": [0, HOUR], "sharpe": [-0.1, -0.2],
+                          "skipped": ["", ""]})
+    assert D.crossing_bracket(curve)["status"] == "no_edge"
+
+
+def test_refinement_narrows_the_bracket_and_stops_at_the_data_resolution():
+    """A drifting tape makes late entries worse, so a crossing exists to be narrowed."""
+    tape = _tape(n=2000, drift=0.0015)
+    sig = _signals(tape, every=24)
+    coarse = D.decay_curve(sig, tape, [0, 6 * HOUR, 48 * HOUR], 0.0005, 0.0, "H1", 260.0)
+    b = D.crossing_bracket(coarse)
+    if b["status"] != "bracketed":
+        pytest.skip("synthetic tape produced no crossing; nothing to refine")
+    extra, refined = D.refine_bracket(sig, tape, b, 0.0005, 0.0, "H1", 260.0, rounds=3)
+    assert refined["hi"] - refined["lo"] <= b["hi"] - b["lo"]
+    assert refined["lo"] >= b["lo"] and refined["hi"] <= b["hi"]
+    assert refined["resolution_limit_s"] == HOUR       # never finer than the bars
+
+
+def test_operating_target_uses_the_pessimistic_end():
+    b = {"status": "bracketed", "lo": 8 * HOUR, "hi": 24 * HOUR}
+    assert D.operating_target(b) == 8 * HOUR * D.SAFETY_FACTOR
+
+
+def test_clock_correction_refuses_to_claim_precision_it_does_not_have():
+    from lab.clock import corrected_latency_ms
+    val, note = corrected_latency_ms(20.0, -5.0, 60.0)
+    assert "BELOW CLOCK UNCERTAINTY" in note
+    val, note = corrected_latency_ms(216.0, 86.0, 58.0)
+    assert val == pytest.approx(302.0) and note == "ok"

@@ -70,11 +70,41 @@ def measured_cost(symbol: str, ref_price: float) -> CostModel:
         # SQLite has no median(); compute in pandas if telemetry ticks exist.
         try:
             c = sqlite3.connect(settings.TELEMETRY_DB)
-            sp = pd.read_sql_query("SELECT spread_pips FROM ticks WHERE symbol=?",
-                                   c, params=(symbol.upper(),))
+            # Data-quality audit, 2026-09-20. Two biases made the measured spread too NARROW,
+            # which flatters every backtest that used it:
+            #   * 7.9% of logged ticks have bid EXACTLY equal to ask (41% of EURUSD's), which
+            #     is not a spread of zero, it is a quote we should not price from;
+            #   * 32.6% of events update ONE side only, and the logger carries the other side
+            #     forward, so a fresh bid is differenced against a stale ask.
+            # Only two-sided updates with a strictly positive spread are admissible, and a
+            # thin sample falls through to the pessimistic class default rather than trusting
+            # a handful of quotes.
+            sp = pd.read_sql_query(
+                "SELECT spread_pips FROM ticks WHERE symbol=? AND side='bid+ask' "
+                "AND spread_pips > 0", c, params=(symbol.upper(),))
             c.close()
-            if not sp.empty:
-                spread_pips = float(sp["spread_pips"].median())
+            MIN_TICKS = 200
+            MIN_HOURS = 8
+            hours = pd.read_sql_query(
+                "SELECT COUNT(DISTINCT hour_of_week) h FROM ticks WHERE symbol=? "
+                "AND side='bid+ask' AND spread_pips > 0", c, params=(symbol.upper(),))
+            covered = int(hours["h"].iloc[0]) if not hours.empty else 0
+            if len(sp) >= MIN_TICKS:
+                # Coverage matters more than sample size. The audit found the tick recorder ran
+                # for 10.3 hours in total, almost all of it in the 14:00-15:00 UTC window, which
+                # is the London/New York overlap and therefore the CHEAPEST hour of the day.
+                # A median taken from the tightest hour is not the cost of trading at other
+                # hours, so a thin-coverage symbol is priced at its 75th percentile instead.
+                if covered >= MIN_HOURS:
+                    spread_pips = float(sp["spread_pips"].median())
+                else:
+                    spread_pips = float(sp["spread_pips"].quantile(0.75))
+                    print(f"  ({symbol}: spread measured in only {covered} distinct hours of "
+                          f"the week; using the 75th percentile {spread_pips:.2f} pips rather "
+                          f"than the median of the cheapest hour)")
+            elif not sp.empty:
+                print(f"  ({symbol}: only {len(sp)} admissible ticks, below {MIN_TICKS}; "
+                      f"using the conservative default instead of a thin measurement)")
         except Exception:  # noqa: BLE001
             pass
     if spread_pips is None:

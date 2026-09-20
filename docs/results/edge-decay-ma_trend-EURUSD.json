@@ -1,10 +1,17 @@
 {
- "experiment_id": "exp_20260920T093427Z_a7b632",
- "threshold_s": 43200.0,
- "operating_target_s": 10800.0,
+ "experiment_id": "exp_20260920T102143Z_530739",
+ "bracket": {
+  "status": "bracketed",
+  "lo": 64800.0,
+  "hi": 72000.0,
+  "resolution_limit_s": 3600.0
+ },
+ "threshold_s": 64800.0,
+ "threshold_censored": false,
+ "operating_target_s": 16200.0,
  "regime": "multi_hour",
  "feasible_from_here": true,
- "feasibility_note": "comfortable: target 1.08e+04s against a worst observed order path of 4.94s",
+ "feasibility_note": "comfortable: target 1.62e+04s against a worst observed order path of 4.94s",
  "curve": [
   {
    "gross_return": 0.14233644542982993,
@@ -164,6 +171,54 @@
    "n_obs": 1555.0,
    "requested_delay_s": 43200.0,
    "effective_delay_s": 43200.0,
+   "skipped": ""
+  },
+  {
+   "gross_return": 0.07181608950399487,
+   "net_return": 0.0021273836124602596,
+   "ev_per_trade": 5.45482977553968e-05,
+   "win_rate": 0.3333333333333333,
+   "profit_factor": 1.0069536079980064,
+   "sharpe": 0.004920587338801338,
+   "max_dd": -0.1814767763595576,
+   "spread_and_fees": 0.003039769843582372,
+   "financing": 0.0666489360479523,
+   "n_trades": 39.0,
+   "n_obs": 1555.0,
+   "requested_delay_s": 64800.0,
+   "effective_delay_s": 64800.0,
+   "skipped": ""
+  },
+  {
+   "gross_return": 0.06157340456965277,
+   "net_return": -0.008115301321881895,
+   "ev_per_trade": -0.00020808464927901546,
+   "win_rate": 0.3333333333333333,
+   "profit_factor": 0.9739909544498766,
+   "sharpe": -0.01816188768822791,
+   "max_dd": -0.1739992849721863,
+   "spread_and_fees": 0.003039769843582372,
+   "financing": 0.0666489360479523,
+   "n_trades": 39.0,
+   "n_obs": 1555.0,
+   "requested_delay_s": 72000.0,
+   "effective_delay_s": 72000.0,
+   "skipped": ""
+  },
+  {
+   "gross_return": 0.0587845068024917,
+   "net_return": -0.010904199089042957,
+   "ev_per_trade": -0.00027959484843699143,
+   "win_rate": 0.3076923076923077,
+   "profit_factor": 0.9650640026029221,
+   "sharpe": -0.024866988794084062,
+   "max_dd": -0.1757501674762444,
+   "spread_and_fees": 0.003039769843582372,
+   "financing": 0.0666489360479523,
+   "n_trades": 39.0,
+   "n_obs": 1555.0,
+   "requested_delay_s": 75600.0,
+   "effective_delay_s": 75600.0,
    "skipped": ""
   },
   {

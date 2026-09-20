@@ -97,6 +97,11 @@ def main() -> int:
         config_json={"delays_s": delays, "params": params}, seeds="none (deterministic)")
 
     curve = D.decay_curve(sig, h1, delays, cost, fin_per_day, "H1", bars_per_year=260.0)
+    # Adaptive refinement: spend the extra runs only where the curve crosses zero.
+    bracket = D.crossing_bracket(curve)
+    extra, bracket = D.refine_bracket(sig, h1, bracket, cost, fin_per_day, "H1", 260.0)
+    if not extra.empty:
+        curve = pd.concat([curve, extra], ignore_index=True).sort_values("requested_delay_s")
     registry.save_decay(eid, a.strategy, a.symbol, curve)
 
     print(f"{'delay':>10}{'effective':>11}{'net ret':>10}{'sharpe':>8}{'EV/trade':>10}"
@@ -115,26 +120,32 @@ def main() -> int:
               f"{r['max_dd']:>8.2f}{int(r['n_trades']):>8}")
 
     thr, target, censored = D.survival_threshold(curve)
+    target = D.operating_target(bracket)
     regime = D.regime_for(thr)
     feasible, why = D.feasible_from_here(thr)
     print()
-    if thr is None:
+    if bracket["status"] == "no_edge":
         print("LATENCY SURVIVAL THRESHOLD: none. The edge is not positive at ANY delay, "
               "including zero, so speed is not what is wrong with it.")
+    elif bracket["status"] == "censored_right":
+        print(f"LATENCY SURVIVAL THRESHOLD: > {bracket['lo']/3600:.1f} hours. The curve never "
+              f"crossed zero inside the delays tested, so the grid ran out before the strategy "
+              f"did.")
+        print(f"CONSERVATIVE OPERATING TARGET: {target/3600:.2f} hours, at "
+              f"{D.SAFETY_FACTOR:.0%} of the last delay shown to work")
     else:
-        at_least = "AT LEAST " if censored else ""
-        print(f"LATENCY SURVIVAL THRESHOLD: {at_least}{thr/3600:.1f} hours ({thr:,.0f}s)"
-              + (" - the curve never crossed zero inside the delays tested, so this is the "
-                 "edge of the ruler, not the edge of the strategy" if censored else ""))
-        print(f"CONSERVATIVE OPERATING TARGET: {target/3600:.2f} hours ({target:,.0f}s), "
-              f"at {D.SAFETY_FACTOR:.0%} of the threshold")
+        print(f"LATENCY SURVIVAL THRESHOLD: in ({bracket['lo']/3600:.1f} h, "
+              f"{bracket['hi']/3600:.1f} h), narrowed by bisection to the data's "
+              f"{bracket.get('resolution_limit_s', 3600)/3600:.0f} h resolution limit")
+        print(f"CONSERVATIVE OPERATING TARGET: {target/3600:.2f} hours, at "
+              f"{D.SAFETY_FACTOR:.0%} of the pessimistic end")
     print(f"SPEED REGIME (measured, not labelled): {regime}")
     print(f"FEASIBLE FROM THIS MACHINE: {feasible}. {why}")
     print(f"  (measured order path: min {D.MEASURED_ORDER_PATH_MS['min']:.0f}ms, "
           f"mean {D.MEASURED_ORDER_PATH_MS['mean']:.0f}ms, "
           f"max {D.MEASURED_ORDER_PATH_MS['max']:.0f}ms)")
 
-    result = {"threshold_s": thr, "threshold_censored": censored,
+    result = {"bracket": bracket, "threshold_s": thr, "threshold_censored": censored,
               "operating_target_s": target, "regime": regime,
               "feasible_from_here": feasible, "feasibility_note": why,
               "curve": curve.replace({np.nan: None}).to_dict("records")}

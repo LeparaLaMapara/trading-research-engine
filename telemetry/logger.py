@@ -15,7 +15,9 @@ import argparse
 import sys
 import time
 
-from ctrader_open_api.messages.OpenApiMessages_pb2 import ProtoOAVersionReq
+from ctrader_open_api.messages.OpenApiMessages_pb2 import (ProtoOADepthEvent,
+                                                           ProtoOASubscribeDepthQuotesReq,
+                                                           ProtoOAVersionReq)
 from twisted.internet import reactor
 from twisted.internet.task import LoopingCall
 
@@ -28,10 +30,13 @@ SNAPSHOT_DIR = "data/snapshots"
 
 
 class TelemetryLogger:
-    def __init__(self, duration: int | None, symbols: list[str] | None = None) -> None:
+    def __init__(self, duration: int | None, symbols: list[str] | None = None,
+                 with_depth: bool = False) -> None:
+        self.with_depth = with_depth
         # A focused basket matters for the sub-second band: recording 64 instruments to answer
         # a crypto question wastes disk and throughput on markets that are closed.
         self.symbols = [s.upper() for s in symbols] if symbols else None
+        self.depth_count = 0
         self.duration = duration
         self.store = Store(settings.TELEMETRY_DB)
         self.id_to_name: dict[int, str] = {}
@@ -42,7 +47,8 @@ class TelemetryLogger:
         self.tick_count = 0
         self._latency_loop: LoopingCall | None = None
         self.conn = CTraderConnection(
-            on_ready=self.on_ready, on_spot=self.on_spot, on_symbol_spec=self.on_spec)
+            on_ready=self.on_ready, on_spot=self.on_spot, on_symbol_spec=self.on_spec,
+            on_depth=self.on_depth)
 
     def run(self) -> None:
         reactor.addSystemEventTrigger("before", "shutdown", self._on_reactor_shutdown)
@@ -81,9 +87,38 @@ class TelemetryLogger:
         if not self.pending_specs and not self.subscribed:
             self._start_streaming(list(self.spec.keys()))
 
+    def _subscribe_depth(self, ids: list[int]) -> None:
+        """Level 2. The spot stream carries PRICES only, which is why 361k logged events
+        contained no book. Sizes are what imbalance research needs."""
+        # symbolId is a REPEATED field here (unlike ProtoOAExpectedMarginReq), so it is
+        # appended, not assigned. One request covers the whole basket.
+        req = ProtoOASubscribeDepthQuotesReq()
+        req.ctidTraderAccountId = self.conn.account_id
+        for sid in ids:
+            req.symbolId.append(sid)
+        self.conn.client.send(req)
+        print(f"subscribed to depth for {len(ids)} symbols")
+
+    def on_depth(self, event: object) -> None:
+        sym = self.id_to_name.get(event.symbolId, str(event.symbolId))
+        now = units.utc_now().timestamp()
+        rows = []
+        for q in event.newQuotes:
+            side = "bid" if q.HasField("bid") else "ask"
+            raw = q.bid if side == "bid" else q.ask
+            rows.append({"ts_utc": now, "symbol": sym, "quote_id": q.id, "side": side,
+                         "price": units.to_price(raw), "size": q.size, "event": "new"})
+        for qid in event.deletedQuotes:
+            rows.append({"ts_utc": now, "symbol": sym, "quote_id": qid, "side": "delete",
+                         "price": None, "size": None, "event": "deleted"})
+        self.store.insert_depth(rows)
+        self.depth_count += len(rows)
+
     def _start_streaming(self, ids: list[int]) -> None:
         self.subscribed = True
         self.conn.subscribe_spots(ids)
+        if self.with_depth:
+            self._subscribe_depth(ids)
         print(f"subscribed to {len(ids)} symbols. Logging ticks…")
         self._latency_loop = LoopingCall(self._probe_latency)
         self._latency_loop.start(settings.LATENCY_INTERVAL_S, now=True)
@@ -157,10 +192,12 @@ def main() -> None:
     p = argparse.ArgumentParser(description="Passive cTrader execution telemetry logger.")
     p.add_argument("--symbols", nargs="*", default=None,
                    help="record only these symbols (default: the whole telemetry basket)")
+    p.add_argument("--depth", action="store_true",
+                   help="also subscribe to level-2 depth quotes (sizes per level)")
     p.add_argument("--duration", type=int, default=None,
                    help="seconds to log before snapshotting and stopping (default: until ctrl-c)")
     args = p.parse_args()
-    TelemetryLogger(args.duration, args.symbols).run()
+    TelemetryLogger(args.duration, args.symbols, args.depth).run()
 
 
 if __name__ == "__main__":

@@ -24,6 +24,7 @@ from ctrader_open_api.messages.OpenApiMessages_pb2 import (
     ProtoOASpotEvent,
     ProtoOASubscribeSpotsReq,
     ProtoOASymbolByIdReq,
+    ProtoOADepthEvent,
     ProtoOASymbolByIdRes,
     ProtoOASymbolsListReq,
     ProtoOASymbolsListRes,
@@ -45,7 +46,9 @@ class CTraderConnection:
     """Owns the client and the auth state machine. Register handlers, then run()."""
 
     def __init__(self, on_ready: OnReady, on_spot: OnSpot | None = None,
-                 on_symbol_spec: OnSymbolSpec | None = None) -> None:
+                 on_symbol_spec: OnSymbolSpec | None = None,
+                 on_depth=None) -> None:
+        self.on_depth = on_depth
         self.on_ready = on_ready
         self.on_spot = on_spot
         self.on_symbol_spec = on_symbol_spec
@@ -148,6 +151,10 @@ class CTraderConnection:
         elif message.payloadType == ProtoOASpotEvent().payloadType:
             if self.on_spot:
                 self.on_spot(Protobuf.extract(message))
+
+        elif message.payloadType == ProtoOADepthEvent().payloadType:
+            if self.on_depth:
+                self.on_depth(Protobuf.extract(message))
 
         elif message.payloadType == ProtoOAErrorRes().payloadType:
             res = Protobuf.extract(message)
