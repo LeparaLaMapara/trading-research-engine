@@ -7,12 +7,10 @@ name: live-state
 # Hourly, because an open position's value changes and a dashboard that says "0 trades" while
 # money is at risk is worse than no dashboard.
 on:
-  # PAUSED 2026-09-20 while the local continuous recorder holds the broker session. The broker
-  # allows ONE authenticated session per account, and a second one fails silently rather than
-  # loudly, which is how three symbols once "fetched" zero bars. Re-enable when the recorder
-  # stops; the dashboard is refreshed by hand in the meantime.
-  # schedule:
-  #   - cron: "7 * * * *"
+  # Re-enabled 2026-09-20 17:40 SAST: the continuous recorder has stopped, so the broker
+  # session is free. One session per account: pause this again before the next long recording.
+  schedule:
+    - cron: "7 * * * *"
   workflow_dispatch: {}
 
 concurrency:
