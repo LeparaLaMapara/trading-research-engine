@@ -113,17 +113,43 @@ def _dashboard_data() -> dict:
 
     # Real trading activity. Nothing here is modelled: these come from orders that were
     # actually sent to the broker. As of 2026-09-15 that is one attempt, rejected.
-    attempted = int(os.environ.get("TRADES_ATTEMPTED", "1"))
-    executed = int(os.environ.get("TRADES_EXECUTED", "0"))
-    made_zar = 0.0
-    lost_zar = 0.0
+    # Real trading, read from the broker's own record (scripts/push_live_state publishes it
+    # hourly). It used to come from environment variables a human had to remember to change,
+    # which is why this panel said "0 trades" on the day a position was open.
+    trades = _sb("trading_trades", "select=trade_id,ts,symbol,side,volume_lots,filled_price,"
+                                   "net_usd,status,purpose,note&order=ts.desc&limit=50")
+    positions = _sb("trading_positions",
+                    "select=position_id,symbol,side,volume_lots,entry_price,current_price,"
+                    "stop_loss,take_profit,unrealised_usd,swap_usd,opened_ts,updated_ts,status"
+                    "&order=updated_ts.desc&limit=20")
+    open_positions = [p for p in positions if (p.get("status") or "") == "OPEN"]
+
+    attempted = len(trades)
+    executed = sum(1 for t in trades if (t.get("status") or "").upper() == "FILLED")
+    realised = [float(t["net_usd"]) for t in trades if t.get("net_usd") is not None]
+    made_zar = sum(x for x in realised if x > 0) * ZAR_PER_USD
+    lost_zar = -sum(x for x in realised if x < 0) * ZAR_PER_USD
+    unrealised_zar = sum(float(p.get("unrealised_usd") or 0.0) for p in open_positions) * ZAR_PER_USD
+    # What is actually at risk right now: distance from entry to stop on every open position.
     risked_zar = 0.0
+    for p in open_positions:
+        try:
+            gap = abs(float(p["entry_price"]) - float(p["stop_loss"]))
+            units = float(p["volume_lots"] or 0) * 100.0 if p["symbol"].startswith("X") else None
+            risked_zar += gap * (units or 0.0) * ZAR_PER_USD
+        except (TypeError, ValueError, KeyError):
+            pass
 
     tested = len(strategies)
     passed = sum(1 for s in strategies if (s.get("verdict") or "").upper() == "PASS")
     last_run = strategies[0]["run_ts"] if strategies else None
 
-    if executed == 0 and passed == 0 and tested > 0:
+    if open_positions:
+        p0 = open_positions[0]
+        why = (f"It has {len(open_positions)} trade open right now: {p0['side'].lower()} "
+               f"{p0['symbol']}, bought at {p0['entry_price']}, with an automatic sell if it "
+               f"falls to {p0['stop_loss']} or rises to {p0['take_profit']}.")
+    elif executed == 0 and passed == 0 and tested > 0:
         why = ("It has not traded. Every idea it tested so far lost money once real costs "
                "were counted, so it did not put any of yours at risk.")
     elif executed == 0 and tested == 0:
@@ -197,6 +223,9 @@ def _dashboard_data() -> dict:
         "lost_zar": lost_zar,
         "attempted": attempted,
         "executed": executed,
+        "unrealised_zar": unrealised_zar,
+        "open_positions": open_positions,
+        "trades": trades,
         "ideas_tested": tested,
         "ideas_passed": passed,
         "last_run": last_run,
@@ -428,6 +457,7 @@ PAGE = """
 <div class="grid" id="cards"></div>
 
 <div class="banner" id="why"></div>
+<div id="openpos"></div>
 
 <div class="viz" id="viz-stand">
   <h3>Where your money stands</h3>
@@ -499,8 +529,14 @@ async function load(){
     ['How much money do I have?', money(D.have_zar), '', 'about $'+Number(D.have_usd||0).toFixed(2)],
     ['How much did it try to trade?', money(D.risked_zar), '',
       D.executed? (D.executed+' trades placed') : (D.attempted+' attempt, rejected: the account was too small to place it')],
-    ['How much did it make?', money(D.made_zar), D.made_zar>0?'good':'', 'money actually won'],
-    ['How much did it lose?', money(D.lost_zar), D.lost_zar>0?'bad':'', 'money actually lost'],
+    ['How much did it make?', money(D.made_zar + Math.max(D.unrealised_zar||0,0)),
+      (D.made_zar + Math.max(D.unrealised_zar||0,0))>0?'good':'',
+      (D.unrealised_zar>0 ? 'includes R'+Number(D.unrealised_zar).toFixed(2)+' not cashed in yet'
+                          : 'money actually won')],
+    ['How much did it lose?', money(D.lost_zar + Math.max(-(D.unrealised_zar||0),0)),
+      (D.lost_zar + Math.max(-(D.unrealised_zar||0),0))>0?'bad':'',
+      (D.unrealised_zar<0 ? 'includes R'+Number(-D.unrealised_zar).toFixed(2)+' down on an open trade'
+                          : 'money actually lost')],
   ].map(([q,n,cls,h])=>`<div class="card"><p class="q">${q}</p>
       <p class="n ${cls}">${n}</p><p class="hint">${h}</p></div>`).join('');
 function renderMilestone(m){
@@ -529,6 +565,19 @@ function renderMilestone(m){
 }
   renderMilestone(D.milestone);
   $('why').innerHTML='<strong>What is it doing?</strong><br>'+D.why_no_trade;
+  // Open trades, in plain words. Straight from the broker, refreshed hourly.
+  $('openpos').innerHTML = (D.open_positions&&D.open_positions.length)
+    ? '<div class="banner"><strong>Trade open right now</strong><br>'
+      + D.open_positions.map(function(p){
+          var up = Number(p.unrealised_usd||0) * D.zar_per_usd;
+          var word = up>=0 ? ('up R'+Math.abs(up).toFixed(2)) : ('down R'+Math.abs(up).toFixed(2));
+          return 'Bought '+p.volume_lots+' of '+p.symbol+' at '+p.entry_price
+            +'. Now '+(p.current_price||'?')+', so it is '+word+'.<br>'
+            +'It sells itself at '+p.stop_loss+' to stop the loss, or at '+p.take_profit
+            +' to take the profit. Nothing needs to be watching.';
+        }).join('<hr>')
+      + '</div>'
+    : '';
   $('lessons').innerHTML = (D.lessons&&D.lessons.length)
     ? D.lessons.map(l=>`<li>${l.lesson}<div class="ev">${l.evidence||''}</div></li>`).join('')
     : `<li>It has tested ${D.ideas_tested} ideas so far and none of them beat the cost of

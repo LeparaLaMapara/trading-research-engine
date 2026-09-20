@@ -1,0 +1,47 @@
+name: live-state
+
+# Keeps the public dashboard honest without anyone remembering to update it. Reads the broker
+# (balance, open positions, a spot quote: all read-only, no authority grant needed) and
+# publishes to Supabase, where the dashboard reads it.
+#
+# Hourly, because an open position's value changes and a dashboard that says "0 trades" while
+# money is at risk is worse than no dashboard.
+on:
+  schedule:
+    - cron: "7 * * * *"
+  workflow_dispatch: {}
+
+concurrency:
+  group: live-state
+  cancel-in-progress: true
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CTRADER_CLIENT_ID: ${{ secrets.CTRADER_CLIENT_ID }}
+      CTRADER_CLIENT_SECRET: ${{ secrets.CTRADER_CLIENT_SECRET }}
+      CTRADER_ENV: live
+      CTRADER_ACCOUNT_ID: ${{ secrets.CTRADER_ACCOUNT_ID }}
+      CTRADER_ACCESS_TOKEN: ${{ secrets.CTRADER_ACCESS_TOKEN }}
+      CTRADER_REFRESH_TOKEN: ${{ secrets.CTRADER_REFRESH_TOKEN }}
+      TOKEN_STORE: data/tokens.json
+      SUPABASE_URL: https://bprargrqppufeuewryze.supabase.co
+      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Restore data (tokens, trade log, symbol specs)
+        uses: actions/cache@v4
+        with:
+          path: data
+          key: research-data-${{ github.run_id }}
+          restore-keys: |
+            research-data-
+      - name: Install
+        run: pip install -e .
+      - name: Publish live state
+        run: python -m scripts.push_live_state
