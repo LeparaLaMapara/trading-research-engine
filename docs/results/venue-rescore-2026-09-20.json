@@ -1,0 +1,568 @@
+{
+ "data_hash": "6a790736f144bcc7",
+ "flips": [
+  "random_sign",
+  "breakout",
+  "tsmom_12m",
+  "ridge_pooled",
+  "logistic_pooled",
+  "ridge_per_class",
+  "ridge_per_instrument",
+  "xgb_shallow",
+  "xgb_deep",
+  "extra_trees",
+  "random_forest",
+  "mlp",
+  "ens_ml",
+  "ens_all"
+ ],
+ "best_at_futures_costs": "long_risk_parity",
+ "results": {
+  "cfd_broker": {
+   "long_risk_parity": {
+    "net": 0.446789690240245,
+    "gross": 1.0770706494614501,
+    "costs": 0.06259919969760157,
+    "fin": 0.5677352245977969,
+    "verdict": "NOT_DISTINGUISHABLE_FROM_LUCK",
+    "years_positive": 6,
+    "years_total": 8
+   },
+   "random_sign": {
+    "net": -1.342916546995005,
+    "gross": 0.3406599384332441,
+    "costs": 0.45969672344515167,
+    "fin": 1.2276257282198717,
+    "verdict": "EDGE_DESTROYED_BY_COSTS",
+    "years_positive": 0,
+    "years_total": 8
+   },
+   "ewmac": {
+    "net": -0.8720146475650036,
+    "gross": -0.39498413782495384,
+    "costs": 0.09943403679495912,
+    "fin": 0.37808788165844814,
+    "verdict": "NO_PREDICTIVE_EDGE",
+    "years_positive": 0,
+    "years_total": 8
+   },
+   "breakout": {
+    "net": -0.6548444138829282,
+    "gross": 0.09813635654400894,
+    "costs": 0.3616764436540613,
+    "fin": 0.3916761999106024,
+    "verdict": "EDGE_DESTROYED_BY_COSTS",
+    "years_positive": 1,
+    "years_total": 8
+   },
+   "tsmom_12m": {
+    "net": -0.3942380375615549,
+    "gross": 0.27355104898425436,
+    "costs": 0.1713423348829519,
+    "fin": 0.49654377058468124,
+    "verdict": "EDGE_DESTROYED_BY_COSTS",
+    "years_positive": 3,
+    "years_total": 8
+   },
+   "xs_momentum": {
+    "net": -1.0037613960209777,
+    "gross": -0.09091951444185319,
+    "costs": 0.3583964673900875,
+    "fin": 0.5552151820304126,
+    "verdict": "NO_PREDICTIVE_EDGE",
+    "years_positive": 2,
+    "years_total": 8
+   },
+   "short_reversal": {
+    "net": -1.54564455851308,
+    "gross": -0.4843611780813755,
+    "costs": 0.7323854318834645,
+    "fin": 0.3306616698759232,
+    "verdict": "NO_PREDICTIVE_EDGE",
+    "years_positive": 0,
+    "years_total": 8
+   },
+   "ridge_pooled": {
+    "net": -0.327760571486502,
+    "gross": 0.6829454773915216,
+    "costs": 0.5649901751093223,
+    "fin": 0.44577656993541925,
+    "verdict": "EDGE_DESTROYED_BY_COSTS",
+    "years_positive": 2,
+    "years_total": 8
+   },
+   "logistic_pooled": {
+    "net": -0.2625525155595094,
+    "gross": 0.6768124080506108,
+    "costs": 0.5122524953294726,
+    "fin": 0.4272160795326821,
+    "verdict": "EDGE_DESTROYED_BY_COSTS",
+    "years_positive": 2,
+    "years_total": 8
+   },
+   "ridge_per_class": {
+    "net": -0.7320939865879402,
+    "gross": 0.20736392853307628,
+    "costs": 0.4673733890403946,
+    "fin": 0.4725209280588725,
+    "verdict": "EDGE_DESTROYED_BY_COSTS",
+    "years_positive": 2,
+    "years_total": 8
+   },
+   "ridge_per_instrument": {
+    "net": -0.662407662821401,
+    "gross": 0.38231501994618844,
+    "costs": 0.5052897517674397,
+    "fin": 0.539641933414982,
+    "verdict": "EDGE_DESTROYED_BY_COSTS",
+    "years_positive": 2,
+    "years_total": 8
+   },
+   "xgb_shallow": {
+    "net": -0.32043374201635644,
+    "gross": 0.6877475155406803,
+    "costs": 0.5915645997905967,
+    "fin": 0.4165302368114581,
+    "verdict": "EDGE_DESTROYED_BY_COSTS",
+    "years_positive": 4,
+    "years_total": 8
+   },
+   "xgb_deep": {
+    "net": -0.5839178294820276,
+    "gross": 0.5684516598583016,
+    "costs": 0.7293300435276152,
+    "fin": 0.42299894826501927,
+    "verdict": "EDGE_DESTROYED_BY_COSTS",
+    "years_positive": 3,
+    "years_total": 8
+   },
+   "extra_trees": {
+    "net": -0.17989921100872996,
+    "gross": 0.5830772640562801,
+    "costs": 0.3794976774055619,
+    "fin": 0.3834886160472225,
+    "verdict": "EDGE_DESTROYED_BY_COSTS",
+    "years_positive": 3,
+    "years_total": 8
+   },
+   "random_forest": {
+    "net": -0.4457471565264788,
+    "gross": 0.5367036264155504,
+    "costs": 0.5564802560012868,
+    "fin": 0.42607096198336264,
+    "verdict": "EDGE_DESTROYED_BY_COSTS",
+    "years_positive": 1,
+    "years_total": 8
+   },
+   "mlp": {
+    "net": -0.4123572221465068,
+    "gross": 0.5046124716070126,
+    "costs": 0.5405847779497197,
+    "fin": 0.3763989774459036,
+    "verdict": "EDGE_DESTROYED_BY_COSTS",
+    "years_positive": 2,
+    "years_total": 8
+   },
+   "gru_seq": {
+    "net": 0.13224988508622532,
+    "gross": 0.89720398540938,
+    "costs": 0.3443020597834886,
+    "fin": 0.42066263484560873,
+    "verdict": "NOT_DISTINGUISHABLE_FROM_LUCK",
+    "years_positive": 5,
+    "years_total": 8
+   },
+   "ens_rules": {
+    "net": -0.849889619694351,
+    "gross": -0.2449382560290434,
+    "costs": 0.21095101453596238,
+    "fin": 0.39459520955079486,
+    "verdict": "NO_PREDICTIVE_EDGE",
+    "years_positive": 0,
+    "years_total": 8
+   },
+   "ens_ml": {
+    "net": -0.11155694930703179,
+    "gross": 0.6771318374980796,
+    "costs": 0.4064096944298309,
+    "fin": 0.3822838582907588,
+    "verdict": "EDGE_DESTROYED_BY_COSTS",
+    "years_positive": 3,
+    "years_total": 8
+   },
+   "ens_all": {
+    "net": -0.24141985082522413,
+    "gross": 0.585151038932429,
+    "costs": 0.43232668286741527,
+    "fin": 0.39433268740221894,
+    "verdict": "EDGE_DESTROYED_BY_COSTS",
+    "years_positive": 4,
+    "years_total": 8
+   }
+  },
+  "cme_micro": {
+   "long_risk_parity": {
+    "net": 1.0609250122332317,
+    "gross": 1.0770706494614501,
+    "costs": 0.016157546525159352,
+    "fin": 0.0,
+    "verdict": "NOT_DISTINGUISHABLE_FROM_LUCK",
+    "years_positive": 6,
+    "years_total": 8
+   },
+   "random_sign": {
+    "net": 0.22065563076618888,
+    "gross": 0.3406599384332441,
+    "costs": 0.11999151757606247,
+    "fin": 0.0,
+    "verdict": "NOT_DISTINGUISHABLE_FROM_LUCK",
+    "years_positive": 6,
+    "years_total": 8
+   },
+   "ewmac": {
+    "net": -0.42073763470018194,
+    "gross": -0.39498413782495384,
+    "costs": 0.02576519462474912,
+    "fin": 0.0,
+    "verdict": "NO_PREDICTIVE_EDGE",
+    "years_positive": 2,
+    "years_total": 8
+   },
+   "breakout": {
+    "net": 0.0047416212471253555,
+    "gross": 0.09813635654400894,
+    "costs": 0.09339451608923416,
+    "fin": 0.0,
+    "verdict": "NOT_DISTINGUISHABLE_FROM_LUCK",
+    "years_positive": 4,
+    "years_total": 8
+   },
+   "tsmom_12m": {
+    "net": 0.22924420793969122,
+    "gross": 0.27355104898425436,
+    "costs": 0.04430327734336182,
+    "fin": 0.0,
+    "verdict": "NOT_DISTINGUISHABLE_FROM_LUCK",
+    "years_positive": 5,
+    "years_total": 8
+   },
+   "xs_momentum": {
+    "net": -0.18262377617392173,
+    "gross": -0.09091951444185319,
+    "costs": 0.09171254175069746,
+    "fin": 0.0,
+    "verdict": "NO_PREDICTIVE_EDGE",
+    "years_positive": 4,
+    "years_total": 8
+   },
+   "short_reversal": {
+    "net": -0.6732316145427896,
+    "gross": -0.4843611780813755,
+    "costs": 0.18894978707174087,
+    "fin": 0.0,
+    "verdict": "NO_PREDICTIVE_EDGE",
+    "years_positive": 1,
+    "years_total": 8
+   },
+   "ridge_pooled": {
+    "net": 0.5356891419430342,
+    "gross": 0.6829454773915216,
+    "costs": 0.14726125417936786,
+    "fin": 0.0,
+    "verdict": "NOT_DISTINGUISHABLE_FROM_LUCK",
+    "years_positive": 7,
+    "years_total": 8
+   },
+   "logistic_pooled": {
+    "net": 0.5442765266539408,
+    "gross": 0.6768124080506108,
+    "costs": 0.13250554758086774,
+    "fin": 0.0,
+    "verdict": "NOT_DISTINGUISHABLE_FROM_LUCK",
+    "years_positive": 7,
+    "years_total": 8
+   },
+   "ridge_per_class": {
+    "net": 0.08787148243145317,
+    "gross": 0.20736392853307628,
+    "costs": 0.11949527783179358,
+    "fin": 0.0,
+    "verdict": "NOT_DISTINGUISHABLE_FROM_LUCK",
+    "years_positive": 5,
+    "years_total": 8
+   },
+   "ridge_per_instrument": {
+    "net": 0.2482952013625151,
+    "gross": 0.38231501994618844,
+    "costs": 0.13402067156303357,
+    "fin": 0.0,
+    "verdict": "NOT_DISTINGUISHABLE_FROM_LUCK",
+    "years_positive": 6,
+    "years_total": 8
+   },
+   "xgb_shallow": {
+    "net": 0.5322607382098701,
+    "gross": 0.6877475155406803,
+    "costs": 0.15550100200458997,
+    "fin": 0.0,
+    "verdict": "NOT_DISTINGUISHABLE_FROM_LUCK",
+    "years_positive": 6,
+    "years_total": 8
+   },
+   "xgb_deep": {
+    "net": 0.3784740216621777,
+    "gross": 0.5684516598583016,
+    "costs": 0.18999558863163016,
+    "fin": 0.0,
+    "verdict": "NOT_DISTINGUISHABLE_FROM_LUCK",
+    "years_positive": 5,
+    "years_total": 8
+   },
+   "extra_trees": {
+    "net": 0.4823619048395166,
+    "gross": 0.5830772640562801,
+    "costs": 0.10072010105789946,
+    "fin": 0.0,
+    "verdict": "NOT_DISTINGUISHABLE_FROM_LUCK",
+    "years_positive": 6,
+    "years_total": 8
+   },
+   "random_forest": {
+    "net": 0.3903765432087744,
+    "gross": 0.5367036264155504,
+    "costs": 0.1462739764208958,
+    "fin": 0.0,
+    "verdict": "NOT_DISTINGUISHABLE_FROM_LUCK",
+    "years_positive": 6,
+    "years_total": 8
+   },
+   "mlp": {
+    "net": 0.36445877640217805,
+    "gross": 0.5046124716070126,
+    "costs": 0.14015551213679295,
+    "fin": 0.0,
+    "verdict": "NOT_DISTINGUISHABLE_FROM_LUCK",
+    "years_positive": 5,
+    "years_total": 8
+   },
+   "gru_seq": {
+    "net": 0.807227631765405,
+    "gross": 0.89720398540938,
+    "costs": 0.08994255273312399,
+    "fin": 0.0,
+    "verdict": "NOT_DISTINGUISHABLE_FROM_LUCK",
+    "years_positive": 6,
+    "years_total": 8
+   },
+   "ens_rules": {
+    "net": -0.2987125533739106,
+    "gross": -0.2449382560290434,
+    "costs": 0.05379135971511337,
+    "fin": 0.0,
+    "verdict": "NO_PREDICTIVE_EDGE",
+    "years_positive": 4,
+    "years_total": 8
+   },
+   "ens_ml": {
+    "net": 0.5700598162168193,
+    "gross": 0.6771318374980796,
+    "costs": 0.10706291029803636,
+    "fin": 0.0,
+    "verdict": "NOT_DISTINGUISHABLE_FROM_LUCK",
+    "years_positive": 6,
+    "years_total": 8
+   },
+   "ens_all": {
+    "net": 0.47212798041631376,
+    "gross": 0.585151038932429,
+    "costs": 0.11302474435072991,
+    "fin": 0.0,
+    "verdict": "NOT_DISTINGUISHABLE_FROM_LUCK",
+    "years_positive": 5,
+    "years_total": 8
+   }
+  },
+  "valr_perp": {
+   "long_risk_parity": {
+    "net": 0.9004044780542237,
+    "gross": 1.0770706494614501,
+    "costs": 0.1767231651189304,
+    "fin": 0.0,
+    "verdict": "NOT_DISTINGUISHABLE_FROM_LUCK",
+    "years_positive": 6,
+    "years_total": 8
+   },
+   "random_sign": {
+    "net": -0.9502728997548314,
+    "gross": 0.3406599384332441,
+    "costs": 1.3124072234881832,
+    "fin": 0.0,
+    "verdict": "EDGE_DESTROYED_BY_COSTS",
+    "years_positive": 0,
+    "years_total": 8
+   },
+   "ewmac": {
+    "net": -0.6765220986801638,
+    "gross": -0.39498413782495384,
+    "costs": 0.2818068162081935,
+    "fin": 0.0,
+    "verdict": "NO_PREDICTIVE_EDGE",
+    "years_positive": 1,
+    "years_total": 8
+   },
+   "breakout": {
+    "net": -0.9222052072730863,
+    "gross": 0.09813635654400894,
+    "costs": 1.0215025197259984,
+    "fin": 0.0,
+    "verdict": "EDGE_DESTROYED_BY_COSTS",
+    "years_positive": 1,
+    "years_total": 8
+   },
+   "tsmom_12m": {
+    "net": -0.21091292955967192,
+    "gross": 0.27355104898425436,
+    "costs": 0.4845670959430199,
+    "fin": 0.0,
+    "verdict": "EDGE_DESTROYED_BY_COSTS",
+    "years_positive": 3,
+    "years_total": 8
+   },
+   "xs_momentum": {
+    "net": -1.092577303103991,
+    "gross": -0.09091951444185319,
+    "costs": 1.0031059253982533,
+    "fin": 0.0,
+    "verdict": "NO_PREDICTIVE_EDGE",
+    "years_positive": 1,
+    "years_total": 8
+   },
+   "short_reversal": {
+    "net": -2.5414597357955095,
+    "gross": -0.4843611780813755,
+    "costs": 2.0666382960971657,
+    "fin": 0.0,
+    "verdict": "NO_PREDICTIVE_EDGE",
+    "years_positive": 0,
+    "years_total": 8
+   },
+   "ridge_pooled": {
+    "net": -0.9262081827198891,
+    "gross": 0.6829454773915216,
+    "costs": 1.610669967586836,
+    "fin": 0.0,
+    "verdict": "EDGE_DESTROYED_BY_COSTS",
+    "years_positive": 1,
+    "years_total": 8
+   },
+   "logistic_pooled": {
+    "net": -0.7708847421612038,
+    "gross": 0.6768124080506108,
+    "costs": 1.449279426665741,
+    "fin": 0.0,
+    "verdict": "EDGE_DESTROYED_BY_COSTS",
+    "years_positive": 2,
+    "years_total": 8
+   },
+   "ridge_per_class": {
+    "net": -1.0988364595128028,
+    "gross": 0.20736392853307628,
+    "costs": 1.3069796012852422,
+    "fin": 0.0,
+    "verdict": "EDGE_DESTROYED_BY_COSTS",
+    "years_positive": 1,
+    "years_total": 8
+   },
+   "ridge_per_instrument": {
+    "net": -1.0814981700569626,
+    "gross": 0.38231501994618844,
+    "costs": 1.4658510952206794,
+    "fin": 0.0,
+    "verdict": "EDGE_DESTROYED_BY_COSTS",
+    "years_positive": 2,
+    "years_total": 8
+   },
+   "xgb_shallow": {
+    "net": -1.0106259676770695,
+    "gross": 0.6877475155406803,
+    "costs": 1.700792209425203,
+    "fin": 0.0,
+    "verdict": "EDGE_DESTROYED_BY_COSTS",
+    "years_positive": 1,
+    "years_total": 8
+   },
+   "xgb_deep": {
+    "net": -1.505687466095168,
+    "gross": 0.5684516598583016,
+    "costs": 2.0780767506584548,
+    "fin": 0.0,
+    "verdict": "EDGE_DESTROYED_BY_COSTS",
+    "years_positive": 1,
+    "years_total": 8
+   },
+   "extra_trees": {
+    "net": -0.5181353099679297,
+    "gross": 0.5830772640562801,
+    "costs": 1.1016261053207752,
+    "fin": 0.0,
+    "verdict": "EDGE_DESTROYED_BY_COSTS",
+    "years_positive": 3,
+    "years_total": 8
+   },
+   "random_forest": {
+    "net": -1.0591215688678168,
+    "gross": 0.5367036264155504,
+    "costs": 1.5998716171035479,
+    "fin": 0.0,
+    "verdict": "EDGE_DESTROYED_BY_COSTS",
+    "years_positive": 0,
+    "years_total": 8
+   },
+   "mlp": {
+    "net": -1.0268203650662817,
+    "gross": 0.5046124716070126,
+    "costs": 1.532950913996173,
+    "fin": 0.0,
+    "verdict": "EDGE_DESTROYED_BY_COSTS",
+    "years_positive": 0,
+    "years_total": 8
+   },
+   "gru_seq": {
+    "net": -0.08641101331348931,
+    "gross": 0.89720398540938,
+    "costs": 0.9837466705185436,
+    "fin": 0.0,
+    "verdict": "EDGE_DESTROYED_BY_COSTS",
+    "years_positive": 5,
+    "years_total": 8
+   },
+   "ens_rules": {
+    "net": -0.8325537906672493,
+    "gross": -0.2449382560290434,
+    "costs": 0.5883429968840526,
+    "fin": 0.0,
+    "verdict": "NO_PREDICTIVE_EDGE",
+    "years_positive": 0,
+    "years_total": 8
+   },
+   "ens_ml": {
+    "net": -0.4932878800782625,
+    "gross": 0.6771318374980796,
+    "costs": 1.1710005813847728,
+    "fin": 0.0,
+    "verdict": "EDGE_DESTROYED_BY_COSTS",
+    "years_positive": 3,
+    "years_total": 8
+   },
+   "ens_all": {
+    "net": -0.6503275112725289,
+    "gross": 0.585151038932429,
+    "costs": 1.2362081413361086,
+    "fin": 0.0,
+    "verdict": "EDGE_DESTROYED_BY_COSTS",
+    "years_positive": 2,
+    "years_total": 8
+   }
+  }
+ }
+}
