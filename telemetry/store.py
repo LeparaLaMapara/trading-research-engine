@@ -34,7 +34,9 @@ CREATE TABLE IF NOT EXISTS ticks (
     ask REAL,
     spread_price REAL,
     spread_pips REAL,
-    side TEXT NOT NULL
+    side TEXT NOT NULL,
+    server_ts REAL,
+    recv_latency_ms REAL
 );
 CREATE INDEX IF NOT EXISTS ix_ticks_symbol_how ON ticks(symbol, hour_of_week);
 
@@ -78,6 +80,16 @@ TICK_COLS = [
     "spread_price", "spread_pips", "side",
 ]
 
+#: Added 2026-09-20 for the latency lab. ProtoOASpotEvent carries the BROKER's own stamp for
+#: the event; without it "market data latency" is unmeasurable and we were discarding it.
+#:
+#: They are deliberately OUTSIDE TICK_COLS, which is the canonical hashed column set. Adding a
+#: column to the hash would change the content hash of the same underlying ticks, silently
+#: invalidating every snapshot digest recorded before today. The hash defines the dataset; new
+#: instrumentation travels alongside it.
+TICK_EXTRA_COLS = ["server_ts", "recv_latency_ms"]
+ALL_TICK_COLS = TICK_COLS + TICK_EXTRA_COLS
+
 
 def _code_version() -> str:
     try:
@@ -108,9 +120,11 @@ class Store:
 
     # -- writes ------------------------------------------------------------
     def insert_tick(self, row: dict[str, Any]) -> None:
+        for c in TICK_EXTRA_COLS:
+            row.setdefault(c, None)
         self.conn.execute(
-            f"INSERT INTO ticks ({','.join(TICK_COLS)}) "
-            f"VALUES ({','.join(':' + c for c in TICK_COLS)})", row)
+            f"INSERT INTO ticks ({','.join(ALL_TICK_COLS)}) "
+            f"VALUES ({','.join(':' + c for c in ALL_TICK_COLS)})", row)
         self._tick_commit()
 
     def insert_latency(self, probe: str, rtt_ms: float) -> None:

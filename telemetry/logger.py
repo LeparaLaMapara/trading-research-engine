@@ -107,6 +107,10 @@ class TelemetryLogger:
         digits, pip = spec["digits"], spec["pip_position"]
         now = units.utc_now()
         sast = units.to_sast(now)
+        # The broker stamps the event in milliseconds. The gap to our receive time IS the
+        # market-data latency, and it is the first of the brief's fifteen timestamps.
+        server_ts = event.timestamp / 1000.0 if event.HasField("timestamp") else None
+        recv_ms = (now.timestamp() - server_ts) * 1000.0 if server_ts else None
         self.store.insert_tick({
             "ts_utc": now.timestamp(),
             "ts_sast": sast.isoformat(),
@@ -121,6 +125,7 @@ class TelemetryLogger:
             "spread_price": units.spread_price(st["bid_raw"], st["ask_raw"]),
             "spread_pips": units.spread_pips(st["bid_raw"], st["ask_raw"], pip),
             "side": "+".join(side_parts) or "both",
+            "server_ts": server_ts, "recv_latency_ms": recv_ms,
         })
         self.tick_count += 1
         if self.tick_count % 200 == 0:
