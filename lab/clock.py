@@ -21,7 +21,20 @@ import time
 from dataclasses import dataclass
 
 NTP_EPOCH_DELTA = 2208988800  # seconds between 1900 (NTP) and 1970 (unix)
-DEFAULT_SERVERS = ("time.google.com", "pool.ntp.org", "time.cloudflare.com")
+#: pool.ntp.org rate-limits this host and answers with Kiss-o'-Death packets, so it is not in
+#: the default set. Four independent operators instead, and the consensus is a MEDIAN, so one
+#: bad server cannot move it.
+DEFAULT_SERVERS = ("time.google.com", "time.cloudflare.com", "time.apple.com", "time.nist.gov")
+
+
+class NtpRejected(ValueError):
+    """The server answered, but told us not to use the reply.
+
+    RED TEAM 2026-09-20: five of twenty replies from pool.ntp.org came back as Kiss-o'-Death
+    (leap indicator 3, stratum 0, refid 'RATE', transmit timestamp zero). Those parsed into an
+    offset of -4e12 ms, and because a KoD reply is SHORT, the old consensus rule of "trust the
+    shortest round trip" actively preferred them.
+    """
 
 
 @dataclass
@@ -40,18 +53,36 @@ class ClockSample:
 def query(server: str = "time.google.com", timeout: float = 3.0) -> ClockSample:
     """One NTP exchange. Offset and delay by the standard four-timestamp formulas."""
     packet = b"\x1b" + 47 * b"\0"
+    # Resolve BEFORE starting the clock: a DNS lookup inside t1..t4 biases the offset by half
+    # the lookup time, which on a cold cache is tens of milliseconds.
+    addr = socket.gethostbyname(server)
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         s.settimeout(timeout)
         t1 = time.time()
-        s.sendto(packet, (server, 123))
+        s.sendto(packet, (addr, 123))
         data, _ = s.recvfrom(1024)
         t4 = time.time()
     finally:
         s.close()
+    if len(data) < 48:
+        raise NtpRejected(f"{server}: short reply, {len(data)} bytes")
     unpacked = struct.unpack("!12I", data[:48])
+    li = (unpacked[0] >> 30) & 0x3
+    mode = (unpacked[0] >> 24) & 0x7
+    stratum = (unpacked[0] >> 16) & 0xFF
+    refid = data[12:16]
+    if li == 3 or stratum == 0:
+        raise NtpRejected(f"{server}: kiss-o'-death or unsynchronised "
+                          f"(li={li} stratum={stratum} refid={refid!r})")
+    if mode != 4:
+        raise NtpRejected(f"{server}: not a server reply (mode={mode})")
+    if stratum > 15:
+        raise NtpRejected(f"{server}: stratum {stratum} is not usable")
     t2 = unpacked[8] + unpacked[9] / 2**32 - NTP_EPOCH_DELTA   # server receive
     t3 = unpacked[10] + unpacked[11] / 2**32 - NTP_EPOCH_DELTA  # server transmit
+    if unpacked[10] == 0:
+        raise NtpRejected(f"{server}: zero transmit timestamp")
     offset = ((t2 - t1) + (t3 - t4)) / 2.0
     delay = (t4 - t1) - (t3 - t2)
     return ClockSample(server, offset * 1000.0, delay * 1000.0, t4)
@@ -62,23 +93,30 @@ def measure(servers: tuple[str, ...] = DEFAULT_SERVERS) -> list[ClockSample]:
     for srv in servers:
         try:
             out.append(query(srv))
-        except (OSError, struct.error, IndexError):
-            continue
+        except NtpRejected as exc:
+            print(f"  [clock] rejected {exc}")
+        except (OSError, struct.error, IndexError) as exc:
+            print(f"  [clock] {srv} unreachable: {type(exc).__name__}")
     return out
 
 
 def consensus(samples: list[ClockSample]) -> tuple[float, float]:
-    """(offset_ms, uncertainty_ms) from the sample with the shortest round trip.
+    """(offset_ms, uncertainty_ms) as the MEDIAN offset across servers.
 
-    The shortest path is the least contaminated by queueing in either direction, which is why
-    NTP itself prefers it. Disagreement between servers is added to the uncertainty rather than
-    averaged away.
+    The previous rule took the sample with the shortest round trip, on the reasoning that the
+    shortest path is least distorted by queueing. That is true among HONEST replies and
+    catastrophic otherwise, because a rejection packet is the shortest reply of all. The median
+    needs a majority to be wrong, and the uncertainty carries both the path asymmetry of the
+    median sample and the disagreement between servers.
     """
     if not samples:
         return 0.0, float("inf")
-    best = min(samples, key=lambda s: s.round_trip_ms)
-    spread = max(s.offset_ms for s in samples) - min(s.offset_ms for s in samples)
-    return best.offset_ms, best.uncertainty_ms + spread / 2.0
+    offsets = sorted(s.offset_ms for s in samples)
+    mid = len(offsets) // 2
+    median = offsets[mid] if len(offsets) % 2 else (offsets[mid - 1] + offsets[mid]) / 2.0
+    closest = min(samples, key=lambda s: abs(s.offset_ms - median))
+    spread = offsets[-1] - offsets[0]
+    return median, closest.uncertainty_ms + spread / 2.0
 
 
 def corrected_latency_ms(raw_ms: float, offset_ms: float, uncertainty_ms: float) -> tuple[float, str]:

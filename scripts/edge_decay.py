@@ -119,6 +119,7 @@ def main() -> int:
               f"{r['ev_per_trade']*1e4:>9.1f}b{r['win_rate']*100:>6.1f}{r['profit_factor']:>7.2f}"
               f"{r['max_dd']:>8.2f}{int(r['n_trades']):>8}")
 
+    boot = D.bootstrap_crossing(sig, h1, delays, cost, fin_per_day, "H1", 260.0)
     thr, target, censored = D.survival_threshold(curve)
     target = D.operating_target(bracket)
     regime = D.regime_for(thr)
@@ -139,13 +140,26 @@ def main() -> int:
               f"{bracket.get('resolution_limit_s', 3600)/3600:.0f} h resolution limit")
         print(f"CONSERVATIVE OPERATING TARGET: {target/3600:.2f} hours, at "
               f"{D.SAFETY_FACTOR:.0%} of the pessimistic end")
+    if boot.get("reps"):
+        if "crossing_median_s" in boot:
+            print(f"BOOTSTRAP ({boot['reps']} block resamples): the crossing lands between "
+                  f"{boot['crossing_p5_s']/3600:.0f}h and {boot['crossing_p95_s']/3600:.0f}h "
+                  f"(median {boot['crossing_median_s']/3600:.0f}h). It never crosses inside the "
+                  f"grid in {boot['never_crossed_pct']:.0f}% of resamples and shows no edge at "
+                  f"any delay in {boot['no_edge_at_all_pct']:.0f}%.")
+        else:
+            print(f"BOOTSTRAP ({boot['reps']} resamples): no crossing in "
+                  f"{boot['never_crossed_pct']:.0f}%, no edge at all in "
+                  f"{boot['no_edge_at_all_pct']:.0f}%.")
+        print("  The point bracket above is ONE realisation. Read the bootstrap interval.")
     print(f"SPEED REGIME (measured, not labelled): {regime}")
     print(f"FEASIBLE FROM THIS MACHINE: {feasible}. {why}")
     print(f"  (measured order path: min {D.MEASURED_ORDER_PATH_MS['min']:.0f}ms, "
           f"mean {D.MEASURED_ORDER_PATH_MS['mean']:.0f}ms, "
           f"max {D.MEASURED_ORDER_PATH_MS['max']:.0f}ms)")
 
-    result = {"bracket": bracket, "threshold_s": thr, "threshold_censored": censored,
+    result = {"bracket": bracket, "bootstrap": boot, "threshold_s": thr,
+              "threshold_censored": censored,
               "operating_target_s": target, "regime": regime,
               "feasible_from_here": feasible, "feasibility_note": why,
               "curve": curve.replace({np.nan: None}).to_dict("records")}

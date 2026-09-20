@@ -1,10 +1,19 @@
 {
- "experiment_id": "exp_20260920T102143Z_530739",
+ "experiment_id": "exp_20260920T122130Z_ec5a74",
  "bracket": {
   "status": "bracketed",
   "lo": 64800.0,
   "hi": 72000.0,
   "resolution_limit_s": 3600.0
+ },
+ "bootstrap": {
+  "reps": 300,
+  "never_crossed_pct": 48.666666666666664,
+  "no_edge_at_all_pct": 23.0,
+  "crossed_pct": 28.333333333333332,
+  "crossing_p5_s": 7200.0,
+  "crossing_median_s": 43200.0,
+  "crossing_p95_s": 86400.0
  },
  "threshold_s": 64800.0,
  "threshold_censored": false,
@@ -27,7 +36,11 @@
    "n_obs": 1555.0,
    "requested_delay_s": 0.0,
    "effective_delay_s": 0.0,
-   "skipped": ""
+   "effective_delay_p90_s": 0.0,
+   "effective_delay_max_s": 0.0,
+   "pct_over_2x_requested": 0.0,
+   "skipped": "",
+   "delay_slippage_bps": 0.0
   },
   {
    "gross_return": null,
@@ -43,7 +56,11 @@
    "n_obs": null,
    "requested_delay_s": 0.01,
    "effective_delay_s": null,
-   "skipped": "a 0.01s delay cannot be priced from H1 bars (3600s). Use finer data or drop the bucket; do not round it to zero."
+   "effective_delay_p90_s": null,
+   "effective_delay_max_s": null,
+   "pct_over_2x_requested": null,
+   "skipped": "a 0.01s delay cannot be priced from H1 bars (3600s). Use finer data or drop the bucket; do not round it to zero.",
+   "delay_slippage_bps": null
   },
   {
    "gross_return": null,
@@ -59,7 +76,11 @@
    "n_obs": null,
    "requested_delay_s": 1.0,
    "effective_delay_s": null,
-   "skipped": "a 1s delay cannot be priced from H1 bars (3600s). Use finer data or drop the bucket; do not round it to zero."
+   "effective_delay_p90_s": null,
+   "effective_delay_max_s": null,
+   "pct_over_2x_requested": null,
+   "skipped": "a 1s delay cannot be priced from H1 bars (3600s). Use finer data or drop the bucket; do not round it to zero.",
+   "delay_slippage_bps": null
   },
   {
    "gross_return": null,
@@ -75,7 +96,11 @@
    "n_obs": null,
    "requested_delay_s": 60.0,
    "effective_delay_s": null,
-   "skipped": "a 60s delay cannot be priced from H1 bars (3600s). Use finer data or drop the bucket; do not round it to zero."
+   "effective_delay_p90_s": null,
+   "effective_delay_max_s": null,
+   "pct_over_2x_requested": null,
+   "skipped": "a 60s delay cannot be priced from H1 bars (3600s). Use finer data or drop the bucket; do not round it to zero.",
+   "delay_slippage_bps": null
   },
   {
    "gross_return": null,
@@ -91,7 +116,11 @@
    "n_obs": null,
    "requested_delay_s": 900.0,
    "effective_delay_s": null,
-   "skipped": "a 900s delay cannot be priced from H1 bars (3600s). Use finer data or drop the bucket; do not round it to zero."
+   "effective_delay_p90_s": null,
+   "effective_delay_max_s": null,
+   "pct_over_2x_requested": null,
+   "skipped": "a 900s delay cannot be priced from H1 bars (3600s). Use finer data or drop the bucket; do not round it to zero.",
+   "delay_slippage_bps": null
   },
   {
    "gross_return": 0.1426384739277624,
@@ -107,7 +136,11 @@
    "n_obs": 1555.0,
    "requested_delay_s": 3600.0,
    "effective_delay_s": 3600.0,
-   "skipped": ""
+   "effective_delay_p90_s": 3600.0,
+   "effective_delay_max_s": 18000.0,
+   "pct_over_2x_requested": 0.06430868167202572,
+   "skipped": "",
+   "delay_slippage_bps": -0.15502359003602512
   },
   {
    "gross_return": 0.14420046521608754,
@@ -123,7 +156,11 @@
    "n_obs": 1555.0,
    "requested_delay_s": 7200.0,
    "effective_delay_s": 7200.0,
-   "skipped": ""
+   "effective_delay_p90_s": 7200.0,
+   "effective_delay_max_s": 18000.0,
+   "pct_over_2x_requested": 0.06430868167202572,
+   "skipped": "",
+   "delay_slippage_bps": 0.37747623755547455
   },
   {
    "gross_return": 0.1312734066779987,
@@ -139,7 +176,11 @@
    "n_obs": 1555.0,
    "requested_delay_s": 14400.0,
    "effective_delay_s": 14400.0,
-   "skipped": ""
+   "effective_delay_p90_s": 14400.0,
+   "effective_delay_max_s": 18000.0,
+   "pct_over_2x_requested": 0.0,
+   "skipped": "",
+   "delay_slippage_bps": 1.256748523459682
   },
   {
    "gross_return": 0.13645536674354153,
@@ -155,7 +196,11 @@
    "n_obs": 1555.0,
    "requested_delay_s": 28800.0,
    "effective_delay_s": 28800.0,
-   "skipped": ""
+   "effective_delay_p90_s": 28800.0,
+   "effective_delay_max_s": 28800.0,
+   "pct_over_2x_requested": 0.0,
+   "skipped": "",
+   "delay_slippage_bps": 1.4527875840290083
   },
   {
    "gross_return": 0.13158192439854288,
@@ -171,7 +216,11 @@
    "n_obs": 1555.0,
    "requested_delay_s": 43200.0,
    "effective_delay_s": 43200.0,
-   "skipped": ""
+   "effective_delay_p90_s": 43200.0,
+   "effective_delay_max_s": 43200.0,
+   "pct_over_2x_requested": 0.0,
+   "skipped": "",
+   "delay_slippage_bps": 1.0806329391913412
   },
   {
    "gross_return": 0.07181608950399487,
@@ -187,7 +236,11 @@
    "n_obs": 1555.0,
    "requested_delay_s": 64800.0,
    "effective_delay_s": 64800.0,
-   "skipped": ""
+   "effective_delay_p90_s": 64800.0,
+   "effective_delay_max_s": 64800.0,
+   "pct_over_2x_requested": 0.0,
+   "skipped": "",
+   "delay_slippage_bps": 0.4729973061917499
   },
   {
    "gross_return": 0.06157340456965277,
@@ -203,7 +256,11 @@
    "n_obs": 1555.0,
    "requested_delay_s": 72000.0,
    "effective_delay_s": 72000.0,
-   "skipped": ""
+   "effective_delay_p90_s": 72000.0,
+   "effective_delay_max_s": 72000.0,
+   "pct_over_2x_requested": 0.0,
+   "skipped": "",
+   "delay_slippage_bps": 0.4602650237963321
   },
   {
    "gross_return": 0.0587845068024917,
@@ -219,7 +276,11 @@
    "n_obs": 1555.0,
    "requested_delay_s": 75600.0,
    "effective_delay_s": 75600.0,
-   "skipped": ""
+   "effective_delay_p90_s": 75600.0,
+   "effective_delay_max_s": 345600.0,
+   "pct_over_2x_requested": 0.2572347266881029,
+   "skipped": "",
+   "delay_slippage_bps": 0.5857266389184151
   },
   {
    "gross_return": 0.041853743028462675,
@@ -235,7 +296,11 @@
    "n_obs": 1554.0,
    "requested_delay_s": 86400.0,
    "effective_delay_s": 86400.0,
-   "skipped": ""
+   "effective_delay_p90_s": 259200.0,
+   "effective_delay_max_s": 345600.0,
+   "pct_over_2x_requested": 20.205920205920204,
+   "skipped": "",
+   "delay_slippage_bps": 0.6910293859522979
   },
   {
    "gross_return": 0.05862914748054571,
@@ -251,7 +316,11 @@
    "n_obs": 1553.0,
    "requested_delay_s": 172800.0,
    "effective_delay_s": 172800.0,
-   "skipped": ""
+   "effective_delay_p90_s": 345600.0,
+   "effective_delay_max_s": 432000.0,
+   "pct_over_2x_requested": 0.8370895041854475,
+   "skipped": "",
+   "delay_slippage_bps": 0.9345236239209342
   }
  ]
 }

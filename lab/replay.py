@@ -53,6 +53,10 @@ def fills_for_delay(signals: pd.DataFrame, exec_bars: pd.DataFrame, delay_s: flo
     decision. Every other delay is priced from `exec_bars`.
     """
     step = BAR_SECONDS[exec_period.upper()]
+    if delay_s < 0:
+        # A negative delay fills BEFORE the decision existed. The old guard was
+        # `0 < delay_s < step`, which let it straight through.
+        raise ResolutionError(f"negative delay {delay_s:g}s would fill before the decision")
     if 0 < delay_s < step:
         raise ResolutionError(
             f"a {delay_s:g}s delay cannot be priced from {exec_period} bars ({step}s). "
@@ -63,7 +67,8 @@ def fills_for_delay(signals: pd.DataFrame, exec_bars: pd.DataFrame, delay_s: flo
         out = sig.assign(requested_delay_s=0.0, effective_delay_s=0.0,
                          filled_ts=sig["ts_close"], price=sig["decision_price"])
         return out[["ts_close", "position", "requested_delay_s", "effective_delay_s",
-                    "filled_ts", "price"]].rename(columns={"ts_close": "decided_ts"})
+                    "filled_ts", "price", "decision_price"]].rename(
+            columns={"ts_close": "decided_ts"})
 
     ex = exec_bars.sort_values("ts_utc").reset_index(drop=True)
     target = sig["ts_close"].to_numpy() + delay_s
@@ -77,8 +82,11 @@ def fills_for_delay(signals: pd.DataFrame, exec_bars: pd.DataFrame, delay_s: flo
     out["filled_ts"] = ex["ts_utc"].to_numpy()[take]
     out["price"] = ex["open"].to_numpy()[take]
     out["effective_delay_s"] = out["filled_ts"] - out["ts_close"]
+    # decision_price is CARRIED THROUGH. Dropping it here made delay_slippage_bps NULL in
+    # every stored row, so "the mechanism behind any decay" was never actually measured.
     return out[["ts_close", "position", "requested_delay_s", "effective_delay_s",
-                "filled_ts", "price"]].rename(columns={"ts_close": "decided_ts"})
+                "filled_ts", "price", "decision_price"]].rename(
+        columns={"ts_close": "decided_ts"})
 
 
 def pnl_from_fills(fills: pd.DataFrame, cost_per_turnover: float,
@@ -90,6 +98,9 @@ def pnl_from_fills(fills: pd.DataFrame, cost_per_turnover: float,
     """
     f = fills.sort_values("filled_ts").reset_index(drop=True)
     price = f["price"].astype(float)
+    # The LAST fill has no next price, so its return is unknowable and the row is carried with
+    # a zero rather than silently dropped: pct_change().shift(-1) discarded the final bar of
+    # every bucket, which is a small bias in the same direction for every strategy.
     ret = price.pct_change().shift(-1)            # return from this fill to the next
     pos = f["position"].astype(float)
     turnover = pos.diff().abs().fillna(pos.abs())
@@ -103,6 +114,7 @@ def pnl_from_fills(fills: pd.DataFrame, cost_per_turnover: float,
     # Slippage of the delay itself: what the price did between decision and fill, signed by
     # the direction taken. Negative means the move happened before we got there.
     out["decision_price"] = f.get("decision_price", pd.Series(np.nan, index=f.index))
+    out["fills_without_forward_return"] = int(ret.isna().sum())
     return out
 
 

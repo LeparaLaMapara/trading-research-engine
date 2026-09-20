@@ -187,6 +187,12 @@ def clock_drift(db: str = DB) -> dict:
     if len(rows) < 2:
         return {"n": len(rows)}
     span_h = (rows[-1][0] - rows[0][0]) / 3600.0
+    if span_h < 0.5:
+        # Dividing a few milliseconds of noise by a few seconds of span produced a reported
+        # drift of 27 seconds per hour. Drift needs a baseline, not two adjacent samples.
+        return {"n": len(rows), "span_hours": span_h,
+                "drift_ms_per_hour": None,
+                "note": "span too short to estimate drift; need at least 30 minutes"}
     return {"n": len(rows), "first_offset_ms": rows[0][1], "last_offset_ms": rows[-1][1],
             "span_hours": span_h,
             "drift_ms_per_hour": (rows[-1][1] - rows[0][1]) / span_h if span_h else 0.0}

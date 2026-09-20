@@ -12,10 +12,16 @@ HOUR = 3600.0
 
 
 def _tape(n=240, start=0.0, drift=0.0005, seed=3):
-    """An hourly tape with a mild upward drift, so delay has something to eat."""
+    """An hourly tape with a mild upward drift, so delay has something to eat.
+
+    RED TEAM 2026-09-20: the first version set open == close, so a mutation that priced fills
+    at the CLOSE instead of the open (a full hour of lookahead) passed every test. Open and
+    close are now deliberately different, and `_open_only` below pins which one is used.
+    """
     rng = np.random.default_rng(seed)
     px = 100 * np.exp(np.cumsum(rng.normal(drift, 0.002, n)))
-    return pd.DataFrame({"ts_utc": start + np.arange(n) * HOUR, "open": px, "close": px})
+    return pd.DataFrame({"ts_utc": start + np.arange(n) * HOUR,
+                         "open": px, "close": px * 1.003})
 
 
 def _signals(tape, every=24):
@@ -30,6 +36,30 @@ def test_a_delay_finer_than_the_data_is_refused_not_rounded():
     tape = _tape()
     with pytest.raises(ResolutionError):
         fills_for_delay(_signals(tape), tape, 0.01, "H1")
+
+
+def test_the_fill_uses_the_bar_OPEN_and_never_the_close():
+    """Pricing at the close would be an hour of lookahead. This is the test that catches it."""
+    tape = _tape()
+    sig = _signals(tape)
+    f = fills_for_delay(sig, tape, 2 * HOUR, "H1")
+    merged = f.merge(tape, left_on="filled_ts", right_on="ts_utc")
+    assert (merged["price"] == merged["open"]).all()
+    assert not (merged["price"] == merged["close"]).any()
+
+
+def test_a_negative_delay_is_refused():
+    """Filling before the decision existed is time travel, and the old guard allowed it."""
+    tape = _tape()
+    with pytest.raises(ResolutionError):
+        fills_for_delay(_signals(tape), tape, -HOUR, "H1")
+
+
+def test_the_decision_price_survives_into_the_fills():
+    """It was being dropped, which silently made every stored slippage figure NULL."""
+    tape = _tape()
+    f = fills_for_delay(_signals(tape), tape, 3 * HOUR, "H1")
+    assert "decision_price" in f.columns and f["decision_price"].notna().all()
 
 
 def test_zero_delay_fills_at_the_price_that_made_the_decision():
@@ -62,9 +92,13 @@ def test_delay_costs_a_trending_strategy_money():
 
 
 def test_costs_are_charged_on_turnover_not_on_time():
+    """Positions are deliberately NOT alternating: with +1/-1 flips, |position| and turnover
+    are proportional, so charging on either passes. A long hold with one flip separates them."""
     tape = _tape()
     sig = _signals(tape)
-    sig["position"] = [1.0, -1.0] * (len(sig) // 2) + [1.0] * (len(sig) % 2)
+    held = [1.0] * len(sig)
+    held[len(sig) // 2] = -1.0
+    sig["position"] = held
     fills = fills_for_delay(sig, tape, 0, "H1")
     free = pnl_from_fills(fills, 0.0)["net"].sum()
     dear = pnl_from_fills(fills, 0.001)["net"].sum()
@@ -85,12 +119,15 @@ def test_a_curve_that_is_negative_everywhere_has_no_threshold():
 
 
 def test_threshold_and_safety_margin():
+    """The old assertion compared the target against the same constant that produced it, so
+    SAFETY_FACTOR = 1.0 passed. The point of a margin is that it is strictly inside."""
     curve = pd.DataFrame({"effective_delay_s": [0, HOUR, 4 * HOUR, 12 * HOUR],
                           "sharpe": [0.5, 0.4, 0.1, -0.2], "skipped": [""] * 4})
     thr, target, censored = D.survival_threshold(curve)
     assert thr == 4 * HOUR
-    assert target == 4 * HOUR * D.SAFETY_FACTOR       # never operate at the edge
-    assert censored is False                          # the curve did cross inside the range
+    assert 0 < target < thr                           # strictly inside, whatever the constant
+    assert target <= thr / 2                          # and not a token margin
+    assert censored is False
 
 
 def test_a_threshold_at_the_last_bucket_is_flagged_as_censored():
@@ -143,8 +180,9 @@ def test_refinement_narrows_the_bracket_and_stops_at_the_data_resolution():
     sig = _signals(tape, every=24)
     coarse = D.decay_curve(sig, tape, [0, 6 * HOUR, 48 * HOUR], 0.0005, 0.0, "H1", 260.0)
     b = D.crossing_bracket(coarse)
+    # Never skip: a skipped test of the bisection is why the headline bracket shipped untested.
     if b["status"] != "bracketed":
-        pytest.skip("synthetic tape produced no crossing; nothing to refine")
+        b = {"status": "bracketed", "lo": 6 * HOUR, "hi": 48 * HOUR}
     extra, refined = D.refine_bracket(sig, tape, b, 0.0005, 0.0, "H1", 260.0, rounds=3)
     assert refined["hi"] - refined["lo"] <= b["hi"] - b["lo"]
     assert refined["lo"] >= b["lo"] and refined["hi"] <= b["hi"]

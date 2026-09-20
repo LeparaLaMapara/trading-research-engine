@@ -85,7 +85,13 @@ def decay_curve(signals: pd.DataFrame, exec_bars: pd.DataFrame, delays_s: list[f
         pnl = pnl_from_fills(fills, cost_per_turnover, financing_per_day)
         m = bucket_metrics(pnl, bars_per_year)
         m["requested_delay_s"] = d
-        m["effective_delay_s"] = float(fills["effective_delay_s"].median())
+        eff = fills["effective_delay_s"]
+        m["effective_delay_s"] = float(eff.median())
+        # A bucket is not one delay. Over a weekend a "24h" request fills 36 to 96 hours late,
+        # so the spread is reported alongside the median rather than hidden behind it.
+        m["effective_delay_p90_s"] = float(eff.quantile(0.90))
+        m["effective_delay_max_s"] = float(eff.max())
+        m["pct_over_2x_requested"] = float((eff > 2 * max(d, 1)).mean() * 100) if d else 0.0
         m["skipped"] = ""
         # Slippage of the delay: how far the price moved between decision and fill, in the
         # direction we were about to take. This is the mechanism behind any decay seen.
@@ -173,6 +179,65 @@ def bootstrap_metric_ci(pnl_net: np.ndarray, bars_per_year: float, block: int = 
         s = pnl_net[idx]
         out[i] = s.mean() / s.std() * np.sqrt(bars_per_year) if s.std() > 0 else 0.0
     return float(np.percentile(out, 2.5)), float(np.percentile(out, 97.5))
+
+
+def bootstrap_crossing(signals, exec_bars, delays_s, cost_per_turnover,
+                       financing_per_day=0.0, exec_period="H1", bars_per_year=260.0,
+                       reps: int = 300, block: int = 20, seed: int = 11) -> dict:
+    """How reproducible is the crossing? Resample the P&L and see where the curve crosses.
+
+    RED TEAM 2026-09-20: the published bracket (18h, 20h) was the crossing of ONE realisation
+    of a curve whose buckets each rest on 39 trades. Under a block bootstrap the crossing point
+    moves across the whole grid and only 2% of replicates land in that bracket. A bracket
+    without this interval is false precision, so the runner now reports both.
+
+    The SAME block indices are applied to every bucket in a replicate, because the buckets are
+    the same strategy at different delays and are heavily correlated; resampling them
+    independently would manufacture crossings that no single history could produce.
+    """
+    from lab.replay import ResolutionError, fills_for_delay, pnl_from_fills
+    series = {}
+    for d in delays_s:
+        try:
+            f = fills_for_delay(signals, exec_bars, d, exec_period)
+        except ResolutionError:
+            continue
+        if len(f) < 30:
+            continue
+        pnl = pnl_from_fills(f, cost_per_turnover, financing_per_day)
+        series[float(f["effective_delay_s"].median())] = pnl["net"].to_numpy()
+    if len(series) < 3:
+        return {"reps": 0, "note": "not enough priceable buckets to bootstrap"}
+
+    keys = sorted(series)
+    n = min(len(v) for v in series.values())
+    rng = np.random.default_rng(seed)
+    crossings, never, none_positive = [], 0, 0
+    for _ in range(reps):
+        starts = rng.integers(0, max(n - block, 1), size=n // block + 1)
+        idx = (starts[:, None] + np.arange(block)[None, :]).ravel()[:n]
+        sharpes = []
+        for k in keys:
+            x = series[k][:n][idx]
+            sharpes.append(x.mean() / x.std() * np.sqrt(bars_per_year) if x.std() > 0 else 0.0)
+        pos = [k for k, sh in zip(keys, sharpes) if sh > 0]
+        if not pos:
+            none_positive += 1
+            continue
+        last_pos = max(pos)
+        if last_pos >= keys[-1]:
+            never += 1
+            continue
+        crossings.append(last_pos)
+    out = {"reps": reps, "never_crossed_pct": 100.0 * never / reps,
+           "no_edge_at_all_pct": 100.0 * none_positive / reps,
+           "crossed_pct": 100.0 * len(crossings) / reps}
+    if crossings:
+        a = np.array(crossings)
+        out.update({"crossing_p5_s": float(np.percentile(a, 5)),
+                    "crossing_median_s": float(np.median(a)),
+                    "crossing_p95_s": float(np.percentile(a, 95))})
+    return out
 
 
 def survival_threshold(curve: pd.DataFrame, metric: str = "sharpe") -> tuple:

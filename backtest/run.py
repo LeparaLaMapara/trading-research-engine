@@ -54,59 +54,48 @@ def _pip_size(symbol: str, pip_position: int | None) -> float:
 
 
 def measured_cost(symbol: str, ref_price: float) -> CostModel:
-    """Pull median spread (pips) and pip_position from the telemetry DB; fall back safely."""
-    spread_pips, pip_position = None, None
+    """Round-trip cost for one symbol, measured from telemetry where the data supports it.
+
+    RED TEAM 2026-09-20: this function was DEAD. A `c.close()` sat between two queries that
+    shared the connection, the resulting ProgrammingError was swallowed by a bare `except`,
+    and every symbol fell through to the hardcoded class default while the code, the comments
+    and the published tables all claimed the number was measured. Two lessons are baked in
+    below: the connection is held by a context manager, and a failure to measure is PRINTED,
+    because a silent fallback is indistinguishable from a measurement until someone audits it.
+    """
+    spread_pips, pip_position, source = None, None, "default"
+    MIN_TICKS, MIN_HOURS = 200, 8
     try:
-        c = sqlite3.connect(settings.TELEMETRY_DB)
-        row = c.execute("SELECT pip_position FROM symbol_spec WHERE symbol=?",
-                        (symbol.upper(),)).fetchone()
-        pip_position = row[0] if row else None
-        row = c.execute("SELECT median(spread_pips) FROM (SELECT spread_pips FROM ticks "
-                        "WHERE symbol=?)", (symbol.upper(),)).fetchone()
-        c.close()
-    except Exception:  # noqa: BLE001
-        pass
-    if spread_pips is None:
-        # SQLite has no median(); compute in pandas if telemetry ticks exist.
-        try:
-            c = sqlite3.connect(settings.TELEMETRY_DB)
-            # Data-quality audit, 2026-09-20. Two biases made the measured spread too NARROW,
-            # which flatters every backtest that used it:
-            #   * 7.9% of logged ticks have bid EXACTLY equal to ask (41% of EURUSD's), which
-            #     is not a spread of zero, it is a quote we should not price from;
-            #   * 32.6% of events update ONE side only, and the logger carries the other side
-            #     forward, so a fresh bid is differenced against a stale ask.
-            # Only two-sided updates with a strictly positive spread are admissible, and a
-            # thin sample falls through to the pessimistic class default rather than trusting
-            # a handful of quotes.
+        with sqlite3.connect(settings.TELEMETRY_DB) as c:
+            row = c.execute("SELECT pip_position FROM symbol_spec WHERE symbol=?",
+                            (symbol.upper(),)).fetchone()
+            pip_position = row[0] if row else None
+            # Admissible quotes only. The data-quality audit found 7.9% of logged ticks carry
+            # bid exactly equal to ask and 32.6% update one side against a stale other side.
             sp = pd.read_sql_query(
-                "SELECT spread_pips FROM ticks WHERE symbol=? AND side='bid+ask' "
-                "AND spread_pips > 0", c, params=(symbol.upper(),))
-            c.close()
-            MIN_TICKS = 200
-            MIN_HOURS = 8
-            hours = pd.read_sql_query(
-                "SELECT COUNT(DISTINCT hour_of_week) h FROM ticks WHERE symbol=? "
+                "SELECT spread_pips, hour_of_week FROM ticks WHERE symbol=? "
                 "AND side='bid+ask' AND spread_pips > 0", c, params=(symbol.upper(),))
-            covered = int(hours["h"].iloc[0]) if not hours.empty else 0
-            if len(sp) >= MIN_TICKS:
-                # Coverage matters more than sample size. The audit found the tick recorder ran
-                # for 10.3 hours in total, almost all of it in the 14:00-15:00 UTC window, which
-                # is the London/New York overlap and therefore the CHEAPEST hour of the day.
-                # A median taken from the tightest hour is not the cost of trading at other
-                # hours, so a thin-coverage symbol is priced at its 75th percentile instead.
-                if covered >= MIN_HOURS:
-                    spread_pips = float(sp["spread_pips"].median())
-                else:
-                    spread_pips = float(sp["spread_pips"].quantile(0.75))
-                    print(f"  ({symbol}: spread measured in only {covered} distinct hours of "
-                          f"the week; using the 75th percentile {spread_pips:.2f} pips rather "
-                          f"than the median of the cheapest hour)")
-            elif not sp.empty:
-                print(f"  ({symbol}: only {len(sp)} admissible ticks, below {MIN_TICKS}; "
-                      f"using the conservative default instead of a thin measurement)")
-        except Exception:  # noqa: BLE001
-            pass
+        if len(sp) >= MIN_TICKS:
+            covered = int(sp["hour_of_week"].nunique())
+            if covered >= MIN_HOURS:
+                spread_pips = float(sp["spread_pips"].median())
+                source = f"measured median over {covered} hours-of-week, n={len(sp)}"
+            else:
+                # The recorder ran mostly inside the London/New York overlap, the cheapest hour
+                # of the day, so a median from it understates every other hour. The 75th
+                # percentile is a hedge, NOT a measurement of the unobserved hours: the red
+                # team showed it still understates the 21:00 rollover by 4x to 33x.
+                spread_pips = float(sp["spread_pips"].quantile(0.75))
+                source = (f"p75 hedge: only {covered} hours-of-week observed, n={len(sp)}; "
+                          f"understates unobserved hours")
+        elif not sp.empty:
+            print(f"  [cost] {symbol}: only {len(sp)} admissible ticks (<{MIN_TICKS}); "
+                  f"falling back to the class default")
+    except Exception as exc:  # noqa: BLE001
+        # Loud on purpose. This is the exact silence that hid the dead code above.
+        print(f"  [cost] {symbol}: telemetry unreadable ({type(exc).__name__}: {exc}); "
+              f"falling back to the class default")
+
     if spread_pips is None:
         # FALLBACK, in basis points of PRICE rather than in pips.
         #
