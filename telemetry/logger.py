@@ -28,7 +28,10 @@ SNAPSHOT_DIR = "data/snapshots"
 
 
 class TelemetryLogger:
-    def __init__(self, duration: int | None) -> None:
+    def __init__(self, duration: int | None, symbols: list[str] | None = None) -> None:
+        # A focused basket matters for the sub-second band: recording 64 instruments to answer
+        # a crypto question wastes disk and throughput on markets that are closed.
+        self.symbols = [s.upper() for s in symbols] if symbols else None
         self.duration = duration
         self.store = Store(settings.TELEMETRY_DB)
         self.id_to_name: dict[int, str] = {}
@@ -48,7 +51,7 @@ class TelemetryLogger:
     # -- lifecycle ---------------------------------------------------------
     def on_ready(self, conn: CTraderConnection) -> None:
         ids, missing = [], []
-        for name in instruments.BASKET:
+        for name in (self.symbols or instruments.BASKET):
             sid = conn.name_to_id.get(name.upper())
             if sid is None:
                 missing.append(name)
@@ -152,10 +155,12 @@ class TelemetryLogger:
 
 def main() -> None:
     p = argparse.ArgumentParser(description="Passive cTrader execution telemetry logger.")
+    p.add_argument("--symbols", nargs="*", default=None,
+                   help="record only these symbols (default: the whole telemetry basket)")
     p.add_argument("--duration", type=int, default=None,
                    help="seconds to log before snapshotting and stopping (default: until ctrl-c)")
     args = p.parse_args()
-    TelemetryLogger(args.duration).run()
+    TelemetryLogger(args.duration, args.symbols).run()
 
 
 if __name__ == "__main__":
