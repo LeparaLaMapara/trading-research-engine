@@ -97,7 +97,8 @@ def _dashboard_data() -> dict:
     acct = _sb("trading_account", "select=balance,equity,currency,ts&order=ts.desc&limit=1")
     history = _sb("trading_account", "select=balance,ts&order=ts.asc&limit=400")
     strategies = _sb("trading_strategies",
-                     "select=run_ts,symbol,kind,verdict,total_return,pnl_on_10,pnl_on_200&"
+                     "select=run_ts,symbol,kind,verdict,total_return,pnl_on_10,pnl_on_200,"
+                     "dev_sharpe,holdout_sharpe&"
                      "order=run_ts.desc&limit=200")
     audit = _sb("ops_checks", "select=ran_at,check_id,status&order=ran_at.desc&limit=400")
     lessons = _sb("trading_lessons",
@@ -167,15 +168,28 @@ def _dashboard_data() -> dict:
 
     # What each tested idea WOULD have done to this stake. Hypothetical, from backtests,
     # and labelled as such everywhere it appears. Never mixed with real money.
+    # One bar per IDEA, not per run. The same six kinds are re-tested on the same three
+    # symbols every day, so plotting raw rows drew "vol_scaled XAUUSD" four times and made a
+    # handful of ideas look like a crowd. Rows arrive newest first, so the first one wins.
     outcomes = []
-    for s in strategies[:24]:
+    seen = set()
+    for s in strategies:
         tr = s.get("total_return")
-        if tr is None:
+        key = (s.get("kind"), s.get("symbol"))
+        if tr is None or key in seen:
             continue
+        seen.add(key)
+        hold = s.get("holdout_sharpe")
         outcomes.append({"label": f"{s.get('kind','?')} {s.get('symbol','')}".strip(),
                          "zar": float(tr) * balance_zar,
                          "pct": round(float(tr) * 100, 1),
-                         "verdict": (s.get("verdict") or "").upper()})
+                         "verdict": (s.get("verdict") or "").upper(),
+                         # Did it still work on prices it had never seen? That is the number
+                         # that decides, and it is why every positive bar below still failed.
+                         "held_up": (None if hold is None else float(hold) > 0)})
+        if len(outcomes) >= 18:
+            break
+    outcomes_passed = sum(1 for o in outcomes if o["verdict"] == "PASS")
 
     # Audit history as one row per check, one cell per day, most recent last.
     by_day: dict[str, dict[str, str]] = {}
@@ -213,6 +227,7 @@ def _dashboard_data() -> dict:
         "as_of": as_of,
         "balance_series": balance_series,
         "outcomes": outcomes,
+        "outcomes_passed": outcomes_passed,
         "audit_grid": audit_grid,
         "floor_zar": round(rebet_floor_zar(ZAR_PER_USD), 2),
         "milestone": milestone,
@@ -480,9 +495,10 @@ PAGE = """
 
 <div class="viz hypo" id="viz-ideas">
   <h3>What each idea would have done to your money</h3>
-  <p class="cap"><strong>None of this happened.</strong> These are tests against past
-     prices, showing what each idea would have done to your stake if it had been used.
-     No real money was involved.</p>
+  <p class="cap"><strong>None of this happened.</strong> Each bar is a test against the same
+     past prices the idea was chosen on, so a bar showing a gain is not proof of anything.
+     The test that counts is whether the idea still worked on prices it had never seen, and
+     that result is written next to each bar. No real money was involved.</p>
   <div id="ideas"></div>
 </div>
 
@@ -746,16 +762,26 @@ function drawIdeas(){
                        fill:inside?'var(--card)':'var(--muted)'});
     v.textContent=(gain?'+':'-')+'R'+Math.abs(Math.round(o.zar)).toLocaleString();
     s.appendChild(v);
+    // The verdict on UNSEEN prices, beside the bar. Without it a long blue bar reads as a
+    // win, when every one of these ideas was rejected.
+    const tagText = o.verdict==='PASS' ? 'passed'
+                  : (o.held_up===true ? 'failed (held up, but could be luck)'
+                  : (o.held_up===false ? 'failed on unseen prices' : 'failed'));
+    const tag=el('text',{x:W-2,y:y+14,'font-size':10,'text-anchor':'end',
+                         fill:o.verdict==='PASS'?'var(--gain)':'var(--muted)'});
+    tag.textContent=tagText; s.appendChild(tag);
     hover(host,bar,`${o.label}: ${gain?'would have gained':'would have lost'} R`+
-      `${Math.abs(Math.round(o.zar)).toLocaleString()} (${o.pct}%)`);
+      `${Math.abs(Math.round(o.zar)).toLocaleString()} (${o.pct}%) - ${tagText}`);
   });
   s.style.maxWidth=W+'px';
   $('ideas').innerHTML=''; $('ideas').appendChild(s);
   const lost=d.filter(o=>o.zar<0).length;
+  const passed=D.outcomes_passed||0;
   $('ideas').insertAdjacentHTML('beforeend','<div class="legend">'+
     `<span><span class="sw" style="background:var(--loss)"></span>Would have lost money</span>`+
     `<span><span class="sw" style="background:var(--gain)"></span>Would have made money</span>`+
-    `<span>${lost} of ${d.length} lost money</span></div>`);
+    `<span>${lost} of ${d.length} lost money on the prices they were picked on, `+
+    `and ${passed} of ${d.length} passed the test that decides.</span></div>`);
 }
 
 $('loginbtn').onclick=async()=>{

@@ -79,8 +79,14 @@ def check_loop_is_learning(db_path: str = "data/research.db", window: int = 30) 
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     try:
+        # "Tested" means the idea reached a backtest and came back with a score, NOT that its
+        # stage is spelled "backtest". On 2026-09-19 a research day wrote 30 fully backtested
+        # candidates under the stages zoo_dev / carry_dev / long_history, and this check
+        # reported "looked at 30, tested none". A check that fails on a new stage NAME while
+        # the loop is working is a false alarm, and false alarms are how real ones get ignored.
         rows = conn.execute(
-            "SELECT stage, COUNT(*) n FROM trials WHERE trial_id > "
+            "SELECT stage, COUNT(*) n, SUM(CASE WHEN per_obs_sharpe IS NOT NULL THEN 1 ELSE 0 END) "
+            "scored FROM trials WHERE trial_id > "
             "(SELECT COALESCE(MAX(trial_id),0) - ? FROM trials) GROUP BY stage",
             (window,),
         ).fetchall()
@@ -91,11 +97,12 @@ def check_loop_is_learning(db_path: str = "data/research.db", window: int = 30) 
     finally:
         conn.close()
     counts = {r["stage"]: r["n"] for r in rows}
+    scored = sum((r["scored"] or 0) for r in rows if r["stage"] != "backfilled")
     # Rows seeded from historical tombstones describe trials that happened before the trial
     # log existed. They are real for the deflation count but say nothing about whether the
     # loop is working NOW, so they are excluded from this check's denominator.
     historical = counts.pop("backfilled", 0)
-    tested = counts.get("backtest", 0)
+    tested = max(counts.get("backtest", 0), scored)
     total = sum(counts.values())
     if total == 0 and historical:
         return Check("loop_is_learning", "Is the research loop actually testing ideas?",
