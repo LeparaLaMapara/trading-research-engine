@@ -31,8 +31,9 @@ SNAPSHOT_DIR = "data/snapshots"
 
 class TelemetryLogger:
     def __init__(self, duration: int | None, symbols: list[str] | None = None,
-                 with_depth: bool = False) -> None:
+                 with_depth: bool = False, snapshot: bool = True) -> None:
         self.with_depth = with_depth
+        self.take_snapshot = snapshot
         # A focused basket matters for the sub-second band: recording 64 instruments to answer
         # a crypto question wastes disk and throughput on markets that are closed.
         self.symbols = [s.upper() for s in symbols] if symbols else None
@@ -184,7 +185,8 @@ class TelemetryLogger:
         if self._latency_loop and self._latency_loop.running:
             self._latency_loop.stop()
         print(f"\nstopping. total ticks: {self.tick_count}")
-        self.store.snapshot(SNAPSHOT_DIR)
+        if self.take_snapshot:
+            self.store.snapshot(SNAPSHOT_DIR)
         self.store.close()
 
 
@@ -196,8 +198,11 @@ def main() -> None:
                    help="also subscribe to level-2 depth quotes (sizes per level)")
     p.add_argument("--duration", type=int, default=None,
                    help="seconds to log before snapshotting and stopping (default: until ctrl-c)")
+    p.add_argument("--no-snapshot", action="store_true",
+                   help="skip the Parquet export on stop. Each export copies EVERY tick in the "
+                        "database, so a loop that restarts hourly would grow quadratically")
     args = p.parse_args()
-    TelemetryLogger(args.duration, args.symbols, args.depth).run()
+    TelemetryLogger(args.duration, args.symbols, args.depth, not args.no_snapshot).run()
 
 
 if __name__ == "__main__":
