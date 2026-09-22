@@ -8,7 +8,7 @@
       "prereg": "docs/programme/E01-intraday-momentum-prereg.md",
       "result": "docs/results/E01-intraday-momentum.md",
       "verdict": "FAIL",
-      "summary": "No predictive edge: gross Sharpe -0.26, net -1.76, at the random-sign null. Flat-at-rollover removed financing but there was no signal under it."
+      "summary": "The morning did not predict the afternoon. It lost money even before trading costs, and after costs it did no better than guessing at random."
     },
     {
       "id": "E02",

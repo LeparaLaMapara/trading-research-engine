@@ -25,8 +25,12 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+import html
+import json
 import os
+import re
 import time
+from pathlib import Path
 
 import requests
 from fastapi import FastAPI, Request
@@ -255,7 +259,7 @@ def _dashboard_data() -> dict:
 
 @app.get("/api/data")
 def api_data() -> JSONResponse:
-    return JSONResponse(_dashboard_data())
+    return JSONResponse({**_dashboard_data(), "programme": _programme_data()})
 
 
 @app.get("/health")
@@ -461,6 +465,25 @@ PAGE = """
   .mile.done{border-left-color:var(--good)}
   .mile.done .bar>i{background:var(--good)}
   .mile .hint{color:var(--muted);font-size:13px;margin:0}
+  /* research programme panel: server rendered, readable with no script */
+  .prog{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--clay);
+        border-radius:14px;padding:16px 18px;margin:24px 0 0}
+  .prog h2{margin:0 0 6px}
+  .prog .lead{font-size:17px;margin:0 0 6px}
+  .exp{border-top:1px solid var(--line);padding:12px 0 4px;margin-top:12px}
+  .exp .top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+            align-items:baseline}
+  .exp .sum{margin:6px 0 0}
+  .v{font-size:12px;font-weight:700;letter-spacing:.04em;padding:3px 10px;border-radius:99px;
+     border:1.5px solid currentColor;white-space:nowrap}
+  .v-pass{color:var(--good)} .v-fail{color:var(--bad)} .v-open{color:var(--clay)}
+  ul.crit{list-style:none;padding:0;margin:6px 0 0;font-size:14px}
+  ul.crit li{margin:3px 0}
+  li.c-passed{color:var(--good)} li.c-failed{color:var(--bad)}
+  ul.crit li strong{color:var(--ink);font-weight:600}
+  table.meas{max-width:520px}
+  .archive{color:var(--muted);font-size:12px;font-weight:700;letter-spacing:.06em;
+           text-transform:uppercase;margin:0 0 4px}
 </style></head><body><div class="wrap">
 <header>
   <h1>The money</h1>
@@ -476,6 +499,10 @@ PAGE = """
      numbers below are written into the HTML itself, so the page says something useful on any
      browser made this decade. The script removes this block once it has drawn the real cards. -->
 <div id="plain">__PLAIN__</div>
+
+<!-- RESEARCH PROGRAMME. Server rendered from the repo files and never touched by the script,
+     so it reads the same on a TV with no JavaScript. -->
+__PROGRAMME__
 
 <div class="banner" id="why"></div>
 <div id="openpos"></div>
@@ -500,8 +527,11 @@ PAGE = """
 </div>
 
 <div class="viz hypo" id="viz-ideas">
-  <h3>What each idea would have done to your money</h3>
-  <p class="cap"><strong>None of this happened.</strong> Each bar is a test against the same
+  <p class="archive">Archive: the old daily search, stopped on 22 September 2026</p>
+  <h3>What each idea from the old daily search would have done to your money</h3>
+  <p class="cap">This is a record, not live activity. The system used to test ideas every
+     day; that stopped on 22 September 2026 and was replaced by the research programme above.
+     <strong>None of this happened.</strong> Each bar is a test against the same
      past prices the idea was chosen on, so a bar showing a gain is not proof of anything.
      The test that counts is whether the idea still worked on prices it had never seen, and
      that result is written next to each bar. No real money was involved.</p>
@@ -605,20 +635,21 @@ function renderMilestone(m){
     : '';
   $('lessons').innerHTML = (D.lessons&&D.lessons.length)
     ? D.lessons.map(l=>`<li>${l.lesson}<div class="ev">${l.evidence||''}</div></li>`).join('')
-    : `<li>It has tested ${D.ideas_tested} ideas so far and none of them beat the cost of
-       trading. That is the finding: the easy ideas do not work, which is why it is still
-       looking instead of betting.<div class="ev">From the engine's own test results.</div></li>`;
-  $('tech').innerHTML=`<tr><th>Ideas tested</th><td>${D.ideas_tested}</td></tr>
-    <tr><th>Ideas that passed the bar</th><td>${D.ideas_passed}</td></tr>
+    : `<li>The old daily search tested ${D.ideas_tested} ideas before it stopped on
+       22 September 2026, and none of them beat the cost of trading. That is the finding: the
+       easy ideas do not work, which is why research is now a short list of planned
+       experiments instead of betting.<div class="ev">From the engine's own test results.</div></li>`;
+  $('tech').innerHTML=`<tr><th>Ideas tested by the old daily search (stopped 22 Sep 2026)</th><td>${D.ideas_tested}</td></tr>
+    <tr><th>Of those, ideas that passed the bar</th><td>${D.ideas_passed}</td></tr>
     <tr><th>Research orders attempted / executed</th><td>${D.attempted} / ${D.executed}</td></tr>
     <tr><th>Cost-measurement probes</th><td>${D.probes_done}</td></tr>
     <tr><th>Balance (USD)</th><td>${Number(D.have_usd||0).toFixed(2)}</td></tr>
     <tr><th>Rate used</th><td>R${D.zar_per_usd}/USD</td></tr>
-    <tr><th>Last research run</th><td>${D.last_run||'never'}</td></tr>
+    <tr><th>Last run of the old daily search</th><td>${D.last_run||'never'}</td></tr>
     <tr><th>Smallest trade needs</th><td>R${Math.round(D.floor_zar||0)}</td></tr>`
     + (D.outcomes||[]).map(o=>`<tr><th>${o.label}</th><td>${o.pct}% =
         ${o.zar<0?'-':'+'}R${Math.abs(Math.round(o.zar))} on your stake
-        (${o.verdict||'?'}) — hypothetical</td></tr>`).join('');
+        (${o.verdict||'?'}), hypothetical, old daily search</td></tr>`).join('');
   drawStand(); drawBalance(); drawHealth(); drawIdeas();
   $('foot').textContent = D.configured ? '' : 'Data source not configured yet.';
   $('loginbox').hidden = !!document.cookie.includes('auth=') || !D.can_set_goals;
@@ -811,7 +842,192 @@ load();
 """
 
 
-@app.get("/", response_class=HTMLResponse)
+# ---------------------------------------------------------------- research programme
+# Since 2026-09-22 research is a budget of ten pre-registered experiments, recorded in
+# docs/programme/register.json with results in docs/results/. The panel reads those files at
+# request time (the service runs from a checkout of the repo) and renders on the server, so
+# it shows on a TV with no JavaScript. A missing or broken file gives a plain note, never an
+# error page.
+REPO_ROOT = Path(__file__).resolve().parent.parent
+REGISTER_PATH = "docs/programme/register.json"
+
+# Plain words for the pass criteria we know about. Anything else is shown by its own name.
+CRITERIA_WORDS = {
+    "C1_net_sharpe_positive": "Made money after trading costs",
+    "C2_beats_null_p95": "Did better than random guessing",
+    "C3_years_and_last_12m": "Made money in most years, and in the last 12 months",
+    "C4_survives_double_costs": "Still made money with trading costs doubled",
+}
+MEASURE_WORDS = {
+    "n_probes": "Test trades measured",
+    "mean_adverse_slippage_pips": "Average slippage against us (pips)",
+    "p95_adverse_slippage_pips": "Slippage on the worst 1 in 20 trades (pips)",
+    "mean_latency_ms": "Average time for the broker to respond (milliseconds)",
+    "verdict": "Verdict",
+}
+
+
+def _words(key: str, known: dict) -> str:
+    if key in known:
+        return known[key]
+    k = re.sub(r"^C\d+_", "", str(key)).replace("_", " ").strip()
+    return k[:1].upper() + k[1:] if k else str(key)
+
+
+def _read_json(path: Path) -> tuple[dict | None, str]:
+    """(data, note). Data is None when the file is missing or unreadable."""
+    try:
+        with open(path, encoding="utf-8") as fh:
+            data = json.load(fh)
+    except FileNotFoundError:
+        return None, "missing"
+    except Exception as exc:                      # noqa: BLE001
+        return None, f"unreadable ({type(exc).__name__})"
+    if not isinstance(data, dict):
+        return None, "unreadable (not a JSON object)"
+    return data, ""
+
+
+def _result_json_path(exp: dict, root: Path) -> Path | None:
+    """The result's JSON twin: the register names the .md write-up, the numbers sit beside it."""
+    res = exp.get("result")
+    if isinstance(res, str) and res:
+        p = root / res
+        return p if p.suffix == ".json" else p.with_suffix(".json")
+    eid = str(exp.get("id") or "")
+    if eid:
+        hits = sorted((root / "docs" / "results").glob(f"{eid}-*.json"))
+        if hits:
+            return hits[0]
+    return None
+
+
+def _sentence(reg: dict, root: Path) -> str:
+    """The programme's own plain sentence, with a local fallback if that module will not load."""
+    try:
+        from research.programme import status
+        return status(reg, repo=str(root), check_git=False).sentence()
+    except Exception:                             # noqa: BLE001
+        exps = [e for e in reg.get("experiments", []) if isinstance(e, dict)]
+        done = [e for e in exps if e.get("verdict") in ("PASS", "FAIL")]
+        passed = [e for e in done if e.get("verdict") == "PASS"]
+        return (f"So far {len(done)} of {reg.get('budget', '?')} experiments are done and "
+                f"{len(passed)} passed.")
+
+
+def _programme_data(root: Path | str | None = None) -> dict:
+    """Everything the programme panel shows, read from the repo files. Never raises."""
+    try:
+        return _programme_data_unsafe(Path(root) if root else REPO_ROOT)
+    except Exception as exc:                      # noqa: BLE001
+        return {"ok": False, "note": f"The research programme could not be read "
+                                     f"({type(exc).__name__})."}
+
+
+def _programme_data_unsafe(root: Path) -> dict:
+    reg, why = _read_json(root / REGISTER_PATH)
+    if reg is None:
+        return {"ok": False, "note": f"The experiment register is {why}, so the research "
+                                     f"programme cannot be shown right now."}
+    try:
+        budget = int(reg.get("budget") or 0)
+    except (TypeError, ValueError):
+        budget = 0
+    raw = reg.get("experiments")
+    exps = [e for e in raw if isinstance(e, dict)] if isinstance(raw, list) else []
+    rows = []
+    for e in exps:
+        verdict = e.get("verdict")
+        verdict = verdict.upper() if isinstance(verdict, str) else None
+        row = {"id": str(e.get("id") or "?"), "title": str(e.get("title") or ""),
+               "verdict": verdict if verdict in ("PASS", "FAIL") else "IN PROGRESS",
+               "summary": str(e.get("summary") or ""), "criteria": [], "measurements": [],
+               "note": ""}
+        path = _result_json_path(e, root)
+        if path is not None:
+            data, why = _read_json(path)
+            if data is None:
+                # An experiment still running has no result yet; that is not a problem.
+                if why != "missing" or row["verdict"] != "IN PROGRESS":
+                    row["note"] = f"The detailed result file is {why}."
+            else:
+                crit = data.get("criteria")
+                if isinstance(crit, dict):
+                    row["criteria"] = [{"key": str(k), "words": _words(k, CRITERIA_WORDS),
+                                        "passed": v is True} for k, v in crit.items()]
+                meas = data.get("measurements")
+                if isinstance(meas, dict):
+                    row["measurements"] = [{"key": str(k), "words": _words(k, MEASURE_WORDS),
+                                            "value": v} for k, v in meas.items()
+                                           if not isinstance(v, (dict, list))]
+        rows.append(row)
+    spent = sum(1 for r in rows if r["verdict"] in ("PASS", "FAIL"))
+    return {"ok": True, "note": "", "sentence": _sentence(reg, root), "budget": budget,
+            "spent": spent, "passed": sum(1 for r in rows if r["verdict"] == "PASS"),
+            "used_pct": (min(100, round(100 * spent / budget)) if budget > 0 else 0),
+            "started": str(reg.get("started") or ""), "experiments": rows}
+
+
+def _fmt(v) -> str:
+    if isinstance(v, bool):
+        return "yes" if v else "no"
+    if isinstance(v, float):
+        return f"{v:,.2f}"
+    return "not measured yet" if v is None else str(v)
+
+
+def _programme_html(p: dict | None = None) -> str:
+    """The panel as static HTML. No script is needed to read it."""
+    esc = html.escape
+    head = "<section class='prog' id='programme'><h2>Research programme</h2>"
+    try:
+        p = p if p is not None else _programme_data()
+        if not p.get("ok"):
+            return f"{head}<p class='hint'>{esc(p.get('note', ''))}</p></section>"
+        out = [head, f"<p class='lead'>{esc(p['sentence'])}</p>",
+               f"<p class='hint'>Instead of trying new ideas every day, the system now gets "
+               f"{p['budget']} carefully planned experiments. Each plan is written down and "
+               f"saved before it runs, so the result cannot be bent to fit afterwards. A pass "
+               f"means practice trading with pretend money first, never real money straight "
+               f"away.</p>",
+               f"<div class='bar' role='img' aria-label='{p['spent']} of {p['budget']} "
+               f"experiments used'><i style='width:{max(p['used_pct'], 1)}%'></i></div>",
+               f"<p class='hint'>{p['spent']} of {p['budget']} experiments used.</p>"]
+        if not p["experiments"]:
+            out.append("<p class='hint'>No experiments have been registered yet.</p>")
+        for r in p["experiments"]:
+            cls = {"PASS": "pass", "FAIL": "fail"}.get(r["verdict"], "open")
+            out.append(f"<div class='exp'><div class='top'><span><strong>{esc(r['id'])}</strong> "
+                       f"{esc(r['title'])}</span><span class='v v-{cls}'>{r['verdict']}</span>"
+                       f"</div>")
+            if r["summary"]:
+                out.append(f"<p class='sum'>{esc(r['summary'])}</p>")
+            if r["criteria"]:
+                n_ok = sum(1 for c in r["criteria"] if c["passed"])
+                out.append(f"<p class='hint'>It passed {n_ok} of the {len(r['criteria'])} "
+                           f"tests it had to pass:</p><ul class='crit'>")
+                for c in r["criteria"]:
+                    word = "passed" if c["passed"] else "failed"
+                    mark = "&#10003;" if c["passed"] else "&#10005;"
+                    out.append(f"<li class='c-{word}'>{mark} {esc(c['words'])}: "
+                               f"<strong>{word}</strong></li>")
+                out.append("</ul>")
+            if r["measurements"]:
+                out.append("<table class='meas'>")
+                for m in r["measurements"]:
+                    out.append(f"<tr><th>{esc(m['words'])}</th>"
+                               f"<td>{esc(_fmt(m['value']))}</td></tr>")
+                out.append("</table>")
+            if r["note"]:
+                out.append(f"<p class='hint'>{esc(r['note'])}</p>")
+            out.append("</div>")
+        out.append("</section>")
+        return "".join(out)
+    except Exception as exc:                      # noqa: BLE001
+        return (f"{head}<p class='hint'>The research programme could not be shown "
+                f"({esc(type(exc).__name__)}).</p></section>")
+
+
 def _plain_fallback() -> str:
     """The four headline numbers as static HTML, for browsers that cannot run the page."""
     try:
@@ -844,11 +1060,21 @@ def plain() -> str:
             "<style>body{font-family:system-ui,Arial,sans-serif;background:#111;color:#eee;"
             "padding:24px;font-size:20px}.card{border:1px solid #444;border-radius:12px;"
             "padding:16px;margin:12px 0}.q{color:#aaa;margin:0 0 6px}.n{font-size:34px;"
-            "margin:0}.hint{color:#aaa}</style></head><body>"
-            "<h1>Trading research</h1>" + _plain_fallback() +
+            "margin:0}.hint{color:#aaa}"
+            ".bar{height:10px;border-radius:999px;background:#333;overflow:hidden;"
+            "margin:10px 0}.bar>i{display:block;height:100%;background:#c2683f}"
+            ".exp{border:1px solid #444;border-radius:12px;padding:14px 16px;margin:12px 0}"
+            ".v{font-weight:700;margin-left:8px}.v-pass{color:#6fbf91}.v-fail{color:#e08370}"
+            ".v-open{color:#fab219}.crit{padding-left:20px}"
+            "</style></head><body>"
+            "<h1>Trading research</h1>" + _plain_fallback() + _programme_html() +
             "<p class='hint'>This is the simple view. The full dashboard with charts is at /"
             "</p></body></html>")
 
 
+@app.get("/", response_class=HTMLResponse)
 def index() -> str:
-    return PAGE.replace("__PLAIN__", _plain_fallback())
+    # The decorator belongs here. From 63ab960 until this fix it sat on _plain_fallback, so
+    # "/" served only the bare fallback fragment and never the full page.
+    return (PAGE.replace("__PLAIN__", _plain_fallback())
+                .replace("__PROGRAMME__", _programme_html()))
