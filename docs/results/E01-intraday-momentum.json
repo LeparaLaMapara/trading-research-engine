@@ -1,0 +1,158 @@
+{
+ "experiment": "E01",
+ "run_ts": "2026-09-22T18:16:22Z",
+ "data_hash": "ed147b7b2af692d1",
+ "symbols": 23,
+ "sample": [
+  "2020-10-15",
+  "2026-09-15"
+ ],
+ "portfolio_days": 1836,
+ "net_sharpe": -1.756,
+ "gross_sharpe": -0.262,
+ "null_p95": -1.097,
+ "null_mean": -1.673,
+ "net_by_year": {
+  "2021": -0.068,
+  "2022": -0.0447,
+  "2023": -0.3009,
+  "2024": -0.5756,
+  "2025": -0.2194,
+  "2026": -0.0959
+ },
+ "net_last_12m": -0.3044,
+ "net_sharpe_double_costs": -3.09,
+ "net_sharpe_by_class": {
+  "crypto": -1.624,
+  "energy": 0.036,
+  "fx_cross": -1.008,
+  "fx_major": -0.621,
+  "index": -0.18,
+  "metal": 0.235
+ },
+ "deflated_sharpe_at_N296": 0.0,
+ "criteria": {
+  "C1_net_sharpe_positive": false,
+  "C2_beats_null_p95": false,
+  "C3_years_and_last_12m": false,
+  "C4_survives_double_costs": false
+ },
+ "verdict": "FAIL",
+ "instruments": {
+  "ADAUSD": {
+   "days": 1061,
+   "cost_rt_bps": 59.777,
+   "spread": "270 pips"
+  },
+  "AUDJPY": {
+   "days": 1549,
+   "cost_rt_bps": 1.018,
+   "spread": "0.3 pips"
+  },
+  "AUDUSD": {
+   "days": 1549,
+   "cost_rt_bps": 0.848,
+   "spread": "0.1 pips"
+  },
+  "AUS200": {
+   "days": 854,
+   "cost_rt_bps": 2.3,
+   "spread": "12 pips"
+  },
+  "BTCUSD": {
+   "days": 1803,
+   "cost_rt_bps": 7.254,
+   "spread": "3874 pips"
+  },
+  "DE40": {
+   "days": 1284,
+   "cost_rt_bps": 1.01,
+   "spread": "5 pips"
+  },
+  "ETHUSD": {
+   "days": 1804,
+   "cost_rt_bps": 13.273,
+   "spread": "296 pips"
+  },
+  "EURAUD": {
+   "days": 1548,
+   "cost_rt_bps": 1.007,
+   "spread": "0.5 pips"
+  },
+  "EURGBP": {
+   "days": 1548,
+   "cost_rt_bps": 1.049,
+   "spread": "0.3 pips"
+  },
+  "EURJPY": {
+   "days": 1548,
+   "cost_rt_bps": 1.272,
+   "spread": "0.9 pips"
+  },
+  "EURUSD": {
+   "days": 1547,
+   "cost_rt_bps": 0.79,
+   "spread": "0.1 pips"
+  },
+  "GBPJPY": {
+   "days": 1548,
+   "cost_rt_bps": 1.248,
+   "spread": "1 pips"
+  },
+  "GBPUSD": {
+   "days": 1548,
+   "cost_rt_bps": 0.853,
+   "spread": "0.2 pips"
+  },
+  "NZDUSD": {
+   "days": 1548,
+   "cost_rt_bps": 1.027,
+   "spread": "0.2 pips"
+  },
+  "US500": {
+   "days": 1488,
+   "cost_rt_bps": 1.356,
+   "spread": "3 pips"
+  },
+  "USDCAD": {
+   "days": 1548,
+   "cost_rt_bps": 0.921,
+   "spread": "0.3 pips"
+  },
+  "USDCHF": {
+   "days": 1548,
+   "cost_rt_bps": 0.811,
+   "spread": "0.1 pips"
+  },
+  "USDJPY": {
+   "days": 1548,
+   "cost_rt_bps": 0.769,
+   "spread": "0.1 pips"
+  },
+  "XAGUSD": {
+   "days": 1492,
+   "cost_rt_bps": 6.581,
+   "spread": "1.5 pips"
+  },
+  "XAUEUR": {
+   "days": 1494,
+   "cost_rt_bps": 1.411,
+   "spread": "13 pips"
+  },
+  "XAUUSD": {
+   "days": 1494,
+   "cost_rt_bps": 1.154,
+   "spread": "9 pips"
+  },
+  "XBRUSD": {
+   "days": 290,
+   "cost_rt_bps": 1.973,
+   "spread": "1 pips"
+  },
+  "XTIUSD": {
+   "days": 1492,
+   "cost_rt_bps": 3.385,
+   "spread": "2 pips"
+  }
+ }
+}

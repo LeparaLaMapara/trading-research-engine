@@ -6,8 +6,9 @@
       "id": "E01",
       "title": "Intraday momentum, flat before the overnight rollover",
       "prereg": "docs/programme/E01-intraday-momentum-prereg.md",
-      "result": null,
-      "verdict": null
+      "result": "docs/results/E01-intraday-momentum.md",
+      "verdict": "FAIL",
+      "summary": "No predictive edge: gross Sharpe -0.26, net -1.76, at the random-sign null. Flat-at-rollover removed financing but there was no signal under it."
     }
   ]
 }
