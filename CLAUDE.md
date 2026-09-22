@@ -46,8 +46,11 @@ The owner removed the one exception, in his words: "I don't want it to ask me an
 objective is to get better, learn as much as you can and start beating the market", accepting
 losses. So the engine now trades the live account on its own:
 
-- `scripts/engine_loop.py` runs always (Windows scheduled task "TradingEngineLoop" at logon and
-  every 15 min; a lock makes extra copies exit). Hourly: record E03 data, publish live state,
+- `scripts/engine_loop.py` runs always, kept alive by `scripts/engine_supervisor.py` (restarts
+  it a minute after any exit), which starts at logon from
+  `%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\TradingEngine.vbs`. Task
+  Scheduler would also cover reboots without a logon but needs admin rights this session lacks.
+  Logs and heartbeat: `T:\making-money\engine\`. Hourly: record E03 data, publish live state,
   run `scripts/trader_step.py` (E05 Ethereum 20-day trend, one decision per UTC day, only
   touches positions labelled `engine-E05`).
 - The secret lives outside the repo in `~/.trading-research-engine/live_secret`;
@@ -55,7 +58,8 @@ losses. So the engine now trades the live account on its own:
 - Still binding: the signed LIVE_LIMITS (6% risk/trade, 2 positions, 40% drawdown, $20 floor);
   the trader latches `halted` in `data/engine_state.json` on the floor or the drawdown and never
   trades again until the owner removes it. The audit fails if limits or ceiling drift.
-- To stop everything: disable the scheduled task, delete the secret file, and run
+- To stop everything: delete the Startup launcher, end the pythonw/python engine processes,
+  delete the secret file, and run
   `python -m ops.authority --revoke`.
 - Research continues: any later strategy experiment that passes and that the account can afford
   replaces E05 as the live rule.
