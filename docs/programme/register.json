@@ -15,9 +15,10 @@
       "id": "E02",
       "title": "Intraday momentum on metals and energy, 2014 to 2020 (data E01 never saw)",
       "prereg": "docs/programme/E02-intraday-metals-energy-prereg.md",
-      "result": null,
-      "verdict": null,
-      "kind": "strategy"
+      "result": "docs/results/E02-intraday-metals-energy.md",
+      "verdict": "FAIL",
+      "kind": "strategy",
+      "summary": "On six years E01 never saw, metals and oil showed a small real tendency before costs, but paying the spread every day wiped it out. Not tradeable here."
     },
     {
       "id": "E03",

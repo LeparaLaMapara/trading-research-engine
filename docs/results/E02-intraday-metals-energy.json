@@ -1,0 +1,61 @@
+{
+ "experiment": "E02",
+ "run_ts": "2026-09-22T18:59:50Z",
+ "data_hash": "703f5e973e0ba1c5",
+ "symbols": 4,
+ "sample": [
+  "2014-10-24",
+  "2020-09-16"
+ ],
+ "portfolio_days": 1478,
+ "net_sharpe": -0.587,
+ "gross_sharpe": 0.338,
+ "null_p95": -0.564,
+ "null_mean": -1.175,
+ "net_by_year": {
+  "2015": -0.0977,
+  "2016": -0.1961,
+  "2017": -0.0864,
+  "2018": -0.0007,
+  "2019": -0.1216
+ },
+ "net_last_12m": 0.1599,
+ "net_sharpe_double_costs": -1.511,
+ "net_sharpe_by_class": {
+  "energy": -0.205,
+  "metal": -0.549
+ },
+ "deflated_sharpe_at_N297": 0.0,
+ "symbols_dropped": [
+  "XBRUSD"
+ ],
+ "criteria": {
+  "C1_net_sharpe_positive": false,
+  "C2_beats_null_p95": false,
+  "C3_years_and_last_12m": false,
+  "C4_survives_double_costs": false
+ },
+ "verdict": "FAIL",
+ "instruments": {
+  "XAUUSD": {
+   "days": 1495,
+   "cost_rt_bps": 1.407,
+   "spread": "9 pips"
+  },
+  "XAGUSD": {
+   "days": 1492,
+   "cost_rt_bps": 9.775,
+   "spread": "1.5 pips"
+  },
+  "XAUEUR": {
+   "days": 1493,
+   "cost_rt_bps": 1.872,
+   "spread": "13 pips"
+  },
+  "XTIUSD": {
+   "days": 1064,
+   "cost_rt_bps": 4.456,
+   "spread": "2 pips"
+  }
+ }
+}
