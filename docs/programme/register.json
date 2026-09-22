@@ -1,0 +1,13 @@
+{
+  "budget": 10,
+  "started": "2026-09-22",
+  "experiments": [
+    {
+      "id": "E01",
+      "title": "Intraday momentum, flat before the overnight rollover",
+      "prereg": "docs/programme/E01-intraday-momentum-prereg.md",
+      "result": null,
+      "verdict": null
+    }
+  ]
+}

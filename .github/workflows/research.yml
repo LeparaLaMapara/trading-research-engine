@@ -1,8 +1,8 @@
 name: research
 
 # Free scheduled research on GitHub Actions (Render's free tier has no workers/cron/disk).
-# Runs one council + backtest cycle on a schedule and on manual dispatch. The Failure
-# Registry and calibration scoreboard persist between runs via the Actions cache.
+# Since 2026-09-22: refreshes the account snapshot and bar history, reports the research
+# programme's status, and runs the self-audit. It does NOT test strategies (docs/programme).
 on:
   schedule:
     - cron: "0 5 * * *"     # daily 05:00 UTC (07:00 SAST)
@@ -24,16 +24,13 @@ jobs:
       CTRADER_ACCESS_TOKEN: ${{ secrets.CTRADER_ACCESS_TOKEN }}
       CTRADER_REFRESH_TOKEN: ${{ secrets.CTRADER_REFRESH_TOKEN }}
       TOKEN_STORE: data/tokens.json
-      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-      COUNCIL_ANTHROPIC_MODEL: claude-opus-5
-      COUNCIL_GEMINI_MODEL: gemini-2.5-flash
       RESEARCH_PERIOD: D1   # H1 costs 20-30x more for the same rule; every H1 rule was over the cost ceiling
-      RESEARCH_ROUNDS: "6"
       SUPABASE_URL: https://bprargrqppufeuewryze.supabase.co
       SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # the audit reads git history to check pre-registration order
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -45,7 +42,7 @@ jobs:
           restore-keys: |
             research-data-
       - name: Install
-        run: pip install -e ".[llm]"
+        run: pip install -e .
       - name: Snapshot account balance -> Supabase
         run: |
           # The self-check needs the balance to judge "can it still trade". It was UNKNOWN
@@ -53,40 +50,28 @@ jobs:
           python -m market.account | tee account.log || true
           B=$(grep -o "balance=[0-9.]*" account.log | head -1 | cut -d= -f2)
           if [ -n "$B" ]; then echo "ACCOUNT_BALANCE_USD=$B" >> "$GITHUB_ENV"; fi
-      - name: Run one research cycle
+      - name: Refresh bar history
         run: |
-          # Individual symbols may fail (broker hiccup, thin data) without failing the run,
-          # but the cycle as a whole must produce something. Until 2026-09-15 this step ended
-          # in a bare `exit 0`, so forty days of runs that tested NOTHING reported success.
+          # Since 2026-09-22 this job no longer tests strategies. The daily search re-tested the
+          # same five rules every day, they failed every day, and each repeat raised the bar a
+          # real idea must clear later. Research now happens as pre-registered experiments
+          # (docs/programme). This job keeps the data fresh and runs the self-check.
           set +e
+          OK=0
           for S in EURUSD USDJPY XAUUSD; do
             echo "::group::fetch bars $S"
-            python -m market.bars --symbol "$S" --period "$RESEARCH_PERIOD" --years 12
-            echo "::endgroup::"
-          done
-          for S in EURUSD USDJPY XAUUSD; do
-            echo "::group::experiment $S"
-            python -m research.experiment --symbol "$S" --period "$RESEARCH_PERIOD" --rounds "$RESEARCH_ROUNDS" \
-              | tee "cycle_$S.log"
+            python -m market.bars --symbol "$S" --period "$RESEARCH_PERIOD" --days 30 | tee "bars_$S.log"
+            grep -q "^stored [1-9]" "bars_$S.log" && OK=$((OK+1))
             echo "::endgroup::"
           done
           set -e
-          echo "::group::cycle health"
-          TESTED=$(grep -ho "deflating against N=[0-9]* candidates ever scored ([0-9]* tested this run)" cycle_*.log \
-                   | sed -E 's/.*\(([0-9]+) tested this run\)/\1/' | paste -sd+ - | bc)
-          TESTED=${TESTED:-0}
-          echo "candidates actually backtested this cycle: $TESTED"
-          SPEND=$(grep -ho '^\[budget\] \$[0-9.]*' cycle_*.log | sed -E 's/.*\$//' | paste -sd+ - | bc)
-          echo "LAST_RUN_SPEND_USD=${SPEND:-0}" >> "$GITHUB_ENV"
-          echo "council spend this cycle: \$${SPEND:-0}"
-          if [ "$TESTED" -eq 0 ]; then
-            echo "::error::Research cycle tested 0 candidates. The loop is not learning."
-            echo "Every proposal was rejected or skipped before the backtest stage. Check the"
-            echo "failure registry tabu rules and the council output before trusting any"
-            echo "later run. Failing deliberately so this cannot hide behind a green tick."
+          echo "symbols refreshed: $OK of 3"
+          if [ "$OK" -eq 0 ]; then
+            echo "::error::No bar history could be refreshed. The broker connection is broken."
             exit 1
           fi
-          echo "::endgroup::"
+      - name: Research programme status
+        run: python -m research.programme
       - name: Self-check
         # Runs last and is allowed to fail the whole job. Deterministic, no model in the path,
         # so nothing can argue it down. This is the step that would have caught the five weeks

@@ -71,6 +71,21 @@ demo + backtest. The account is *funded* to viability (~$200+ from the risk tabl
   number not produced by re-runnable code; every dataset seeded, versioned, hash-recorded.
 - Stays a separate repo from `ctrader-connect` (that project's charter forbids merging).
 
+## How research is done (since 2026-09-22)
+
+A budget of **10 pre-registered experiments**, not a daily search. Rules in
+`docs/programme/README.md`, register in `docs/programme/register.json`, status via
+`python -m research.programme`. In short:
+
+- Pre-register, commit and push BEFORE running. `ops/audit.py` checks the git order.
+- The daily CI run refreshes data and runs the audit. It does not test strategies: repeats
+  only raised the deflated-Sharpe bar for real ideas.
+- Ideas come from resolvable papers and the engine's own cost measurements. The council no
+  longer picks strategies (46% right about its own proposals).
+- Stop rule: 10 spent with no pass means this account at this broker has no edge worth
+  trading; the project continues as a measurement lab. The audit fails when that happens.
+- A pass means demo paper trading, never a live order by itself.
+
 ## Layout
 
 ```

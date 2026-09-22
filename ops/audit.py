@@ -132,6 +132,34 @@ def check_loop_is_learning(db_path: str = "data/research.db", window: int = 30) 
 
 
 @_check
+def check_programme_is_honest(register: str = "docs/programme/register.json",
+                              repo: str = ".") -> Check:
+    """Is the research programme within budget, pre-registered, and not yet exhausted?
+
+    Replaced "is the loop learning" on 2026-09-22, when the daily run stopped re-testing the
+    same strategies (docs/programme/README.md). Progress is now a short list of pre-registered
+    experiments, so the question is whether that list is honest and whether it has run out.
+    """
+    from research import programme
+    q = "Is the research programme honest, and is there budget left?"
+    if not os.path.exists(os.path.join(repo, register)):
+        return Check("programme_is_honest", q, UNKNOWN,
+                     "There is no research register, so progress cannot be judged.", register)
+    # A shallow clone has one commit, so every file looks added at the same moment and the
+    # pre-registration order cannot be read. Say so rather than guess either way.
+    shallow = subprocess.run(["git", "rev-parse", "--is-shallow-repository"], cwd=repo,
+                             capture_output=True, text=True, check=False).stdout.strip()
+    st = programme.status(programme.load(os.path.join(repo, register)), repo=repo,
+                          check_git=shallow != "true")
+    evidence = (f"spent={st.spent}/{st.budget} passed={st.passed} open={st.open}"
+                + (" git-order-unchecked(shallow)" if shallow == "true" else ""))
+    if st.problems or st.stop_rule_triggered:
+        return Check("programme_is_honest", q, FAIL, st.sentence(), evidence)
+    return Check("programme_is_honest", q, PASS, st.sentence(),
+                 evidence)
+
+
+@_check
 def check_spend_is_buying_something(db_path: str = "data/research.db") -> Check:
     """Is money being spent on proposals that are then discarded?
 
@@ -313,7 +341,8 @@ def check_ci_can_fail(workflow: str = ".github/workflows/research.yml") -> Check
         return Check("ci_can_fail", "Can the daily run report a problem?", FAIL,
                      "The daily run has no check that can fail it.", "no exit 1 found")
     return Check("ci_can_fail", "Can the daily run report a problem?", PASS,
-                 "The daily run fails when the cycle produces nothing.", "exit 1 guard present")
+                 "The daily run fails when it cannot refresh its data or a check fails.",
+                 "exit 1 guard present")
 
 
 @_check
@@ -404,8 +433,10 @@ def check_live_money_stays_gated() -> Check:
 
 ALL_CHECKS = [
     check_live_money_stays_gated,
-    check_loop_is_learning,
-    check_spend_is_buying_something,
+    # check_loop_is_learning and check_spend_is_buying_something watched the daily search,
+    # which stopped on 2026-09-22. Kept as functions for the record; the programme check
+    # below is what now says whether research is moving.
+    check_programme_is_honest,
     check_dashboard_is_current,
     check_secrets_present,
     check_account_can_still_trade,
