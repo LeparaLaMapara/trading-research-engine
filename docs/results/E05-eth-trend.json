@@ -1,0 +1,38 @@
+{
+ "experiment": "E05",
+ "part": "A (history)",
+ "run_ts": "2026-09-22T22:38:51Z",
+ "sample": [
+  "2017-10-24",
+  "2026-09-18"
+ ],
+ "days": 2582,
+ "cost_round_trip_bps": 11.94,
+ "net_sharpe": 0.58,
+ "gross_sharpe": 0.679,
+ "null_p95": 0.289,
+ "null_mean": -0.328,
+ "net_sharpe_double_costs": 0.482,
+ "net_by_year": {
+  "2018": 1.2099,
+  "2019": 0.0695,
+  "2020": 0.8761,
+  "2021": 0.4356,
+  "2022": 0.6439,
+  "2023": -0.2676,
+  "2024": -0.5032,
+  "2025": 0.4725
+ },
+ "round_trips": 509,
+ "share_of_days_long": 0.514,
+ "share_of_days_short": 0.486,
+ "total_return_simple_sum": 3.586,
+ "deflated_sharpe_at_N298": 0.089,
+ "criteria": {
+  "C1_net_sharpe_positive": true,
+  "C2_beats_null_p95": true,
+  "C3_5_of_8_years_positive": true,
+  "C4_survives_double_costs": true
+ },
+ "verdict": "PASS"
+}

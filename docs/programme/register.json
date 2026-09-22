@@ -42,8 +42,9 @@
       "kind": "strategy",
       "title": "Ethereum 20-day trend, tested on history and traded live",
       "prereg": "docs/programme/E05-eth-trend-live-prereg.md",
-      "result": null,
-      "verdict": null
+      "result": "docs/results/E05-eth-trend.md",
+      "verdict": "PASS",
+      "summary": "The first rule to pass: following the last 20 days of Ethereum made money after costs over 9 years, in 6 of 8 years. The evidence is modest. Now trading live at the smallest size."
     }
   ]
 }
