@@ -53,3 +53,11 @@ def test_over_budget_is_a_problem(tmp_path):
     exps = [{"id": f"E{i}", "prereg": f"p{i}.md", "verdict": None} for i in range(3)]
     st = P.status(_reg(tmp_path, exps, budget=2), repo=str(tmp_path), check_git=False)
     assert any("budget" in p for p in st.problems)
+
+
+def test_a_measurement_pass_does_not_defuse_the_stop_rule(tmp_path):
+    exps = [{"id": "E0", "kind": "measurement", "prereg": "p0.md", "result": "r0.json",
+             "verdict": "PASS"},
+            {"id": "E1", "prereg": "p1.md", "result": "r1.json", "verdict": "FAIL"}]
+    st = P.status(_reg(tmp_path, exps, budget=2), repo=str(tmp_path), check_git=False)
+    assert st.passed == [] and st.measured == ["E0"] and st.stop_rule_triggered

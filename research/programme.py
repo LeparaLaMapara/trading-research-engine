@@ -14,14 +14,16 @@ from dataclasses import dataclass, field
 
 REGISTER = "docs/programme/register.json"
 VERDICTS = {None, "PASS", "FAIL"}
+KINDS = {"strategy", "measurement"}
 
 
 @dataclass
 class Status:
     budget: int
     spent: int                       # experiments with a verdict
-    passed: list[str]
+    passed: list[str]                # STRATEGY experiments that passed
     open: list[str]                  # registered, no verdict yet
+    measured: list[str] = field(default_factory=list)   # measurement experiments completed
     problems: list[str] = field(default_factory=list)
 
     @property
@@ -35,7 +37,9 @@ class Status:
             return (f"All {self.budget} experiments are spent and none passed. The stop rule "
                     f"applies: write down that this account has no edge worth trading.")
         s = (f"So far {self.spent} of {self.budget} experiments are done and "
-             f"{len(self.passed)} passed")
+             f"{len(self.passed)} strategies passed")
+        if self.measured:
+            s += f" ({len(self.measured)} of them measured costs rather than tested a strategy)"
         if self.open:
             s += f"; {len(self.open)} in progress ({', '.join(self.open)})"
         return s + "."
@@ -65,6 +69,9 @@ def status(reg: dict, repo: str = ".", check_git: bool = True) -> Status:
         st.problems.append(f"{len(exps)} experiments registered against a budget of {budget}.")
     for e in exps:
         eid, verdict = e.get("id"), e.get("verdict")
+        if e.get("kind", "strategy") not in KINDS:
+            st.problems.append(f"{eid} has an unknown kind {e.get('kind')!r}.")
+            continue
         if verdict not in VERDICTS:
             st.problems.append(f"{eid} has an unknown verdict {verdict!r}.")
             continue
@@ -76,7 +83,11 @@ def status(reg: dict, repo: str = ".", check_git: bool = True) -> Status:
             st.open.append(eid)
             continue
         st.spent += 1
-        if verdict == "PASS":
+        # A measurement passing (E04: fills land at the quote) says the tools are right, not
+        # that an edge exists. Only strategy passes can defuse the stop rule.
+        if e.get("kind", "strategy") == "measurement":
+            st.measured.append(eid)
+        elif verdict == "PASS":
             st.passed.append(eid)
         result = e.get("result")
         if not result or not os.path.exists(os.path.join(repo, result)):

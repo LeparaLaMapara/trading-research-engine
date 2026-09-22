@@ -8,21 +8,24 @@
       "prereg": "docs/programme/E01-intraday-momentum-prereg.md",
       "result": "docs/results/E01-intraday-momentum.md",
       "verdict": "FAIL",
-      "summary": "The morning did not predict the afternoon. It lost money even before trading costs, and after costs it did no better than guessing at random."
+      "summary": "The morning did not predict the afternoon. It lost money even before trading costs, and after costs it did no better than guessing at random.",
+      "kind": "strategy"
     },
     {
       "id": "E02",
       "title": "Intraday momentum on metals and energy, 2014 to 2020 (data E01 never saw)",
       "prereg": "docs/programme/E02-intraday-metals-energy-prereg.md",
       "result": null,
-      "verdict": null
+      "verdict": null,
+      "kind": "strategy"
     },
     {
       "id": "E03",
       "title": "Order-book imbalance predicts the next minute, net of costs (XRPUSD; amended: BTC/ETH/SOL depth is synthetic)",
       "prereg": "docs/programme/E03-book-imbalance-prereg.md",
       "result": null,
-      "verdict": null
+      "verdict": null,
+      "kind": "strategy"
     },
     {
       "id": "E04",
@@ -30,7 +33,8 @@
       "prereg": "docs/programme/E04-fill-cost-prereg.md",
       "result": "docs/results/E04-fill-cost.md",
       "verdict": "PASS",
-      "summary": "Real orders filled at the quoted price, on average a hair better. 20 round trips cost $1.31 in total, as the cost model assumed. Backtest costs are not understated for this pair."
+      "summary": "Real orders filled at the quoted price, on average a hair better. 20 round trips cost $1.31 in total, as the cost model assumed. Backtest costs are not understated for this pair.",
+      "kind": "measurement"
     }
   ]
 }
