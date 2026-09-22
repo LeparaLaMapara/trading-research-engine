@@ -62,10 +62,12 @@ def daily_sigma(symbol: str) -> float:
 
 
 class LiveTrade(R.Rehearsal):
-    def __init__(self, symbol: str, side: str, confirm: bool, reason: str) -> None:
+    def __init__(self, symbol: str, side: str, confirm: bool, reason: str,
+                 label: str = "research-signal") -> None:
         super().__init__(symbol, confirm)
         self.side = side
         self.reason = reason
+        self.label = label
         self.sigma = daily_sigma(self.symbol)
         # Mission step 4: the order's own timeline, measured rather than assumed.
         self.life = OrderLifecycle(symbol=self.symbol, side=side, strategy="operator_signal")
@@ -185,8 +187,9 @@ class LiveTrade(R.Rehearsal):
         req.volume = int(self.sizing.volume)
         req.relativeStopLoss = stop_pts
         req.relativeTakeProfit = tp_pts
-        req.label = "research-signal"
-        req.comment = "first live research trade; weak evidence, see RESULTS-2026-09-19"
+        # The engine recognises its own positions by label (scripts/trader_step.py).
+        req.label = self.label
+        req.comment = self.reason[:100]
         self.opened_at = time.time()
         self.conn.client.send(req)
         self.life.mark("order_sent")
@@ -251,8 +254,9 @@ def main() -> None:
     ap.add_argument("--side", choices=("BUY", "SELL"), required=True)
     ap.add_argument("--confirm", action="store_true")
     ap.add_argument("--reason", default="")
+    ap.add_argument("--label", default="research-signal")
     a = ap.parse_args()
-    t = LiveTrade(a.symbol, a.side, a.confirm, a.reason)
+    t = LiveTrade(a.symbol, a.side, a.confirm, a.reason, a.label)
     original = t.conn._on_message
 
     def dispatch(client, message):

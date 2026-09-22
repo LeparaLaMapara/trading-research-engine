@@ -40,6 +40,26 @@ This is a control, not a proof: an agent with filesystem access could delete the
 What the design buys is that doing so is a visible change to a named module rather than a
 silent drift. No accident gets through; a deliberate bypass leaves evidence.
 
+### Update 2026-09-23: standing live authority
+
+The owner removed the one exception, in his words: "I don't want it to ask me anymore ... the
+objective is to get better, learn as much as you can and start beating the market", accepting
+losses. So the engine now trades the live account on its own:
+
+- `scripts/engine_loop.py` runs always (Windows scheduled task "TradingEngineLoop" at logon and
+  every 15 min; a lock makes extra copies exit). Hourly: record E03 data, publish live state,
+  run `scripts/trader_step.py` (E05 Ethereum 20-day trend, one decision per UTC day, only
+  touches positions labelled `engine-E05`).
+- The secret lives outside the repo in `~/.trading-research-engine/live_secret`;
+  `ops.authority.ensure_standing` renews the 30-day grant (ceiling R600).
+- Still binding: the signed LIVE_LIMITS (6% risk/trade, 2 positions, 40% drawdown, $20 floor);
+  the trader latches `halted` in `data/engine_state.json` on the floor or the drawdown and never
+  trades again until the owner removes it. The audit fails if limits or ceiling drift.
+- To stop everything: disable the scheduled task, delete the secret file, and run
+  `python -m ops.authority --revoke`.
+- Research continues: any later strategy experiment that passes and that the account can afford
+  replaces E05 as the live rule.
+
 ## The one constraint everything flows from
 
 The owner has stated he cannot verify strategy mathematics by inspection. So the system is

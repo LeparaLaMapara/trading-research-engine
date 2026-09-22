@@ -17,6 +17,12 @@ from ops import authority as auth
 SECRET = "owner-secret-not-present-in-dev"
 
 
+@pytest.fixture(autouse=True)
+def _no_standing_secret(tmp_path, monkeypatch):
+    """Tests are about the gate, not this machine: never read the real standing secret."""
+    monkeypatch.setattr(auth, "STANDING_SECRET_FILE", tmp_path / "no_standing_secret")
+
+
 @pytest.fixture
 def grant(tmp_path, monkeypatch):
     """A helper that writes a VALID grant, as only the owner could."""
@@ -53,8 +59,8 @@ def test_no_grant_file_means_no(tmp_path, monkeypatch):
     assert auth.live_trading_permitted(46748922).permitted is False
 
 
-def test_the_real_environment_has_no_secret():
-    """A live secret leaking into the dev environment would silently disarm the gate."""
+def test_the_real_environment_has_no_secret_variable():
+    """The secret is never an environment variable here; standing authority uses a file."""
     import os
     assert not os.environ.get(auth.SECRET_ENV)
 
@@ -162,3 +168,29 @@ def test_require_raises_rather_than_returning(monkeypatch, tmp_path):
     monkeypatch.setattr(auth, "AUTHORITY_FILE", tmp_path / "absent.json")
     with pytest.raises(PermissionError):
         auth.require_live_authority(46748922)
+
+
+# ------------------------------------------------------------------ standing authority
+
+
+def test_standing_secret_file_authorises_and_renews(tmp_path, monkeypatch):
+    monkeypatch.delenv(auth.SECRET_ENV, raising=False)
+    monkeypatch.setattr(auth, "AUTHORITY_FILE", tmp_path / "grant.json")
+    (tmp_path / "no_standing_secret").write_text(SECRET, encoding="utf-8")
+    now = time.time()
+    a = auth.ensure_standing(46748922, now=now)
+    assert a.permitted and a.max_capital_zar == auth.STANDING_CEILING_ZAR
+    # Renewed once it is within a week of expiry, not before.
+    first = json.loads((tmp_path / "grant.json").read_text())["granted_ts"]
+    auth.ensure_standing(46748922, now=now + 86400)
+    assert json.loads((tmp_path / "grant.json").read_text())["granted_ts"] == first
+    later = now + (auth.MAX_GRANT_DAYS - 3) * 86400
+    assert auth.ensure_standing(46748922, now=later).permitted
+    assert json.loads((tmp_path / "grant.json").read_text())["granted_ts"] == later
+
+
+def test_no_standing_secret_means_no_standing_grant(tmp_path, monkeypatch):
+    monkeypatch.delenv(auth.SECRET_ENV, raising=False)
+    monkeypatch.setattr(auth, "AUTHORITY_FILE", tmp_path / "grant.json")
+    assert auth.ensure_standing(46748922).permitted is False
+    assert not (tmp_path / "grant.json").exists()

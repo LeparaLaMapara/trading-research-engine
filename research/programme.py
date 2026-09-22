@@ -37,7 +37,7 @@ class Status:
             return (f"All {self.budget} experiments are spent and none passed. The stop rule "
                     f"applies: write down that this account has no edge worth trading.")
         s = (f"So far {self.spent} of {self.budget} experiments are done and "
-             f"{len(self.passed)} strategies passed")
+             f"{len(self.passed)} strateg{'y' if len(self.passed) == 1 else 'ies'} passed")
         if self.measured:
             s += f" ({len(self.measured)} of them measured costs rather than tested a strategy)"
         if self.open:

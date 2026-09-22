@@ -28,6 +28,15 @@ through, and a deliberate bypass leaves evidence.
 and reconciliation are reads. They move no money and are not gated here. This module gates
 exactly one thing: sending an order that can change a live balance.
 
+**Standing authority, from 2026-09-23.** The owner then told the project, in his words: "I
+don't want it to ask me anymore ... the objective is to get better, learn as much as you can
+and start beating the market", accepting losses. So the secret may also live in
+`STANDING_SECRET_FILE`, outside the repo on this machine, where the engine loop reads it and
+renews its own grant (`ensure_standing`). What still binds every live order: the signed
+LIVE_LIMITS in risk/limits.py (6% risk per trade, 2 positions, a permanent stop at $20
+equity), the capital ceiling in the grant, and the audit, which fails if either drifts. To end
+standing authority: delete the secret file and run `python -m ops.authority --revoke`.
+
 To authorise live trading the owner runs, in the live environment only:
 
     python -m ops.authority --grant --account 46748922 --max-capital-zar 5000
@@ -54,6 +63,14 @@ AUTHORITY_FILE = Path(os.environ.get(
 
 #: Set by the OWNER, in the live environment only. Never in a development session.
 SECRET_ENV = "LIVE_AUTHORITY_SECRET"
+
+#: Standing authority (owner decision 2026-09-23): the same secret, kept on this machine
+#: outside the repo, so the engine loop can trade and renew without asking.
+STANDING_SECRET_FILE = Path(os.environ.get(
+    "LIVE_STANDING_SECRET_FILE",
+    str(Path.home() / ".trading-research-engine" / "live_secret")))
+STANDING_CEILING_ZAR = 600.0
+RENEW_BELOW_DAYS = 7
 
 #: A grant expires. An authorisation given once for one test must not still be open months
 #: later when nobody remembers granting it.
@@ -83,6 +100,37 @@ def _sign(payload: dict, secret: str) -> str:
     return hmac.new(secret.encode(), body.encode(), hashlib.sha256).hexdigest()
 
 
+def _secret() -> str:
+    """The environment variable, else the standing secret file. Empty when neither exists."""
+    env = os.environ.get(SECRET_ENV, "")
+    if env:
+        return env
+    try:
+        return STANDING_SECRET_FILE.read_text(encoding="utf-8").strip()
+    except OSError:
+        return ""
+
+
+def ensure_standing(account_id: int, max_capital_zar: float = STANDING_CEILING_ZAR,
+                    days: int = MAX_GRANT_DAYS, now: float | None = None) -> Authority:
+    """Keep the standing grant alive: sign a fresh one when missing or within
+    RENEW_BELOW_DAYS of expiry. Only works where the standing secret file exists."""
+    now = time.time() if now is None else now
+    secret = _secret()
+    if not secret:
+        return Authority(False, "no standing secret on this machine")
+    cur = live_trading_permitted(account_id, now=now)
+    if cur.permitted and (cur.expires_ts or 0) - now > RENEW_BELOW_DAYS * 86400:
+        return cur
+    payload = {"account_id": int(account_id), "max_capital_zar": float(max_capital_zar),
+               "granted_ts": now, "expires_ts": now + days * 86400.0,
+               "note": "standing authority, owner instruction 2026-09-23 (engine renews)"}
+    payload["signature"] = _sign(payload, secret)
+    AUTHORITY_FILE.parent.mkdir(parents=True, exist_ok=True)
+    AUTHORITY_FILE.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    return live_trading_permitted(account_id, now=now)
+
+
 def live_trading_permitted(account_id: int | None = None,
                            capital_zar: float | None = None,
                            now: float | None = None) -> Authority:
@@ -94,10 +142,11 @@ def live_trading_permitted(account_id: int | None = None,
     """
     now = time.time() if now is None else now
 
-    secret = os.environ.get(SECRET_ENV, "")
+    secret = _secret()
     if not secret:
-        return Authority(False, f"{SECRET_ENV} is not set in this environment. This is a "
-                                f"development session and it cannot authorise live trading.")
+        return Authority(False, f"{SECRET_ENV} is not set in this environment and there is "
+                                f"no standing secret on this machine, so it cannot "
+                                f"authorise live trading.")
 
     if not AUTHORITY_FILE.exists():
         return Authority(False, f"no authorisation grant at {AUTHORITY_FILE}")
@@ -147,7 +196,7 @@ def require_live_authority(account_id: int | None = None,
 
 
 def _grant(account_id: int, max_capital_zar: float, days: int, note: str) -> int:
-    secret = os.environ.get(SECRET_ENV, "")
+    secret = _secret()
     if not secret:
         print(f"{SECRET_ENV} is not set. Set it in the live environment and run this "
               f"there.\nA grant signed without it would not verify, so none was written.",

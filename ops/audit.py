@@ -393,42 +393,36 @@ def check_risk_layer_is_closed() -> Check:
 
 @_check
 def check_live_money_stays_gated() -> Check:
-    """Is the one boundary the owner kept still closed in THIS environment?
+    """Is live trading either off, or on strictly inside the owner's signed terms?
 
-    Added 2026-09-16, when the owner granted the project full autonomy except for moving
-    real money. Autonomy makes this check more important, not less: the thing that would
-    disarm the gate is now the same thing that runs the audit. So it is checked every
-    cycle, and an UNKNOWN here is a FAIL like everywhere else.
+    2026-09-16 to 2026-09-22 this failed whenever live trading was possible at all. On
+    2026-09-23 the owner gave standing authority ("I don't want it to ask me anymore"), so
+    live trading being ON is now correct here. What must never happen is trading on terms he
+    did not sign: different risk limits, or a capital ceiling above the standing one.
     """
     from ops import authority
+    from risk.limits import LIVE_LIMITS, Limits
 
-    reasons = []
-    secret_present = bool(os.environ.get(authority.SECRET_ENV))
-    if secret_present:
-        # The live secret has no business in a research or CI environment. If it is here,
-        # the gate can be opened by anything running here, which is the whole problem.
-        reasons.append(f"{authority.SECRET_ENV} IS SET in this environment")
-
-    permitted = authority.live_trading_permitted().permitted
-    if permitted:
-        reasons.append("a valid live-trading grant is active right now")
-
-    if reasons:
-        return Check("live_money_stays_gated",
-                     "Is real money still locked away from the automation?", FAIL,
-                     "Live trading is currently POSSIBLE from this environment. That is "
-                     "only correct if the owner deliberately opened it for a session he is "
-                     "watching. Otherwise revoke it: python -m ops.authority --revoke",
-                     "; ".join(reasons))
-
-    # The two independent locks, both reported, because either one alone is a single point.
-    from risk.limits import LIVE_LIMITS
-    return Check("live_money_stays_gated",
-                 "Is real money still locked away from the automation?", PASS,
-                 "Real money cannot be moved from here. The engine can research, backtest, "
-                 "read the broker and rehearse on demo, and it cannot place a live trade.",
-                 f"no {authority.SECRET_ENV} in environment; no valid grant; "
-                 f"LIVE_LIMITS.configured()={LIVE_LIMITS.configured()}")
+    q = "Is real money only ever traded on the owner's terms?"
+    signed = Limits(environment="live", max_risk_per_trade_pct=0.06, max_daily_loss_pct=0.10,
+                    max_drawdown_pct=0.40, max_position_pct=0.50, max_open_positions=2,
+                    min_equity=20.0)
+    if LIVE_LIMITS != signed:
+        return Check("live_money_stays_gated", q, FAIL,
+                     "The live risk limits in the code differ from the ones the owner signed, "
+                     "so trades could be sized on terms he never agreed to.", repr(LIVE_LIMITS))
+    a = authority.live_trading_permitted()
+    if not a.permitted:
+        return Check("live_money_stays_gated", q, PASS,
+                     "Live trading is off in this environment.", a.reason[:160])
+    if (a.max_capital_zar or 0) > authority.STANDING_CEILING_ZAR:
+        return Check("live_money_stays_gated", q, FAIL,
+                     f"Live trading is on with a ceiling of R{a.max_capital_zar:,.0f}, above the "
+                     f"R{authority.STANDING_CEILING_ZAR:,.0f} standing ceiling.", a.reason)
+    return Check("live_money_stays_gated", q, PASS,
+                 "Live trading is on by the owner's standing instruction, inside his limits: "
+                 "at most 6% risked per trade, 2 positions, and a permanent stop at 20 dollars.",
+                 f"ceiling R{a.max_capital_zar:,.0f}")
 
 
 ALL_CHECKS = [
