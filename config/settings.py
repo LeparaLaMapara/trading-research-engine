@@ -13,6 +13,9 @@ ENV = os.environ.get("CTRADER_ENV", "demo").lower()          # demo | live
 ACCOUNT_ID = os.environ.get("CTRADER_ACCOUNT_ID")            # ctidTraderAccountId
 TOKEN_STORE = os.environ.get("TOKEN_STORE", "tokens.json")
 TELEMETRY_DB = os.environ.get("TELEMETRY_DB", "data/telemetry.db")
+# Committed, small, and read by CI where telemetry.db does not exist.
+SPREAD_SUMMARY = os.environ.get("SPREAD_SUMMARY", "data/spread_summary.json")
+SWAPS_JSON = os.environ.get("SWAPS_JSON", "data/swaps.json")
 LATENCY_INTERVAL_S = int(os.environ.get("LATENCY_INTERVAL_S", "30"))
 
 SAST = "Africa/Johannesburg"

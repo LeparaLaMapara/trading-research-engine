@@ -9,6 +9,7 @@ No live orders. No reactor. Pure analysis over stored data.
 from __future__ import annotations
 
 import argparse
+import json
 import sqlite3
 
 import pandas as pd
@@ -46,6 +47,55 @@ _DEFAULT_SPREAD_BPS = {
 }
 
 
+MIN_TICKS, MIN_HOURS = 200, 8
+
+
+def _admissible_spreads(conn: sqlite3.Connection, symbol: str) -> pd.DataFrame:
+    # Admissible quotes only. The data-quality audit found 7.9% of logged ticks carry
+    # bid exactly equal to ask and 32.6% update one side against a stale other side.
+    return pd.read_sql_query(
+        "SELECT spread_pips, hour_of_week FROM ticks WHERE symbol=? "
+        "AND side='bid+ask' AND spread_pips > 0", conn, params=(symbol.upper(),))
+
+
+def spread_from_ticks(sp: pd.DataFrame, symbol: str) -> tuple[float | None, str]:
+    """(spread_pips, source) from admissible ticks, or (None, "default") if too few."""
+    if len(sp) >= MIN_TICKS:
+        covered = int(sp["hour_of_week"].nunique())
+        if covered >= MIN_HOURS:
+            return (float(sp["spread_pips"].median()),
+                    f"measured median over {covered} hours-of-week, n={len(sp)}")
+        # The recorder ran mostly inside the London/New York overlap, the cheapest hour
+        # of the day, so a median from it understates every other hour. The 75th
+        # percentile is a hedge, NOT a measurement of the unobserved hours: the red
+        # team showed it still understates the 21:00 rollover by 4x to 33x.
+        return (float(sp["spread_pips"].quantile(0.75)),
+                f"p75 hedge: only {covered} hours-of-week observed, n={len(sp)}; "
+                f"understates unobserved hours")
+    if not sp.empty:
+        print(f"  [cost] {symbol}: only {len(sp)} admissible ticks (<{MIN_TICKS}); "
+              f"not enough to measure")
+    return None, "default"
+
+
+def _spread_summary() -> dict:
+    try:
+        with open(settings.SPREAD_SUMMARY, encoding="utf-8") as fh:
+            return json.load(fh)
+    except (OSError, ValueError):
+        return {}
+
+
+def _swaps_pip_position(symbol: str) -> int | None:
+    """pipPosition from the committed broker symbol specs (data/swaps.json)."""
+    try:
+        with open(settings.SWAPS_JSON, encoding="utf-8") as fh:
+            v = json.load(fh).get(symbol.upper(), {}).get("pipPosition")
+        return int(v) if v is not None else None
+    except (OSError, ValueError, TypeError):
+        return None
+
+
 def _pip_size(symbol: str, pip_position: int | None) -> float:
     if pip_position is not None:
         return 10 ** (-pip_position)
@@ -64,37 +114,32 @@ def measured_cost(symbol: str, ref_price: float) -> CostModel:
     because a silent fallback is indistinguishable from a measurement until someone audits it.
     """
     spread_pips, pip_position, source = None, None, "default"
-    MIN_TICKS, MIN_HOURS = 200, 8
     try:
         with sqlite3.connect(settings.TELEMETRY_DB) as c:
             row = c.execute("SELECT pip_position FROM symbol_spec WHERE symbol=?",
                             (symbol.upper(),)).fetchone()
             pip_position = row[0] if row else None
-            # Admissible quotes only. The data-quality audit found 7.9% of logged ticks carry
-            # bid exactly equal to ask and 32.6% update one side against a stale other side.
-            sp = pd.read_sql_query(
-                "SELECT spread_pips, hour_of_week FROM ticks WHERE symbol=? "
-                "AND side='bid+ask' AND spread_pips > 0", c, params=(symbol.upper(),))
-        if len(sp) >= MIN_TICKS:
-            covered = int(sp["hour_of_week"].nunique())
-            if covered >= MIN_HOURS:
-                spread_pips = float(sp["spread_pips"].median())
-                source = f"measured median over {covered} hours-of-week, n={len(sp)}"
-            else:
-                # The recorder ran mostly inside the London/New York overlap, the cheapest hour
-                # of the day, so a median from it understates every other hour. The 75th
-                # percentile is a hedge, NOT a measurement of the unobserved hours: the red
-                # team showed it still understates the 21:00 rollover by 4x to 33x.
-                spread_pips = float(sp["spread_pips"].quantile(0.75))
-                source = (f"p75 hedge: only {covered} hours-of-week observed, n={len(sp)}; "
-                          f"understates unobserved hours")
-        elif not sp.empty:
-            print(f"  [cost] {symbol}: only {len(sp)} admissible ticks (<{MIN_TICKS}); "
-                  f"falling back to the class default")
+            sp = _admissible_spreads(c, symbol)
+        spread_pips, source = spread_from_ticks(sp, symbol)
     except Exception as exc:  # noqa: BLE001
         # Loud on purpose. This is the exact silence that hid the dead code above.
         print(f"  [cost] {symbol}: telemetry unreadable ({type(exc).__name__}: {exc}); "
-              f"falling back to the class default")
+              f"trying the committed spread summary")
+
+    if spread_pips is None:
+        # CI has no telemetry.db: the ticks are recorded on the house machine and data/ is not
+        # committed. Until 2026-09-22 every symbol in the daily run therefore fell back to the
+        # class default. The summary is the same computation, exported by
+        # scripts/export_spreads.py and committed, so the source string says how old it is.
+        summ = _spread_summary().get(symbol.upper())
+        if summ:
+            pip_position = pip_position if pip_position is not None else summ.get("pip_position")
+            if summ.get("spread_pips") is not None:
+                spread_pips = float(summ["spread_pips"])
+                source = f"committed summary ({summ.get('exported', '?')}): {summ['source']}"
+                print(f"  [cost] {symbol}: {spread_pips:.2f} pips from {source}")
+    if pip_position is None:
+        pip_position = _swaps_pip_position(symbol)
 
     if spread_pips is None:
         # FALLBACK, in basis points of PRICE rather than in pips.

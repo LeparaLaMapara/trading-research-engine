@@ -34,6 +34,7 @@ def _no_telemetry(monkeypatch, tmp_path):
     the scale-invariance test started failing on a measured spread it was never about."""
     from config import settings
     monkeypatch.setattr(settings, "TELEMETRY_DB", str(tmp_path / "no_telemetry.db"))
+    monkeypatch.setattr(settings, "SPREAD_SUMMARY", str(tmp_path / "no_summary.json"))
 
 
 def _bps(symbol: str, ref: float) -> float:

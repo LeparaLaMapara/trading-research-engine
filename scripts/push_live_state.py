@@ -21,6 +21,7 @@ import time
 import requests
 from ctrader_open_api import Protobuf
 from ctrader_open_api.messages.OpenApiMessages_pb2 import (
+    ProtoOADealListReq,
     ProtoOAReconcileReq,
     ProtoOASubscribeSpotsReq,
     ProtoOATraderReq,
@@ -31,6 +32,9 @@ from config import settings
 from connection.client import CTraderConnection
 
 TRADE_LOG = "data/trade_log.db"
+#: cTrader caps a deal-list request at one week. The job runs hourly, so a close is picked up
+#: unless the job is down for seven days straight.
+DEAL_WINDOW_MS = 7 * 24 * 3600 * 1000
 
 #: Timestamps are written with a trailing Z, which means UTC. time.strftime() without an
 #: argument uses LOCAL time, so the first version stamped SAST as UTC and the dashboard's
@@ -69,7 +73,15 @@ def upsert(table: str, rows: list[dict], dry: bool) -> None:
 
 
 def closed_trades() -> list[dict]:
-    """Real orders from the SARS trade log. These are facts, not model output."""
+    """Real orders from the SARS trade log. These are facts, not model output.
+
+    The log lives on the machine that places orders. In CI it does not exist, which is
+    expected, not an error: closes of tracked positions come from the broker instead
+    (closing_deal_rows)."""
+    import os
+    if not os.path.exists(TRADE_LOG):
+        print("  no local trade log here (normal in CI); closes come from the broker")
+        return []
     try:
         c = sqlite3.connect(TRADE_LOG)
         c.row_factory = sqlite3.Row
@@ -91,6 +103,47 @@ def closed_trades() -> list[dict]:
     return out
 
 
+def equity_of(balance: float, rows: list[dict]) -> float | None:
+    """Balance plus each open position's unrealised P&L, swap and commission.
+
+    None when any open position has no quote: an equity that silently leaves a position out
+    is the same number as the balance, which is what this used to publish."""
+    total = balance
+    for r in rows:
+        if r.get("unrealised_usd") is None:
+            return None
+        total += r["unrealised_usd"] + (r.get("swap_usd") or 0) + (r.get("commission_usd") or 0)
+    return round(total, 2)
+
+
+def closing_deal_rows(deals: list, tracked: dict[str, str], id_to_name: dict[int, str],
+                      lots: dict[str, int]) -> list[dict]:
+    """Trade rows for broker deals that CLOSED a position the dashboard tracks.
+
+    `tracked` maps position_id -> purpose. Deals on other positions (telemetry probes, which
+    round-trip inside one script) are left to the local trade log that already records them,
+    so nothing is written twice."""
+    out = []
+    for d in deals:
+        pid = str(d.positionId)
+        if pid not in tracked or not d.HasField("closePositionDetail"):
+            continue
+        cp = d.closePositionDetail
+        m = 10 ** (cp.moneyDigits or d.moneyDigits or 2)
+        net = (cp.grossProfit + cp.swap + cp.commission - (cp.pnlConversionFee or 0)) / m
+        sym = id_to_name.get(d.symbolId, str(d.symbolId))
+        vol = d.filledVolume or d.volume
+        out.append({
+            "trade_id": f"deal-{d.dealId}", "symbol": sym,
+            "side": "BUY" if d.tradeSide == 1 else "SELL",
+            "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(d.executionTimestamp / 1000)),
+            "volume_lots": (vol / lots[sym]) if lots.get(sym) else None,
+            "filled_price": d.executionPrice, "stop_loss": None, "take_profit": None,
+            "net_usd": round(net, 2), "status": "CLOSED", "purpose": tracked[pid],
+            "note": f"broker closing deal for position {pid}; net = gross + swap + commission"})
+    return out
+
+
 class Collector:
     def __init__(self, dry: bool) -> None:
         self.dry = dry
@@ -99,6 +152,7 @@ class Collector:
         self.positions: list = []
         self.balance = None
         self.id_to_name: dict[int, str] = {}
+        self.deals: list = []
 
     def on_spot(self, ev) -> None:
         if getattr(ev, "bid", 0):
@@ -120,8 +174,13 @@ class Collector:
         res = Protobuf.extract(msg)
         self.positions = list(res.position)
         print(f"  {len(self.positions)} open position(s)")
+        now_ms = int(time.time() * 1000)
+        dl = ProtoOADealListReq(); dl.ctidTraderAccountId = self.conn.account_id
+        dl.fromTimestamp = now_ms - DEAL_WINDOW_MS; dl.toTimestamp = now_ms
+        self.conn.client.send(dl).addCallbacks(self.on_deals, self.fail_soft)
         if not self.positions:
-            return self.finish()
+            reactor.callLater(5, self.finish)   # wait for the deal list only
+            return
         sub = ProtoOASubscribeSpotsReq()
         sub.ctidTraderAccountId = self.conn.account_id
         for p in self.positions:
@@ -129,11 +188,22 @@ class Collector:
         self.conn.client.send(sub)
         reactor.callLater(8, self.finish)       # give the quotes a moment to arrive
 
+    def on_deals(self, msg) -> None:
+        self.deals = list(Protobuf.extract(msg).deal)
+        print(f"  {len(self.deals)} deal(s) in the last 7 days")
+
+    def fail_soft(self, f) -> None:
+        print(f"  deal list failed (closes not published this hour): {str(f)[:120]}",
+              file=sys.stderr)
+
     def fail(self, f) -> None:
         print(f"  broker request failed: {str(f)[:120]}", file=sys.stderr)
         self.finish()
 
     def finish(self) -> None:
+        if getattr(self, "_finished", False):
+            return
+        self._finished = True
         rows = []
         lots = _lot_sizes()
         for p in self.positions:
@@ -186,21 +256,29 @@ def main() -> int:
 
     print("publishing...")
     if c.balance is not None:
-        upsert("trading_account", [{"balance": c.balance, "equity": c.balance,
+        equity = equity_of(c.balance, c.rows)
+        print(f"  equity {'unknown (a position had no quote)' if equity is None else f'${equity:,.2f}'}")
+        upsert("trading_account", [{"balance": c.balance, "equity": equity,
                                     "currency": "USD",
                                     "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}], a.dry_run)
     upsert("trading_positions", c.rows, a.dry_run)
     # Anything previously OPEN that the broker no longer reports has been closed.
     open_ids = {r["position_id"] for r in c.rows}
-    if settings.SUPABASE_URL and settings.SUPABASE_KEY and not a.dry_run:
+    tracked = {r["position_id"]: r["purpose"] for r in c.rows}
+    if settings.SUPABASE_URL and settings.SUPABASE_KEY:
         try:
             got = requests.get(
                 f"{settings.SUPABASE_URL}/rest/v1/trading_positions"
-                f"?select=position_id&status=eq.OPEN",
+                f"?select=position_id,purpose,status",
                 headers={"apikey": settings.SUPABASE_KEY,
                          "Authorization": f"Bearer {settings.SUPABASE_KEY}",
-                         "Accept-Profile": settings.SUPABASE_SCHEMA}, timeout=20)
-            stale = [r["position_id"] for r in got.json() if r["position_id"] not in open_ids]
+                         "Accept-Profile": settings.SUPABASE_SCHEMA}, timeout=20).json()
+            tracked.update({r["position_id"]: r["purpose"] or "live_research_trade"
+                            for r in got})
+            stale = [r["position_id"] for r in got
+                     if r["status"] == "OPEN" and r["position_id"] not in open_ids]
+            if a.dry_run:
+                stale = []
             for pid in stale:
                 requests.patch(
                     f"{settings.SUPABASE_URL}/rest/v1/trading_positions?position_id=eq.{pid}",
@@ -211,7 +289,9 @@ def main() -> int:
                 print(f"  marked {len(stale)} position(s) closed")
         except Exception as exc:                # noqa: BLE001
             print(f"  could not reconcile closed positions: {exc}")
-    upsert("trading_trades", closed_trades(), a.dry_run)
+    upsert("trading_trades",
+           closed_trades() + closing_deal_rows(c.deals, tracked, c.id_to_name, _lot_sizes()),
+           a.dry_run)
     return 0
 
 

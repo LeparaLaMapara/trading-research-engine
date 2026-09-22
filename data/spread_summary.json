@@ -1,0 +1,164 @@
+{
+ "ADAUSD": {
+  "exported": "2026-09-22",
+  "pip_position": 5,
+  "source": "p75 hedge: only 3 hours-of-week observed, n=282; understates unobserved hours",
+  "spread_pips": 270.0
+ },
+ "AUDJPY": {
+  "exported": "2026-09-22",
+  "pip_position": 2,
+  "source": "measured median over 15 hours-of-week, n=21812",
+  "spread_pips": 0.3
+ },
+ "AUDUSD": {
+  "exported": "2026-09-22",
+  "pip_position": 4,
+  "source": "measured median over 15 hours-of-week, n=7190",
+  "spread_pips": 0.1
+ },
+ "AUS200": {
+  "exported": "2026-09-22",
+  "pip_position": 1,
+  "source": "p75 hedge: only 3 hours-of-week observed, n=422; understates unobserved hours",
+  "spread_pips": 12.0
+ },
+ "BTCUSD": {
+  "exported": "2026-09-22",
+  "pip_position": 2,
+  "source": "p75 hedge: only 6 hours-of-week observed, n=17633; understates unobserved hours",
+  "spread_pips": 3874.0
+ },
+ "DE40": {
+  "exported": "2026-09-22",
+  "pip_position": 1,
+  "source": "p75 hedge: only 3 hours-of-week observed, n=2274; understates unobserved hours",
+  "spread_pips": 5.0
+ },
+ "ETHUSD": {
+  "exported": "2026-09-22",
+  "pip_position": 2,
+  "source": "p75 hedge: only 6 hours-of-week observed, n=14722; understates unobserved hours",
+  "spread_pips": 296.0
+ },
+ "EURAUD": {
+  "exported": "2026-09-22",
+  "pip_position": 4,
+  "source": "p75 hedge: only 3 hours-of-week observed, n=1528; understates unobserved hours",
+  "spread_pips": 0.5
+ },
+ "EURGBP": {
+  "exported": "2026-09-22",
+  "pip_position": 4,
+  "source": "p75 hedge: only 3 hours-of-week observed, n=1250; understates unobserved hours",
+  "spread_pips": 0.3
+ },
+ "EURJPY": {
+  "exported": "2026-09-22",
+  "pip_position": 2,
+  "source": "p75 hedge: only 3 hours-of-week observed, n=2464; understates unobserved hours",
+  "spread_pips": 0.9
+ },
+ "EURUSD": {
+  "exported": "2026-09-22",
+  "pip_position": 4,
+  "source": "measured median over 15 hours-of-week, n=4493",
+  "spread_pips": 0.1
+ },
+ "GBPJPY": {
+  "exported": "2026-09-22",
+  "pip_position": 2,
+  "source": "p75 hedge: only 3 hours-of-week observed, n=2577; understates unobserved hours",
+  "spread_pips": 1.0
+ },
+ "GBPUSD": {
+  "exported": "2026-09-22",
+  "pip_position": 4,
+  "source": "measured median over 15 hours-of-week, n=13840",
+  "spread_pips": 0.2
+ },
+ "HK50": {
+  "exported": "2026-09-22",
+  "pip_position": 1,
+  "source": "p75 hedge: only 3 hours-of-week observed, n=1655; understates unobserved hours",
+  "spread_pips": 90.0
+ },
+ "NZDJPY": {
+  "exported": "2026-09-22",
+  "pip_position": 2,
+  "source": "measured median over 15 hours-of-week, n=22576",
+  "spread_pips": 0.4
+ },
+ "NZDUSD": {
+  "exported": "2026-09-22",
+  "pip_position": 4,
+  "source": "measured median over 15 hours-of-week, n=10769",
+  "spread_pips": 0.2
+ },
+ "SOLUSD": {
+  "exported": "2026-09-22",
+  "pip_position": 4,
+  "source": "p75 hedge: only 3 hours-of-week observed, n=308; understates unobserved hours",
+  "spread_pips": 1520.0
+ },
+ "US500": {
+  "exported": "2026-09-22",
+  "pip_position": 1,
+  "source": "p75 hedge: only 3 hours-of-week observed, n=1187; understates unobserved hours",
+  "spread_pips": 3.0
+ },
+ "USDCAD": {
+  "exported": "2026-09-22",
+  "pip_position": 4,
+  "source": "p75 hedge: only 3 hours-of-week observed, n=967; understates unobserved hours",
+  "spread_pips": 0.3
+ },
+ "USDCHF": {
+  "exported": "2026-09-22",
+  "pip_position": 4,
+  "source": "p75 hedge: only 3 hours-of-week observed, n=948; understates unobserved hours",
+  "spread_pips": 0.1
+ },
+ "USDJPY": {
+  "exported": "2026-09-22",
+  "pip_position": 2,
+  "source": "measured median over 15 hours-of-week, n=25080",
+  "spread_pips": 0.1
+ },
+ "XAGUSD": {
+  "exported": "2026-09-22",
+  "pip_position": 2,
+  "source": "p75 hedge: only 3 hours-of-week observed, n=3459; understates unobserved hours",
+  "spread_pips": 1.5
+ },
+ "XAUEUR": {
+  "exported": "2026-09-22",
+  "pip_position": 2,
+  "source": "p75 hedge: only 3 hours-of-week observed, n=5592; understates unobserved hours",
+  "spread_pips": 13.0
+ },
+ "XAUUSD": {
+  "exported": "2026-09-22",
+  "pip_position": 2,
+  "source": "measured median over 15 hours-of-week, n=88471",
+  "spread_pips": 9.0
+ },
+ "XBRUSD": {
+  "exported": "2026-09-22",
+  "pip_position": 2,
+  "source": "p75 hedge: only 3 hours-of-week observed, n=2578; understates unobserved hours",
+  "spread_pips": 1.0
+ },
+ "XRPUSD": {
+  "exported": "2026-09-22",
+  "pip_position": 4,
+  "source": "p75 hedge: only 3 hours-of-week observed, n=1449; understates unobserved hours",
+  "spread_pips": 4.0
+ },
+ "XTIUSD": {
+  "exported": "2026-09-22",
+  "pip_position": 2,
+  "source": "p75 hedge: only 3 hours-of-week observed, n=2708; understates unobserved hours",
+  "spread_pips": 2.0
+ }
+}
