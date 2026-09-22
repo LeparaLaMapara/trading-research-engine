@@ -36,6 +36,14 @@
       "verdict": "PASS",
       "summary": "Real orders filled at the quoted price, on average a hair better. 20 round trips cost $1.31 in total, as the cost model assumed. Backtest costs are not understated for this pair.",
       "kind": "measurement"
+    },
+    {
+      "id": "E05",
+      "kind": "strategy",
+      "title": "Ethereum 20-day trend, tested on history and traded live",
+      "prereg": "docs/programme/E05-eth-trend-live-prereg.md",
+      "result": null,
+      "verdict": null
     }
   ]
 }
