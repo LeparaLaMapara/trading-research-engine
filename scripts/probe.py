@@ -180,6 +180,9 @@ class Probe:
               f"{self.open_volume / self.symbol.lotSize:g} lots)...")
         self.opened = True
         self.request_ts = time.time()
+        # If no new quote arrives before the close is sent, the last known quote IS the live
+        # one. Without this the exit had no reference (found on E04 probe 1, 2026-09-22).
+        self.live_bid, self.live_ask = self.ref_bid, self.ref_ask
         self.client.send(req).addErrback(self._err)
 
     def _send_close(self) -> None:

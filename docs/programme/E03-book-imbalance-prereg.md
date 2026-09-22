@@ -53,3 +53,30 @@ more than it costs to cross the spread twice, even after this engine's measured 
 ## Counting
 
 One trial. One threshold (0.6), one depth (5 levels), one horizon (60 s), fixed here.
+
+## Amendment 1, 22 September 2026, before any evaluation data was recorded
+
+Building the book reconstruction on the excluded 1.5 hours (as this document allows) showed
+that the broker's depth feed for **BTCUSD, ETHUSD and SOLUSD is a synthetic ladder**: every
+~1.3 seconds a ladder drawn from a small fixed set of sizes (for example 1, 10, 25, 50, 75,
+38; only 83 or 84 distinct book shapes per symbol in 1.5 hours) is re-quoted at fixed
+distances, identically on both sides, and the old ladder is deleted. Top-5 imbalance was
+exactly 0 in every one of 23,565 snapshots, so the rule could never trade and C1's correlation is undefined. The hypothesis is
+untestable on those symbols. **XRPUSD** is different: 18,780 distinct book shapes in 20,267
+snapshots, median |I| 0.34, |I| at least 0.6 in 7.2% of seconds.
+
+Only the book's structure was examined. No returns, prices after a signal, or anything that
+C1 to C3 measure were computed.
+
+The amended test:
+
+* Symbol: **XRPUSD only**. Everything else in the rule, costs and horizon is unchanged.
+* C1: as before, on XRPUSD.
+* C2: mean net return per trade above 0 with a t statistic above 2, on XRPUSD.
+* C3 (replaces "both symbols"): mean net return per trade above 0 in the first half AND the
+  second half of the evaluation period taken separately.
+* Evaluation data: at least 120 hours of XRPUSD depth recorded after this amendment is
+  committed.
+* A finding in its own right, recorded whatever E03 shows: this broker's crypto depth for the
+  three largest coins carries no information about other traders, so no strategy here can be
+  built on it.

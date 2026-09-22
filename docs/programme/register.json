@@ -19,7 +19,7 @@
     },
     {
       "id": "E03",
-      "title": "Order-book imbalance predicts the next minute, net of costs",
+      "title": "Order-book imbalance predicts the next minute, net of costs (XRPUSD; amended: BTC/ETH/SOL depth is synthetic)",
       "prereg": "docs/programme/E03-book-imbalance-prereg.md",
       "result": null,
       "verdict": null
