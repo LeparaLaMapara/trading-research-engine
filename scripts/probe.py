@@ -40,6 +40,8 @@ from ctrader_open_api.messages.OpenApiMessages_pb2 import (
     ProtoOAGetAccountListByAccessTokenReq,
     ProtoOAGetAccountListByAccessTokenRes,
     ProtoOANewOrderReq,
+    ProtoOAReconcileReq,
+    ProtoOAReconcileRes,
     ProtoOAOrderErrorEvent,
     ProtoOASpotEvent,
     ProtoOASubscribeSpotsReq,
@@ -120,6 +122,12 @@ class Probe:
         self.close_commission = 0.0
         self.balance_after: float | None = None
         self.request_ts: float | None = None
+        # Quotes keep arriving after the open. The close leg is measured against the quote
+        # live when the close is SENT; before 2026-09-22 the exit had no reference at all.
+        self.live_bid: float | None = None
+        self.live_ask: float | None = None
+        self.close_ref: float | None = None
+        self.close_request_ts: float | None = None
         self.exit_code = 0
 
         self.log = TradeLog(ARGS.db)
@@ -182,6 +190,9 @@ class Probe:
         req.positionId = self.position_id
         req.volume = self.open_volume
         self.close_sent = True
+        # Closing a BUY sells at the bid; closing a SELL buys at the ask.
+        self.close_ref = self.live_bid if ARGS.side == "buy" else self.live_ask
+        self.close_request_ts = time.time()
         print(f"SENDING close of position {self.position_id}...")
         self.client.send(req).addErrback(self._err)
 
@@ -259,6 +270,22 @@ class Probe:
                 return
             print(f"  authority      owner grant valid (ceiling "
                   f"R{grant.max_capital_zar:,.2f})")
+            # A probe is still a live order, so it passes the same plain-code risk officer
+            # as any trade (added 2026-09-22; before that probes bypassed it). Its risk is
+            # the round-trip cost: one spread plus two sides of commission.
+            from risk.limits import LIVE_LIMITS, RiskOfficer
+            units = self.open_volume / 100.0
+            cost = (self.ref_ask - self.ref_bid) * units + 2 * 0.000035 * units * self.ref_ask
+            decision = RiskOfficer(LIVE_LIMITS).permit(
+                account_environment="live", equity=self.balance_before,
+                risk_amount=max(cost, 0.01), open_positions=getattr(self, "open_positions", None)
+                if getattr(self, "open_positions", None) is not None else 10**6)
+            if not decision.allowed:
+                print(f"ABORT: risk officer refused: {decision.reason}. Nothing was sent.",
+                      file=sys.stderr)
+                self._stop(2)
+                return
+            print(f"  risk officer   allowed (round-trip cost ~${cost:.3f})")
         print("  safety         broker reports this account as "
               + ("DEMO" if is_demo else "LIVE (explicitly allowed)"))
         reactor.callLater(CLOSE_TIMEOUT_S, self._close_timeout)
@@ -285,10 +312,14 @@ class Probe:
         self.entry_price = deal.executionPrice if deal.HasField("executionPrice") else None
         if deal.HasField("commission"):
             self.entry_commission = self._money(deal.commission)
+        # Signed so that POSITIVE is always adverse (before 2026-09-22 a favourable SELL fill
+        # read positive, so the two sides could not be averaged).
         slippage = None
         if self.entry_price is not None and self.ref_ask is not None:
             ref = self.ref_ask if ARGS.side == "buy" else self.ref_bid
-            slippage = (self.entry_price - ref) / self.pip
+            slippage = ((self.entry_price - ref) if ARGS.side == "buy"
+                        else (ref - self.entry_price)) / self.pip
+        lat = (time.time() - self.request_ts) * 1000 if self.request_ts else None
         self.log.record(
             ts_sast=time.strftime("%Y-%m-%d %H:%M:%S"),
             symbol=ARGS.symbol, side=ARGS.side.upper(), order_type="MARKET",
@@ -298,9 +329,10 @@ class Probe:
             commission=self.entry_commission, order_id=None,
             deal_id=deal.dealId if deal.HasField("dealId") else None,
             position_id=self.position_id, status="FILLED",
-            purpose="telemetry_probe", note="probe open leg",
+            purpose="telemetry_probe",
+            note=("probe open leg; slippage signed adverse-positive; "
+                  f"open_latency_ms={lat:.0f}" if lat is not None else "probe open leg"),
         )
-        lat = (time.time() - self.request_ts) * 1000 if self.request_ts else None
         print(f"  entry filled   price={self.entry_price}  slippage={slippage:.2f} pips"
               if slippage is not None else f"  entry filled   price={self.entry_price}")
         if lat is not None:
@@ -315,6 +347,14 @@ class Probe:
             self.balance_after = self._money(cpd.balance) if cpd.HasField("balance") else None
         if deal.HasField("commission"):
             self.close_commission = self._money(deal.commission)
+        # Signed so that POSITIVE is always adverse: paid more when buying, got less selling.
+        exit_slip = None
+        if self.exit_price is not None and self.close_ref is not None:
+            closing_buy = ARGS.side == "sell"
+            exit_slip = ((self.exit_price - self.close_ref) if closing_buy
+                         else (self.close_ref - self.exit_price)) / self.pip
+        close_lat = ((time.time() - self.close_request_ts) * 1000
+                     if self.close_request_ts else None)
         net = None
         if self.balance_after is not None and self.balance_before is not None:
             net = round(self.balance_after - self.balance_before, self.money_digits)
@@ -323,10 +363,14 @@ class Probe:
             symbol=ARGS.symbol, side=("SELL" if ARGS.side == "buy" else "BUY"),
             order_type="MARKET",
             volume_lots=self.open_volume / self.symbol.lotSize if self.symbol.lotSize else None,
-            filled_price=self.exit_price, commission=self.close_commission,
+            requested_price=self.close_ref, filled_price=self.exit_price,
+            slippage_pips=exit_slip, commission=self.close_commission,
             swap=self.swap, gross_pnl=self.gross_pnl, net_pnl=net,
             position_id=self.position_id, status="CLOSED",
-            purpose="telemetry_probe", note="probe close leg (round-trip)",
+            purpose="telemetry_probe",
+            note=("probe close leg (round-trip); slippage signed adverse-positive; "
+                  f"close_latency_ms={close_lat:.0f}" if close_lat is not None
+                  else "probe close leg (round-trip)"),
         )
         self.close_done = True
 
@@ -389,6 +433,14 @@ class Probe:
             self.money_digits = t.moneyDigits
             self.balance_before = self._money(t.balance)
             print(f"balance before: ${self.balance_before}")
+            # The risk officer needs the open position count; ask the broker, do not assume.
+            req = ProtoOAReconcileReq()
+            req.ctidTraderAccountId = self.account_id
+            client.send(req).addErrback(self._err)
+
+        elif pt == ProtoOAReconcileRes().payloadType:
+            self.open_positions = len(Protobuf.extract(message).position)
+            print(f"open positions: {self.open_positions}")
             req = ProtoOASymbolsListReq()
             req.ctidTraderAccountId = self.account_id
             client.send(req).addErrback(self._err)
@@ -423,9 +475,13 @@ class Probe:
             pass   # wait for the first spot
 
         elif pt == ProtoOASpotEvent().payloadType:
-            if self.opened:
-                return
             res = Protobuf.extract(message)
+            if self.opened:
+                if res.HasField("bid"):
+                    self.live_bid = res.bid / SPOT_SCALE
+                if res.HasField("ask"):
+                    self.live_ask = res.ask / SPOT_SCALE
+                return
             if res.HasField("bid"):
                 self.ref_bid = res.bid / SPOT_SCALE
             if res.HasField("ask"):

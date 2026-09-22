@@ -63,7 +63,10 @@ LIVE_LIMITS = Limits(
     max_daily_loss_pct=0.10,
     max_drawdown_pct=0.40,
     max_position_pct=0.50,
-    max_open_positions=1,
+    # Raised from 1 to 2 by the owner on 2026-09-22 (chose "Cost-measurement trades", whose
+    # stated terms included raising this to 2 while the ETHUSD position is open), so the E04
+    # fill-cost probes can run beside it.
+    max_open_positions=2,
     min_equity=20.0,          # USD, about R360: below it, stop permanently
 )
 

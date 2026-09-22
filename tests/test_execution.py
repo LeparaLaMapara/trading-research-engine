@@ -91,10 +91,11 @@ def test_unconfigured_limits_deny():
 
 def test_live_limits_are_exactly_the_owner_signed_numbers():
     """Signed off by the owner 2026-09-19. Any change to these numbers is a new owner decision,
-    so it must fail here first rather than drift silently."""
+    so it must fail here first rather than drift silently. max_open_positions went 1 -> 2 by
+    owner decision on 2026-09-22 (the E04 fill-cost probes, beside the open ETHUSD trade)."""
     assert LIVE_LIMITS == Limits(environment="live", max_risk_per_trade_pct=0.06,
                                  max_daily_loss_pct=0.10, max_drawdown_pct=0.40,
-                                 max_position_pct=0.50, max_open_positions=1, min_equity=20.0)
+                                 max_position_pct=0.50, max_open_positions=2, min_equity=20.0)
 
 
 def test_live_limits_still_refuse_what_they_should():

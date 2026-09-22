@@ -9,6 +9,27 @@
       "result": "docs/results/E01-intraday-momentum.md",
       "verdict": "FAIL",
       "summary": "No predictive edge: gross Sharpe -0.26, net -1.76, at the random-sign null. Flat-at-rollover removed financing but there was no signal under it."
+    },
+    {
+      "id": "E02",
+      "title": "Intraday momentum on metals and energy, 2014 to 2020 (data E01 never saw)",
+      "prereg": "docs/programme/E02-intraday-metals-energy-prereg.md",
+      "result": null,
+      "verdict": null
+    },
+    {
+      "id": "E03",
+      "title": "Order-book imbalance predicts the next minute, net of costs",
+      "prereg": "docs/programme/E03-book-imbalance-prereg.md",
+      "result": null,
+      "verdict": null
+    },
+    {
+      "id": "E04",
+      "title": "What a real fill costs: 20 live probes on EURUSD",
+      "prereg": "docs/programme/E04-fill-cost-prereg.md",
+      "result": null,
+      "verdict": null
     }
   ]
 }
