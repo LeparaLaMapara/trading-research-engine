@@ -63,11 +63,15 @@ def daily_sigma(symbol: str) -> float:
 
 class LiveTrade(R.Rehearsal):
     def __init__(self, symbol: str, side: str, confirm: bool, reason: str,
-                 label: str = "research-signal") -> None:
+                 label: str = "research-signal", pnl_today: float = 0.0,
+                 equity_peak: float | None = None) -> None:
         super().__init__(symbol, confirm)
         self.side = side
         self.reason = reason
         self.label = label
+        # Supplied by the caller (scripts/trader_step.py), which tracks them across days. The
+        # officer's daily-loss and drawdown checks were blind without them until 2026-09-23.
+        self.pnl_today, self.peak = pnl_today, equity_peak
         self.sigma = daily_sigma(self.symbol)
         # Mission step 4: the order's own timeline, measured rather than assumed.
         self.life = OrderLifecycle(symbol=self.symbol, side=side, strategy="operator_signal")
@@ -142,8 +146,8 @@ class LiveTrade(R.Rehearsal):
             d = RiskOfficer(LIVE_LIMITS).permit(
                 account_environment="live", equity=self.equity,
                 risk_amount=self.sizing.risk_amount, margin_required=self.sizing.margin_required,
-                open_positions=len(res.position), realised_pnl_today=0.0,
-                equity_peak=self.equity)
+                open_positions=len(res.position), realised_pnl_today=self.pnl_today,
+                equity_peak=max(self.peak or 0.0, self.equity))
             self.life.mark("risk_done")
             R.stage("risk layer decides (LIVE_LIMITS)", d.allowed, d.reason)
             if not d.allowed and self.confirm:
@@ -258,8 +262,10 @@ def main() -> None:
     ap.add_argument("--confirm", action="store_true")
     ap.add_argument("--reason", default="")
     ap.add_argument("--label", default="research-signal")
+    ap.add_argument("--pnl-today", type=float, default=0.0)
+    ap.add_argument("--equity-peak", type=float, default=None)
     a = ap.parse_args()
-    t = LiveTrade(a.symbol, a.side, a.confirm, a.reason, a.label)
+    t = LiveTrade(a.symbol, a.side, a.confirm, a.reason, a.label, a.pnl_today, a.equity_peak)
     original = t.conn._on_message
 
     def dispatch(client, message):

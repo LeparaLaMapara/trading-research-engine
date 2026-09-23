@@ -1,17 +1,20 @@
 """One decision of the autonomous live trader (E05: Ethereum 20-day trend).
 
-Run once an hour by scripts/engine_loop.py. It decides at most once per UTC day, as the rule
-was tested (docs/programme/E05-eth-trend-live-prereg.md):
+Run once an hour by scripts/engine_loop.py. It decides once per COMPLETED daily bar, as the
+rule was tested (docs/programme/E05-eth-trend-live-prereg.md). The broker's daily bars close at
+21:00 UTC, so the decision lands within an hour of that close (until 2026-09-23 it waited for
+the UTC date to change, about 3.5 hours late).
 
   1. keep the owner's standing grant alive (ops.authority.ensure_standing);
-  2. refresh ETHUSD daily bars and compute the signal from COMPLETED days only;
-  3. read the account and the positions the engine itself opened (label engine-E05);
-  4. close the engine's position if the signal no longer agrees with it;
-  5. if the engine holds nothing, open in the signal's direction through scripts.live_trade,
-     which sizes from the signed limits and attaches a broker-side stop and target.
+  2. refresh ETHUSD daily bars; the signal uses completed bars only;
+  3. read the account, the engine's own positions (label engine-E05) and their live profit, so
+     every limit works on EQUITY, not the cash balance;
+  4. close the engine's position if the signal disagrees, or to RESIZE it when equity has grown
+     by half since it was opened (a deposit, or profits), because size is set only at opening;
+  5. if the engine holds nothing, open in the signal's direction through scripts.live_trade.
 
-Hard stop: the first time equity is seen below the signed floor ($20), the engine latches
-`halted` in its state file and never opens again until the owner deletes that flag.
+Limits (the owner's signed numbers, risk/limits.py): a permanent halt at the $20 floor or a
+40% drawdown from the equity peak; no new trade on a day already down 10%.
 
     python -m scripts.trader_step            # live (standing authority)
     python -m scripts.trader_step --dry-run  # decide and print, send nothing
@@ -20,7 +23,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import sqlite3
 import subprocess
 import sys
@@ -29,6 +31,7 @@ import time
 import pandas as pd
 from ctrader_open_api import Protobuf
 from ctrader_open_api.messages.OpenApiMessages_pb2 import (ProtoOAClosePositionReq,
+                                                       ProtoOAGetPositionUnrealizedPnLReq,
                                                        ProtoOAReconcileReq, ProtoOATraderReq)
 from twisted.internet import reactor
 
@@ -42,6 +45,8 @@ SYMBOL, LABEL = "ETHUSD", "engine-E05"
 STATE = "data/engine_state.json"
 DECISIONS = "data/engine_decisions.jsonl"
 PY = sys.executable
+DAY_S = 86400
+RESIZE_AT = 1.5          # equity 50% above what it was when the engine's position opened
 
 
 def load_state() -> dict:
@@ -64,25 +69,54 @@ def log_decision(d: dict) -> None:
     print(json.dumps(d))
 
 
-def completed_closes(today_utc: pd.Timestamp) -> pd.Series:
-    """Daily closes of days that have ENDED. Today's bar is still forming and is excluded."""
+def completed_bars(now: float) -> pd.DataFrame:
+    """Daily bars that have CLOSED by `now` (a bar is stamped at its open, and lasts a day)."""
     with sqlite3.connect("data/market.db") as c:
         df = pd.read_sql_query("SELECT ts_utc, close FROM bars WHERE symbol=? AND period='D1' "
                                "ORDER BY ts_utc", c, params=(SYMBOL,))
-    df = df[df["ts_utc"] < today_utc.timestamp()]
-    return df["close"].reset_index(drop=True)
+    return df[df["ts_utc"] + DAY_S <= now].reset_index(drop=True)
+
+
+def limits_check(st: dict, equity: float, day: str) -> tuple[str | None, bool, float]:
+    """(permanent halt reason or None, blocked today, P&L so far today). Updates `st`."""
+    st["peak"] = max(float(st.get("peak", 0.0)), equity)
+    if st.get("day") != day:
+        st["day"], st["day_start_equity"] = day, equity
+    pnl_today = equity - float(st["day_start_equity"])
+    if equity < LIVE_LIMITS.min_equity:
+        return f"equity ${equity:.2f} below the ${LIVE_LIMITS.min_equity:.0f} floor on {day}", \
+            True, pnl_today
+    dd = 1.0 - equity / st["peak"]
+    if dd >= LIVE_LIMITS.max_drawdown_pct:
+        return f"drawdown {dd:.0%} from the ${st['peak']:.2f} peak on {day}", True, pnl_today
+    blocked = pnl_today <= -LIVE_LIMITS.max_daily_loss_pct * float(st["day_start_equity"])
+    return None, blocked, pnl_today
+
+
+def should_close(pos: dict | None, want: int, equity: float, opened_equity: float | None) -> str | None:
+    """Why the engine's position should be closed now, or None to keep it."""
+    if pos is None:
+        return None
+    if pos["side"] != want:
+        return "signal changed"
+    if opened_equity and equity >= RESIZE_AT * opened_equity:
+        return f"resize: equity ${equity:.2f} vs ${opened_equity:.2f} at opening"
+    return None
 
 
 class Broker:
-    """One connection: read balance and positions, close the engine's position if it
-    disagrees with `want` (and closing is allowed), then stop. Twisted's reactor cannot be
-    restarted in one process, so reading and closing must share this single run."""
+    """One connection: balance, positions, their live profit; then close the engine's position
+    if `policy` says so. Twisted's reactor cannot restart in one process, so it is one run."""
 
-    def __init__(self, want: int, may_close: bool):
-        self.want, self.may_close = want, may_close
+    def __init__(self, policy=None):
+        self.policy = policy
         self.balance, self.positions, self.error = None, [], None
-        self.closed_id = None
+        self.unrealised, self.closed_id, self.close_reason = 0.0, None, None
         self.conn = CTraderConnection(on_ready=self.on_ready)
+
+    @property
+    def equity(self) -> float | None:
+        return None if self.balance is None else self.balance + self.unrealised
 
     def run(self) -> "Broker":
         reactor.callLater(60, self._stop)
@@ -115,18 +149,29 @@ class Broker:
                 "id": p.positionId, "symbol": self.id_to_name.get(td.symbolId),
                 "side": 1 if td.tradeSide == 1 else -1, "volume": td.volume,
                 "label": td.label, "entry": p.price})
-        mine = [p for p in self.positions if p["label"] == LABEL and p["symbol"] == SYMBOL]
-        if not (self.may_close and mine and mine[0]["side"] != self.want):
+        req = ProtoOAGetPositionUnrealizedPnLReq(); req.ctidTraderAccountId = self.conn.account_id
+        self.conn.client.send(req).addCallbacks(self.on_pnl, self._fail)
+
+    def on_pnl(self, msg) -> None:
+        res = Protobuf.extract(msg)
+        m = 10 ** (res.moneyDigits or 2)
+        self.unrealised = sum(p.netUnrealizedPnL for p in res.positionUnrealizedPnL) / m
+        mine = self.mine()
+        reason = self.policy(mine, self.equity) if self.policy else None
+        if not reason:
             return self._stop()
-        self.closing = mine[0]
+        self.close_reason = reason
         req = ProtoOAClosePositionReq()
         req.ctidTraderAccountId = self.conn.account_id
-        req.positionId = mine[0]["id"]
-        req.volume = mine[0]["volume"]
+        req.positionId, req.volume = mine["id"], mine["volume"]
         self.conn.client.send(req).addCallbacks(self.on_closed, self._fail)
 
+    def mine(self) -> dict | None:
+        m = [p for p in self.positions if p["label"] == LABEL and p["symbol"] == SYMBOL]
+        return m[0] if m else None
+
     def on_closed(self, msg) -> None:
-        self.closed_id = self.closing["id"]
+        self.closed_id = self.mine()["id"]
         reactor.callLater(3, self._stop)         # let the fill land before disconnecting
 
 
@@ -135,14 +180,12 @@ def main() -> int:
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
     st = load_state()
-    today = pd.Timestamp.now(tz="UTC").normalize()
-    day = str(today.date())
+    now = time.time()
+    day = time.strftime("%Y-%m-%d", time.gmtime(now))
 
     if st.get("halted"):
         log_decision({"action": "none", "why": f"halted: {st['halted']}"})
         return 0
-    if st.get("decided") == day and not a.dry_run:
-        return 0                                   # one decision per day, as tested
 
     acct = int(settings.ACCOUNT_ID) if settings.ACCOUNT_ID else None
     grant = authority.ensure_standing(acct) if acct else authority.Authority(False, "no account")
@@ -152,55 +195,80 @@ def main() -> int:
 
     subprocess.run([PY, "-m", "market.bars", "--symbol", SYMBOL, "--period", "D1",
                     "--days", "90"], capture_output=True, timeout=300, check=False)
-    closes = completed_closes(today)
-    want = E.signal(closes)
+    bars = completed_bars(now)
+    if bars.empty:
+        log_decision({"action": "none", "why": "no completed daily bars"})
+        return 1
+    bar_ts = int(bars["ts_utc"].iloc[-1])
+    new_bar = st.get("decided_bar") != bar_ts
+    want = E.signal(bars["close"])
 
-    b = Broker(want, may_close=not a.dry_run).run()
+    # Decide closing inside the one broker session: on a new bar (signal check) always; between
+    # bars only to resize. The limits are evaluated first, on equity.
+    verdict = {}
+
+    def policy(mine, equity):
+        halt, blocked, pnl = limits_check(st, equity, day)
+        verdict.update(halt=halt, blocked=blocked, pnl=pnl)
+        if halt or a.dry_run:
+            return None
+        why = should_close(mine, want if new_bar else (mine or {}).get("side", want), equity,
+                           st.get("opened_equity"))
+        if why and why.startswith("resize") and (blocked or want == 0):
+            return None                  # never resize into a day already at its loss limit
+        return why
+
+    b = Broker(policy).run()
     if b.balance is None:
         log_decision({"action": "none", "why": f"could not read the account: {b.error}"})
         return 1
-    # Two latches from the signed limits: the $20 floor, and the 40% drawdown from the peak.
-    # Either one stops the engine for good; only the owner removes the flag.
-    st["peak"] = max(float(st.get("peak", 0.0)), b.balance)
-    dd = 1.0 - b.balance / st["peak"]
-    halt = None
-    if b.balance < LIVE_LIMITS.min_equity:
-        halt = f"balance ${b.balance:.2f} below the ${LIVE_LIMITS.min_equity:.0f} floor on {day}"
-    elif dd >= LIVE_LIMITS.max_drawdown_pct:
-        halt = f"drawdown {dd:.0%} from the ${st['peak']:.2f} peak on {day}"
-    if halt:
-        st["halted"] = halt
+    eq = b.equity
+    decision = {"bar": time.strftime("%Y-%m-%d", time.gmtime(bar_ts + DAY_S)), "signal": want,
+                "balance": round(b.balance, 2), "equity": round(eq, 2),
+                "pnl_today": round(verdict.get("pnl", 0.0), 2)}
+    if verdict.get("halt"):
+        st["halted"] = verdict["halt"]
         save_state(st)
-        log_decision({"action": "HALT", "why": halt})
+        log_decision({**decision, "action": "HALT", "why": verdict["halt"]})
         return 0
-
-    mine = [p for p in b.positions if p["label"] == LABEL and p["symbol"] == SYMBOL]
-    held = mine[0]["side"] if mine else 0
-    decision = {"day": day, "signal": want, "held": held, "balance": b.balance,
-                "last_close": float(closes.iloc[-1]) if len(closes) else None}
+    mine = b.mine()
+    held = mine["side"] if mine else 0
+    decision["held"] = held
     if a.dry_run:
-        log_decision({**decision, "action": "dry-run"})
+        log_decision({**decision, "action": "dry-run",
+                      "would_close": should_close(mine, want, eq, st.get("opened_equity"))})
         return 0
-    if mine and held != want:
+    if b.close_reason:
         if b.closed_id is None:
+            save_state(st)
             log_decision({**decision, "action": "close-failed", "why": b.error})
             return 1
-        decision["closed"] = b.closed_id
+        decision["closed"], decision["close_reason"] = b.closed_id, b.close_reason
         held = 0
+        st.pop("opened_equity", None)
 
+    if not new_bar and not b.close_reason:
+        save_state(st)                   # between bars with nothing to do: stay quiet
+        return 0
+    action = "hold" if held else "flat"
     if held == 0 and want != 0:
-        side = "BUY" if want > 0 else "SELL"
-        r = subprocess.run([PY, "-m", "scripts.live_trade", "--symbol", SYMBOL, "--side", side,
-                            "--confirm", "--label", LABEL,
-                            "--reason", f"E05 20-day trend signal {want:+d} on {day}"],
-                           capture_output=True, text=True, timeout=240, check=False)
-        tail = [ln for ln in r.stdout.splitlines() if "stages passed" in ln or "  - " in ln]
-        decision["opened"] = side
-        decision["result"] = " | ".join(tail)[:300]
-        action = "open"
-    else:
-        action = "hold" if held == want and want != 0 else "flat"
-    st["decided"] = day
+        if verdict.get("blocked"):
+            action = "skip: down 10% today"
+        else:
+            side = "BUY" if want > 0 else "SELL"
+            r = subprocess.run(
+                [PY, "-m", "scripts.live_trade", "--symbol", SYMBOL, "--side", side, "--confirm",
+                 "--label", LABEL, "--pnl-today", f"{verdict.get('pnl', 0.0):.2f}",
+                 "--equity-peak", f"{st.get('peak', eq):.2f}",
+                 "--reason", f"E05 20-day trend signal {want:+d}, bar {decision['bar']}"],
+                capture_output=True, text=True, timeout=240, check=False)
+            tail = [ln for ln in r.stdout.splitlines() if "stages passed" in ln or "  - " in ln]
+            decision["opened"], decision["result"] = side, " | ".join(tail)[:300]
+            if any("stages passed" in ln and ln.split("/")[0] == ln.split("/")[1].split()[0]
+                   for ln in tail):
+                st["opened_equity"] = eq
+            action = "open"
+    st["decided_bar"] = bar_ts
     save_state(st)
     log_decision({**decision, "action": action})
     return 0
