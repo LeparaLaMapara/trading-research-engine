@@ -48,12 +48,14 @@ def _ewma_sigma_arr(closes: np.ndarray, span: int = EWMA_SPAN) -> float:
     return math.sqrt(var)
 
 
-def simulate(bars: pd.DataFrame, cost_rt: float, signs: pd.Series | None = None) -> pd.DataFrame:
+def simulate(bars: pd.DataFrame, cost_rt: float, signs: pd.Series | None = None,
+             reward_ratio: float | None = REWARD_RATIO) -> pd.DataFrame:
     """Day-by-day simulation of the live rule. `bars`: ts_utc, open, high, low, close (daily).
 
     Each day d: decide with closes up to d-1; if flat or opposite, (close and) open at d's open
     with a stop and target from sigma known at d-1; then check d's high and low (stop first if
     both are touched); otherwise mark to d's close. `signs` replaces the signal (the null).
+    `reward_ratio=None` removes the profit target (E07): exits only at the stop or on a flip.
     Returns one row per day: position held, net return, and whether a round trip completed.
     """
     b = bars.sort_values("ts_utc").reset_index(drop=True)
@@ -64,6 +66,7 @@ def simulate(bars: pd.DataFrame, cost_rt: float, signs: pd.Series | None = None)
     S = None if signs is None else np.asarray(signs, dtype=float)
     out = []
     pos, entry, stop, target, prev_mark = 0, None, None, None, None
+    trade = 0
     for d in range(LOOKBACK + 2, len(b)):
         if S is None:
             r20 = C[d - 1] / C[d - 1 - LOOKBACK] - 1.0      # completed closes before day d
@@ -80,7 +83,9 @@ def simulate(bars: pd.DataFrame, cost_rt: float, signs: pd.Series | None = None)
             dist = STOP_SIGMAS * sig * o
             pos, entry, prev_mark = want, o, o
             stop = o - pos * dist
-            target = o + pos * dist * REWARD_RATIO
+            target = (o + pos * dist * reward_ratio if reward_ratio is not None
+                      else pos * float("inf"))
+            trade += 1
             ret -= cost_rt / 2
         if pos != 0:
             hit_stop = (lo <= stop) if pos > 0 else (h >= stop)
@@ -98,5 +103,5 @@ def simulate(bars: pd.DataFrame, cost_rt: float, signs: pd.Series | None = None)
                 prev_mark = c
         else:
             held = 0
-        out.append((pd.Timestamp(ts[d], unit="s", tz="UTC"), held, ret, trips))
-    return pd.DataFrame(out, columns=["date", "pos", "ret", "trips"]).set_index("date")
+        out.append((pd.Timestamp(ts[d], unit="s", tz="UTC"), held, ret, trips, trade))
+    return pd.DataFrame(out, columns=["date", "pos", "ret", "trips", "trade"]).set_index("date")
