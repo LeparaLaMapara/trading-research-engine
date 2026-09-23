@@ -54,6 +54,14 @@
       "result": "docs/results/E06-crypto-breadth.md",
       "verdict": "FAIL",
       "summary": "Trading the rule on 8 coins made the result four times steadier than the average coin, but it did not beat Ethereum alone: some coins had no edge and diluted it. Breadth works only with components that each earn their place."
+    },
+    {
+      "id": "E07",
+      "kind": "strategy",
+      "title": "The Ethereum trend rule without a profit target (let winners run)",
+      "prereg": "docs/programme/E07-let-winners-run-prereg.md",
+      "result": null,
+      "verdict": null
     }
   ]
 }
