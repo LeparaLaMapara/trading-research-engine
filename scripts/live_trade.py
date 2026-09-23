@@ -62,6 +62,9 @@ def daily_sigma(symbol: str) -> float:
 
 
 class LiveTrade(R.Rehearsal):
+    LOGS_OWN_FILLS = True
+    LOG_PURPOSE = "live_research_trade"
+
     def __init__(self, symbol: str, side: str, confirm: bool, reason: str,
                  label: str = "research-signal", pnl_today: float = 0.0,
                  equity_peak: float | None = None) -> None:

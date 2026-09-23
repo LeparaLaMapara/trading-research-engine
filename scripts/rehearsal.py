@@ -317,6 +317,10 @@ class Rehearsal:
             # settled it: relative points DO attach, and the broker's own position record
             # shows them. Ask the broker, in verify_protection below.
             reactor.callLater(3, self.verify_protection)
+            # A live subclass (scripts/live_trade.py) logs its own fill with the right purpose;
+            # this row labelled every live fill "dress rehearsal" until 2026-09-23.
+            if getattr(self, "LOGS_OWN_FILLS", False):
+                return
             self.log.record(ts_sast=time.strftime("%Y-%m-%d %H:%M:%S"), symbol=self.symbol,
                             side=self.side, order_type="MARKET",
                             volume_lots=self.sizing.lots, filled_price=self.entry_price,
@@ -331,7 +335,8 @@ class Rehearsal:
               f"{res.errorCode}: {getattr(res, 'description', '')}")
         self.log.record(ts_sast=time.strftime("%Y-%m-%d %H:%M:%S"), symbol=self.symbol,
                         side=self.side, order_type="MARKET", status="REJECTED",
-                        purpose="rehearsal", note=f"order error: {res.errorCode}")
+                        purpose=getattr(self, "LOG_PURPOSE", "rehearsal"),
+                        note=f"order error: {res.errorCode}")
         self.finish()
 
     def on_closed(self, res) -> None:

@@ -244,6 +244,12 @@ def main() -> int:
             log_decision({**decision, "action": "close-failed", "why": b.error})
             return 1
         decision["closed"], decision["close_reason"] = b.closed_id, b.close_reason
+        from ledger.trade_log import TradeLog
+        TradeLog("data/trade_log.db").record(
+            ts_sast=time.strftime("%Y-%m-%d %H:%M:%S"), symbol=SYMBOL,
+            side="SELL" if mine["side"] > 0 else "BUY", order_type="MARKET",
+            position_id=str(b.closed_id), status="CLOSED", purpose="live_research_trade",
+            note=f"engine close ({b.close_reason}); price and P&L in the broker deal list")
         held = 0
         st.pop("opened_equity", None)
 
