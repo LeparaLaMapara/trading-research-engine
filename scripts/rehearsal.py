@@ -368,7 +368,10 @@ class Rehearsal:
                 self._unprotected = True
                 return
             p = mine[0]
-            protected = bool(p.stopLoss) and bool(p.takeProfit)
+            # The STOP is the protection. A target is required only when the rule sets one;
+            # E07 (no target) would otherwise be closed as "unprotected" seconds after opening.
+            needs_target = getattr(self, "require_target", True)
+            protected = bool(p.stopLoss) and (bool(p.takeProfit) or not needs_target)
             stage("stop and target attached (asked the broker)", protected,
                   f"stop {p.stopLoss}, target {p.takeProfit}" if protected
                   else f"UNPROTECTED: stop {p.stopLoss}, target {p.takeProfit}. "

@@ -60,8 +60,9 @@
       "kind": "strategy",
       "title": "The Ethereum trend rule without a profit target (let winners run)",
       "prereg": "docs/programme/E07-let-winners-run-prereg.md",
-      "result": null,
-      "verdict": null
+      "result": "docs/results/E07-no-target.md",
+      "verdict": "PASS",
+      "summary": "Letting winning trades run instead of taking profit early did better: 0.80 against 0.58, with half as many trades. It is now the rule the engine trades."
     }
   ]
 }

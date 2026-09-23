@@ -1,4 +1,7 @@
-"""One decision of the autonomous live trader (E05: Ethereum 20-day trend).
+"""One decision of the autonomous live trader: Ethereum 20-day trend, no profit target.
+
+E05 went live on 2026-09-23; E07 (the same rule without the 1.5R target) passed the same day
+with net Sharpe 0.80 against 0.58 and replaced it for new trades.
 
 Run once an hour by scripts/engine_loop.py. It decides once per COMPLETED daily bar, as the
 rule was tested (docs/programme/E05-eth-trend-live-prereg.md). The broker's daily bars close at
@@ -264,9 +267,9 @@ def main() -> int:
             side = "BUY" if want > 0 else "SELL"
             r = subprocess.run(
                 [PY, "-m", "scripts.live_trade", "--symbol", SYMBOL, "--side", side, "--confirm",
-                 "--label", LABEL, "--pnl-today", f"{verdict.get('pnl', 0.0):.2f}",
+                 "--no-target", "--label", LABEL, "--pnl-today", f"{verdict.get('pnl', 0.0):.2f}",
                  "--equity-peak", f"{st.get('peak', eq):.2f}",
-                 "--reason", f"E05 20-day trend signal {want:+d}, bar {decision['bar']}"],
+                 "--reason", f"E07 20-day trend, no target, signal {want:+d}, bar {decision['bar']}"],
                 capture_output=True, text=True, timeout=240, check=False)
             tail = [ln for ln in r.stdout.splitlines() if "stages passed" in ln or "  - " in ln]
             decision["opened"], decision["result"] = side, " | ".join(tail)[:300]

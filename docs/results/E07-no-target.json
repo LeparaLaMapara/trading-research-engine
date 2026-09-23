@@ -1,0 +1,37 @@
+{
+ "experiment": "E07",
+ "run_ts": "2026-09-23T05:52:45Z",
+ "sample": [
+  "2017-10-24",
+  "2026-09-18"
+ ],
+ "days": 2582,
+ "net_sharpe": 0.801,
+ "e05_net_sharpe": 0.58,
+ "gross_sharpe": 0.851,
+ "null_p95": 0.274,
+ "null_mean": -0.315,
+ "net_sharpe_double_costs": 0.751,
+ "net_by_year": {
+  "2018": 1.177,
+  "2019": 0.022,
+  "2020": 1.3644,
+  "2021": 0.777,
+  "2022": 1.0036,
+  "2023": -0.1944,
+  "2024": -0.3436,
+  "2025": 0.5747
+ },
+ "round_trips": 276,
+ "average_holding_days": 9.3,
+ "largest_trade_return": 1.5325,
+ "deflated_sharpe_at_N300": 0.222,
+ "criteria": {
+  "C1_net_sharpe_positive": true,
+  "C2_beats_null_p95": true,
+  "C3_5_of_8_years_positive": true,
+  "C4_survives_double_costs": true,
+  "C5_beats_E05": true
+ },
+ "verdict": "PASS"
+}
