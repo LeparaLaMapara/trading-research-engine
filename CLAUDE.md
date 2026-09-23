@@ -64,6 +64,11 @@ losses. So the engine now trades the live account on its own:
   `python -m ops.authority --revoke`.
 - Research continues: any later strategy experiment that passes and that the account can afford
   replaces E05 as the live rule.
+- Dashboard (Render free tier): a Supabase pg_cron job `keep-trading-dashboard-awake` pings
+  `/healthz` every 10 min, 04:00 to 19:59 UTC only (~500 of the 750 free hours a month; nights
+  sleep on purpose). Do NOT use GitHub Actions for pings: the repo is private and 2,000 free
+  minutes a month would run out. The family section reads `deposited_usd`, `peak_equity` and
+  `halted` from making_money.trading_account (published by scripts/push_live_state.py).
 
 ## The one constraint everything flows from
 
