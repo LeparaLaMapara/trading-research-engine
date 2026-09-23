@@ -69,7 +69,9 @@ SECRET_ENV = "LIVE_AUTHORITY_SECRET"
 STANDING_SECRET_FILE = Path(os.environ.get(
     "LIVE_STANDING_SECRET_FILE",
     str(Path.home() / ".trading-research-engine" / "live_secret")))
-STANDING_CEILING_ZAR = 600.0
+# R600 on 2026-09-23 for a ~R540 account; R2,000 the same day after the owner deposited
+# R1,000 (account ~R1,530), leaving room to grow without trading money he did not mean to add.
+STANDING_CEILING_ZAR = 2000.0
 RENEW_BELOW_DAYS = 7
 
 #: A grant expires. An authorisation given once for one test must not still be open months
@@ -120,8 +122,9 @@ def ensure_standing(account_id: int, max_capital_zar: float = STANDING_CEILING_Z
     if not secret:
         return Authority(False, "no standing secret on this machine")
     cur = live_trading_permitted(account_id, now=now)
-    if cur.permitted and (cur.expires_ts or 0) - now > RENEW_BELOW_DAYS * 86400:
-        return cur
+    if (cur.permitted and (cur.expires_ts or 0) - now > RENEW_BELOW_DAYS * 86400
+            and cur.max_capital_zar == float(max_capital_zar)):
+        return cur                                 # re-signed when the ceiling changes too
     payload = {"account_id": int(account_id), "max_capital_zar": float(max_capital_zar),
                "granted_ts": now, "expires_ts": now + days * 86400.0,
                "note": "standing authority, owner instruction 2026-09-23 (engine renews)"}

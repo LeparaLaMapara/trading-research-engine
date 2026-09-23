@@ -194,3 +194,11 @@ def test_no_standing_secret_means_no_standing_grant(tmp_path, monkeypatch):
     monkeypatch.setattr(auth, "AUTHORITY_FILE", tmp_path / "grant.json")
     assert auth.ensure_standing(46748922).permitted is False
     assert not (tmp_path / "grant.json").exists()
+
+
+def test_a_changed_ceiling_is_re_signed(tmp_path, monkeypatch):
+    monkeypatch.delenv(auth.SECRET_ENV, raising=False)
+    monkeypatch.setattr(auth, "AUTHORITY_FILE", tmp_path / "grant.json")
+    (tmp_path / "no_standing_secret").write_text(SECRET, encoding="utf-8")
+    assert auth.ensure_standing(46748922, max_capital_zar=600).max_capital_zar == 600
+    assert auth.ensure_standing(46748922, max_capital_zar=2000).max_capital_zar == 2000

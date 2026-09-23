@@ -54,7 +54,8 @@ losses. So the engine now trades the live account on its own:
   run `scripts/trader_step.py` (E05 Ethereum 20-day trend, one decision per UTC day, only
   touches positions labelled `engine-E05`).
 - The secret lives outside the repo in `~/.trading-research-engine/live_secret`;
-  `ops.authority.ensure_standing` renews the 30-day grant (ceiling R600).
+  `ops.authority.ensure_standing` renews the 30-day grant (ceiling R2,000 since the owner's R1,000 deposit on 2026-09-23;
+  it was R600).
 - Still binding: the signed LIVE_LIMITS (6% risk/trade, 2 positions, 40% drawdown, $20 floor);
   the trader latches `halted` in `data/engine_state.json` on the floor or the drawdown and never
   trades again until the owner removes it. The audit fails if limits or ceiling drift.
