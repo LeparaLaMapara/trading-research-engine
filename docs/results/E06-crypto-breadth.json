@@ -1,0 +1,88 @@
+{
+ "experiment": "E06",
+ "run_ts": "2026-09-23T05:31:20Z",
+ "sample": [
+  "2018-01-01",
+  "2026-09-18"
+ ],
+ "days": 2910,
+ "coins": [
+  "ADAUSD",
+  "BCHUSD",
+  "BTCUSD",
+  "DOTUSD",
+  "ETHUSD",
+  "LTCUSD",
+  "SOLUSD",
+  "XRPUSD"
+ ],
+ "net_sharpe_combined": 0.456,
+ "net_sharpe_ethereum_alone": 0.521,
+ "null_p95": -0.298,
+ "null_mean": -0.87,
+ "net_sharpe_double_costs": 0.281,
+ "net_by_year": {
+  "2018": 0.0045,
+  "2019": -0.1438,
+  "2020": 0.7767,
+  "2021": 1.5862,
+  "2022": 0.0798,
+  "2023": 0.334,
+  "2024": -0.2738,
+  "2025": -0.1016
+ },
+ "net_sharpe_by_coin": {
+  "ADAUSD": -0.72,
+  "BCHUSD": 0.067,
+  "BTCUSD": 0.486,
+  "DOTUSD": 0.401,
+  "ETHUSD": 0.521,
+  "LTCUSD": -0.269,
+  "SOLUSD": 0.309,
+  "XRPUSD": 0.067
+ },
+ "cost_by_coin": {
+  "ADAUSD": {
+   "round_trip_bps": 122.49,
+   "source": "measured"
+  },
+  "BCHUSD": {
+   "round_trip_bps": 15.7,
+   "source": "class default 15 bps"
+  },
+  "BTCUSD": {
+   "round_trip_bps": 5.48,
+   "source": "measured"
+  },
+  "DOTUSD": {
+   "round_trip_bps": 15.7,
+   "source": "class default 15 bps"
+  },
+  "ETHUSD": {
+   "round_trip_bps": 11.94,
+   "source": "measured"
+  },
+  "LTCUSD": {
+   "round_trip_bps": 15.7,
+   "source": "class default 15 bps"
+  },
+  "SOLUSD": {
+   "round_trip_bps": 14.41,
+   "source": "measured"
+  },
+  "XRPUSD": {
+   "round_trip_bps": 3.56,
+   "source": "measured"
+  }
+ },
+ "mean_pairwise_correlation": 0.365,
+ "effective_independent_bets": 4.06,
+ "deflated_sharpe_at_N299": 0.054,
+ "criteria": {
+  "C1_beats_null_p95": true,
+  "C2_breadth_beats_ethereum_alone": false,
+  "C3_6_of_8_years_positive": false,
+  "C4_survives_double_costs": true
+ },
+ "verdict": "FAIL"
+}

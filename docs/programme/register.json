@@ -51,8 +51,9 @@
       "kind": "strategy",
       "title": "Does breadth add? The Ethereum trend rule across eight coins, combined",
       "prereg": "docs/programme/E06-crypto-breadth-prereg.md",
-      "result": null,
-      "verdict": null
+      "result": "docs/results/E06-crypto-breadth.md",
+      "verdict": "FAIL",
+      "summary": "Trading the rule on 8 coins made the result four times steadier than the average coin, but it did not beat Ethereum alone: some coins had no edge and diluted it. Breadth works only with components that each earn their place."
     }
   ]
 }
