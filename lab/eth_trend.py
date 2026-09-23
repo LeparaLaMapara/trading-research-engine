@@ -37,6 +37,17 @@ def ewma_sigma(closes: pd.Series, span: int = EWMA_SPAN) -> float:
     return math.sqrt(var)
 
 
+def _ewma_sigma_arr(closes: np.ndarray, span: int = EWMA_SPAN) -> float:
+    r = np.diff(np.log(closes))
+    if len(r) == 0:
+        return float("nan")
+    w = 2.0 / (span + 1.0)
+    var = r[0] ** 2
+    for x in r[1:]:
+        var = (1 - w) * var + w * x * x
+    return math.sqrt(var)
+
+
 def simulate(bars: pd.DataFrame, cost_rt: float, signs: pd.Series | None = None) -> pd.DataFrame:
     """Day-by-day simulation of the live rule. `bars`: ts_utc, open, high, low, close (daily).
 
@@ -46,19 +57,26 @@ def simulate(bars: pd.DataFrame, cost_rt: float, signs: pd.Series | None = None)
     Returns one row per day: position held, net return, and whether a round trip completed.
     """
     b = bars.sort_values("ts_utc").reset_index(drop=True)
-    closes = b["close"]
+    # Plain arrays: the logic is the same as a row-by-row pandas walk, about 50x faster, which
+    # matters when a null runs the whole history hundreds of times (E06).
+    ts = b["ts_utc"].to_numpy()
+    O, H, L, C = (b[k].to_numpy(dtype=float) for k in ("open", "high", "low", "close"))
+    S = None if signs is None else np.asarray(signs, dtype=float)
     out = []
     pos, entry, stop, target, prev_mark = 0, None, None, None, None
     for d in range(LOOKBACK + 2, len(b)):
-        hist = closes.iloc[:d]                       # completed closes before day d
-        want = signal(hist) if signs is None else int(signs.iloc[d])
-        o, h, lo, c = b.loc[d, ["open", "high", "low", "close"]]
+        if S is None:
+            r20 = C[d - 1] / C[d - 1 - LOOKBACK] - 1.0      # completed closes before day d
+            want = int(np.sign(r20))
+        else:
+            want = int(S[d])
+        o, h, lo, c = O[d], H[d], L[d], C[d]
         ret, trips = 0.0, 0
         if pos != 0 and want != pos:                 # flip: close at the open
             ret += pos * (o / prev_mark - 1.0) - cost_rt / 2
             pos, trips = 0, trips + 1
         if pos == 0 and want != 0:                   # open at the open, with protection
-            sig = ewma_sigma(hist.iloc[-200:])
+            sig = _ewma_sigma_arr(C[max(0, d - 200):d])
             dist = STOP_SIGMAS * sig * o
             pos, entry, prev_mark = want, o, o
             stop = o - pos * dist
@@ -80,5 +98,5 @@ def simulate(bars: pd.DataFrame, cost_rt: float, signs: pd.Series | None = None)
                 prev_mark = c
         else:
             held = 0
-        out.append((pd.Timestamp(b.loc[d, "ts_utc"], unit="s", tz="UTC"), held, ret, trips))
+        out.append((pd.Timestamp(ts[d], unit="s", tz="UTC"), held, ret, trips))
     return pd.DataFrame(out, columns=["date", "pos", "ret", "trips"]).set_index("date")
