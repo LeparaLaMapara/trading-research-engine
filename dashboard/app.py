@@ -1,17 +1,17 @@
 """The family-facing dashboard.
 
-Audience: two people who do not trade and should not have to learn. Everything on the first
-screen answers one of five questions in rands:
+Audience: Thabang's family, who do not trade and should not have to learn. The first screen
+(the family section, server rendered, one phone screen) answers in rand and short sentences:
 
-    How much money do I have?
-    How much did it try to trade?
-    How much did it make?
-    How much did it lose?
-    What has it learned?
+    What is this?
+    How much went in, what is it worth now, is it up or down?
+    What is it doing right now?
+    What is the most it can lose before it switches itself off?
+    How does it decide?
 
-Jargon is not simplified here, it is removed. Sharpe, deflated Sharpe, walk-forward, rungs and
-p-values live behind one "show the technical detail" toggle for the owner. If a number cannot
-be stated in rands it does not belong on the front screen.
+Jargon is not simplified here, it is removed. Everything technical (research experiments,
+self-checks, charts, the old daily search, the technical table) sits below in <details>
+blocks for the owner. If a number cannot be stated in rands it does not belong up top.
 
 The chat is an instruction channel: a person types a goal in their own words, an LLM fills in
 the blanks it implies, and DETERMINISTIC code decides whether the arithmetic permits it
@@ -34,7 +34,7 @@ from pathlib import Path
 
 import requests
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse
 
 from config import settings
 from research.goals import GoalSpec, assess, suggest_reachable
@@ -97,8 +97,228 @@ def _money(zar: float) -> str:
     return f"R{zar:,.0f}" if abs(zar) >= 1 else f"R{zar:,.2f}"
 
 
+# ---------------------------------------------------------------- the family section
+# The first screen is for people who know nothing about trading. It answers, in rand and in
+# short sentences: what is this, how much went in, what is it worth, what is it doing, and
+# how bad can it get. Everything else sits below, folded away, for the owner.
+#
+# The safety numbers are the owner-signed live limits (risk/limits.py LIVE_LIMITS). They are
+# repeated here as plain constants on purpose: this page must never import live trading code.
+RISK_PER_TRADE_PCT = 6          # at most 6% of the account risked on one trade
+STOP_BELOW_PEAK = 0.40          # switches itself off 40% below the highest equity seen
+STOP_FLOOR_USD = 20.0           # or below $20, whichever comes first
+STALE_AFTER_S = 3 * 3600        # the engine publishes hourly; three hours quiet is worth saying
+SA_UTC_OFFSET_S = 2 * 3600      # South African time, no daylight saving
+
+# Words a family member should never meet in the family section.
+FAMILY_BANNED = ("ETHUSD", "Sharpe", "null", "None", "nan", "pips", "slippage", "drawdown",
+                 "p95", "E01", "E05", "E07")
+
+_ASSET_WORDS = (("ETH", "Ethereum"), ("BTC", "Bitcoin"), ("XAU", "gold"), ("XAG", "silver"))
+
+
+def _num(v) -> float | None:
+    """A float, or None for missing, empty, or not-a-number values."""
+    if v is None or v == "":
+        return None
+    try:
+        f = float(v)
+    except (TypeError, ValueError):
+        return None
+    return None if f != f else f             # NaN is not a number anyone should see
+
+
+def _asset_word(symbol: str) -> str:
+    s = (symbol or "").upper()
+    for code, word in _ASSET_WORDS:
+        if code in s:
+            return word
+    return "the market it is trading"
+
+
+def _ago(ts: str | None, now: float) -> tuple[str, bool]:
+    """('12 minutes ago (23 September, 07:55 SA time)', is_stale)."""
+    from datetime import datetime, timezone
+    if not ts:
+        return "", False
+    try:
+        t = datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
+        if t.tzinfo is None:
+            t = t.replace(tzinfo=timezone.utc)
+        epoch = t.timestamp()
+    except (TypeError, ValueError):
+        return "", False
+    secs = max(0.0, now - epoch)
+    mins = int(secs // 60)
+    if mins < 1:
+        rel = "just now"
+    elif mins < 60:
+        rel = f"{mins} minute{'s' if mins != 1 else ''} ago"
+    elif mins < 48 * 60:
+        h = round(mins / 60)
+        rel = f"about {h} hour{'s' if h != 1 else ''} ago"
+    else:
+        d = mins // (24 * 60)
+        rel = f"{d} days ago"
+    sa = datetime.fromtimestamp(epoch + SA_UTC_OFFSET_S, tz=timezone.utc)
+    when = f"{sa.day} {sa.strftime('%B')}, {sa.strftime('%H:%M')} SA time"
+    return f"{rel} ({when})", secs > STALE_AFTER_S
+
+
+def _halt_words(reason: str) -> str:
+    r = (reason or "").lower()
+    if "floor" in r:
+        return (f"the money fell below ${STOP_FLOOR_USD:.0f} "
+                f"(about {_money(STOP_FLOOR_USD * ZAR_PER_USD)}), the least it is allowed to "
+                f"trade with")
+    if "drawdown" in r or "peak" in r:
+        return f"the money fell {STOP_BELOW_PEAK:.0%} below the most it has ever been worth"
+    return "one of its safety limits was reached"
+
+
+def max_loss_usd(equity: float | None, peak: float | None) -> float | None:
+    """How far equity can fall before the engine switches itself off for good.
+
+    The engine stops at the higher of (60% of the peak) and $20. The peak is at least the
+    current equity: a stale peak below today's equity would understate the real line.
+    """
+    if equity is None:
+        return None
+    top = max(peak, equity) if peak is not None else equity
+    stop_at = max((1.0 - STOP_BELOW_PEAK) * top, STOP_FLOOR_USD)
+    return max(0.0, equity - stop_at)
+
+
+def _family(acct: dict | None, open_positions: list[dict], now: float | None = None) -> dict:
+    """The family section's facts and sentences. Pure: no network, never raises on NULLs."""
+    now = time.time() if now is None else now
+    a = acct or {}
+    equity = _num(a.get("equity"))
+    worth_usd = equity if equity is not None else _num(a.get("balance"))
+    put_in_usd = _num(a.get("deposited_usd"))
+    if put_in_usd is not None and put_in_usd <= 0:
+        put_in_usd = None                  # nothing sensible to compare against
+    peak = _num(a.get("peak_equity"))
+    halted = (a.get("halted") or "").strip() if isinstance(a.get("halted"), str) else ""
+
+    fam: dict = {"known": worth_usd is not None,
+                 "worth_zar": None if worth_usd is None else worth_usd * ZAR_PER_USD,
+                 "put_in_zar": None if put_in_usd is None else put_in_usd * ZAR_PER_USD,
+                 "change_zar": None, "change_pct": None, "direction": None,
+                 "halted": bool(halted), "halted_raw": halted}
+
+    if fam["worth_zar"] is not None and fam["put_in_zar"] is not None:
+        ch = fam["worth_zar"] - fam["put_in_zar"]
+        fam["change_zar"] = ch
+        fam["change_pct"] = 100.0 * ch / fam["put_in_zar"]
+        fam["direction"] = "even" if abs(ch) < 1 else ("up" if ch > 0 else "down")
+
+    # What it is doing right now.
+    if halted:
+        fam["halted_text"] = (f"The program has stopped itself for safety: "
+                              f"{_halt_words(halted)}. It will not trade again unless Thabang "
+                              f"restarts it.")
+        fam["doing"] = "It is switched off and is not trading."
+    elif open_positions:
+        p0 = open_positions[0]
+        what = _asset_word(p0.get("symbol") or "")
+        way = "goes down" if (p0.get("side") or "").upper() == "SELL" else "goes up"
+        risks = [_num(p.get("risk_usd")) for p in open_positions]
+        if all(r is not None for r in risks):
+            loss = _money(sum(risks) * ZAR_PER_USD)
+            tail = f"If it is wrong, it gets out automatically, losing at most about {loss}."
+        else:
+            tail = "If it is wrong, it gets out automatically at a price set in advance."
+        fam["doing"] = f"It is betting {what}'s price {way}. {tail}"
+    else:
+        fam["doing"] = "It is waiting for its next signal. It checks once a day."
+
+    # The safety net.
+    ml = max_loss_usd(equity if equity is not None else worth_usd, peak)
+    fam["max_loss_zar"] = None if ml is None else ml * ZAR_PER_USD
+    if halted:
+        fam["safety"] = "It has already switched itself off, so it cannot lose more by trading."
+    elif ml is None:
+        fam["safety"] = ("The most it can lose before it switches itself off is not known yet. "
+                         "It will show once the latest numbers arrive.")
+    elif ml * ZAR_PER_USD < 1:
+        fam["safety"] = "It is at its safety limit now, so it will switch itself off."
+    else:
+        fam["safety"] = (f"The most it can lose from here before it switches itself off: "
+                         f"about {_money(ml * ZAR_PER_USD)}.")
+    fam["safety_rule"] = (f"It never risks more than {RISK_PER_TRADE_PCT}% of the money on one "
+                          f"trade.")
+
+    ago, stale = _ago(a.get("ts"), now)
+    fam["stale"] = stale
+    if not ago:
+        fam["updated"] = "The numbers have not been updated yet."
+    elif stale:
+        fam["updated"] = (f"Numbers last updated {ago}. That is longer than usual, so the "
+                          f"computer running it may be off.")
+    else:
+        fam["updated"] = f"Numbers updated {ago}."
+    return fam
+
+
+FAMILY_INTRO = ("Thabang's experiment: a computer program that trades a small amount of money "
+                "in Ethereum (a digital currency) by itself, following rules that were tested "
+                "on nine years of history.")
+FAMILY_HOW = ("How it decides: if Ethereum's price rose over the last 20 days, it bets the "
+              "price keeps rising. If it fell, it bets it keeps falling. It gets out when the "
+              "direction changes or its safety price is hit. In testing it made money in 6 of "
+              "8 years, but it lost money in 2023 and 2024, so losing months are normal.")
+
+
+def _family_html(fam: dict) -> str:
+    """The family section as static HTML: readable with no JavaScript, on any screen."""
+    esc = html.escape
+    out = ["<section class='fam' id='family' aria-label='The short version'>",
+           f"<p class='fam-intro'>{esc(FAMILY_INTRO)}</p>"]
+    if fam.get("halted"):
+        out.append(f"<p class='fam-halt' role='alert'>{esc(fam['halted_text'])}</p>")
+    if not fam.get("known"):
+        out.append("<p class='fam-now'>The latest numbers could not be loaded right now. "
+                   "Please refresh in a few minutes.</p>")
+    else:
+        tiles = []
+        if fam.get("put_in_zar") is not None:
+            tiles.append(("Put in", _money(fam["put_in_zar"]), ""))
+        tiles.append(("Worth now", _money(fam["worth_zar"]), ""))
+        d = fam.get("direction")
+        if d is not None:
+            pct = fam["change_pct"]
+            pct_s = f"{abs(pct):.0f}%" if abs(pct) >= 10 else f"{abs(pct):.1f}%"
+            amt = _money(abs(fam["change_zar"]))
+            if d == "up":
+                tiles.append(("Up", f"<span aria-hidden='true'>&#9650;</span> {amt} "
+                                    f"<small>({pct_s})</small>", "up"))
+            elif d == "down":
+                tiles.append(("Down", f"<span aria-hidden='true'>&#9660;</span> {amt} "
+                                      f"<small>({pct_s})</small>", "down"))
+            else:
+                tiles.append(("Up or down", "About even", ""))
+        out.append("<div class='fam-tiles'>" + "".join(
+            f"<div class='fam-tile {cls}'><p class='fam-q'>{q}</p><p class='fam-n'>{v}</p>"
+            f"</div>" for q, v, cls in tiles) + "</div>")
+        if fam.get("put_in_zar") is None:
+            out.append("<p class='fam-hint'>How much Thabang put in is still being fetched, so "
+                       "the gain or loss will show soon.</p>")
+        out.append(f"<p class='fam-now'><strong>Right now:</strong> {esc(fam['doing'])}</p>")
+    out.append(f"<p><strong>Safety net:</strong> {esc(fam['safety'])} "
+               f"{esc(fam['safety_rule'])}</p>")
+    how_label, how_rest = FAMILY_HOW.split(": ", 1)
+    out.append(f"<p><strong>{esc(how_label)}:</strong> {esc(how_rest)}</p>")
+    out.append(f"<p class='fam-hint'>{esc(fam['updated'])} Amounts are in rand, at about "
+               f"R{ZAR_PER_USD:.0f} to the US dollar.</p>")
+    out.append("</section>")
+    return "".join(out)
+
+
 def _dashboard_data() -> dict:
-    acct = _sb("trading_account", "select=balance,equity,currency,ts&order=ts.desc&limit=1")
+    # select=* so the newer columns (deposited_usd, peak_equity, halted) arrive when present
+    # and simply go missing, not break the query, on a table that lacks them.
+    acct = _sb("trading_account", "select=*&order=ts.desc&limit=1")
     history = _sb("trading_account", "select=balance,ts&order=ts.asc&limit=400")
     strategies = _sb("trading_strategies",
                      "select=run_ts,symbol,kind,verdict,total_return,pnl_on_10,pnl_on_200,"
@@ -112,7 +332,7 @@ def _dashboard_data() -> dict:
                 "select=created_ts,author,raw_text,status,target_zar,horizon_days,"
                 "feasible,verdict_plain&order=created_ts.desc&limit=5", key=WRITE_KEY)
 
-    balance_usd = float(acct[0]["balance"]) if acct else 0.0
+    balance_usd = (_num(acct[0].get("balance")) or 0.0) if acct else 0.0
     balance_zar = balance_usd * ZAR_PER_USD
     as_of = acct[0]["ts"] if acct else None
 
@@ -150,9 +370,13 @@ def _dashboard_data() -> dict:
 
     if open_positions:
         p0 = open_positions[0]
-        why = (f"It has {len(open_positions)} trade open right now: {p0['side'].lower()} "
-               f"{p0['symbol']}, bought at {p0['entry_price']}, with an automatic sell if it "
-               f"falls to {p0['stop_loss']} or rises to {p0['take_profit']}.")
+        exit_ = (f"falls to {p0.get('stop_loss')} or rises to {p0['take_profit']}"
+                 if p0.get("take_profit") is not None else
+                 f"reaches {p0.get('stop_loss')}, or when the direction changes (no profit "
+                 f"target)")
+        why = (f"It has {len(open_positions)} trade open right now: "
+               f"{(p0.get('side') or '').lower()} {p0.get('symbol')}, opened at "
+               f"{p0.get('entry_price')}, with an automatic exit if it {exit_}.")
     elif executed == 0 and passed == 0 and tested > 0:
         why = ("It has not traded. Every idea it tested so far lost money once real costs "
                "were counted, so it did not put any of yours at risk.")
@@ -168,7 +392,8 @@ def _dashboard_data() -> dict:
     # --- data shaped for the charts -------------------------------------------------
     # Balance in rands over time. One reading is not a line, and the chart says so
     # rather than drawing a flat stub that looks like a measurement.
-    balance_series = [{"t": r["ts"], "v": float(r["balance"]) * ZAR_PER_USD} for r in history]
+    balance_series = [{"t": r["ts"], "v": float(r["balance"]) * ZAR_PER_USD} for r in history
+                      if _num(r.get("balance")) is not None and r.get("ts")]
 
     # What each tested idea WOULD have done to this stake. Hypothetical, from backtests,
     # and labelled as such everywhere it appears. Never mixed with real money.
@@ -216,7 +441,7 @@ def _dashboard_data() -> dict:
     # The owner's own funding condition: one 1% gain on what is already there unlocks the
     # next R5,000. Measured from the FIRST balance ever recorded, not the highest, so a
     # deposit cannot reset the bar. See research.goals.milestone_progress.
-    baseline_zar = (float(history[0]["balance"]) * ZAR_PER_USD) if history else balance_zar
+    baseline_zar = ((_num(history[0].get("balance")) or 0.0) * ZAR_PER_USD) if history else balance_zar
     milestone = milestone_progress(baseline_zar, balance_zar)
 
     goal_target = None
@@ -225,7 +450,13 @@ def _dashboard_data() -> dict:
             goal_target = float(g["target_zar"])
             break
 
+    a0 = acct[0] if acct else None
     return {
+        "family": _family(a0, open_positions),
+        "equity_usd": _num((a0 or {}).get("equity")),
+        "deposited_usd": _num((a0 or {}).get("deposited_usd")),
+        "peak_equity_usd": _num((a0 or {}).get("peak_equity")),
+        "halted": (a0 or {}).get("halted"),
         "have_zar": balance_zar,
         "have_usd": balance_usd,
         "as_of": as_of,
@@ -378,7 +609,7 @@ async def api_goal(request: Request) -> JSONResponse:
 PAGE = """
 <!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>The money</title>
+<title>Trading experiment</title>
 <style>
   :root{--paper:#faf7f2;--ink:#1c1917;--muted:#6b6560;--line:#e7e0d6;--good:#2f6f4e;
         --bad:#a33a2a;--clay:#c2683f;--card:#fff}
@@ -484,86 +715,129 @@ PAGE = """
   table.meas{max-width:520px}
   .archive{color:var(--muted);font-size:12px;font-weight:700;letter-spacing:.06em;
            text-transform:uppercase;margin:0 0 4px}
+  /* family section: first screen, phone sized, plain words */
+  .fam{background:var(--card);border:1px solid var(--line);border-radius:16px;
+       padding:16px 16px 6px;margin:8px 0 0;font-size:16px}
+  .fam p{margin:0 0 10px}
+  .fam-intro{font-size:17px}
+  .fam-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:8px;
+             margin:4px 0 10px}
+  .fam-tile{border:1px solid var(--line);border-radius:12px;padding:10px 10px 8px}
+  .fam .fam-q{color:var(--muted);font-size:13px;margin:0 0 2px}
+  .fam .fam-n{font-size:22px;font-weight:650;letter-spacing:-.02em;margin:0;line-height:1.2}
+  .fam-n small{font-size:14px;font-weight:600}
+  .fam-tile.up .fam-n{color:var(--good)} .fam-tile.down .fam-n{color:var(--bad)}
+  .fam-halt{border:2px solid var(--bad);color:var(--bad);border-radius:12px;padding:10px 12px;
+            font-weight:650}
+  .fam-hint{color:var(--muted);font-size:13px}
+  h2.more{font-size:16px;margin:28px 0 2px;color:var(--muted)}
+  @media (max-width:520px){header{padding:14px 0 2px} h1{font-size:22px}
+    .fam{padding:12px 12px 4px;font-size:15px;line-height:1.45} .fam p{margin:0 0 8px}
+    .fam-intro{font-size:15px} .fam .fam-n{font-size:19px} .fam-tile{padding:8px 8px 6px}
+    .fam-tiles{gap:6px}}
+  details.sec{margin-top:10px;border:1px solid var(--line);border-radius:12px;padding:0 14px;
+              background:var(--card)}
+  details.sec>summary{padding:14px 0;font-size:15px;color:var(--ink);font-weight:600;
+                      min-height:44px}
+  details.sec[open]{padding-bottom:14px}
+  details.sec .viz,details.sec .prog,details.sec .chat{border-left-width:1px}
 </style></head><body><div class="wrap">
 <header>
-  <h1>The money</h1>
-  <p class="sub" id="asof">Loading…</p>
+  <h1>Thabang's trading experiment</h1>
 </header>
 
-<div class="mile" id="mile" hidden></div>
+<!-- FAMILY SECTION. Server rendered, no script needed, written for people who do not trade.
+     It must fit on one phone screen. Everything technical is folded away below it. -->
+__FAMILY__
 
-<div class="grid" id="cards"></div>
-<!-- PLAIN FALLBACK. Rendered on the server, before any JavaScript runs.
-     Smart TV browsers are often several years behind and either cannot run the script on this
-     page or cannot fetch its data, which left the whole screen blank with no explanation. The
-     numbers below are written into the HTML itself, so the page says something useful on any
-     browser made this decade. The script removes this block once it has drawn the real cards. -->
-<div id="plain">__PLAIN__</div>
+<h2 class="more">For Thabang: the detail</h2>
+<p class="hint">Tap a heading to open it.</p>
 
-<!-- RESEARCH PROGRAMME. Server rendered from the repo files and never touched by the script,
-     so it reads the same on a TV with no JavaScript. -->
-__PROGRAMME__
+<details class="sec" id="d-numbers">
+  <summary>More numbers: money made, lost and at risk</summary>
+  <p class="sub" id="asof"></p>
+  <div class="mile" id="mile" hidden></div>
+  <div class="grid" id="cards"></div>
+  <!-- PLAIN FALLBACK for browsers that cannot run the script. The script removes it once it
+       has drawn the real cards. -->
+  <div id="plain">__PLAIN__</div>
+  <div class="banner" id="why"></div>
+  <div id="openpos"></div>
+</details>
 
-<div class="banner" id="why"></div>
-<div id="openpos"></div>
+<details class="sec" id="d-charts">
+  <summary>Charts: money over time</summary>
+  <div class="viz" id="viz-stand">
+    <h3>Where your money stands</h3>
+    <p class="cap" id="cap-stand"></p>
+    <div id="stand"></div>
+  </div>
+  <div class="viz" id="viz-balance">
+    <h3>Your money over time</h3>
+    <p class="cap">Real money in the account. Nothing here is a projection.</p>
+    <div id="balance"></div>
+  </div>
+</details>
 
-<div class="viz" id="viz-stand">
-  <h3>Where your money stands</h3>
-  <p class="cap" id="cap-stand"></p>
-  <div id="stand"></div>
-</div>
+<details class="sec" id="d-programme">
+  <summary>Research experiments: what was tried, what passed and failed</summary>
+  <!-- RESEARCH PROGRAMME. Server rendered from the repo files and never touched by the
+       script, so it reads the same on a TV with no JavaScript. -->
+  __PROGRAMME__
+</details>
 
-<div class="viz" id="viz-balance">
-  <h3>Your money over time</h3>
-  <p class="cap">Real money in the account. Nothing here is a projection.</p>
-  <div id="balance"></div>
-</div>
+<details class="sec" id="d-health">
+  <summary>Is the system healthy?</summary>
+  <div class="viz" id="viz-health">
+    <h3>Has the system been working?</h3>
+    <p class="cap">One column per day. The system checks itself and cannot mark its own
+       homework: a check it could not run counts as a problem.</p>
+    <div id="health"></div>
+  </div>
+</details>
 
-<div class="viz" id="viz-health">
-  <h3>Has the system been working?</h3>
-  <p class="cap">One column per day. The system checks itself and cannot mark its own
-     homework: a check it could not run counts as a problem.</p>
-  <div id="health"></div>
-</div>
+<details class="sec" id="d-archive">
+  <summary>Archive of the old daily search</summary>
+  <div class="viz hypo" id="viz-ideas">
+    <p class="archive">Archive: the old daily search, stopped on 22 September 2026</p>
+    <h3>What each idea from the old daily search would have done to your money</h3>
+    <p class="cap">This is a record, not live activity. The system used to test ideas every
+       day; that stopped on 22 September 2026 and was replaced by the research programme.
+       <strong>None of this happened.</strong> Each bar is a test against the same
+       past prices the idea was chosen on, so a bar showing a gain is not proof of anything.
+       The test that counts is whether the idea still worked on prices it had never seen, and
+       that result is written next to each bar. No real money was involved.</p>
+    <div id="ideas"></div>
+  </div>
+  <h3>What it has learned</h3>
+  <ul class="lessons" id="lessons"></ul>
+</details>
 
-<div class="viz hypo" id="viz-ideas">
-  <p class="archive">Archive: the old daily search, stopped on 22 September 2026</p>
-  <h3>What each idea from the old daily search would have done to your money</h3>
-  <p class="cap">This is a record, not live activity. The system used to test ideas every
-     day; that stopped on 22 September 2026 and was replaced by the research programme above.
-     <strong>None of this happened.</strong> Each bar is a test against the same
-     past prices the idea was chosen on, so a bar showing a gain is not proof of anything.
-     The test that counts is whether the idea still worked on prices it had never seen, and
-     that result is written next to each bar. No real money was involved.</p>
-  <div id="ideas"></div>
-</div>
-
-<h2>What it has learned</h2>
-<ul class="lessons" id="lessons"></ul>
-
-<h2>Tell it what you want</h2>
-<div class="chat">
-  <div id="loginbox" hidden>
-    <p class="q">Sign in to set a goal.</p>
-    <div class="row">
-      <div><input id="pw" type="password" placeholder="Password" autocomplete="current-password"></div>
-      <div style="flex:0"><button id="loginbtn">Sign in</button></div>
+<details class="sec" id="d-goal">
+  <summary>Tell it what you want (needs the password)</summary>
+  <div class="chat">
+    <div id="loginbox" hidden>
+      <p class="q">Sign in to set a goal.</p>
+      <div class="row">
+        <div><input id="pw" type="password" placeholder="Password" autocomplete="current-password"></div>
+        <div style="flex:0"><button id="loginbtn">Sign in</button></div>
+      </div>
     </div>
+    <div id="goalbox" hidden>
+      <div class="row"><div>
+        <input id="who" placeholder="Your name" autocomplete="name">
+      </div></div>
+      <textarea id="goal" placeholder="For example: I want to turn this into R2000 by December, and I can afford to lose half."></textarea>
+      <button id="send">Ask</button>
+      <div class="reply" id="reply" hidden></div>
+    </div>
+    <p class="hint">This sets a goal for the research system. It cannot place a trade, and
+    nothing you type here moves money.</p>
   </div>
-  <div id="goalbox" hidden>
-    <div class="row"><div>
-      <input id="who" placeholder="Your name" autocomplete="name">
-    </div></div>
-    <textarea id="goal" placeholder="For example: I want to turn this into R2000 by December, and I can afford to lose half."></textarea>
-    <button id="send">Ask</button>
-    <div class="reply" id="reply" hidden></div>
-  </div>
-  <p class="hint">This sets a goal for the research system. It cannot place a trade, and
-  nothing you type here moves money.</p>
-</div>
+</details>
 
-<details>
-  <summary>Show the technical detail</summary>
+<details class="sec" id="d-tech">
+  <summary>Technical table</summary>
   <table id="tech"></table>
 </details>
 
@@ -577,7 +851,7 @@ async function load(){
   D=await (await fetch('/api/data')).json();
   // The server-rendered fallback has done its job once the real cards exist.
   var plain=$('plain'); if(plain){ plain.remove(); }
-  $('asof').textContent = D.as_of ? ('As of '+new Date(D.as_of).toLocaleString()) :
+  $('asof').textContent = D.as_of ? ('Balance as of '+new Date(D.as_of).toLocaleString()) :
       'No balance recorded yet.';
   $('cards').innerHTML=[
     ['How much money do I have?', money(D.have_zar), '', 'about $'+Number(D.have_usd||0).toFixed(2)],
@@ -628,8 +902,10 @@ function renderMilestone(m){
           var word = up>=0 ? ('up R'+Math.abs(up).toFixed(2)) : ('down R'+Math.abs(up).toFixed(2));
           return 'Bought '+p.volume_lots+' of '+p.symbol+' at '+p.entry_price
             +'. Now '+(p.current_price||'?')+', so it is '+word+'.<br>'
-            +'It sells itself at '+p.stop_loss+' to stop the loss, or at '+p.take_profit
-            +' to take the profit. Nothing needs to be watching.';
+            +(p.take_profit!=null
+              ? 'It sells itself at '+p.stop_loss+' to stop the loss, or at '+p.take_profit+' to take the profit.'
+              : 'It sells itself at '+p.stop_loss+' to stop the loss, or when the direction changes. There is no profit target.')
+            +' Nothing needs to be watching.';
         }).join('<hr>')
       + '</div>'
     : '';
@@ -650,7 +926,7 @@ function renderMilestone(m){
     + (D.outcomes||[]).map(o=>`<tr><th>${o.label}</th><td>${o.pct}% =
         ${o.zar<0?'-':'+'}R${Math.abs(Math.round(o.zar))} on your stake
         (${o.verdict||'?'}), hypothetical, old daily search</td></tr>`).join('');
-  drawStand(); drawBalance(); drawHealth(); drawIdeas();
+  drawAll();
   $('foot').textContent = D.configured ? '' : 'Data source not configured yet.';
   $('loginbox').hidden = !!document.cookie.includes('auth=') || !D.can_set_goals;
   $('goalbox').hidden  = !document.cookie.includes('auth=');
@@ -823,6 +1099,16 @@ function drawIdeas(){
     `and ${passed} of ${d.length} passed the test that decides.</span></div>`);
 }
 
+// The charts are inline SVG with a viewBox, so they scale to whatever width their box has
+// and draw correctly inside a closed <details>. They are redrawn when a block is opened anyway,
+// so nothing depends on the size the box had while it was folded away.
+function drawAll(){
+  [drawStand,drawBalance,drawHealth,drawIdeas].forEach(function(f){
+    try{ f(); }catch(e){ if(window.console) console.error(e); } });
+}
+document.querySelectorAll('details').forEach(function(d){
+  d.addEventListener('toggle',function(){ if(d.open && D && D.audit_grid){ drawAll(); } });
+});
 $('loginbtn').onclick=async()=>{
   const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({password:$('pw').value})});
@@ -1028,13 +1314,32 @@ def _programme_html(p: dict | None = None) -> str:
                 f"({esc(type(exc).__name__)}).</p></section>")
 
 
-def _plain_fallback() -> str:
-    """The four headline numbers as static HTML, for browsers that cannot run the page."""
+def _safe_data() -> tuple[dict | None, str]:
+    """(data, error name). One Supabase read per page, shared by every server-rendered part."""
     try:
-        d = _dashboard_data()
+        return _dashboard_data(), ""
     except Exception as exc:                      # noqa: BLE001
+        return None, type(exc).__name__
+
+
+def _family_block(d: dict | None) -> str:
+    try:
+        fam = (d or {}).get("family") or _family(None, [])
+        return _family_html(fam)
+    except Exception as exc:                      # noqa: BLE001
+        return (f"<section class='fam' id='family'><p class='fam-intro'>"
+                f"{html.escape(FAMILY_INTRO)}</p><p>The latest numbers could not be loaded "
+                f"right now ({type(exc).__name__}). Please refresh in a few minutes.</p>"
+                f"</section>")
+
+
+def _plain_fallback(d: dict | None = None, err: str = "") -> str:
+    """The four headline numbers as static HTML, for browsers that cannot run the page."""
+    if d is None:
+        d, err = _safe_data()
+    if d is None:
         return (f"<p class='hint'>The live numbers could not be loaded "
-                f"({type(exc).__name__}). The page will retry when you refresh.</p>")
+                f"({err}). The page will retry when you refresh.</p>")
     rows = [("How much money do I have?", _money(d["have_zar"])),
             ("At risk in open trades", _money(d.get("risked_zar", 0.0))),
             ("Made so far", _money(d.get("made_zar", 0.0))),
@@ -1043,32 +1348,59 @@ def _plain_fallback() -> str:
                     for q, v in rows)
     open_line = ""
     for pos in (d.get("open_positions") or [])[:3]:
-        open_line += (f"<p><strong>Trade open:</strong> {pos['side'].lower()} "
-                      f"{pos['symbol']} bought at {pos['entry_price']}, now "
-                      f"{pos.get('current_price') or '?'}. It sells itself at "
-                      f"{pos['stop_loss']} or {pos['take_profit']}.</p>")
+        exits = (f"{pos.get('stop_loss')} or {pos['take_profit']}"
+                 if pos.get("take_profit") is not None else
+                 f"{pos.get('stop_loss')}, or when the direction changes")
+        open_line += (f"<p><strong>Trade open:</strong> {(pos.get('side') or '').lower()} "
+                      f"{pos.get('symbol')} opened at {pos.get('entry_price')}, now "
+                      f"{pos.get('current_price') or '?'}. It sells itself at {exits}.</p>")
     return (f"<div class='grid'>{items}</div>{open_line}"
             f"<p class='hint'>{d.get('why_no_trade','')}</p>")
+
+
+PLAIN_CSS = ("body{font-family:system-ui,Arial,sans-serif;background:#111;color:#eee;"
+             "padding:16px;font-size:20px;max-width:900px;margin:0 auto}"
+             ".card{border:1px solid #444;border-radius:12px;"
+             "padding:16px;margin:12px 0}.q{color:#aaa;margin:0 0 6px}.n{font-size:34px;"
+             "margin:0}.hint{color:#aaa}"
+             ".bar{height:10px;border-radius:999px;background:#333;overflow:hidden;"
+             "margin:10px 0}.bar>i{display:block;height:100%;background:#c2683f}"
+             ".exp{border:1px solid #444;border-radius:12px;padding:14px 16px;margin:12px 0}"
+             ".v{font-weight:700;margin-left:8px}.v-pass{color:#6fbf91}.v-fail{color:#e08370}"
+             ".v-open{color:#fab219}.crit{padding-left:20px}"
+             ".fam{border:1px solid #444;border-radius:14px;padding:14px 16px 4px}"
+             ".fam p{margin:0 0 12px}.fam-tiles{display:flex;flex-wrap:wrap;gap:10px;"
+             "margin-bottom:12px}.fam-tile{flex:1;min-width:120px;border:1px solid #444;"
+             "border-radius:12px;padding:10px 12px}.fam-q{color:#aaa;font-size:16px;"
+             "margin:0 0 2px!important}.fam-n{font-size:28px;font-weight:700;margin:0!important}"
+             ".fam-n small{font-size:18px}.up .fam-n{color:#6fbf91}.down .fam-n{color:#e08370}"
+             ".fam-halt{border:2px solid #e08370;color:#e08370;border-radius:12px;"
+             "padding:10px 12px;font-weight:700}.fam-hint{color:#aaa;font-size:17px}"
+             "details{border:1px solid #444;border-radius:12px;padding:0 14px;margin:12px 0}"
+             "summary{padding:14px 0;cursor:pointer;font-weight:600}")
+
+
+@app.get("/healthz", response_class=PlainTextResponse)
+def healthz() -> str:
+    """Keep-awake ping. Touches nothing: no Supabase, no files, no model."""
+    return "ok"
 
 
 @app.get("/plain", response_class=HTMLResponse)
 def plain() -> str:
     """A page with no JavaScript at all, for a TV or a very old browser."""
+    d, err = _safe_data()
     return ("<!doctype html><html lang='en'><head><meta charset='utf-8'>"
             "<meta name='viewport' content='width=device-width,initial-scale=1'>"
-            "<title>Trading research, plain view</title>"
-            "<style>body{font-family:system-ui,Arial,sans-serif;background:#111;color:#eee;"
-            "padding:24px;font-size:20px}.card{border:1px solid #444;border-radius:12px;"
-            "padding:16px;margin:12px 0}.q{color:#aaa;margin:0 0 6px}.n{font-size:34px;"
-            "margin:0}.hint{color:#aaa}"
-            ".bar{height:10px;border-radius:999px;background:#333;overflow:hidden;"
-            "margin:10px 0}.bar>i{display:block;height:100%;background:#c2683f}"
-            ".exp{border:1px solid #444;border-radius:12px;padding:14px 16px;margin:12px 0}"
-            ".v{font-weight:700;margin-left:8px}.v-pass{color:#6fbf91}.v-fail{color:#e08370}"
-            ".v-open{color:#fab219}.crit{padding-left:20px}"
-            "</style></head><body>"
-            "<h1>Trading research</h1>" + _plain_fallback() + _programme_html() +
-            "<p class='hint'>This is the simple view. The full dashboard with charts is at /"
+            "<title>Trading experiment, plain view</title>"
+            f"<style>{PLAIN_CSS}</style></head><body>"
+            "<h1>Thabang's trading experiment</h1>" + _family_block(d) +
+            "<h2>For Thabang: the detail</h2>"
+            "<details><summary>More numbers: money made, lost and at risk</summary>"
+            + _plain_fallback(d, err) + "</details>"
+            "<details><summary>Research experiments: what was tried, what passed and "
+            "failed</summary>" + _programme_html() + "</details>"
+            "<p class='hint'>This is the simple view. The full page with charts is at /"
             "</p></body></html>")
 
 
@@ -1076,5 +1408,7 @@ def plain() -> str:
 def index() -> str:
     # The decorator belongs here. From 63ab960 until this fix it sat on _plain_fallback, so
     # "/" served only the bare fallback fragment and never the full page.
-    return (PAGE.replace("__PLAIN__", _plain_fallback())
+    d, err = _safe_data()
+    return (PAGE.replace("__FAMILY__", _family_block(d))
+                .replace("__PLAIN__", _plain_fallback(d, err))
                 .replace("__PROGRAMME__", _programme_html()))

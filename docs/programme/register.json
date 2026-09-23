@@ -44,7 +44,7 @@
       "prereg": "docs/programme/E05-eth-trend-live-prereg.md",
       "result": "docs/results/E05-eth-trend.md",
       "verdict": "PASS",
-      "summary": "The first rule to pass: following the last 20 days of Ethereum made money after costs over 9 years, in 6 of 8 years. The evidence is modest. Now trading live at the smallest size."
+      "summary": "The first rule to pass: following the last 20 days of Ethereum made money after costs over 9 years, in 6 of 8 years. The evidence is modest. It traded live until 23 September 2026, when E07 replaced it."
     },
     {
       "id": "E06",
