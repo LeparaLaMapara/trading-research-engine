@@ -236,7 +236,10 @@ class LiveTrade(R.Rehearsal):
                   else deal.createTimestamp) / 1000.0
             self.life.mark(stage, ts)
         super().handle_execution(msg)
-        if self.position_id:
+        # The broker sends several execution events per order (accepted, filled, stop set).
+        # Record the fill once: the first live engine trade was logged twice on 2026-09-23.
+        if self.position_id and not getattr(self, "_logged", False):
+            self._logged = True
             self.log.record(ts_sast=time.strftime("%Y-%m-%d %H:%M:%S"), symbol=self.symbol,
                             side=self.side, order_type="MARKET",
                             volume_lots=self.sizing.lots, filled_price=self.entry_price,
