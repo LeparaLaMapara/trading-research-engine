@@ -21,6 +21,7 @@ import time
 import requests
 from ctrader_open_api import Protobuf
 from ctrader_open_api.messages.OpenApiMessages_pb2 import (
+    ProtoOACashFlowHistoryListReq,
     ProtoOADealListReq,
     ProtoOAReconcileReq,
     ProtoOASubscribeSpotsReq,
@@ -35,6 +36,42 @@ TRADE_LOG = "data/trade_log.db"
 #: cTrader caps a deal-list request at one week. The job runs hourly, so a close is picked up
 #: unless the job is down for seven days straight.
 DEAL_WINDOW_MS = 7 * 24 * 3600 * 1000
+#: Money the owner put in, from the broker's own cash-flow history (the family page shows
+#: "put in" against "worth now"). The API allows one week per request, so history is cached
+#: here and only the last week is re-read each hour.
+CASHFLOW_CACHE = "data/cashflow.json"
+CASHFLOW_START_MS = 1782864000000        # 2026-07-01, before the account's first deposit
+ENGINE_STATE = "data/engine_state.json"
+
+
+def load_cashflow() -> dict:
+    import json
+    try:
+        with open(CASHFLOW_CACHE, encoding="utf-8") as fh:
+            return json.load(fh)
+    except (OSError, ValueError):
+        return {"through_ms": CASHFLOW_START_MS, "rows": {}}
+
+
+def net_deposits(rows: dict) -> float:
+    """Owner deposits minus owner withdrawals. Rebates, commissions and the like are trading
+    results, not money put in, so only the two plain operation types count."""
+    total = 0.0
+    for r in rows.values():
+        if r["type"] == "BALANCE_DEPOSIT":
+            total += abs(r["delta"])
+        elif r["type"] == "BALANCE_WITHDRAW":
+            total -= abs(r["delta"])
+    return round(total, 2)
+
+
+def engine_state() -> dict:
+    import json
+    try:
+        with open(ENGINE_STATE, encoding="utf-8") as fh:
+            return json.load(fh)
+    except (OSError, ValueError):
+        return {}
 
 #: Timestamps are written with a trailing Z, which means UTC. time.strftime() without an
 #: argument uses LOCAL time, so the first version stamped SAST as UTC and the dashboard's
@@ -153,6 +190,8 @@ class Collector:
         self.balance = None
         self.id_to_name: dict[int, str] = {}
         self.deals: list = []
+        self.cash = load_cashflow()
+        self.cash_pending = True
 
     def on_spot(self, ev) -> None:
         if getattr(ev, "bid", 0):
@@ -163,9 +202,44 @@ class Collector:
         req = ProtoOATraderReq(); req.ctidTraderAccountId = conn.account_id
         conn.client.send(req).addCallbacks(self.on_trader, self.fail)
 
+    def fetch_cashflow(self) -> None:
+        from ctrader_open_api.messages.OpenApiModelMessages_pb2 import ProtoOAChangeBalanceType
+        now = int(time.time() * 1000)
+        t = max(CASHFLOW_START_MS, int(self.cash["through_ms"]) - DEAL_WINDOW_MS)
+        windows = []
+        while t < now:
+            windows.append((t, min(t + DEAL_WINDOW_MS - 1, now)))
+            t += DEAL_WINDOW_MS
+
+        def nxt(_=None):
+            if not windows:
+                self.cash["through_ms"] = now
+                self.cash_pending = False
+                return
+            a, b = windows.pop(0)
+            r = ProtoOACashFlowHistoryListReq()
+            r.ctidTraderAccountId = self.conn.account_id
+            r.fromTimestamp, r.toTimestamp = a, b
+            self.conn.client.send(r).addCallbacks(ok, bad)
+
+        def ok(m):
+            for d in Protobuf.extract(m).depositWithdraw:
+                md = 10 ** (d.moneyDigits or 2)
+                self.cash["rows"][str(d.balanceHistoryId)] = {
+                    "type": ProtoOAChangeBalanceType.Name(d.operationType),
+                    "delta": d.delta / md, "ts": d.changeBalanceTimestamp}
+            nxt()
+
+        def bad(f):
+            print(f"  cash-flow history failed: {str(f)[:120]}", file=sys.stderr)
+            self.cash_pending = False          # publish without it rather than hang
+
+        nxt()
+
     def on_trader(self, msg) -> None:
         t = Protobuf.extract(msg).trader
         self.balance = t.balance / (10 ** t.moneyDigits)
+        self.fetch_cashflow()
         print(f"  balance ${self.balance:,.2f}")
         req = ProtoOAReconcileReq(); req.ctidTraderAccountId = self.conn.account_id
         self.conn.client.send(req).addCallbacks(self.on_reconcile, self.fail)
@@ -202,6 +276,11 @@ class Collector:
 
     def finish(self) -> None:
         if getattr(self, "_finished", False):
+            return
+        waited = getattr(self, "_waited", 0)
+        if self.cash_pending and waited < 20:      # give the history a few more seconds
+            self._waited = waited + 1
+            reactor.callLater(1, self.finish)
             return
         self._finished = True
         rows = []
@@ -258,7 +337,19 @@ def main() -> int:
     if c.balance is not None:
         equity = equity_of(c.balance, c.rows)
         print(f"  equity {'unknown (a position had no quote)' if equity is None else f'${equity:,.2f}'}")
-        upsert("trading_account", [{"balance": c.balance, "equity": equity,
+        extra = {}
+        if not c.cash_pending and c.cash["rows"]:
+            import json
+            with open(CASHFLOW_CACHE, "w", encoding="utf-8") as fh:
+                json.dump(c.cash, fh)
+            extra["deposited_usd"] = net_deposits(c.cash["rows"])
+        es = engine_state()
+        if es.get("peak") is not None:
+            extra["peak_equity"] = round(max(float(es["peak"]), equity or 0.0), 2)
+        extra["halted"] = es.get("halted")
+        print(f"  put in ${extra.get('deposited_usd', 'unknown')}, peak "
+              f"${extra.get('peak_equity', 'unknown')}, halted {extra['halted']}")
+        upsert("trading_account", [{**extra, "balance": c.balance, "equity": equity,
                                     "currency": "USD",
                                     "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}], a.dry_run)
     upsert("trading_positions", c.rows, a.dry_run)

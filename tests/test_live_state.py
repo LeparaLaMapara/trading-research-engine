@@ -42,3 +42,12 @@ def test_only_closing_deals_on_tracked_positions_become_trades():
     r = rows[0]
     assert r["net_usd"] == 2.33 and r["side"] == "SELL" and r["status"] == "CLOSED"
     assert r["volume_lots"] == 0.01 and r["purpose"] == "live_research_trade"
+
+
+def test_net_deposits_counts_only_owner_money():
+    from scripts.push_live_state import net_deposits
+    rows = {"1": {"type": "BALANCE_DEPOSIT", "delta": 10.0},
+            "2": {"type": "BALANCE_DEPOSIT", "delta": 20.0},
+            "3": {"type": "BALANCE_WITHDRAW", "delta": 5.0},
+            "4": {"type": "BALANCE_DEPOSIT_REBATE", "delta": 0.3}}
+    assert net_deposits(rows) == 25.0
