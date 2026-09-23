@@ -987,9 +987,9 @@ def _programme_html(p: dict | None = None) -> str:
         out = [head, f"<p class='lead'>{esc(p['sentence'])}</p>",
                f"<p class='hint'>Instead of trying new ideas every day, the system now gets "
                f"{p['budget']} carefully planned experiments. Each plan is written down and "
-               f"saved before it runs, so the result cannot be bent to fit afterwards. A pass "
-               f"means practice trading with pretend money first, never real money straight "
-               f"away.</p>",
+               f"saved before it runs, so the result cannot be bent to fit afterwards. Since "
+               f"23 September 2026 the best idea that passed trades real money on its own, "
+               f"inside fixed safety limits.</p>",
                f"<div class='bar' role='img' aria-label='{p['spent']} of {p['budget']} "
                f"experiments used'><i style='width:{max(p['used_pct'], 1)}%'></i></div>",
                f"<p class='hint'>{p['spent']} of {p['budget']} experiments used.</p>"]
