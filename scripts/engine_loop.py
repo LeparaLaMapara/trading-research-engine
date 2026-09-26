@@ -49,9 +49,16 @@ def beat(phase: str) -> None:
 
 
 def _alive(pid: int) -> bool:
-    r = subprocess.run(["tasklist", "/FI", f"PID eq {pid}", "/NH"], capture_output=True,
-                       text=True, creationflags=NO_WINDOW)
-    return str(pid) in r.stdout
+    # The PID must belong to a python process. After a reboot Windows hands old PIDs to
+    # unrelated processes (2026-09-25: the stale supervisor PID became a svchost, so the
+    # supervisor thought it was already running, exited 0, and the engine stayed down ~19 h).
+    r = subprocess.run(["tasklist", "/FI", f"PID eq {pid}", "/FO", "CSV", "/NH"],
+                       capture_output=True, text=True, creationflags=NO_WINDOW)
+    for line in r.stdout.splitlines():
+        cols = [c.strip('"') for c in line.split('","')]
+        if len(cols) > 1 and cols[1] == str(pid) and cols[0].lower().startswith("python"):
+            return True
+    return False
 
 
 def acquire_lock() -> bool:
