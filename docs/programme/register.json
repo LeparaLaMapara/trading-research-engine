@@ -24,9 +24,10 @@
       "id": "E03",
       "title": "Order-book imbalance predicts the next minute, net of costs (XRPUSD; amended: BTC/ETH/SOL depth is synthetic)",
       "prereg": "docs/programme/E03-book-imbalance-prereg.md",
-      "result": null,
-      "verdict": null,
-      "kind": "strategy"
+      "result": "docs/results/E03-book-imbalance.json",
+      "verdict": "FAIL",
+      "kind": "strategy",
+      "summary": "Order-book pressure on XRP did not make money after crossing the spread twice. 11 simulated trades over 120 hours."
     },
     {
       "id": "E04",

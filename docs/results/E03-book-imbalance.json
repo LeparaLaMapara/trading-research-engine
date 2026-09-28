@@ -1,0 +1,24 @@
+{
+ "experiment": "E03",
+ "run_ts": "2026-09-28T16:06:28Z",
+ "symbol": "XRPUSD",
+ "hours_recorded": 120.4,
+ "seconds": 1221,
+ "rank_correlation": 0.0605,
+ "p_value": 0.04811618675285429,
+ "rank_correlation_non_overlapping": 0.2178,
+ "p_value_non_overlapping": 0.3853959643781131,
+ "trades": 11,
+ "mean_net_per_trade": 0.00016169227292005,
+ "t_stat": 0.1881946486525545,
+ "mean_net_by_half": [
+  0.0003443097111774893,
+  -0.00015788824403046892
+ ],
+ "criteria": {
+  "C1_rank_correlation_positive_p_lt_0.01": false,
+  "C2_mean_net_positive_t_gt_2": false,
+  "C3_positive_in_both_halves": false
+ },
+ "verdict": "FAIL"
+}
