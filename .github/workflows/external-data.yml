@@ -1,0 +1,25 @@
+name: external-data
+
+# Weekly refresh of the outside data (FRED rates, CFTC positioning, crypto funding) on
+# Databricks. It starts databricks-run.yml with data_ext.fetch, so the fetch runs on Databricks
+# and writes straight to workspace.trading_engine.external.
+on:
+  schedule:
+    - cron: "0 3 * * 1"     # Mondays 03:00 UTC: the CFTC report lands on Friday evenings
+  workflow_dispatch: {}
+
+permissions:
+  actions: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run the fetch on Databricks
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run databricks-run.yml -R "$GITHUB_REPOSITORY" \
+            -f module=data_ext.fetch \
+            -f args="--out /Volumes/workspace/trading_engine/external"
+          echo "Started; see the databricks-run workflow for the result."
