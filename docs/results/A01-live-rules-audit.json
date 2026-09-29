@@ -1,0 +1,79 @@
+{
+ "audit": "A01",
+ "run_ts": "2026-09-29T22:10:52Z",
+ "rules": {
+  "E07": {
+   "symbol": "ETHUSD",
+   "sample": [
+    "2017-10-24",
+    "2026-09-18"
+   ],
+   "days": 2582,
+   "cost_round_trip_bps": 11.94,
+   "net_sharpe": 0.801,
+   "recorded_net_sharpe": 0.801,
+   "reproduces_recorded": true,
+   "null_draws": 10000,
+   "null_p99": 0.561,
+   "null_mean": -0.304,
+   "bootstrap_resamples": 10000,
+   "bootstrap_mean_block_days": 20,
+   "bootstrap_share_at_or_below_zero": 0.0202,
+   "bootstrap_90pct_interval": [
+    0.151,
+    1.446
+   ],
+   "net_sharpe_first_half": 1.345,
+   "net_sharpe_second_half": -0.042,
+   "split_day": "2022-09-29",
+   "deflated_sharpe_at_N306": 0.22,
+   "seconds": 543,
+   "criteria": {
+    "K1_beats_10000_null_p99": true,
+    "K2_bootstrap_share_at_or_below_zero_under_10pct": true,
+    "K3_both_halves_positive": false
+   },
+   "verdict": "FAIL"
+  },
+  "E08-USDSGD": {
+   "symbol": "USDSGD",
+   "sample": [
+    "2014-10-21",
+    "2026-09-17"
+   ],
+   "days": 3096,
+   "cost_round_trip_bps": 2.7,
+   "net_sharpe": 0.15,
+   "recorded_net_sharpe": 0.15,
+   "reproduces_recorded": true,
+   "null_draws": 10000,
+   "null_p99": -0.472,
+   "null_mean": -1.101,
+   "bootstrap_resamples": 10000,
+   "bootstrap_mean_block_days": 20,
+   "bootstrap_share_at_or_below_zero": 0.2801,
+   "bootstrap_90pct_interval": [
+    -0.284,
+    0.565
+   ],
+   "net_sharpe_first_half": 0.082,
+   "net_sharpe_second_half": 0.229,
+   "split_day": "2020-09-30",
+   "deflated_sharpe_at_N306": 0.009,
+   "seconds": 645,
+   "criteria": {
+    "K1_beats_10000_null_p99": true,
+    "K2_bootstrap_share_at_or_below_zero_under_10pct": false,
+    "K3_both_halves_positive": true
+   },
+   "verdict": "FAIL",
+   "measured_cost_bps_reported_only": 1.31,
+   "net_sharpe_at_measured_cost_reported_only": 0.225,
+   "measured_cost_source": ""
+  }
+ },
+ "demoted": [
+  "E07",
+  "E08-USDSGD"
+ ]
+}
