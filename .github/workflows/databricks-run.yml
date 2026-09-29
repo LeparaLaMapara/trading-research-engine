@@ -1,0 +1,77 @@
+name: databricks-run
+
+# Run one engine module on Databricks instead of the engine PC, e.g. scripts.e08_fx_trend.
+# The job reads the data snapshot the PC uploads daily (workspace.trading_engine.raw) and holds
+# no broker credentials, so it cannot trade. Results land in workspace.trading_engine.results
+# and are attached to this run as an artifact.
+on:
+  workflow_dispatch:
+    inputs:
+      module:
+        description: Python module to run, as with python -m (e.g. scripts.e08_fx_trend)
+        required: true
+      args:
+        description: Arguments for the module, space separated (optional)
+        required: false
+        default: ""
+
+concurrency:
+  group: databricks-run-${{ inputs.module }}
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    environment: env
+    timeout-minutes: 90
+    env:
+      DATABRICKS_HOST: https://dbc-f8f358c5-61e0.cloud.databricks.com
+      DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
+      DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_SECRET }}
+      MODULE: ${{ inputs.module }}
+      ARGS: ${{ inputs.args }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: databricks/setup-cli@main
+      - name: Sync the code to the workspace
+        run: |
+          ME=$(databricks current-user me --output json | jq -r .userName)
+          echo "CODE=/Workspace/Users/$ME/trading-research-engine/code" >> "$GITHUB_ENV"
+          databricks sync . "/Workspace/Users/$ME/trading-research-engine/code" --full \
+            --exclude ".github/**" --exclude "tests/**" --exclude "dashboard/**"
+      - name: Run on Databricks
+        run: |
+          set -e
+          PARAMS=$(jq -cn --arg m "$MODULE" --arg a "$ARGS" '[$m] + ($a | split(" ") | map(select(length > 0)))')
+          jq -n --arg f "$CODE/dbx/run_module.py" --argjson p "$PARAMS" '{
+            run_name: ("engine: " + $p[0]),
+            tasks: [{task_key: "run", environment_key: "e",
+                     spark_python_task: {python_file: $f, parameters: $p}}],
+            environments: [{environment_key: "e", spec: {client: "2", dependencies: [
+              "pandas>=2.2", "numpy>=1.26", "scipy>=1.11", "statsmodels>=0.14",
+              "pyarrow>=16.0", "python-dotenv>=1.0", "tzdata>=2024.1", "requests"]}}]
+          }' > run.json
+          T0=$(date +%s)
+          databricks jobs submit --json @run.json --timeout 80m --output json > out.json || true
+          echo "wall seconds: $(( $(date +%s) - T0 ))"
+          jq -r '.state | "state: \(.life_cycle_state) \(.result_state) \(.state_message)"' out.json
+          TR=$(jq -r '.tasks[0].run_id' out.json)
+          databricks jobs get-run-output "$TR" --output json > task.json || true
+          jq -r '.logs // empty' task.json
+          jq -r '.error // empty, .error_trace // empty' task.json
+          test "$(jq -r .state.result_state out.json)" = "SUCCESS"
+      - name: Fetch results
+        if: always()
+        run: |
+          LATEST=$(databricks fs ls dbfs:/Volumes/workspace/trading_engine/results 2>/dev/null | sort | tail -1)
+          mkdir -p dbx-results
+          if [ -n "$LATEST" ]; then
+            databricks fs cp -r "dbfs:/Volumes/workspace/trading_engine/results/$LATEST" dbx-results/
+          fi
+          ls -la dbx-results
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dbx-results
+          path: dbx-results
+          if-no-files-found: ignore
