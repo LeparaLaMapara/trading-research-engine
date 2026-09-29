@@ -7,6 +7,7 @@ arXiv ids and only proposes strategy kinds the registry actually knows about.
 from __future__ import annotations
 
 import os
+import time
 from abc import ABC, abstractmethod
 
 import numpy as np
@@ -138,7 +139,8 @@ class MockBackend(ModelBackend):
 class AnthropicBackend(ModelBackend):
     """Claude backend. Falls back (via RuntimeError) if the key or package is missing."""
 
-    def __init__(self, name: str = "anthropic") -> None:
+    def __init__(self, name: str = "anthropic", effort: str | None = None,
+                 max_tokens: int | None = None) -> None:
         self.name = name
         api_key = os.environ.get("ANTHROPIC_API_KEY")
         if not api_key:
@@ -149,25 +151,39 @@ class AnthropicBackend(ModelBackend):
             raise RuntimeError(f"anthropic package unavailable: {exc}") from exc
         self._client = anthropic.Anthropic(api_key=api_key)
         # Current default per Claude API guidance. Override with COUNCIL_ANTHROPIC_MODEL.
-        self.model = os.environ.get("COUNCIL_ANTHROPIC_MODEL", "claude-opus-5")
+        self.model = os.environ.get("COUNCIL_ANTHROPIC_MODEL", "claude-opus-5-5")
+        # Opus 5.5 always thinks; effort is the only depth control and defaults to medium.
+        self.effort = effort
+        if max_tokens:
+            self.MAX_TOKENS = max_tokens
 
     MAX_TOKENS = 4096
 
     def complete(self, system: str, user: str) -> str:
-        # Refuse before spending, not after. Opus 5 thinks by default and thinking bills as
-        # output, so the guard plans against the full max_tokens ceiling.
+        # Refuse before spending, not after. Thinking bills as output, so the guard plans
+        # against the full max_tokens ceiling.
         GUARD.check(self.model, system, user, self.MAX_TOKENS)
-        # Opus 5 thinks by default; give room so the JSON body is not truncated.
-        msg = self._client.messages.create(
+        kwargs: dict = {}
+        if self.effort:
+            kwargs["output_config"] = {"effort": self.effort}
+        # Stream: a long read at high effort can outlast a plain request's timeout. A refusal
+        # on the main model re-runs on a fallback model inside the same call.
+        with self._client.beta.messages.stream(
             model=self.model,
             max_tokens=self.MAX_TOKENS,
             system=system,
             messages=[{"role": "user", "content": user}],
-        )
+            betas=["server-side-fallback-2026-07-01"],
+            fallbacks="default",
+            **kwargs,
+        ) as stream:
+            msg = stream.get_final_message()
         usage = getattr(msg, "usage", None)
         GUARD.record(self.model,
                      int(getattr(usage, "input_tokens", 0) or 0),
                      int(getattr(usage, "output_tokens", 0) or 0))
+        if msg.stop_reason == "refusal":
+            raise RuntimeError("model declined the request")
         parts = [b.text for b in msg.content if getattr(b, "type", None) == "text"]
         return _extract_json("".join(parts))
 
@@ -182,8 +198,10 @@ class GeminiBackend(ModelBackend):
 
     BASE = "https://generativelanguage.googleapis.com/v1beta/models"
 
-    def __init__(self, name: str = "gemini") -> None:
+    def __init__(self, name: str = "gemini", max_tokens: int | None = None) -> None:
         self.name = name
+        if max_tokens:
+            self.MAX_TOKENS = max_tokens
         self.api_key = os.environ.get("GEMINI_API_KEY")
         if not self.api_key:
             raise RuntimeError("GEMINI_API_KEY not set")
@@ -197,8 +215,7 @@ class GeminiBackend(ModelBackend):
     MAX_TOKENS = 2048
 
     def complete(self, system: str, user: str) -> str:
-        # Gemini is not in the price table, so the guard prices it at the worst known rate.
-        # That over-estimates, which is the safe direction for a cap.
+        # Priced from the table when the model is listed, else at the worst known rate.
         GUARD.check(self.model, system, user, self.MAX_TOKENS)
         body = {
             "systemInstruction": {"parts": [{"text": system}]},
@@ -206,9 +223,13 @@ class GeminiBackend(ModelBackend):
             "generationConfig": {"maxOutputTokens": self.MAX_TOKENS, "temperature": 0.6},
         }
         # API-key form first; on auth failure retry as a Bearer token.
-        resp = self._post({}, {"key": self.api_key}, body)
-        if resp.status_code in (401, 403):
-            resp = self._post({"Authorization": f"Bearer {self.api_key}"}, {}, body)
+        for attempt in range(4):
+            resp = self._post({}, {"key": self.api_key}, body)
+            if resp.status_code in (401, 403):
+                resp = self._post({"Authorization": f"Bearer {self.api_key}"}, {}, body)
+            if resp.status_code not in (429, 503) or attempt == 3:
+                break
+            time.sleep(20 * (attempt + 1))       # per-minute rate limit or overload: wait it out
         resp.raise_for_status()
         data = resp.json()
         um = data.get("usageMetadata", {})

@@ -229,7 +229,29 @@ def run_all() -> int:
         except subprocess.TimeoutExpired:
             print(json.dumps({"symbol": sym, "note": "trader step timed out"}))
             worst = 1
+    live_check_daily()
     return worst
+
+
+def live_check_daily() -> None:
+    """Once per UTC day, compare the live rules with their backtests (research/live_check.py).
+    Runs from here because the long-running engine loop only calls trader_step."""
+    marker = "data/live_check_day.txt"
+    today = time.strftime("%Y-%m-%d", time.gmtime())
+    try:
+        if open(marker, encoding="utf-8").read().strip() == today:
+            return
+    except OSError:
+        pass
+    try:
+        r = subprocess.run([PY, "-m", "research.live_check"], capture_output=True, text=True,
+                           timeout=300, check=False)
+        print(json.dumps({"live_check": (r.stdout.strip().splitlines() or ["no output"])}))
+        if r.returncode == 0:
+            with open(marker, "w", encoding="utf-8") as fh:
+                fh.write(today)
+    except subprocess.TimeoutExpired:
+        print(json.dumps({"live_check": "timed out"}))
 
 
 def main() -> int:
@@ -331,6 +353,9 @@ def main() -> int:
     if held == 0 and want != 0:
         if verdict.get("blocked"):
             action = "skip: down 10% today"
+        elif st.get(f"paused:{SYMBOL}"):
+            # research/live_check.py paused new entries: costs broke the backtest's promise.
+            action = f"skip: paused ({st[f'paused:{SYMBOL}']})"
         else:
             side = "BUY" if want > 0 else "SELL"
             r = subprocess.run(

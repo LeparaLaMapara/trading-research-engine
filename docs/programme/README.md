@@ -33,6 +33,24 @@ changing venue alone does not rescue the signals we hold.
    about its own proposals 46% of the time, worse than a coin. It builds and checks code; it no
    longer picks strategies.
 
+## Where ideas come from now: the reading room (from 29 September 2026)
+
+Reading and testing are kept apart. Testing spends a slot and raises N; reading does neither.
+
+Every Sunday `scout/reading_room.py` (workflow `reading.yml`) harvests the last two weeks of
+papers from arXiv and OpenAlex across quantitative finance, economics, statistics,
+mathematics, physics, computer science and mathematical economics, plus one theme of older,
+well-cited foundations. A model scores every abstract, reads the best eight in full, and writes
+an idea card: the concept, its market analogue, a falsifiable hypothesis on instruments this
+account can trade, and the cheapest honest test. Code checks every quote against the fetched
+text; a card without verified quotes is never queued. A second, adversarial read tries to kill
+each card against `docs/research/engine-facts.md` and the results above, and scores it. Code
+ranks the queue (`docs/research/queue.json`) by information x value / cost and writes the
+week's memo to `docs/research/weekly/`.
+
+Nothing in the queue is a test. A slot is spent only by writing a pre-registration from the top
+of the queue, as before. Spend is capped at 6 US dollars a run, checked before every call.
+
 ## What the daily run does now
 
 Refreshes the account snapshot and the bar history, then runs the self-audit. It no longer tests

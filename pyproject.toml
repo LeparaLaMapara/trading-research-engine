@@ -23,9 +23,9 @@ dependencies = [
 dev = ["pytest>=8.0"]
 # Council LLM backend. Claude via the anthropic SDK; Gemini via REST (requests, a core dep)
 # to avoid google-generativeai's protobuf>=5 pin, which conflicts with ctrader-open-api.
-llm = ["anthropic>=0.40"]
+llm = ["anthropic>=0.120"]   # server-side refusal fallbacks and effort need a recent SDK
 # Dashboard web service (Render free tier).
-dashboard = ["fastapi>=0.110", "uvicorn[standard]>=0.29", "anthropic>=0.40"]
+dashboard = ["fastapi>=0.110", "uvicorn[standard]>=0.29", "anthropic>=0.120"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

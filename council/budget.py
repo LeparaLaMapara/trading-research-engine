@@ -25,20 +25,25 @@ class BudgetExceeded(RuntimeError):
 
 
 # USD per 1M tokens, (input, output). Anthropic first-party rates.
-# Sources: Claude API pricing as of 2026-06-24.
+# Sources: Claude API pricing as of 2026-09-25.
 PRICES: dict[str, tuple[float, float]] = {
     "claude-fable-5-1": (10.00, 50.00),
     "claude-fable-5": (10.00, 50.00),
+    "claude-opus-5-5": (4.00, 20.00),
     "claude-opus-5": (5.00, 25.00),
     "claude-opus-4-8": (5.00, 25.00),
     "claude-opus-4-7": (5.00, 25.00),
     "claude-opus-4-6": (5.00, 25.00),
+    "claude-sonnet-5-5": (2.00, 10.00),
     "claude-sonnet-5": (2.00, 10.00),
     "claude-sonnet-4-6": (3.00, 15.00),
     "claude-haiku-4-5": (1.00, 5.00),
+    # Google standard tier, checked 2026-09-29 at ai.google.dev/gemini-api/docs/pricing.
+    # Output includes thinking tokens.
+    "gemini-2.5-flash": (0.30, 2.50),
 }
 
-# Non-Anthropic models are deliberately absent. An unknown model is priced at the most
+# Other models are absent unless their price was checked at the source. An unknown model is priced at the most
 # expensive rate in the table, so the guard can only ever over-estimate. Under-estimating is
 # the failure mode that costs money; over-estimating just stops the run early and says so.
 _WORST = max(PRICES.values(), key=lambda p: p[1])

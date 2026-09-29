@@ -6,7 +6,9 @@ identifier (the arXiv id) plus the real abstract text. The anti-hallucination ru
 """
 from __future__ import annotations
 
+import time
 import xml.etree.ElementTree as ET
+from html.parser import HTMLParser
 
 import requests
 
@@ -71,3 +73,151 @@ def fetch_arxiv(categories: list[str] | None = None, keywords: str | None = None
     except Exception as exc:  # noqa: BLE001
         print(f"arxiv fetch failed: {exc}")
         return []
+
+
+def keyword_clause(keywords: str) -> str:
+    """'power law OR criticality' -> '(all:"power law" OR all:criticality)'."""
+    terms = [t.strip() for t in keywords.split(" OR ") if t.strip()]
+    parts = [f'all:"{t}"' if " " in t else f"all:{t}" for t in terms]
+    return "(" + " OR ".join(parts) + ")"
+
+
+def fetch_arxiv_window(category: str, keywords: str | None, since: str, until: str,
+                       max_results: int = 30) -> list[dict]:
+    """Papers submitted to one category between two dates (YYYYMMDD), newest first.
+
+    Same guarantees as fetch_arxiv: real ids and real abstracts, or an empty list.
+    """
+    search = f"cat:{category} AND submittedDate:[{since}0000 TO {until}2359]"
+    if keywords:
+        search += f" AND {keyword_clause(keywords)}"
+    try:
+        resp = requests.get(ARXIV_API, params={
+            "search_query": search, "start": 0, "max_results": max_results,
+            "sortBy": "submittedDate", "sortOrder": "descending",
+        }, timeout=60)
+        resp.raise_for_status()
+        return parse_arxiv_atom(resp.text)
+    except Exception as exc:  # noqa: BLE001 - a failed field is reported, not fatal
+        print(f"arxiv fetch failed for {category}: {exc}")
+        return []
+
+
+OPENALEX_API = "https://api.openalex.org/works"
+
+
+def abstract_from_inverted_index(index: dict | None) -> str:
+    """OpenAlex stores abstracts as {word: [positions]}. Rebuild the text in order."""
+    if not index:
+        return ""
+    slots: dict[int, str] = {}
+    for word, positions in index.items():
+        for p in positions:
+            slots[int(p)] = word
+    return " ".join(slots[i] for i in sorted(slots))
+
+
+def parse_openalex(payload: dict) -> list[dict]:
+    """OpenAlex /works JSON -> paper dicts. Works without an abstract are dropped: the reading
+    room never reasons about a paper whose text it does not hold."""
+    papers: list[dict] = []
+    for w in payload.get("results", []):
+        abstract = abstract_from_inverted_index(w.get("abstract_inverted_index"))
+        title = " ".join((w.get("title") or "").split())
+        if not abstract or not title:
+            continue
+        doi = (w.get("doi") or "").replace("https://doi.org/", "")
+        wid = (w.get("id") or "").rsplit("/", 1)[-1]
+        venue = ((w.get("primary_location") or {}).get("source") or {}).get("display_name")
+        papers.append({
+            "identifier": f"doi:{doi}" if doi else f"openalex:{wid}",
+            "url": w.get("doi") or w.get("id") or "",
+            "title": title,
+            "abstract": " ".join(abstract.split()),
+            "authors": [a.get("author", {}).get("display_name", "")
+                        for a in w.get("authorships", [])][:8],
+            "published": w.get("publication_date") or "",
+            "venue": venue or "",
+            "cited_by": int(w.get("cited_by_count") or 0),
+        })
+    return papers
+
+
+def fetch_openalex(search: str, since: str | None = None, classic: bool = False,
+                   per_page: int = 15) -> list[dict]:
+    """Works matching a phrase. `since` (YYYY-MM-DD) for new work; `classic` sorts by citations
+    for the foundations of a topic. Empty list on any failure, never a made-up entry."""
+    filters = ["has_abstract:true"]
+    if since:
+        filters.append(f"from_publication_date:{since}")
+    params = {"search": search, "filter": ",".join(filters), "per-page": per_page}
+    params["sort"] = "cited_by_count:desc" if classic else "publication_date:desc"
+    for attempt in range(3):
+        try:
+            time.sleep(1.5)                       # stay under OpenAlex's anonymous rate limit
+            resp = requests.get(OPENALEX_API, params=params, timeout=60)
+            if resp.status_code == 429 and attempt < 2:
+                time.sleep(15 * (attempt + 1))
+                continue
+            resp.raise_for_status()
+            return parse_openalex(resp.json())
+        except Exception as exc:  # noqa: BLE001
+            print(f"openalex fetch failed for {search!r}: {exc}")
+            return []
+    return []
+
+
+class _TextOnly(HTMLParser):
+    """Collect visible text, skipping scripts, styles, navigation and the bibliography."""
+
+    SKIP = {"script", "style", "nav", "header", "footer", "math"}
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.depth = 0
+        self.parts: list[str] = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "math" and not self.depth:
+            # arXiv's MathML carries the TeX source in alttext; keep formulas readable.
+            alt = dict(attrs).get("alttext")
+            if alt:
+                self.parts.append(f" ${alt}$ ")
+        if tag in self.SKIP:
+            self.depth += 1
+
+    def handle_endtag(self, tag):
+        if tag in self.SKIP and self.depth:
+            self.depth -= 1
+
+    def handle_data(self, data):
+        if not self.depth:
+            self.parts.append(data)
+
+
+def html_to_text(html: str) -> str:
+    p = _TextOnly()
+    p.feed(html)
+    return " ".join(" ".join(p.parts).split())
+
+
+def fetch_arxiv_fulltext(identifier: str, max_chars: int = 120_000) -> tuple[str, str]:
+    """Full text of an arXiv paper from its HTML rendering. Returns (text, depth) where depth is
+    'full', 'truncated at N chars' or '' when no HTML version exists (older or TeX-failing
+    papers). Nothing is ever cut silently: the depth says how much was read."""
+    if not identifier.startswith("arXiv:"):
+        return "", ""
+    aid = identifier.split(":", 1)[1]
+    try:
+        resp = requests.get(f"https://arxiv.org/html/{aid}", timeout=60)
+        if resp.status_code != 200 or "<html" not in resp.text[:2000].lower():
+            return "", ""
+        text = html_to_text(resp.text)
+    except Exception as exc:  # noqa: BLE001
+        print(f"arxiv full text failed for {aid}: {exc}")
+        return "", ""
+    if len(text) < 2000:
+        return "", ""
+    if len(text) > max_chars:
+        return text[:max_chars], f"truncated at {max_chars} chars of {len(text)}"
+    return text, "full"

@@ -1,0 +1,52 @@
+{
+ "ts": "2026-09-29T18:39:18Z",
+ "rules": {
+  "ETHUSD": {
+   "experiment": "E07",
+   "backtest": {
+    "assumed_cost_bps": 11.9,
+    "trades_per_year": 39.0,
+    "net_sharpe": 0.801,
+    "net_sharpe_double_costs": 0.751
+   },
+   "measured": {
+    "ticks": 14930,
+    "hours": 6,
+    "median_cost_bps": 12.21,
+    "p90_cost_bps": 13.11
+   },
+   "cost_status": "WARN",
+   "cost_reason": "measured 12.21 bps is above the assumed 11.90 bps",
+   "frequency": {
+    "live_opens": 2,
+    "days_live": 6.8,
+    "expected_opens": 0.7,
+    "judged": false
+   }
+  },
+  "USDSGD": {
+   "experiment": "E08",
+   "backtest": {
+    "assumed_cost_bps": 2.7,
+    "trades_per_year": 36.9,
+    "net_sharpe": 0.15,
+    "net_sharpe_double_costs": 0.006
+   },
+   "measured": {
+    "ticks": 439,
+    "hours": 3,
+    "median_cost_bps": 1.09,
+    "p90_cost_bps": 1.33
+   },
+   "cost_status": "NO-DATA",
+   "cost_reason": "439 quotes over 3 hours; need 300 over 5",
+   "frequency": {
+    "live_opens": 1,
+    "days_live": 0.1,
+    "expected_opens": 0.0,
+    "judged": false
+   }
+  }
+ },
+ "paused_now": []
+}

@@ -115,6 +115,10 @@ A budget of **10 pre-registered experiments**, not a daily search. Rules in
 - Stop rule: 10 spent with no pass means this account at this broker has no edge worth
   trading; the project continues as a measurement lab. The audit fails when that happens.
 - A pass means demo paper trading, never a live order by itself.
+- **Reading room (from 2026-09-29):** a weekly workflow (`reading.yml`, `scout/reading_room.py`)
+  reads across finance, economics, statistics, maths, physics and CS, grounds and red-teams
+  idea cards, and ranks `docs/research/queue.json`. It never tests or trades. Keep
+  `docs/research/engine-facts.md` true: every paper is read against it.
 
 ## Layout
 
