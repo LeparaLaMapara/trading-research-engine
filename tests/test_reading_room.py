@@ -130,3 +130,20 @@ def test_transfer_fields_get_reserved_seats():
                  {"title": "stat", "field": "statistics", "triage": 1}])
     got = [p["title"] for p in select(papers, k=8)]
     assert len(got) == 8 and "phys" in got and "math" in got and "stat" not in got
+
+
+def test_top_venue_breaks_ties_but_never_lifts_irrelevant_papers():
+    from scout.reading_room import rank_score
+    jf = {"issn": ["0022-1082"], "triage": 3}
+    arx = {"issn": [], "triage": 3}
+    junk = {"issn": ["0022-1082"], "triage": 1}
+    assert rank_score(jf) == 4 and rank_score(arx) == 3 and rank_score(junk) == 1
+
+
+def test_openalex_keeps_issn():
+    payload = {"results": [{"id": "https://openalex.org/W9", "title": "Carry",
+                            "abstract_inverted_index": {"carry": [0]},
+                            "primary_location": {"source": {"display_name": "Journal of Finance",
+                                                            "issn": ["0022-1082", "1540-6261"]}}}]}
+    got = sources.parse_openalex(payload)
+    assert got[0]["issn"] == ["0022-1082", "1540-6261"] and fields.is_top_venue(got[0])

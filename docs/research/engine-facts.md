@@ -12,8 +12,10 @@ The register summaries and the research queue are added to this automatically.
   gold, indices and BTC need more margin than the account can give.
 * Signed limits: 6% risk per trade, at most 2 positions, 40% drawdown or a 20 dollar floor
   halts everything permanently.
-* Live now: Ethereum 20-day trend without a profit target (E07), and the same rule on USDSGD
-  (E08) with no trading from 20:00 to 23:00 UTC.
+* Live rules: none open new trades. Audit A01 (30 September 2026) demoted both: the Ethereum
+  20-day trend (E07) earned all its edge in 2018 to 2022 and nothing since; the same rule on
+  USDSGD (E08) cannot be told from zero (28% of bootstrap resamples at or below zero). Their
+  last positions close on the rule's own exit. Any new rule must survive the same audit.
 
 ## What trading costs here (measured)
 
@@ -35,20 +37,25 @@ The register summaries and the research queue are added to this automatically.
   in 23,565 snapshots. Order-book research needs a real exchange feed.
 * Trend following works on Ethereum (net Sharpe 0.80 over nine years) but not on most currency
   crosses (3 of 5 lose before costs). Breadth only helps with components that each have edge.
-* Every rule tried is counted. N is about 305, so a new result needs a deflated Sharpe that
+* Every rule tried is counted. N is 306 (it never resets across programmes), so a new result needs a deflated Sharpe that
   survives that count.
 
 ## Data
 
 * Held: broker bars for 64 instruments (D1 back to 2014 or later for many), top-of-book ticks,
   XRP depth for 120 hours, live fills.
-* Free to add: FRED and central bank interest rates, CFTC Commitments of Traders, crypto
-  exchange funding rates and real order books (public endpoints, no account), economic calendars.
+* Held since 30 September 2026 (data_ext/fetch.py, refreshed weekly on Databricks): FRED
+  policy and 3-month interbank rates for USD, EUR, GBP, JPY, AUD, NZD, CAD, CHF (no SGD rate);
+  CFTC positioning for AUD, CAD, GBP, EUR, EURGBP, JPY, NZD, CHF, gold, ETH, BTC (weekly, most
+  from 2000); perpetual funding for ETH and BTC (Binance from 2019, BitMEX ETH from 2018, OKX).
+* Free to add later: real exchange order books (public, no account), economic calendars, MAS
+  rates for SGD.
+* Compute: research runs on Databricks (4 CPUs, 16 GB); the engine PC only trades and records.
 * Not available: tick-level trade prints for FX, colocation, institutional flow data.
 
 ## How a test is run
 
 * Pre-registered before the result exists, one hypothesis per slot, 10 slots per programme,
-  2 left as of 29 September 2026.
+  2 left in programme P1. Audits re-test live rules and can only demote.
 * Pass criteria include beating a random-sign null at the 99th percentile with the same costs,
   surviving doubled costs, and most years positive.

@@ -128,3 +128,37 @@ def bridge_for(field_name: str) -> str:
         if f["name"] == field_name:
             return f["bridge"]
     return FIELDS[0]["bridge"]
+
+
+#: Journals and working-paper series whose papers get extra weight: the top finance and
+#: economics outlets, where results are refereed hard and most often replicated. By ISSN, so
+#: OpenAlex can filter on them.
+TOP_VENUES: dict[str, str] = {
+    "0022-1082": "Journal of Finance",
+    "0893-9454": "Review of Financial Studies",
+    "0304-405X": "Journal of Financial Economics",
+    "0022-1090": "Journal of Financial and Quantitative Analysis",
+    "1572-3097": "Review of Finance",
+    "0025-1909": "Management Science",
+    "0012-9682": "Econometrica",
+    "0002-8282": "American Economic Review",
+    "0033-5533": "Quarterly Journal of Economics",
+    "0034-6527": "Review of Economic Studies",
+    "0022-3808": "Journal of Political Economy",
+    "0304-4076": "Journal of Econometrics",
+    "0304-3932": "Journal of Monetary Economics",
+    "0022-1996": "Journal of International Economics",
+    "0261-5606": "Journal of International Money and Finance",
+    "1469-7688": "Quantitative Finance",
+    "0898-2937": "NBER Working Paper Series",
+}
+
+#: What the top-venue harvest looks for: markets this engine can trade, and the effects the
+#: literature documents for them.
+TOP_VENUE_QUERY = ('currency OR "exchange rate" OR carry OR momentum OR trend OR volatility OR '
+                   'cryptocurrency OR bitcoin OR commodity OR gold OR "transaction costs" OR '
+                   '"return predictability" OR "risk premium" OR liquidity OR positioning')
+
+
+def is_top_venue(paper: dict) -> bool:
+    return any(i in TOP_VENUES for i in paper.get("issn") or [])

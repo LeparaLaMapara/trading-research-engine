@@ -182,6 +182,11 @@ def harvest(since: dt.date, until: dt.date, week_index: int, seen: set[str]) -> 
         for phrase in f["openalex"]:
             for p in sources.fetch_openalex(phrase, since=since.isoformat(), per_page=10):
                 papers.append({**p, "field": f["name"], "via": f"OpenAlex '{phrase}'"})
+    # Top journals and NBER publish less often than arXiv, so look back a month.
+    for p in sources.fetch_openalex(fields.TOP_VENUE_QUERY,
+                                    since=(until - dt.timedelta(days=30)).isoformat(),
+                                    per_page=50, issns=list(fields.TOP_VENUES)):
+        papers.append({**p, "field": "quantitative finance", "via": "top venue"})
     theme = fields.CLASSIC_THEMES[week_index % len(fields.CLASSIC_THEMES)]
     for p in sources.fetch_openalex(theme, classic=True, per_page=10):
         papers.append({**p, "field": "foundations", "via": f"classic '{theme}'",
@@ -207,7 +212,9 @@ TRIAGE_SYS = (
     "instruments, horizon and costs; 3 = a transferable concept (from any field, including "
     "physics or mathematics) with a plausible market analogue; 0 = irrelevant or untestable "
     "here. Favour ideas that reduce cost per unit of signal, since costs are the binding "
-    "constraint. Be harsh: most papers are 0 or 1. " + _DATA_NOTE +
+    "constraint. A paper claiming a trading or forecasting result scores at most 2 unless it "
+    "shows that result on data it did not fit, after realistic costs, against a naive "
+    "baseline. Be harsh: most papers are 0 or 1. " + _DATA_NOTE +
     '\nReply with JSON only: {"scores": [{"i": <index>, "score": <0-5>, "transfer": '
     '"<one line: the idea that could transfer, or empty>"}]}\n\n# Engine facts\n\n')
 
@@ -217,7 +224,9 @@ def triage(papers: list[dict], backend, context: str) -> list[dict]:
     for start in range(0, len(papers), TRIAGE_CHUNK):
         chunk = papers[start:start + TRIAGE_CHUNK]
         body = "\n\n".join(
-            f"<paper i={n}>\nField: {p['field']}\nTitle: {p['title']}\n"
+            f"<paper i={n}>\nField: {p['field']}\n"
+            f"Venue: {p.get('venue') or p.get('via', '')}"
+            f"{' (top journal)' if fields.is_top_venue(p) else ''}\nTitle: {p['title']}\n"
             f"Abstract: {p['abstract'][:1500]}\n</paper>" for n, p in enumerate(chunk))
         try:
             raw = loads_lenient(backend.complete(system, body))
@@ -245,10 +254,21 @@ TRANSFER_SEATS = 2
 TRANSFER_MIN = 2
 
 
+TOP_VENUE_BONUS = 1
+
+
+def rank_score(p: dict) -> int:
+    """Triage score, plus one for a top journal or NBER when the paper is already relevant
+    (2 or more): refereed, often replicated work goes first among equals, and a top venue never
+    lifts an irrelevant paper."""
+    t = p.get("triage", 0)
+    return t + (TOP_VENUE_BONUS if t >= 2 and fields.is_top_venue(p) else 0)
+
+
 def select(papers: list[dict], k: int = READ_K, per_field: int = PER_FIELD) -> list[dict]:
     """Top-scoring papers, at most `per_field` from one field, none below MIN_SCORE, with
     TRANSFER_SEATS seats kept for the best papers from TRANSFER_FIELDS (score TRANSFER_MIN+)."""
-    ranked = sorted(papers, key=lambda p: (-p["triage"], p["title"]))
+    ranked = sorted(papers, key=lambda p: (-rank_score(p), p["title"]))
     picked, count = [], {}
 
     def take(p):
@@ -262,7 +282,7 @@ def select(papers: list[dict], k: int = READ_K, per_field: int = PER_FIELD) -> l
                 and count.get(p["field"], 0) < 1:
             take(p)
     for p in ranked:
-        if p["triage"] < MIN_SCORE or len(picked) >= k:
+        if rank_score(p) < MIN_SCORE or len(picked) >= k:
             break
         if p in picked or count.get(p["field"], 0) >= per_field:
             continue
@@ -339,7 +359,9 @@ ATTACK_SYS = (
     "an experiment we ran; does it need data we cannot get; is it a disguised variant of "
     "something already in the queue; is the analogy from another field doing real work or is "
     "it decoration; would testing it on history involve lookahead, selection or a time-of-day "
-    "confound. Say which concern is fatal, if any. Then score it: information (1 to 5, how "
+    "confound; does the paper itself show its result out of sample, after costs, against a "
+    "naive baseline, and has anyone replicated it. Say which concern is fatal, if any. Then "
+    "score it: information (1 to 5, how "
     "much a test would teach us whatever the outcome), value (1 to 5, how much it could be "
     "worth to this account if it worked), cost (1 to 5, how expensive the cheapest honest test "
     "is in data, code and a programme slot; 1 is cheap). Finally give the revised test you "

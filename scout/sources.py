@@ -128,7 +128,8 @@ def parse_openalex(payload: dict) -> list[dict]:
             continue
         doi = (w.get("doi") or "").replace("https://doi.org/", "")
         wid = (w.get("id") or "").rsplit("/", 1)[-1]
-        venue = ((w.get("primary_location") or {}).get("source") or {}).get("display_name")
+        src = (w.get("primary_location") or {}).get("source") or {}
+        venue = src.get("display_name")
         papers.append({
             "identifier": f"doi:{doi}" if doi else f"openalex:{wid}",
             "url": w.get("doi") or w.get("id") or "",
@@ -138,18 +139,22 @@ def parse_openalex(payload: dict) -> list[dict]:
                         for a in w.get("authorships", [])][:8],
             "published": w.get("publication_date") or "",
             "venue": venue or "",
+            "issn": list(src.get("issn") or []),
             "cited_by": int(w.get("cited_by_count") or 0),
         })
     return papers
 
 
 def fetch_openalex(search: str, since: str | None = None, classic: bool = False,
-                   per_page: int = 15) -> list[dict]:
-    """Works matching a phrase. `since` (YYYY-MM-DD) for new work; `classic` sorts by citations
-    for the foundations of a topic. Empty list on any failure, never a made-up entry."""
+                   per_page: int = 15, issns: list[str] | None = None) -> list[dict]:
+    """Works matching a phrase (OpenAlex search takes AND, OR, NOT). `since` (YYYY-MM-DD) for
+    new work; `classic` sorts by citations for the foundations of a topic; `issns` keeps only
+    those journals. Empty list on any failure, never a made-up entry."""
     filters = ["has_abstract:true"]
     if since:
         filters.append(f"from_publication_date:{since}")
+    if issns:
+        filters.append("primary_location.source.issn:" + "|".join(issns))
     params = {"search": search, "filter": ",".join(filters), "per-page": per_page}
     params["sort"] = "cited_by_count:desc" if classic else "publication_date:desc"
     for attempt in range(3):
