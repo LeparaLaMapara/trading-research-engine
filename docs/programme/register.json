@@ -64,6 +64,14 @@
       "result": "docs/results/E07-no-target.md",
       "verdict": "PASS",
       "summary": "Letting winning trades run instead of taking profit early did better: 0.80 against 0.58, with half as many trades. It is now the rule the engine trades."
+    },
+    {
+      "id": "E08",
+      "kind": "strategy",
+      "title": "The live trend rule on the five currency pairs the account can afford",
+      "prereg": "docs/programme/E08-fx-trend-affordable-prereg.md",
+      "verdict": null,
+      "summary": "Pre-registered 29 September 2026. Not yet scored."
     }
   ]
 }
