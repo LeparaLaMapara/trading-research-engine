@@ -49,13 +49,18 @@ def _ewma_sigma_arr(closes: np.ndarray, span: int = EWMA_SPAN) -> float:
 
 
 def simulate(bars: pd.DataFrame, cost_rt: float, signs: pd.Series | None = None,
-             reward_ratio: float | None = REWARD_RATIO) -> pd.DataFrame:
+             reward_ratio: float | None = REWARD_RATIO,
+             long_financing: float = LONG_FINANCING, short_financing: float = 0.0,
+             bars_per_year: float = 365.0) -> pd.DataFrame:
     """Day-by-day simulation of the live rule. `bars`: ts_utc, open, high, low, close (daily).
 
     Each day d: decide with closes up to d-1; if flat or opposite, (close and) open at d's open
     with a stop and target from sigma known at d-1; then check d's high and low (stop first if
     both are touched); otherwise mark to d's close. `signs` replaces the signal (the null).
     `reward_ratio=None` removes the profit target (E07): exits only at the stop or on a flip.
+    Financing is an annual COST as a fraction of notional (negative earns), charged per bar held
+    as annual / `bars_per_year`: 365 for crypto (a bar every day), 260 for weekday-only bars,
+    whose weekend charges land on the Wednesday triple rollover (E08).
     Returns one row per day: position held, net return, and whether a round trip completed.
     """
     b = bars.sort_values("ts_utc").reset_index(drop=True)
@@ -93,8 +98,7 @@ def simulate(bars: pd.DataFrame, cost_rt: float, signs: pd.Series | None = None,
             exit_px = stop if hit_stop else (target if hit_tgt else None)
             mark = exit_px if exit_px is not None else c
             ret += pos * (mark / prev_mark - 1.0)
-            if pos > 0:
-                ret -= LONG_FINANCING / 365.0
+            ret -= (long_financing if pos > 0 else short_financing) / bars_per_year
             held = pos
             if exit_px is not None:
                 ret -= cost_rt / 2

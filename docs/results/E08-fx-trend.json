@@ -1,0 +1,230 @@
+{
+ "experiment": "E08",
+ "run_ts": "2026-09-29T14:07:07Z",
+ "pairs": {
+  "AUDCAD": {
+   "sample": [
+    "2014-10-21",
+    "2026-09-17"
+   ],
+   "days": 3096,
+   "cost_round_trip_bps": 3.7,
+   "spread_source": "see console",
+   "fee_annual": 0.00843,
+   "todays_swap_annual_long_short": [
+    0.01356,
+    -0.03041
+   ],
+   "net_sharpe": -0.7,
+   "gross_sharpe": -0.419,
+   "null_p99": -0.366,
+   "null_mean": -0.987,
+   "net_sharpe_double_costs": -0.866,
+   "net_sharpe_todays_full_swap": -0.698,
+   "net_by_year": {
+    "2015": -0.1351,
+    "2016": 0.0313,
+    "2017": -0.1199,
+    "2018": 0.0185,
+    "2019": -0.0644,
+    "2020": -0.0128,
+    "2021": -0.1097,
+    "2022": 0.022,
+    "2023": -0.1106,
+    "2024": -0.0435,
+    "2025": -0.0511
+   },
+   "years_positive": "3 of 11",
+   "round_trips": 403,
+   "deflated_sharpe_at_N305": 0.0,
+   "criteria": {
+    "C1_net_sharpe_positive": false,
+    "C2_beats_null_p99": false,
+    "C3_7_of_11_years_positive": false,
+    "C4_survives_double_costs": false,
+    "C5_survives_todays_full_swap": false
+   },
+   "verdict": "FAIL"
+  },
+  "AUDNZD": {
+   "sample": [
+    "2014-10-21",
+    "2026-09-17"
+   ],
+   "days": 3096,
+   "cost_round_trip_bps": 3.7,
+   "spread_source": "see console",
+   "fee_annual": 0.00777,
+   "todays_swap_annual_long_short": [
+    0.00821,
+    -0.02376
+   ],
+   "net_sharpe": -0.059,
+   "gross_sharpe": 0.238,
+   "null_p99": -0.426,
+   "null_mean": -1.158,
+   "net_sharpe_double_costs": -0.229,
+   "net_sharpe_todays_full_swap": -0.054,
+   "net_by_year": {
+    "2015": -0.0295,
+    "2016": -0.0001,
+    "2017": -0.0259,
+    "2018": -0.0059,
+    "2019": -0.0101,
+    "2020": 0.0578,
+    "2021": -0.0214,
+    "2022": 0.0283,
+    "2023": 0.0012,
+    "2024": -0.0582,
+    "2025": -0.034
+   },
+   "years_positive": "3 of 11",
+   "round_trips": 334,
+   "deflated_sharpe_at_N305": 0.001,
+   "criteria": {
+    "C1_net_sharpe_positive": false,
+    "C2_beats_null_p99": true,
+    "C3_7_of_11_years_positive": false,
+    "C4_survives_double_costs": false,
+    "C5_survives_todays_full_swap": false
+   },
+   "verdict": "FAIL"
+  },
+  "EURCAD": {
+   "sample": [
+    "2014-10-21",
+    "2026-09-17"
+   ],
+   "days": 3096,
+   "cost_round_trip_bps": 3.7,
+   "spread_source": "see console",
+   "fee_annual": 0.00648,
+   "todays_swap_annual_long_short": [
+    -0.00341,
+    -0.00955
+   ],
+   "net_sharpe": -0.546,
+   "gross_sharpe": -0.303,
+   "null_p99": -0.057,
+   "null_mean": -0.841,
+   "net_sharpe_double_costs": -0.706,
+   "net_sharpe_todays_full_swap": -0.545,
+   "net_by_year": {
+    "2015": 0.0256,
+    "2016": -0.0364,
+    "2017": 0.0554,
+    "2018": 0.0717,
+    "2019": -0.1319,
+    "2020": -0.1434,
+    "2021": -0.0938,
+    "2022": 0.0461,
+    "2023": -0.0578,
+    "2024": -0.0804,
+    "2025": -0.1326
+   },
+   "years_positive": "4 of 11",
+   "round_trips": 408,
+   "deflated_sharpe_at_N305": 0.0,
+   "criteria": {
+    "C1_net_sharpe_positive": false,
+    "C2_beats_null_p99": false,
+    "C3_7_of_11_years_positive": false,
+    "C4_survives_double_costs": false,
+    "C5_survives_todays_full_swap": false
+   },
+   "verdict": "FAIL"
+  },
+  "EURGBP": {
+   "sample": [
+    "2014-10-20",
+    "2026-09-14"
+   ],
+   "days": 3094,
+   "cost_round_trip_bps": 1.05,
+   "spread_source": "see console",
+   "fee_annual": 0.01215,
+   "todays_swap_annual_long_short": [
+    -0.026,
+    0.0017
+   ],
+   "net_sharpe": -0.458,
+   "gross_sharpe": -0.249,
+   "null_p99": 0.194,
+   "null_mean": -0.441,
+   "net_sharpe_double_costs": -0.502,
+   "net_sharpe_todays_full_swap": -0.455,
+   "net_by_year": {
+    "2015": -0.087,
+    "2016": 0.1182,
+    "2017": -0.0175,
+    "2018": -0.041,
+    "2019": 0.0544,
+    "2020": -0.033,
+    "2021": -0.1029,
+    "2022": -0.0608,
+    "2023": -0.0606,
+    "2024": -0.1171,
+    "2025": 0.012
+   },
+   "years_positive": "3 of 11",
+   "round_trips": 360,
+   "deflated_sharpe_at_N305": 0.0,
+   "criteria": {
+    "C1_net_sharpe_positive": false,
+    "C2_beats_null_p99": false,
+    "C3_7_of_11_years_positive": false,
+    "C4_survives_double_costs": false,
+    "C5_survives_todays_full_swap": false
+   },
+   "verdict": "FAIL"
+  },
+  "USDSGD": {
+   "sample": [
+    "2014-10-21",
+    "2026-09-17"
+   ],
+   "days": 3096,
+   "cost_round_trip_bps": 2.7,
+   "spread_source": "see console",
+   "fee_annual": 0.01288,
+   "todays_swap_annual_long_short": [
+    0.01259,
+    -0.03835
+   ],
+   "net_sharpe": 0.15,
+   "gross_sharpe": 0.556,
+   "null_p99": -0.378,
+   "null_mean": -1.1,
+   "net_sharpe_double_costs": 0.006,
+   "net_sharpe_todays_full_swap": 0.13,
+   "net_by_year": {
+    "2015": -0.0249,
+    "2016": 0.0413,
+    "2017": -0.0341,
+    "2018": -0.0311,
+    "2019": 0.0468,
+    "2020": 0.0061,
+    "2021": -0.0751,
+    "2022": 0.03,
+    "2023": 0.0234,
+    "2024": 0.039,
+    "2025": 0.0113
+   },
+   "years_positive": "7 of 11",
+   "round_trips": 313,
+   "deflated_sharpe_at_N305": 0.009,
+   "criteria": {
+    "C1_net_sharpe_positive": true,
+    "C2_beats_null_p99": true,
+    "C3_7_of_11_years_positive": true,
+    "C4_survives_double_costs": true,
+    "C5_survives_todays_full_swap": true
+   },
+   "verdict": "PASS"
+  }
+ },
+ "passed": [
+  "USDSGD"
+ ],
+ "verdict": "PASS"
+}
