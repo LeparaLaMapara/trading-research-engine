@@ -1,7 +1,7 @@
 """Run one of the engine's Python modules as a Databricks serverless job.
 
 The workflow `databricks-run.yml` syncs the repository's code to the workspace and submits this
-file with the module to run as its parameter, for example `scripts.e08_fx_trend`. This file:
+file with the code folder and the module to run as its parameters, for example `scripts.e08_fx_trend`. This file:
 
   1. copies the code to a scratch directory (workspace files are read-only for jobs),
   2. copies the latest data snapshot from the Unity Catalog volume into its data/ folder
@@ -25,11 +25,12 @@ VOLUME = "/Volumes/workspace/trading_engine"
 
 
 def main() -> int:
-    if len(sys.argv) < 2:
-        print("usage: run_module.py <module> [args...]")
+    if len(sys.argv) < 3:
+        print("usage: run_module.py <code_dir> <module> [args...]")
         return 2
-    module, args = sys.argv[1], sys.argv[2:]
-    src = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    # Databricks runs this file through exec(), so __file__ is not defined; the workflow
+    # passes the synced code folder instead.
+    src, module, args = sys.argv[1], sys.argv[2], sys.argv[3:]
     work = "/tmp/trading-research-engine"
     shutil.rmtree(work, ignore_errors=True)
     shutil.copytree(src, work)
