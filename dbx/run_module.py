@@ -5,7 +5,8 @@ file with the code folder and the module to run as its parameters, for example `
 
   1. copies the code to a scratch directory (workspace files are read-only for jobs),
   2. copies the latest data snapshot from the Unity Catalog volume into its data/ folder
-     (uploaded daily by scripts/upload_to_databricks.py on the engine PC),
+     (uploaded daily by scripts/upload_to_databricks.py on the engine PC), and the outside
+     data (data_ext/fetch.py) into data/external/,
   3. runs the module exactly as `python -m <module> <args>` would,
   4. copies any results it wrote under docs/results/ back to the volume, in a folder named
      for this run, so the workflow can fetch them.
@@ -37,6 +38,11 @@ def main() -> int:
     os.makedirs(f"{work}/data", exist_ok=True)
     for f in glob.glob(f"{VOLUME}/raw/*"):
         shutil.copy(f, f"{work}/data/")
+    # Outside data (data_ext/fetch.py): rates, positioning, funding, with its manifest.
+    os.makedirs(f"{work}/data/external", exist_ok=True)
+    for f in glob.glob(f"{VOLUME}/external/*"):
+        if os.path.isfile(f):
+            shutil.copy(f, f"{work}/data/external/")
     try:
         stamp = open(f"{work}/data/uploaded_at.txt", encoding="utf-8").read().strip()
     except OSError:
