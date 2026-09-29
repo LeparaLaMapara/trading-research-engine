@@ -7,7 +7,7 @@ once an hour:
      silent for 2 minutes (it lost its connection unnoticed for up to 50 minutes on
      2026-09-22); once E03 has its data, just wait;
   2. publish the live state (balance, positions, closes) to the dashboard;
-  3. run one trader step (scripts/trader_step.py: E05, decides once per UTC day);
+  3. run one trader step per instrument (scripts/trader_step.py: ETHUSD, then USDSGD);
   4. when E03 reaches 120 hours, score it, record the verdict and push it.
 
 A Windows scheduled task starts this at logon and re-launches it every 15 minutes; a lock file
@@ -114,8 +114,16 @@ def record_slot() -> None:
         time.sleep(5)
 
 
+#: E08 passed on an ASSUMED USDSGD spread; five minutes of quotes every hour, across every
+#: hour of the week including the rollover, turn it into a measurement.
+SPREAD_SYMBOLS, SPREAD_S = ("USDSGD",), 300
+
+
 def wait_slot() -> None:
     end = time.time() + SLOT_S
+    run(["-m", "telemetry.logger", "--symbols", *SPREAD_SYMBOLS, "--duration", str(SPREAD_S),
+         "--no-snapshot"], timeout=SPREAD_S + 120)
+    beat("waiting")
     while time.time() < end:
         time.sleep(60)
         beat("waiting")
@@ -175,9 +183,12 @@ def main() -> int:
             r = run(["-m", "scripts.push_live_state"], timeout=180)
             log("live state published" if r and r.returncode == 0 else "live state push failed")
             beat("trading")
-            r = run(["-m", "scripts.trader_step"], timeout=900)
-            if r is not None and r.stdout.strip():
-                log("trader: " + r.stdout.strip().splitlines()[-1][:400])
+            for args in (["-m", "scripts.trader_step"],
+                         ["-m", "scripts.trader_step", "--symbol", "USDSGD",
+                          "--label", "engine-E08", "--blackout", "20-23"]):
+                r = run(args, timeout=900)
+                if r is not None and r.stdout.strip():
+                    log("trader: " + r.stdout.strip().splitlines()[-1][:400])
             log(f"cycle done; E03 {hours_recorded():.1f} h recorded")
     finally:
         subprocess.run(["gh", "workflow", "enable", "live_state.yml"], capture_output=True,

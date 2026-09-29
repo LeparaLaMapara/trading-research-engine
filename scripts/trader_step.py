@@ -1,4 +1,10 @@
-"""One decision of the autonomous live trader: Ethereum 20-day trend, no profit target.
+"""One decision of the autonomous live trader: the 20-day trend rule, no profit target.
+
+Traded on ETHUSD (E05/E07, label engine-E05) and, from 2026-09-29, on USDSGD (E08, label
+engine-E08, run with --symbol USDSGD --label engine-E08 --blackout 20-23). Each instrument keeps
+its own position state; the owner's limits (floor, drawdown, daily loss) are account-wide and
+shared. `--blackout` keeps an instrument from trading in the rollover hours, when spreads widen:
+E08 passed only just, on costs measured away from the rollover.
 
 E05 went live on 2026-09-23; E07 (the same rule without the 1.5R target) passed the same day
 with net Sharpe 0.80 against 0.58 and replaced it for new trades.
@@ -44,12 +50,24 @@ from lab import eth_trend as E
 from ops import authority
 from risk.limits import LIVE_LIMITS
 
-SYMBOL, LABEL = "ETHUSD", "engine-E05"
+SYMBOL, LABEL = "ETHUSD", "engine-E05"   # overridden by --symbol / --label
 STATE = "data/engine_state.json"
 DECISIONS = "data/engine_decisions.jsonl"
 PY = sys.executable
 DAY_S = 86400
 RESIZE_AT = 1.5          # equity 50% above what it was when the engine's position opened
+
+
+def sk(key: str) -> str:
+    """State key for this instrument. ETHUSD keeps the original names so its state carries on."""
+    return key if SYMBOL == "ETHUSD" else f"{SYMBOL}:{key}"
+
+
+def in_blackout(now: float, window: tuple[int, int] | None) -> bool:
+    """True inside [start, end) UTC hours, e.g. (20, 23) is 20:00 to 22:59."""
+    if not window:
+        return False
+    return window[0] <= time.gmtime(now).tm_hour < window[1]
 
 
 def load_state() -> dict:
@@ -181,7 +199,14 @@ class Broker:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--symbol", default="ETHUSD")
+    ap.add_argument("--label", default="engine-E05")
+    ap.add_argument("--blackout", default=None,
+                    help="UTC hours with no trading, e.g. 20-23 (start inclusive, end exclusive)")
     a = ap.parse_args()
+    global SYMBOL, LABEL
+    SYMBOL, LABEL = a.symbol.upper(), a.label
+    window = tuple(int(x) for x in a.blackout.split("-")) if a.blackout else None
     st = load_state()
     now = time.time()
     day = time.strftime("%Y-%m-%d", time.gmtime(now))
@@ -203,7 +228,12 @@ def main() -> int:
         log_decision({"action": "none", "why": "no completed daily bars"})
         return 1
     bar_ts = int(bars["ts_utc"].iloc[-1])
-    new_bar = st.get("decided_bar") != bar_ts
+    new_bar = st.get(sk("decided_bar")) != bar_ts
+    if new_bar and in_blackout(now, window):
+        # Neither open nor flip at the rollover. The bar stays undecided, so the next hourly
+        # step after the window takes the decision.
+        log_decision({"symbol": SYMBOL, "action": "wait", "why": f"rollover window {a.blackout} UTC"})
+        return 0
     want = E.signal(bars["close"])
 
     # Decide closing inside the one broker session: on a new bar (signal check) always; between
@@ -216,7 +246,7 @@ def main() -> int:
         if halt or a.dry_run:
             return None
         why = should_close(mine, want if new_bar else (mine or {}).get("side", want), equity,
-                           st.get("opened_equity"))
+                           st.get(sk("opened_equity")))
         if why and why.startswith("resize") and (blocked or want == 0):
             return None                  # never resize into a day already at its loss limit
         return why
@@ -226,7 +256,7 @@ def main() -> int:
         log_decision({"action": "none", "why": f"could not read the account: {b.error}"})
         return 1
     eq = b.equity
-    decision = {"bar": time.strftime("%Y-%m-%d", time.gmtime(bar_ts + DAY_S)), "signal": want,
+    decision = {"symbol": SYMBOL, "bar": time.strftime("%Y-%m-%d", time.gmtime(bar_ts + DAY_S)), "signal": want,
                 "balance": round(b.balance, 2), "equity": round(eq, 2),
                 "pnl_today": round(verdict.get("pnl", 0.0), 2)}
     if verdict.get("halt"):
@@ -239,7 +269,7 @@ def main() -> int:
     decision["held"] = held
     if a.dry_run:
         log_decision({**decision, "action": "dry-run",
-                      "would_close": should_close(mine, want, eq, st.get("opened_equity"))})
+                      "would_close": should_close(mine, want, eq, st.get(sk("opened_equity")))})
         return 0
     if b.close_reason:
         if b.closed_id is None:
@@ -254,7 +284,7 @@ def main() -> int:
             position_id=str(b.closed_id), status="CLOSED", purpose="live_research_trade",
             note=f"engine close ({b.close_reason}); price and P&L in the broker deal list")
         held = 0
-        st.pop("opened_equity", None)
+        st.pop(sk("opened_equity"), None)
 
     if not new_bar and not b.close_reason:
         save_state(st)                   # between bars with nothing to do: stay quiet
@@ -269,15 +299,23 @@ def main() -> int:
                 [PY, "-m", "scripts.live_trade", "--symbol", SYMBOL, "--side", side, "--confirm",
                  "--no-target", "--label", LABEL, "--pnl-today", f"{verdict.get('pnl', 0.0):.2f}",
                  "--equity-peak", f"{st.get('peak', eq):.2f}",
-                 "--reason", f"E07 20-day trend, no target, signal {want:+d}, bar {decision['bar']}"],
+                 "--reason", f"20-day trend, no target ({LABEL}), signal {want:+d}, "
+                             f"bar {decision['bar']}"],
                 capture_output=True, text=True, timeout=240, check=False)
             tail = [ln for ln in r.stdout.splitlines() if "stages passed" in ln or "  - " in ln]
             decision["opened"], decision["result"] = side, " | ".join(tail)[:300]
-            if any("stages passed" in ln and ln.split("/")[0] == ln.split("/")[1].split()[0]
-                   for ln in tail):
-                st["opened_equity"] = eq
-            action = "open"
-    st["decided_bar"] = bar_ts
+            opened = any("stages passed" in ln and ln.split("/")[0] == ln.split("/")[1].split()[0]
+                         for ln in tail)
+            if opened:
+                st[sk("opened_equity")] = eq
+                action = "open"
+            else:
+                # Not decided: a refused or failed open (a closed market on a Friday night, a
+                # lost connection) is retried next hour instead of skipping a whole day.
+                save_state(st)
+                log_decision({**decision, "action": "open-failed, will retry"})
+                return 1
+    st[sk("decided_bar")] = bar_ts
     save_state(st)
     log_decision({**decision, "action": action})
     return 0
