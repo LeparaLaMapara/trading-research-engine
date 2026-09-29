@@ -1,6 +1,15 @@
 {
   "budget": 10,
   "started": "2026-09-22",
+  "n_before_programme": 295,
+  "n_note": "295 candidates documented by 19 September 2026. Each experiment adds its trials; measurements add none, audits add none. E03 was left out of the running count used by E05 to E08 (their N was one too low); it is counted here.",
+  "programmes": [
+    {
+      "id": "P1",
+      "budget": 10,
+      "started": "2026-09-22"
+    }
+  ],
   "experiments": [
     {
       "id": "E01",
@@ -9,7 +18,9 @@
       "result": "docs/results/E01-intraday-momentum.md",
       "verdict": "FAIL",
       "summary": "The morning did not predict the afternoon. It lost money even before trading costs, and after costs it did no better than guessing at random.",
-      "kind": "strategy"
+      "kind": "strategy",
+      "programme": "P1",
+      "trials": 1
     },
     {
       "id": "E02",
@@ -18,7 +29,9 @@
       "result": "docs/results/E02-intraday-metals-energy.md",
       "verdict": "FAIL",
       "kind": "strategy",
-      "summary": "On six years E01 never saw, metals and oil showed a small real tendency before costs, but paying the spread every day wiped it out. Not tradeable here."
+      "summary": "On six years E01 never saw, metals and oil showed a small real tendency before costs, but paying the spread every day wiped it out. Not tradeable here.",
+      "programme": "P1",
+      "trials": 1
     },
     {
       "id": "E03",
@@ -27,7 +40,9 @@
       "result": "docs/results/E03-book-imbalance.json",
       "verdict": "FAIL",
       "kind": "strategy",
-      "summary": "Order-book pressure on XRP did not make money after crossing the spread twice. 11 simulated trades over 120 hours."
+      "summary": "Order-book pressure on XRP did not make money after crossing the spread twice. 11 simulated trades over 120 hours.",
+      "programme": "P1",
+      "trials": 1
     },
     {
       "id": "E04",
@@ -36,7 +51,9 @@
       "result": "docs/results/E04-fill-cost.md",
       "verdict": "PASS",
       "summary": "Real orders filled at the quoted price, on average a hair better. 20 round trips cost $1.31 in total, as the cost model assumed. Backtest costs are not understated for this pair.",
-      "kind": "measurement"
+      "kind": "measurement",
+      "programme": "P1",
+      "trials": 0
     },
     {
       "id": "E05",
@@ -45,7 +62,9 @@
       "prereg": "docs/programme/E05-eth-trend-live-prereg.md",
       "result": "docs/results/E05-eth-trend.md",
       "verdict": "PASS",
-      "summary": "The first rule to pass: following the last 20 days of Ethereum made money after costs over 9 years, in 6 of 8 years. The evidence is modest. It traded live until 23 September 2026, when E07 replaced it."
+      "summary": "The first rule to pass: following the last 20 days of Ethereum made money after costs over 9 years, in 6 of 8 years. The evidence is modest. It traded live until 23 September 2026, when E07 replaced it.",
+      "programme": "P1",
+      "trials": 1
     },
     {
       "id": "E06",
@@ -54,7 +73,9 @@
       "prereg": "docs/programme/E06-crypto-breadth-prereg.md",
       "result": "docs/results/E06-crypto-breadth.md",
       "verdict": "FAIL",
-      "summary": "Trading the rule on 8 coins made the result four times steadier than the average coin, but it did not beat Ethereum alone: some coins had no edge and diluted it. Breadth works only with components that each earn their place."
+      "summary": "Trading the rule on 8 coins made the result four times steadier than the average coin, but it did not beat Ethereum alone: some coins had no edge and diluted it. Breadth works only with components that each earn their place.",
+      "programme": "P1",
+      "trials": 1
     },
     {
       "id": "E07",
@@ -63,7 +84,9 @@
       "prereg": "docs/programme/E07-let-winners-run-prereg.md",
       "result": "docs/results/E07-no-target.md",
       "verdict": "PASS",
-      "summary": "Letting winning trades run instead of taking profit early did better: 0.80 against 0.58, with half as many trades. It is now the rule the engine trades."
+      "summary": "Letting winning trades run instead of taking profit early did better: 0.80 against 0.58, with half as many trades. It is now the rule the engine trades.",
+      "programme": "P1",
+      "trials": 1
     },
     {
       "id": "E08",
@@ -72,7 +95,9 @@
       "prereg": "docs/programme/E08-fx-trend-affordable-prereg.md",
       "verdict": "PASS",
       "summary": "Of the five currency pairs the account can afford, only USD/SGD made money with the trend rule (0.15, 7 of 11 years), and only just: it barely survives doubled costs and could be luck. The other four lost. USD/SGD may trade beside Ethereum, but only away from the 21:00 UTC rollover when spreads widen.",
-      "result": "docs/results/E08-fx-trend.md"
+      "result": "docs/results/E08-fx-trend.md",
+      "programme": "P1",
+      "trials": 5
     }
   ]
 }

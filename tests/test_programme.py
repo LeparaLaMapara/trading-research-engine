@@ -61,3 +61,47 @@ def test_a_measurement_pass_does_not_defuse_the_stop_rule(tmp_path):
             {"id": "E1", "prereg": "p1.md", "result": "r1.json", "verdict": "FAIL"}]
     st = P.status(_reg(tmp_path, exps, budget=2), repo=str(tmp_path), check_git=False)
     assert st.passed == [] and st.measured == ["E0"] and st.stop_rule_triggered
+
+
+def _prog_reg(tmp_path, p1_done, p2=None, audits=()):
+    exps = [{"id": f"E{i:02d}", "programme": "P1", "prereg": f"p{i}.md", "result": f"r{i}.json",
+             "verdict": "FAIL", "trials": 1} for i in range(p1_done)]
+    progs = [{"id": "P1", "budget": 3}]
+    if p2 is not None:
+        progs.append({"id": "P2", "budget": 3})
+        exps += [{"id": "E90", "programme": "P2", "prereg": "p90.md", "result": "r90.json",
+                  "verdict": p2, "trials": 2}]
+    exps += list(audits)
+    reg = _reg(tmp_path, exps)
+    reg.update(programmes=progs, n_before_programme=100)
+    return reg
+
+
+def test_a_new_programme_needs_the_last_one_spent(tmp_path):
+    st = P.status(_prog_reg(tmp_path, 2, p2="FAIL"), repo=str(tmp_path), check_git=False)
+    assert any("was not spent" in p for p in st.problems)
+
+
+def test_n_carries_across_programmes_and_slots_do_not(tmp_path):
+    st = P.status(_prog_reg(tmp_path, 3, p2="PASS"), repo=str(tmp_path), check_git=False)
+    assert not st.problems, st.problems
+    assert st.programme == "P2" and st.spent == 1 and st.passed == ["E90"]
+    assert st.n_tried == 100 + 3 + 2          # every trial ever, not just this programme's
+
+
+def test_audits_spend_no_slot_add_no_n_and_can_demote(tmp_path):
+    audit = {"id": "A01", "kind": "audit", "audits": "E07", "programme": "P1",
+             "prereg": "pa.md", "result": "ra.json", "verdict": "FAIL"}
+    st = P.status(_prog_reg(tmp_path, 2, audits=[audit]), repo=str(tmp_path), check_git=False)
+    assert not st.problems, st.problems
+    assert st.spent == 2 and st.n_tried == 102 and st.demoted == ["E07 (A01)"]
+
+
+def test_an_audit_may_not_add_trials(tmp_path):
+    audit = {"id": "A01", "kind": "audit", "audits": "E07", "prereg": "pa.md", "trials": 3}
+    st = P.status(_prog_reg(tmp_path, 1, audits=[audit]), repo=str(tmp_path), check_git=False)
+    assert any("audit but adds trials" in p for p in st.problems)
+
+
+def test_real_register_counts_n_306():
+    assert P.status(P.load(), check_git=False).n_tried == 306

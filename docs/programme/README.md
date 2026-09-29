@@ -51,6 +51,28 @@ week's memo to `docs/research/weekly/`.
 Nothing in the queue is a test. A slot is spent only by writing a pre-registration from the top
 of the queue, as before. Spend is capped at 6 US dollars a run, checked before every call.
 
+## Renewal, the running N, and audits (owner-approved 29 September 2026)
+
+More experiments are allowed; an easier bar is not.
+
+1. **Budgets renew.** When a programme has spent its whole budget, a new programme of 10 may
+   open (P2, P3, ...) by adding it to `programmes` in `register.json`. It may not open earlier.
+   The stop rule applies to each programme: 10 spent with no strategy pass means that programme
+   found no edge worth trading.
+2. **N never resets.** `n_before_programme` (295, the candidates documented by 19 September)
+   plus every experiment's `trials` is the running N. Every new result reports its deflated
+   Sharpe at that N or more, and a live rule needs the deflated Sharpe bar at that N.
+   `python -m research.programme` prints the current N. Correction made the same day: E03
+   was left out of the count E05 to E08 used, so their N was one too low; N is now 306.
+3. **Audits spend no slot.** An audit (`kind: audit`, id `Axx`, field `audits`: the experiment
+   it re-tests) runs a rule that is already counted through stronger methods: more null
+   draws, block bootstrap intervals, the current N, measured costs. It adds no trials, because
+   it tests nothing new. It can only demote: a failed audit takes the rule out of live trading;
+   a passed audit changes nothing. It is pre-registered and committed first, like everything
+   else.
+4. **Computation is not the limit.** Heavy runs go to Databricks (`databricks-run.yml`), which
+   makes stronger tests affordable. It does not make more tests honest; only rules 1 to 3 do.
+
 ## What the daily run does now
 
 Refreshes the account snapshot and the bar history, then runs the self-audit. It no longer tests

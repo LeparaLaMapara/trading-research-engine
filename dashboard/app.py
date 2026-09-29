@@ -1215,8 +1215,11 @@ def _programme_data_unsafe(root: Path) -> dict:
     if reg is None:
         return {"ok": False, "note": f"The experiment register is {why}, so the research "
                                      f"programme cannot be shown right now."}
+    progs = reg.get("programmes") if isinstance(reg.get("programmes"), list) else None
+    current = progs[-1] if progs and isinstance(progs[-1], dict) else {"id": "P1"}
+    first = progs[0].get("id", "P1") if progs and isinstance(progs[0], dict) else "P1"
     try:
-        budget = int(reg.get("budget") or 0)
+        budget = int(current.get("budget") or reg.get("budget") or 0)
     except (TypeError, ValueError):
         budget = 0
     raw = reg.get("experiments")
@@ -1228,7 +1231,10 @@ def _programme_data_unsafe(root: Path) -> dict:
         row = {"id": str(e.get("id") or "?"), "title": str(e.get("title") or ""),
                "verdict": verdict if verdict in ("PASS", "FAIL") else "IN PROGRESS",
                "summary": str(e.get("summary") or ""), "criteria": [], "measurements": [],
-               "note": ""}
+               "note": "",
+               # Slots are counted for the current programme only; audits spend none.
+               "counts": (e.get("programme", first) == current.get("id", "P1")
+                          and e.get("kind") != "audit")}
         path = _result_json_path(e, root)
         if path is not None:
             data, why = _read_json(path)
@@ -1247,9 +1253,10 @@ def _programme_data_unsafe(root: Path) -> dict:
                                             "value": v} for k, v in meas.items()
                                            if not isinstance(v, (dict, list))]
         rows.append(row)
-    spent = sum(1 for r in rows if r["verdict"] in ("PASS", "FAIL"))
+    spent = sum(1 for r in rows if r["counts"] and r["verdict"] in ("PASS", "FAIL"))
     return {"ok": True, "note": "", "sentence": _sentence(reg, root), "budget": budget,
-            "spent": spent, "passed": sum(1 for r in rows if r["verdict"] == "PASS"),
+            "spent": spent,
+            "passed": sum(1 for r in rows if r["counts"] and r["verdict"] == "PASS"),
             "used_pct": (min(100, round(100 * spent / budget)) if budget > 0 else 0),
             "started": str(reg.get("started") or ""), "experiments": rows}
 
