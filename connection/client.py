@@ -54,6 +54,8 @@ class CTraderConnection:
         self.on_symbol_spec = on_symbol_spec
         self.account_id: int | None = int(settings.ACCOUNT_ID) if settings.ACCOUNT_ID else None
         self.name_to_id: dict[str, int] = {}
+        #: Light symbol records by name (carry base/quote asset ids for currency conversion).
+        self.light_symbols: dict[str, object] = {}
         self.accounts: list = []      # every account the token reaches, filled during setup
         self._access_token: str | None = None
         self._refresh_attempted = False
@@ -139,6 +141,7 @@ class CTraderConnection:
         elif message.payloadType == ProtoOASymbolsListRes().payloadType:
             res = Protobuf.extract(message)
             self.name_to_id = {s.symbolName.upper(): s.symbolId for s in res.symbol}
+            self.light_symbols = {s.symbolName.upper(): s for s in res.symbol}
             print(f"symbols available: {len(self.name_to_id)}")
             self.on_ready(self)
 

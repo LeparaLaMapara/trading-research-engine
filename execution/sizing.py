@@ -39,6 +39,10 @@ class SymbolSpec:
     lot_size: int          # units per lot, as the broker reports it
     pip_size: float        # price move of one pip, e.g. 0.0001
     digits: int = 5
+    #: Account currency (USD) per one unit of the QUOTE currency. 1.0 for USD-quoted symbols.
+    #: Without it a yen pip was counted as a dollar pip, and EURJPY "risked" 2,273% of the
+    #: account (2026-09-29). None means the rate is unknown, and sizing then refuses.
+    quote_to_account: float | None = 1.0
 
 
 @dataclass(frozen=True)
@@ -63,21 +67,27 @@ def value_per_pip(spec: SymbolSpec, volume: int) -> float:
     """Account-currency value of a one-pip move, for this volume.
 
     cTrader volumes are in hundredths of a base-currency unit, so units = volume / 100.
-    For a USD-quoted pair this is exact. For anything else it is an approximation and the
-    caller must say so rather than pretend otherwise.
+    A pip moves the price in the QUOTE currency, so the result is converted with
+    `spec.quote_to_account`.
     """
     units = volume / 100.0
-    return units * spec.pip_size
+    return units * spec.pip_size * (spec.quote_to_account or 0.0)
 
 
 def size_position(equity: float, risk_fraction: float, stop_pips: float, spec: SymbolSpec,
                   margin_per_min_volume: float | None = None,
-                  free_margin_buffer: float = 1.5) -> Sizing:
+                  free_margin_buffer: float = 1.5,
+                  max_margin_fraction: float | None = None) -> Sizing:
     """Largest position that respects the risk limit, or a refusal explaining why not.
 
     `margin_per_min_volume` should come from the broker (ProtoOAExpectedMarginReq), not from
     an assumed leverage. Leverage on this account was inferred as 1:100 and was actually
     1:50, which doubled the real margin; asking removes that whole class of error.
+
+    When the risk-sized position needs more margin than allowed (`max_margin_fraction` of
+    equity, or not enough free margin to absorb the stop), the size steps DOWN toward the
+    broker minimum before giving up. Until 2026-09-29 it gave up at once, so EURGBP was
+    refused at 0.02 lots when 0.01 fitted.
     """
     if equity <= 0:
         return Sizing(False, 0, 0.0, 0.0, 0.0, None, "no equity")
@@ -87,6 +97,10 @@ def size_position(equity: float, risk_fraction: float, stop_pips: float, spec: S
     if not 0 < risk_fraction < 1:
         return Sizing(False, 0, 0.0, 0.0, 0.0, None,
                       f"risk fraction {risk_fraction} is not between 0 and 1")
+    if spec.quote_to_account is None or spec.quote_to_account <= 0:
+        return Sizing(False, 0, 0.0, 0.0, 0.0, None,
+                      "no conversion rate from the quote currency to the account currency: "
+                      "the risk cannot be stated, so no trade")
 
     risk_amount = equity * risk_fraction
     # Value of the full stop distance, per unit of volume.
@@ -107,19 +121,32 @@ def size_position(equity: float, risk_fraction: float, stop_pips: float, spec: S
             f"{risk_fraction * 100:.1f}% limit. No trade.")
 
     volume = min(stepped, spec.max_volume)
-    actual_loss = value_per_pip(spec, volume) * stop_pips
+    if margin_per_min_volume is None:
+        actual_loss = value_per_pip(spec, volume) * stop_pips
+        return Sizing(True, volume, volume / spec.lot_size, actual_loss, actual_loss / equity,
+                      None, "ok")
 
-    margin = None
-    if margin_per_min_volume is not None:
+    # Step down until the margin fits. Every size tried is at or below the risk-sized one,
+    # so stepping down can only lower the risk, never raise it.
+    why = ""
+    while volume >= spec.min_volume:
+        actual_loss = value_per_pip(spec, volume) * stop_pips
         margin = margin_per_min_volume * (volume / spec.min_volume)
         if margin > equity:
-            return Sizing(False, 0, 0.0, actual_loss, actual_loss / equity, margin,
-                          f"margin {margin:.2f} exceeds equity {equity:.2f}")
-        # Room to take the loss without the broker force-closing the position first.
-        if equity - margin < actual_loss * free_margin_buffer:
-            return Sizing(False, 0, 0.0, actual_loss, actual_loss / equity, margin,
-                          f"margin {margin:.2f} leaves {equity - margin:.2f} free, too little "
-                          f"to absorb a {actual_loss:.2f} stop without a forced close")
+            why = f"margin {margin:.2f} exceeds equity {equity:.2f}"
+        elif max_margin_fraction is not None and margin > equity * max_margin_fraction:
+            why = (f"margin {margin:.2f} is above {max_margin_fraction * 100:.0f}% of "
+                   f"equity {equity:.2f}")
+        elif equity - margin < actual_loss * free_margin_buffer:
+            # Room to take the loss without the broker force-closing the position first.
+            why = (f"margin {margin:.2f} leaves {equity - margin:.2f} free, too little "
+                   f"to absorb a {actual_loss:.2f} stop without a forced close")
+        else:
+            break
+        volume -= spec.step_volume
+    else:
+        return Sizing(False, 0, 0.0, actual_loss, actual_loss / equity, margin,
+                      f"{why}, even at the broker minimum")
 
     return Sizing(True, volume, volume / spec.lot_size, actual_loss, actual_loss / equity,
                   margin, "ok")

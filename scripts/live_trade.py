@@ -110,8 +110,9 @@ class LiveTrade(R.Rehearsal):
         if not auth.permitted and self.confirm:
             return self.finish()
         self.auth = auth
-        self._steps = [self.step_account, self.step_spec, self.step_quote, self.step_margin,
-                       self.step_decide_and_size, self.step_risk, self.step_place]
+        self._steps = [self.step_account, self.step_spec, self.step_currency, self.step_quote,
+                       self.step_margin, self.step_decide_and_size, self.step_risk,
+                       self.step_place]
         self.next_step()
 
     def step_decide_and_size(self) -> None:
@@ -126,7 +127,8 @@ class LiveTrade(R.Rehearsal):
             R.stage("LIVE_LIMITS not configured", True,
                     f"sizing PREVIEW at {risk_frac*100:.0f}% risk; the risk gate will still deny")
         self.sizing = size_position(self.equity, risk_frac, self.stop_pips, self.spec,
-                                    margin_per_min_volume=self.margin_min)
+                                    margin_per_min_volume=self.margin_min,
+                                    max_margin_fraction=LIVE_LIMITS.max_position_pct)
         R.stage("size the position", self.sizing.allowed,
                 f"{self.sizing.lots:g} lots, risks ${self.sizing.risk_amount:,.2f} "
                 f"({self.sizing.risk_fraction_actual*100:.2f}% of ${self.equity:,.2f}), "

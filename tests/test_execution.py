@@ -144,3 +144,46 @@ def test_a_valid_demo_order_is_allowed():
 def test_missing_information_is_a_refusal_not_an_assumption():
     d = RiskOfficer(DEMO_REHEARSAL_LIMITS).permit(**_ok(equity=None))
     assert d.allowed is False
+
+
+# ------------------------------------------------------------------ currency and step-down
+# Both found on 2026-09-29 by dry-running every instrument against the live account.
+
+EURJPY_RAW = SymbolSpec("EURJPY", min_volume=100000, step_volume=100000,
+                        max_volume=1000000000, lot_size=10000000, pip_size=0.01, digits=3)
+
+
+def test_a_yen_pip_is_converted_to_dollars():
+    """Unconverted, one minimum EURJPY position 'risked' 2,273% of an $85 account."""
+    import dataclasses
+    spec = dataclasses.replace(EURJPY_RAW, quote_to_account=1 / 150.0)
+    s = size_position(equity=85.0, risk_fraction=0.06, stop_pips=100.0, spec=spec,
+                      margin_per_min_volume=22.69, max_margin_fraction=0.5)
+    # 1,000 EUR units * 0.01 JPY * 100 pips = 1,000 JPY, about $6.67: 7.8%, still refused,
+    # but for the true reason and with the true number.
+    assert s.allowed is False
+    assert "7.8%" in s.reason
+
+
+def test_unknown_quote_rate_refuses():
+    import dataclasses
+    spec = dataclasses.replace(EURJPY_RAW, quote_to_account=None)
+    s = size_position(85.0, 0.06, 10.0, spec, margin_per_min_volume=22.69)
+    assert s.allowed is False
+    assert "conversion rate" in s.reason
+
+
+def test_steps_down_to_a_size_whose_margin_fits():
+    """EURGBP on 2026-09-29: 0.02 lots needed 53% of equity in margin; 0.01 fitted."""
+    s = size_position(equity=85.12, risk_fraction=0.06, stop_pips=15.0, spec=EURUSD,
+                      margin_per_min_volume=22.69, max_margin_fraction=0.5)
+    assert s.allowed is True
+    assert s.margin_required <= 85.12 * 0.5
+    assert s.lots == 0.01
+
+
+def test_step_down_never_goes_below_the_minimum():
+    s = size_position(equity=85.0, risk_fraction=0.06, stop_pips=5.0, spec=EURUSD,
+                      margin_per_min_volume=60.0, max_margin_fraction=0.5)
+    assert s.allowed is False
+    assert "even at the broker minimum" in s.reason

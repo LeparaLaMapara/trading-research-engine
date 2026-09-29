@@ -38,6 +38,7 @@ import time
 
 from ctrader_open_api import Protobuf
 from ctrader_open_api.messages.OpenApiMessages_pb2 import (
+    ProtoOAAssetListReq,
     ProtoOAClosePositionReq,
     ProtoOAExecutionEvent,
     ProtoOAExpectedMarginReq,
@@ -54,6 +55,9 @@ from ctrader_open_api.messages.OpenApiModelMessages_pb2 import (
 from twisted.internet import reactor
 
 from connection.client import CTraderConnection
+import dataclasses
+
+from execution.fx import quote_to_account
 from execution.sizing import SymbolSpec, size_position, stop_and_target
 from ledger.trade_log import TradeLog
 from risk.limits import DEMO_REHEARSAL_LIMITS, RiskOfficer
@@ -164,8 +168,9 @@ class Rehearsal:
             return self.finish()
         stage("confirm this is a DEMO account", True, "broker reports DEMO")
 
-        self._steps = [self.step_account, self.step_spec, self.step_quote, self.step_margin,
-                       self.step_decide_and_size, self.step_risk, self.step_place]
+        self._steps = [self.step_account, self.step_spec, self.step_currency, self.step_quote,
+                       self.step_margin, self.step_decide_and_size, self.step_risk,
+                       self.step_place]
         self.next_step()
 
     def step_account(self) -> None:
@@ -185,6 +190,21 @@ class Rehearsal:
         self._wait_for(lambda: self.spec is not None, 15,
                        "read the symbol's tradable limits",
                        lambda: f"min {self.spec.min_volume/self.spec.lot_size:g} lots")
+
+    def step_currency(self) -> None:
+        """Which currency a pip is paid in, and what that is worth in dollars."""
+        req = ProtoOAAssetListReq(); req.ctidTraderAccountId = self.conn.account_id
+
+        def ok(msg):
+            assets = {a.assetId: a.name.upper() for a in Protobuf.extract(msg).asset}
+            light = self.conn.light_symbols.get(self.symbol)
+            quote = assets.get(getattr(light, "quoteAssetId", None))
+            rate = quote_to_account(quote) if quote else None
+            self.spec = dataclasses.replace(self.spec, quote_to_account=rate)
+            stage("convert the quote currency to USD", rate is not None,
+                  f"quoted in {quote}, 1 {quote} = ${rate:.5g}" if rate is not None
+                  else f"quoted in {quote or 'unknown'}, no stored rate: sizing will refuse")
+        self._send(req, ok)
 
     def _wait_for(self, predicate, timeout_s: float, label: str, detail=None,
                   _started: float | None = None) -> None:
