@@ -35,8 +35,10 @@ The register summaries and the research queue are added to this automatically.
 * Intraday momentum failed (E01, E02). Order-book imbalance on XRP failed after the spread (E03).
 * Broker depth for BTC, ETH and SOL is a synthetic symmetric ladder: imbalance was exactly zero
   in 23,565 snapshots. Order-book research needs a real exchange feed.
-* Trend following works on Ethereum (net Sharpe 0.80 over nine years) but not on most currency
-  crosses (3 of 5 lose before costs). Breadth only helps with components that each have edge.
+* Trend following on Ethereum scored a net Sharpe of 0.80 over nine years, but all of it came
+  from 2018 to 2022 (the half since September 2022 is -0.04). It does not work on most
+  currency crosses (3 of 5 lose before costs). Breadth only helps with components that each
+  have edge.
 * Every rule tried is counted. N is 306 (it never resets across programmes), so a new result needs a deflated Sharpe that
   survives that count.
 
