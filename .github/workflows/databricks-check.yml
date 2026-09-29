@@ -1,0 +1,52 @@
+name: databricks-check
+
+# Proves the trading engine can use Databricks as compute: logs in as the service principal
+# stored in environment `env`, then runs one small serverless job and prints what it got
+# (CPUs, memory, and whether it can reach the broker, arXiv and GitHub). Read-only for the
+# account: no broker login, no orders.
+on:
+  workflow_dispatch: {}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    environment: env
+    timeout-minutes: 30
+    env:
+      DATABRICKS_HOST: https://dbc-f8f358c5-61e0.cloud.databricks.com
+      DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
+      DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_SECRET }}
+    steps:
+      - uses: databricks/setup-cli@main
+      - name: Who am I
+        run: databricks current-user me --output json | jq '{userName, displayName, active}'
+      - name: Run one serverless job
+        run: |
+          set -e
+          ME=$(databricks current-user me --output json | jq -r .userName)
+          D="/Workspace/Users/$ME/trading-research-engine"
+          databricks workspace mkdirs "$D"
+          cat > /tmp/probe.py <<'PY'
+          import os, socket, time
+          print("cpus", os.cpu_count())
+          print("mem_gb", round(os.sysconf("SC_PAGE_SIZE") * os.sysconf("SC_PHYS_PAGES") / 1e9, 1))
+          for host, port in [("live.ctraderapi.com", 5035), ("export.arxiv.org", 443),
+                             ("api.github.com", 443)]:
+              t = time.time()
+              try:
+                  socket.create_connection((host, port), timeout=10).close()
+                  print("reach", host, "ok", round((time.time() - t) * 1000), "ms")
+              except Exception as e:
+                  print("reach", host, "FAIL", e)
+          PY
+          databricks workspace import "$D/probe.py" --file /tmp/probe.py --format AUTO --overwrite
+          cat > /tmp/run.json <<J
+          {"run_name": "trading-engine-check",
+           "tasks": [{"task_key": "probe", "spark_python_task": {"python_file": "$D/probe.py"},
+                      "environment_key": "e"}],
+           "environments": [{"environment_key": "e", "spec": {"client": "2"}}]}
+          J
+          databricks jobs submit --json @/tmp/run.json --timeout 20m --output json > /tmp/out.json
+          jq -r '.state | "\(.life_cycle_state) \(.result_state)"' /tmp/out.json
+          databricks jobs get-run-output "$(jq -r '.tasks[0].run_id' /tmp/out.json)" --output json \
+            | jq -r '.logs // .error'
