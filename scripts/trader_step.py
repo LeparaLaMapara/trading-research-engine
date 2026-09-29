@@ -230,7 +230,30 @@ def run_all() -> int:
             print(json.dumps({"symbol": sym, "note": "trader step timed out"}))
             worst = 1
     live_check_daily()
+    upload_daily()
     return worst
+
+
+def upload_daily() -> None:
+    """Once per UTC day, start the upload of the data snapshot to Databricks in the background
+    (scripts/upload_to_databricks.py, about five minutes). It is not waited for: the engine loop
+    gives this whole step 15 minutes, and trading must never queue behind an upload."""
+    marker = "data/dbx_upload_day.txt"
+    today = time.strftime("%Y-%m-%d", time.gmtime())
+    try:
+        if open(marker, encoding="utf-8").read().strip() == today:
+            return
+    except OSError:
+        pass
+    try:
+        log = open(r"T:\making-money\engine\dbx_upload.log", "a", encoding="utf-8")
+        subprocess.Popen([PY, "-m", "scripts.upload_to_databricks"], stdout=log, stderr=log,
+                         creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+        with open(marker, "w", encoding="utf-8") as fh:
+            fh.write(today)
+        print(json.dumps({"dbx_upload": "started"}))
+    except OSError as exc:
+        print(json.dumps({"dbx_upload": f"could not start: {exc}"}))
 
 
 def live_check_daily() -> None:
