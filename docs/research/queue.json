@@ -1,0 +1,109 @@
+{
+ "updated": "2026-W40",
+ "items": [
+  {
+   "id": "2026-W40-1",
+   "week": "2026-W40",
+   "status": "proposed",
+   "title": "A reproducible protocol for auditing XAI-based trading policies: A case study on the S&P/BVL Peru General Index",
+   "field": "statistics",
+   "source": "doi:10.1016/j.array.2026.101257",
+   "url": "https://doi.org/10.1016/j.array.2026.101257",
+   "hypothesis": "The current live strategies, E07 (Ethereum 20-day trend) and E08 (USDSGD 20-day trend), when subjected to a rigorous audit protocol including \"next-label embargoes\", \"validation-only hyperparameter selection\", \"temporal permutation control\", and \"bootstrap/multiplicity-corrected uncertainty\", will show that their reported edge does not survive these stricter tests, leading to \"adjusted tests [that] are null\" or \"paired intervals [that] reach zero\".",
+   "test": "Apply a rigorous audit protocol, incorporating chronological separation, next-label embargoes, and validation-only hyperparameter selection, to a historical re-evaluation of strategies E07 (Ethereum 20-day trend) and E08 (USDSGD 20-day trend). The null hypothesis for each strategy is that its net PnL (after all trading costs, including spread and financing) is not statistically different from the net PnL of the same strategy applied to a time-permuted version of its input price series (serving as a 'temporal permutation control'). Use bootstrap and multiplicity-corrected uncertainty to construct confidence intervals for the strategy's performance relative to this permuted null. The test passes if the observed net PnL of E07 and E08, when compared to their respective permuted null distributions, demonstrates a statistically significant edge (e.g., the lower bound of the confidence interval for the difference is above zero). Failure would be if 'adjusted tests are null' or 'paired intervals reach zero', indicating a lack of robust statistical significance for the previously reported edge. This re-evaluation will run on historical data, not consuming a live slot.",
+   "priority": 12.5,
+   "why_killed": null
+  },
+  {
+   "id": "2026-W40-7",
+   "week": "2026-W40",
+   "status": "killed",
+   "title": "Execution Feasibility and Limits to Arbitrage: High\u2010Frequency Evidence From KOSPI 200 Box Spreads",
+   "field": "economics",
+   "source": "doi:10.1002/fut.70144",
+   "url": "https://doi.org/10.1002/fut.70144",
+   "hypothesis": "Intraday momentum on EURUSD, which previously failed to be profitable after accounting for trading costs (E01), becomes conditionally profitable (i.e., survives costs) during periods of high market stress.",
+   "test": "Re-evaluate the historical performance of the E01 intraday momentum strategy on EURUSD using the held broker bar data. Define 'market stress periods' for any given day as a day where the 1-day historical volatility of EURUSD (calculated from 5-minute bars over the preceding 24 hours) exceeds the 90th percentile of this same 1-day historical volatility calculated over the immediately preceding 252 trading days. Run the E01 strategy (as originally defined, flat before 21:00 UTC) exclusively during these defined stress periods, applying the same measured trading costs (spread, fill data from E04). The null hypothesis is that the net profitability (after costs) during stress periods is not significantly positive. A statistically significant positive net P&L (e.g., beating a random-sign null at the 99th percentile, with most years positive) would constitute passing. This test can be run entirely on historical data.",
+   "priority": 12.0,
+   "why_killed": "The proposed method for defining 'market stress periods' involves lookahead bias."
+  },
+  {
+   "id": "2026-W40-8",
+   "week": "2026-W40",
+   "status": "killed",
+   "title": "RED-BASIS-2026: OKX spot-perpetual basis and funding observations for BTC, ETH and SOL",
+   "field": "quantitative finance",
+   "source": "doi:10.5281/zenodo.21211414",
+   "url": "https://doi.org/10.5281/zenodo.21211414",
+   "hypothesis": "This paper describes data and observations of the OKX spot-perpetual basis and funding rates for BTC, ETH, and SOL, but it explicitly withdraws claims about market effects (e.g., mean-reversion of basis) that would be testable for a trading edge. Therefore, there is no testable hypothesis for the engine based on this abstract.",
+   "test": "",
+   "priority": 12.0,
+   "why_killed": "No testable hypothesis for a trading edge."
+  },
+  {
+   "id": "2026-W40-2",
+   "week": "2026-W40",
+   "status": "killed",
+   "title": "AlphaPareto: Formulaic Alpha Discovery with LLM-Guided Multi-Objective Reinforcement Learning",
+   "field": "computer science",
+   "source": "arXiv:2609.34188v1",
+   "url": "http://arxiv.org/abs/2609.34188v1",
+   "hypothesis": "No specific, falsifiable hypothesis can be derived for the engine to test. The paper describes a computationally intensive method for discovering formulaic alphas but does not provide the actual discovered alpha formulas or a simplified, directly applicable rule that the engine could implement. The example formula provided in Appendix A is insufficient to form a general hypothesis about 'alphas discovered by AlphaPareto' or to replicate the method's output. The computational resources required for the AlphaPareto training pipeline (e.g., 'one RTX PRO 6000 GPU with 96 GB video memory' and '64 CPU workers' per run) are vastly beyond the engine's capabilities.",
+   "test": "N/A",
+   "priority": 0.2,
+   "why_killed": "computational resources are vastly beyond the engine's capabilities"
+  },
+  {
+   "id": "2026-W40-3",
+   "week": "2026-W40",
+   "status": "killed",
+   "title": "Beyond Buy and Sell: An AI-Driven Deep Reinforcement Learning for Sentiment-Aware and Risk Managed Cryptocurrency Trading",
+   "field": "mathematical and computational economics",
+   "source": "doi:10.38124/ijisrt/26sep754",
+   "url": "https://doi.org/10.38124/ijisrt/26sep754",
+   "hypothesis": "The abstract does not specify conditions under which market predictability appears or disappears. It describes a comprehensive system that adapts to changing market conditions and uses sentiment, but it does not provide a specific, falsifiable signal or condition related to the modulation of predictability that could be directly observed or tested by the engine.",
+   "test": "Not applicable, as no specific testable hypothesis regarding predictability conditions is derived from this abstract.",
+   "priority": 0.2,
+   "why_killed": "The strategy critically depends on 'sentiment scores' as a novel input for 'qualitative market intelligence', which the engine's facts explicitly state is 'Not available'. Without this core component, the proposed mechanism is incomplete and cannot be tested as described."
+  },
+  {
+   "id": "2026-W40-4",
+   "week": "2026-W40",
+   "status": "killed",
+   "title": "Capital flight or speculative demand: asymmetric drivers of the crypto exchange rate premium in distressed zones",
+   "field": "economics",
+   "source": "doi:10.1108/rbf-01-2026-0039",
+   "url": "https://doi.org/10.1108/rbf-01-2026-0039",
+   "hypothesis": "This paper's findings, as described in the abstract, focus on 'crypto exchange rate premiums in two distinct crisis contexts' which are not directly observable or tradable by the engine. The engine trades global crypto prices (e.g., ETHUSD) and does not have access to local exchange prices or the specific macroeconomic and geopolitical data for the distressed zones described, nor can it execute trades that exploit these local premiums. Therefore, there is no direct, testable hypothesis for this engine based on the provided abstract.",
+   "test": "No test can be formulated as the core concept is not applicable to the engine's trading capabilities.",
+   "priority": 0.2,
+   "why_killed": "It needs data we cannot get"
+  },
+  {
+   "id": "2026-W40-6",
+   "week": "2026-W40",
+   "status": "killed",
+   "title": "Essays in empirical asset pricing",
+   "field": "quantitative finance",
+   "source": "doi:10.21953/lse.00004955",
+   "url": "https://doi.org/10.21953/lse.00004955",
+   "hypothesis": "There is no specific, falsifiable hypothesis that can be formulated and tested by the engine based on this abstract, primarily due to data availability and the complexity of the proposed models.",
+   "test": "Not applicable, as no testable hypothesis can be formed.",
+   "priority": 0.2,
+   "why_killed": "The engine cannot obtain the necessary data (especially options data for VRP and specific macro data) and does not trade the relevant instruments (US equities for recovery rate), rendering the core ideas untestable."
+  },
+  {
+   "id": "2026-W40-5",
+   "week": "2026-W40",
+   "status": "ungrounded",
+   "title": "Deep Reinforcement Learning for Equity Trading: Benchmarking Actor-Critic Methods with Forward Retraining",
+   "field": "computer science",
+   "source": "arXiv:2609.31870v1",
+   "url": "http://arxiv.org/abs/2609.31870v1",
+   "hypothesis": "",
+   "test": "",
+   "priority": 0.0,
+   "why_killed": null
+  }
+ ]
+}
