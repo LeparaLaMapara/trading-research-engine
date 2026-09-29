@@ -220,7 +220,7 @@ def triage(papers: list[dict], backend, context: str) -> list[dict]:
             f"<paper i={n}>\nField: {p['field']}\nTitle: {p['title']}\n"
             f"Abstract: {p['abstract'][:1500]}\n</paper>" for n, p in enumerate(chunk))
         try:
-            raw = json.loads(backend.complete(system, body))
+            raw = loads_lenient(backend.complete(system, body))
             for row in raw.get("scores", []):
                 n = int(row.get("i", -1))
                 if 0 <= n < len(chunk):
@@ -236,17 +236,50 @@ def triage(papers: list[dict], backend, context: str) -> list[dict]:
     return papers
 
 
+#: Fields read for borrowed concepts rather than for trading results. Papers about trading
+#: always score higher at triage, so without reserved seats the reading room would never read
+#: a physics or mathematics paper, which is half the point of it.
+TRANSFER_FIELDS = ("physics", "mathematics", "statistics",
+                   "mathematical and computational economics", "foundations")
+TRANSFER_SEATS = 2
+TRANSFER_MIN = 2
+
+
 def select(papers: list[dict], k: int = READ_K, per_field: int = PER_FIELD) -> list[dict]:
-    """Top-scoring papers, at most `per_field` from one field, none below MIN_SCORE."""
+    """Top-scoring papers, at most `per_field` from one field, none below MIN_SCORE, with
+    TRANSFER_SEATS seats kept for the best papers from TRANSFER_FIELDS (score TRANSFER_MIN+)."""
+    ranked = sorted(papers, key=lambda p: (-p["triage"], p["title"]))
     picked, count = [], {}
-    for p in sorted(papers, key=lambda p: (-p["triage"], p["title"])):
-        if p["triage"] < MIN_SCORE or len(picked) >= k:
-            break
-        if count.get(p["field"], 0) >= per_field:
-            continue
+
+    def take(p):
         count[p["field"]] = count.get(p["field"], 0) + 1
         picked.append(p)
+
+    for p in ranked:
+        if len(picked) >= TRANSFER_SEATS:
+            break
+        if p["field"] in TRANSFER_FIELDS and p["triage"] >= TRANSFER_MIN \
+                and count.get(p["field"], 0) < 1:
+            take(p)
+    for p in ranked:
+        if p["triage"] < MIN_SCORE or len(picked) >= k:
+            break
+        if p in picked or count.get(p["field"], 0) >= per_field:
+            continue
+        take(p)
     return picked
+
+
+def loads_lenient(text: str):
+    """json.loads, retried once with lone backslashes escaped: models writing TeX (\\alpha)
+    inside JSON strings otherwise lose a whole card to one character. Existing escaped pairs
+    are matched first and left alone."""
+    try:
+        return json.loads(text)
+    except ValueError:
+        return json.loads(re.sub(r'\\\\|\\(?!["\\/bfnrtu])',
+                                 lambda m: m.group(0) if len(m.group(0)) == 2 else "\\\\",
+                                 text))
 
 
 READ_SYS = (
@@ -281,7 +314,7 @@ def deep_read(paper: dict, backend, context: str) -> dict:
             "title": paper["title"], "field": paper["field"], "via": paper.get("via", ""),
             "read_depth": depth, "triage": paper.get("triage")}
     try:
-        raw = json.loads(backend.complete(READ_SYS + context, user))
+        raw = loads_lenient(backend.complete(READ_SYS + context, user))
         if not isinstance(raw, dict):
             raise ValueError("not an object")
     except BudgetExceeded:
@@ -321,7 +354,7 @@ def attack(card: dict, backend, context: str) -> dict:
         "hypothesis", "test", "instruments", "horizon", "data", "expected_effect",
         "evidence_quality", "quotes_verified")}
     try:
-        raw = json.loads(backend.complete(ATTACK_SYS + context,
+        raw = loads_lenient(backend.complete(ATTACK_SYS + context,
                                           json.dumps(fields_shown, indent=1)))
         return raw if isinstance(raw, dict) else {"error": "not an object"}
     except BudgetExceeded:
@@ -350,7 +383,7 @@ def connect(cards: list[dict], queue: dict, backend) -> dict:
     open_items = [{k: i[k] for k in ("id", "title", "status", "priority")}
                   for i in queue["items"] if i["status"] == "proposed"][:20]
     try:
-        raw = json.loads(backend.complete(CONNECT_SYS, json.dumps(
+        raw = loads_lenient(backend.complete(CONNECT_SYS, json.dumps(
             {"cards": slim, "queue": open_items}, indent=1)))
         return raw if isinstance(raw, dict) else {}
     except BudgetExceeded:

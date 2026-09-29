@@ -37,7 +37,7 @@ def test_priority_is_code_not_model():
 def test_select_caps_each_field_and_drops_low_scores():
     papers = ([{"title": f"p{i}", "field": "physics", "triage": 5} for i in range(5)]
               + [{"title": "e", "field": "economics", "triage": 4},
-                 {"title": "low", "field": "statistics", "triage": 2}])
+                 {"title": "low", "field": "computer science", "triage": 2}])
     got = select(papers, k=8, per_field=3)
     assert [p["field"] for p in got].count("physics") == 3
     assert "e" in [p["title"] for p in got]
@@ -110,3 +110,23 @@ def test_failed_triage_marks_nothing_as_read():
     papers = [{"title": "t", "field": "physics", "abstract": "a"}]
     triage(papers, Broke(), "facts")
     assert papers[0]["triage"] == 0 and not papers[0].get("triaged")
+
+
+def test_lenient_json_repairs_tex_backslashes_only():
+    from scout.reading_room import loads_lenient
+    # What a model writes: TeX with single backslashes inside a JSON string.
+    assert loads_lenient(r'{"f": "\alpha and \sigma_t"}') == {"f": r"\alpha and \sigma_t"}
+    # Already valid escapes are left alone.
+    assert loads_lenient(r'{"f": "a \\ b \"q\""}') == {"f": r'a \ b "q"'}
+
+
+def test_transfer_fields_get_reserved_seats():
+    papers = ([{"title": f"q{i}", "field": "quantitative finance", "triage": 5}
+               for i in range(3)]
+              + [{"title": f"c{i}", "field": "computer science", "triage": 5} for i in range(3)]
+              + [{"title": f"e{i}", "field": "economics", "triage": 4} for i in range(3)]
+              + [{"title": "phys", "field": "physics", "triage": 2},
+                 {"title": "math", "field": "mathematics", "triage": 2},
+                 {"title": "stat", "field": "statistics", "triage": 1}])
+    got = [p["title"] for p in select(papers, k=8)]
+    assert len(got) == 8 and "phys" in got and "math" in got and "stat" not in got
