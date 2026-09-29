@@ -1,7 +1,7 @@
 """One decision of the autonomous live trader: the 20-day trend rule, no profit target.
 
 Traded on ETHUSD (E05/E07, label engine-E05) and, from 2026-09-29, on USDSGD (E08, label
-engine-E08, run with --symbol USDSGD --label engine-E08 --blackout 20-23). Each instrument keeps
+engine-E08). With no arguments it steps every instrument in INSTRUMENTS. Each instrument keeps
 its own position state; the owner's limits (floor, drawdown, daily loss) are account-wide and
 shared. `--blackout` keeps an instrument from trading in the rollover hours, when spreads widen:
 E08 passed only just, on costs measured away from the rollover.
@@ -196,7 +196,45 @@ class Broker:
         reactor.callLater(3, self._stop)         # let the fill land before disconnecting
 
 
+#: Every live instrument: (symbol, label, blackout UTC hours or None, record spread first).
+#: Run with no --symbol, trader_step steps each one in its own process (Twisted's reactor
+#: cannot restart in one process), so the long-running engine loop picks up a new instrument
+#: without a restart.
+INSTRUMENTS = (
+    ("ETHUSD", "engine-E05", None, False),
+    # E08 passed on an ASSUMED spread; five minutes of quotes every hour, across every hour
+    # of the week including the rollover, turn it into a measurement.
+    ("USDSGD", "engine-E08", "20-23", True),
+)
+SPREAD_S = 300
+
+
+def run_all() -> int:
+    worst = 0
+    for sym, label, blackout, record in INSTRUMENTS:
+        if record:
+            try:
+                subprocess.run([PY, "-m", "telemetry.logger", "--symbols", sym, "--duration",
+                                str(SPREAD_S), "--no-snapshot"], capture_output=True,
+                               timeout=SPREAD_S + 120, check=False)
+            except subprocess.TimeoutExpired:
+                print(json.dumps({"symbol": sym, "note": "spread recording timed out"}))
+        args = [PY, "-m", "scripts.trader_step", "--symbol", sym, "--label", label,
+                *(["--blackout", blackout] if blackout else [])]
+        try:
+            r = subprocess.run(args, capture_output=True, text=True, timeout=400, check=False)
+            out = r.stdout.strip().splitlines()
+            print(out[-1] if out else json.dumps({"symbol": sym, "note": "no output"}))
+            worst = max(worst, r.returncode)
+        except subprocess.TimeoutExpired:
+            print(json.dumps({"symbol": sym, "note": "trader step timed out"}))
+            worst = 1
+    return worst
+
+
 def main() -> int:
+    if len(sys.argv) == 1:
+        return run_all()
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--symbol", default="ETHUSD")
