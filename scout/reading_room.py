@@ -430,7 +430,8 @@ def pick_backends():
         probe = GeminiBackend(max_tokens=200)
         probe.complete("Reply with JSON only.", 'Return {"ok": true}')
         print("[reading room] models: Gemini")
-        return GeminiBackend(max_tokens=6000), GeminiBackend(max_tokens=12000)
+        return (GeminiBackend(max_tokens=16000, thinking_budget=1024, json_only=True),
+                GeminiBackend(max_tokens=24000, thinking_budget=8192, json_only=True))
     except BudgetExceeded:
         raise
     except Exception as exc:  # noqa: BLE001

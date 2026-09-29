@@ -198,10 +198,15 @@ class GeminiBackend(ModelBackend):
 
     BASE = "https://generativelanguage.googleapis.com/v1beta/models"
 
-    def __init__(self, name: str = "gemini", max_tokens: int | None = None) -> None:
+    def __init__(self, name: str = "gemini", max_tokens: int | None = None,
+                 thinking_budget: int | None = None, json_only: bool = False) -> None:
         self.name = name
         if max_tokens:
             self.MAX_TOKENS = max_tokens
+        # Gemini 2.5 thinks inside maxOutputTokens; without a budget the thinking can use the
+        # whole allowance and cut the JSON answer off mid-object.
+        self.thinking_budget = thinking_budget
+        self.json_only = json_only
         self.api_key = os.environ.get("GEMINI_API_KEY")
         if not self.api_key:
             raise RuntimeError("GEMINI_API_KEY not set")
@@ -222,6 +227,10 @@ class GeminiBackend(ModelBackend):
             "contents": [{"role": "user", "parts": [{"text": user}]}],
             "generationConfig": {"maxOutputTokens": self.MAX_TOKENS, "temperature": 0.6},
         }
+        if self.thinking_budget is not None:
+            body["generationConfig"]["thinkingConfig"] = {"thinkingBudget": self.thinking_budget}
+        if self.json_only:
+            body["generationConfig"]["responseMimeType"] = "application/json"
         # API-key form first; on auth failure retry as a Bearer token.
         for attempt in range(4):
             resp = self._post({}, {"key": self.api_key}, body)
@@ -235,7 +244,10 @@ class GeminiBackend(ModelBackend):
         um = data.get("usageMetadata", {})
         GUARD.record(self.model,
                      int(um.get("promptTokenCount", 0) or 0),
-                     int(um.get("candidatesTokenCount", 0) or 0))
+                     int(um.get("candidatesTokenCount", 0) or 0)
+                     + int(um.get("thoughtsTokenCount", 0) or 0))   # thinking bills as output
+        if data.get("candidates", [{}])[0].get("finishReason") == "MAX_TOKENS":
+            raise RuntimeError("answer cut off at the output limit")
         parts = data.get("candidates", [{}])[0].get("content", {}).get("parts", [])
         text = "".join(p.get("text", "") for p in parts)
         return _extract_json(text)
