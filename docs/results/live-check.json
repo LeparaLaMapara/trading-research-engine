@@ -1,5 +1,5 @@
 {
- "ts": "2026-09-29T18:39:18Z",
+ "ts": "2026-09-30T00:29:49Z",
  "rules": {
   "ETHUSD": {
    "experiment": "E07",
@@ -19,8 +19,8 @@
    "cost_reason": "measured 12.21 bps is above the assumed 11.90 bps",
    "frequency": {
     "live_opens": 2,
-    "days_live": 6.8,
-    "expected_opens": 0.7,
+    "days_live": 7.0,
+    "expected_opens": 0.8,
     "judged": false
    }
   },
@@ -33,16 +33,16 @@
     "net_sharpe_double_costs": 0.006
    },
    "measured": {
-    "ticks": 439,
-    "hours": 3,
+    "ticks": 773,
+    "hours": 6,
     "median_cost_bps": 1.09,
-    "p90_cost_bps": 1.33
+    "p90_cost_bps": 1.4
    },
-   "cost_status": "NO-DATA",
-   "cost_reason": "439 quotes over 3 hours; need 300 over 5",
+   "cost_status": "OK",
+   "cost_reason": "measured 1.09 bps is within the assumed 2.70 bps",
    "frequency": {
     "live_opens": 1,
-    "days_live": 0.1,
+    "days_live": 0.3,
     "expected_opens": 0.0,
     "judged": false
    }
