@@ -153,6 +153,9 @@ def parse_openalex(payload: dict) -> list[dict]:
             "published": w.get("publication_date") or "",
             "venue": venue or "",
             "issn": list(src.get("issn") or []),
+            # A free, legal full-text copy when one exists (author versions, NBER, SSRN).
+            "oa_pdf": ((w.get("best_oa_location") or {}).get("pdf_url")
+                       or (w.get("open_access") or {}).get("oa_url") or ""),
             "cited_by": int(w.get("cited_by_count") or 0),
         })
     return papers
@@ -245,3 +248,36 @@ def fetch_arxiv_fulltext(identifier: str, max_chars: int = 120_000) -> tuple[str
     if len(text) > max_chars:
         return text[:max_chars], f"truncated at {max_chars} chars of {len(text)}"
     return text, "full"
+
+
+def pdf_to_text(data: bytes, max_chars: int = 120_000) -> tuple[str, str]:
+    """Text of a PDF, with the same depth labels as fetch_arxiv_fulltext. '' when the bytes are
+    not a PDF (many open-access links land on a web page instead)."""
+    if not data.startswith(b"%PDF"):
+        return "", ""
+    try:
+        from pypdf import PdfReader
+        import io as _io
+        text = " ".join((pg.extract_text() or "") for pg in PdfReader(_io.BytesIO(data)).pages)
+    except Exception as exc:  # noqa: BLE001 - an unreadable PDF falls back to the abstract
+        print(f"pdf text failed: {exc}")
+        return "", ""
+    text = " ".join(text.split())
+    if len(text) < 2000:
+        return "", ""
+    if len(text) > max_chars:
+        return text[:max_chars], f"truncated at {max_chars} chars of {len(text)}"
+    return text, "full (open-access PDF)"
+
+
+def fetch_pdf_fulltext(url: str) -> tuple[str, str]:
+    if not url:
+        return "", ""
+    try:
+        resp = requests.get(url, timeout=60, headers={"User-Agent": "trading-research-engine"})
+        if resp.status_code != 200:
+            return "", ""
+        return pdf_to_text(resp.content)
+    except Exception as exc:  # noqa: BLE001
+        print(f"pdf fetch failed for {url}: {exc}")
+        return "", ""

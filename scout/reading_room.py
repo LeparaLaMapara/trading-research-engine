@@ -325,6 +325,8 @@ READ_SYS = (
 
 def deep_read(paper: dict, backend, context: str) -> dict:
     text, depth = sources.fetch_arxiv_fulltext(paper["identifier"])
+    if not text and paper.get("oa_pdf"):
+        text, depth = sources.fetch_pdf_fulltext(paper["oa_pdf"])
     if not text:
         text, depth = paper["abstract"], "abstract"
     user = (f"Field: {paper['field']}\nWhat to ask of this field: "

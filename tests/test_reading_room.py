@@ -147,3 +147,15 @@ def test_openalex_keeps_issn():
                                                             "issn": ["0022-1082", "1540-6261"]}}}]}
     got = sources.parse_openalex(payload)
     assert got[0]["issn"] == ["0022-1082", "1540-6261"] and fields.is_top_venue(got[0])
+
+
+def test_pdf_text_rejects_web_pages_and_short_text():
+    assert sources.pdf_to_text(b"<html>paywall</html>") == ("", "")
+    assert sources.pdf_to_text(b"%PDF-1.4 broken") == ("", "")
+
+
+def test_openalex_records_open_access_pdf():
+    payload = {"results": [{"id": "https://openalex.org/W7", "title": "Vol managed",
+                            "abstract_inverted_index": {"vol": [0]},
+                            "best_oa_location": {"pdf_url": "https://example.org/p.pdf"}}]}
+    assert sources.parse_openalex(payload)[0]["oa_pdf"] == "https://example.org/p.pdf"
