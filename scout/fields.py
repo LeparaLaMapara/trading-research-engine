@@ -90,6 +90,25 @@ FIELDS: list[dict] = [
                   "could actually run?",
     },
     {
+        "name": "applied and numerical mathematics",
+        "arxiv": [("math.OC", "optimization OR convex OR stochastic control OR "
+                              "Hamilton-Jacobi-Bellman OR mean field"),
+                  ("math.AP", "Fokker-Planck OR Hamilton-Jacobi OR Black-Scholes OR "
+                              "diffusion OR mean field"),
+                  ("math.NA", "finance OR option OR stochastic differential OR Monte Carlo OR "
+                              "portfolio OR volatility"),
+                  ("math.DS", "stochastic OR market OR bifurcation OR nonlinear dynamics"),
+                  ("math.CA", "market OR asset price OR financial")],
+        "openalex": ["Hamilton-Jacobi-Bellman optimal trading", "Fokker-Planck price dynamics",
+                     "numerical methods stochastic differential equations finance",
+                     "convex optimization portfolio transaction costs",
+                     "mean field games trading", "ordinary differential equation market dynamics"],
+        "bridge": "What model of price dynamics or of the trader's decision does the equation or "
+                  "optimisation describe, what does solving it predict about when to trade, how "
+                  "much and at what cost, and can its parameters be estimated from our data "
+                  "without fitting noise?",
+    },
+    {
         "name": "mathematical and computational economics",
         "arxiv": [("q-fin.EC", None), ("cs.GT", "equilibrium OR mechanism OR price formation")],
         "openalex": ["computational economics market microstructure simulation",
@@ -106,8 +125,29 @@ CLASSIC_THEMES: list[str] = [
     "market microstructure price impact", "backtest overfitting", "econophysics scaling",
     "regime switching asset returns", "limits to arbitrage", "Hawkes process order flow",
     "predictability of exchange rates", "cryptocurrency factor", "critical transitions",
-    "optimal execution",
+    "optimal execution", "Hamilton-Jacobi-Bellman portfolio choice",
+    "Fokker-Planck equation financial markets", "convex optimization transaction costs",
 ]
+
+#: Directed reads: focused searches on one question, run on demand
+#: (python -m scout.reading_room --topic <slug>), feeding the same cards and queue.
+DIRECTED: dict[str, dict] = {
+    "crypto-funding": {
+        "title": "Do perpetual futures funding rates predict crypto returns?",
+        "arxiv": ["perpetual futures funding rate", "funding rate cryptocurrency returns",
+                  "cryptocurrency futures basis", "crypto carry trade perpetual"],
+        # OpenAlex matches loose words; quoted phrases joined by AND keep it on topic.
+        "openalex": ['"perpetual futures" AND funding', '"funding rate" AND (bitcoin OR cryptocurrency)',
+                     '"bitcoin futures" AND (basis OR premium)', '"crypto carry" OR "cryptocurrency carry"'],
+    },
+    "regime-trend": {
+        "title": "Do regime-switching (hidden Markov) filters improve trend following?",
+        "arxiv": ["hidden Markov model trend following", "regime switching momentum strategy",
+                  "time series momentum volatility regime", "Markov switching asset allocation"],
+        "openalex": ['"time series momentum" AND regime', '"hidden Markov" AND (trading OR momentum)',
+                     '"volatility managed" AND portfolios', '"momentum crashes"'],
+    },
+}
 
 
 def arxiv_queries() -> list[tuple[str, str, str | None]]:

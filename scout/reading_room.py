@@ -248,7 +248,7 @@ def triage(papers: list[dict], backend, context: str) -> list[dict]:
 #: Fields read for borrowed concepts rather than for trading results. Papers about trading
 #: always score higher at triage, so without reserved seats the reading room would never read
 #: a physics or mathematics paper, which is half the point of it.
-TRANSFER_FIELDS = ("physics", "mathematics", "statistics",
+TRANSFER_FIELDS = ("physics", "mathematics", "statistics", "applied and numerical mathematics",
                    "mathematical and computational economics", "foundations")
 TRANSFER_SEATS = 2
 TRANSFER_MIN = 2
@@ -416,8 +416,9 @@ def connect(cards: list[dict], queue: dict, backend) -> dict:
 
 # --------------------------------------------------------------------------- memo
 
-def render_memo(week: str, stats: dict, cards: list[dict], synthesis: dict, queue: dict) -> str:
-    L = [f"# Reading room, week {week}", "",
+def render_memo(week: str, stats: dict, cards: list[dict], synthesis: dict, queue: dict,
+                title: str | None = None) -> str:
+    L = [f"# {title or f'Reading room, week {week}'}", "",
          "Written by `scout/reading_room.py`. Model text is labelled; every quote below was "
          "checked by code against the paper. Nothing here is a decision to trade: an idea "
          "becomes a test only by being pre-registered in `docs/programme`.", "",
@@ -498,8 +499,58 @@ def run(since_days: int = 14, k: int = READ_K, harvest_only: bool = False) -> in
     today = dt.date.today()
     iso = today.isocalendar()
     week = f"{iso[0]}-W{iso[1]:02d}"
-    seen = load_ledger()
-    papers = harvest(today - dt.timedelta(days=since_days), today, iso[1], seen)
+    papers = harvest(today - dt.timedelta(days=since_days), today, iso[1], load_ledger())
+    return process(papers, week, "weekly", k, PER_FIELD, harvest_only,
+                   title=f"Reading room, week {week}")
+
+
+def load_read() -> set[str]:
+    """Identifiers of papers already READ in full (not merely scored)."""
+    done: set[str] = set()
+    if os.path.exists(LEDGER):
+        for line in open(LEDGER, encoding="utf-8"):
+            try:
+                row = json.loads(line)
+            except ValueError:
+                continue
+            if row.get("read"):
+                done.add(row["identifier"])
+    return done
+
+
+def harvest_directed(topic: dict, done: set[str]) -> list[dict]:
+    """The most relevant papers on one question, from every year: arXiv by relevance, the most
+    cited work on OpenAlex, and the top venues. Papers already read in full are skipped."""
+    papers: list[dict] = []
+    for q in topic["arxiv"]:
+        for p in sources.fetch_arxiv_search(q, max_results=20):
+            papers.append({**p, "field": "quantitative finance", "via": f"arXiv '{q}'"})
+        time.sleep(3)
+    for q in topic["openalex"]:
+        for p in sources.fetch_openalex(q, classic=True, per_page=15):
+            papers.append({**p, "field": "quantitative finance", "via": f"OpenAlex '{q}'"})
+        for p in sources.fetch_openalex(q, per_page=15, issns=list(fields.TOP_VENUES)):
+            papers.append({**p, "field": "quantitative finance", "via": f"top venue '{q}'"})
+    out, keys = [], set(done)
+    for p in papers:
+        k1, k2 = p["identifier"], norm_title(p["title"])
+        if k1 in keys or k2 in keys:
+            continue
+        keys.update((k1, k2))
+        out.append(p)
+    return out
+
+
+def run_directed(slug: str, k: int = READ_K) -> int:
+    topic = fields.DIRECTED[slug]
+    papers = harvest_directed(topic, load_read())
+    return process(papers, slug, "directed", k, k, False, title=topic["title"])
+
+
+def process(papers: list[dict], tag: str, subdir: str, k: int, per_field: int,
+            harvest_only: bool, title: str) -> int:
+    """Triage, read, ground, attack, connect, queue, write. Shared by the weekly cycle and
+    directed reads; `tag` names the output files and prefixes card ids."""
     by_field: dict[str, int] = {}
     for p in papers:
         by_field[p["field"]] = by_field.get(p["field"], 0) + 1
@@ -523,48 +574,48 @@ def run(since_days: int = 14, k: int = READ_K, harvest_only: bool = False) -> in
             # paper is still unread next time instead of being marked as seen.
             print("no paper was scored; writing nothing")
             return 1
-        chosen = select(papers, k)
+        chosen = select(papers, k, per_field)
         print(f"reading {len(chosen)}: " + "; ".join(p["title"][:60] for p in chosen))
         for n, p in enumerate(chosen, 1):
             card = deep_read(p, reader, context)
-            card["id"] = f"{week}-{n}"
+            card["id"] = f"{tag}-{n}"
             if card.get("grounded"):
                 card["red_team"] = attack(card, reader, context)
             cards.append(card)
-        queue = merge_queue(load_queue(), cards, week)
+        queue = merge_queue(load_queue(), cards, tag)
         synthesis = connect(cards, queue, reader)
     except BudgetExceeded as exc:
         print(f"stopped by the spend cap: {exc}")
-        queue = merge_queue(load_queue(), cards, week)
+        queue = merge_queue(load_queue(), cards, tag)
 
-    os.makedirs(f"{OUT}/weekly", exist_ok=True)
+    os.makedirs(f"{OUT}/{subdir}", exist_ok=True)
     os.makedirs(f"{OUT}/cards", exist_ok=True)
     os.makedirs(os.path.dirname(LEDGER), exist_ok=True)
     stats = {"harvested": len(papers),
              "by_field": ", ".join(f"{v} {k}" for k, v in sorted(by_field.items())),
-             "eligible": sum(1 for p in papers if p.get("triage", 0) >= MIN_SCORE),
+             "eligible": sum(1 for p in papers if rank_score(p) >= MIN_SCORE),
              "full_text": sum(1 for c in cards if c.get("read_depth") not in
                               (None, "", "abstract")),
              "spend": f"${GUARD.spent_usd:.2f} over {GUARD.calls} calls"}
-    with open(f"{OUT}/cards/{week}.json", "w", encoding="utf-8") as fh:
-        json.dump({"week": week, "stats": stats, "cards": cards, "synthesis": synthesis},
+    with open(f"{OUT}/cards/{tag}.json", "w", encoding="utf-8") as fh:
+        json.dump({"tag": tag, "stats": stats, "cards": cards, "synthesis": synthesis},
                   fh, indent=1)
     with open(QUEUE, "w", encoding="utf-8") as fh:
         json.dump(queue, fh, indent=1)
         fh.write("\n")
-    with open(f"{OUT}/weekly/{week}.md", "w", encoding="utf-8") as fh:
-        fh.write(render_memo(week, stats, cards, synthesis, queue))
+    with open(f"{OUT}/{subdir}/{tag}.md", "w", encoding="utf-8") as fh:
+        fh.write(render_memo(tag, stats, cards, synthesis, queue, title=title))
     read_ids = {c["identifier"] for c in cards}
     with open(LEDGER, "a", encoding="utf-8") as fh:
         for p in papers:
             if not p.get("triaged"):
-                continue            # a failed chunk: leave it unread for next week
+                continue            # a failed chunk: leave it unread for next time
             fh.write(json.dumps({"identifier": p["identifier"], "title": p["title"],
-                                 "field": p["field"], "week": week,
+                                 "field": p["field"], "week": tag,
                                  "triage": p.get("triage", 0),
                                  "read": p["identifier"] in read_ids}) + "\n")
     print(GUARD.summary())
-    print(f"wrote {OUT}/weekly/{week}.md")
+    print(f"wrote {OUT}/{subdir}/{tag}.md")
     return 0
 
 
@@ -573,7 +624,11 @@ def main() -> int:
     ap.add_argument("--since-days", type=int, default=14)
     ap.add_argument("-k", type=int, default=READ_K, help="papers to read in full")
     ap.add_argument("--harvest-only", action="store_true")
+    ap.add_argument("--topic", choices=sorted(fields.DIRECTED),
+                    help="a directed read on one question instead of the weekly cycle")
     a = ap.parse_args()
+    if a.topic:
+        return run_directed(a.topic, a.k)
     return run(a.since_days, a.k, a.harvest_only)
 
 

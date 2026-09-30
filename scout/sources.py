@@ -75,6 +75,19 @@ def fetch_arxiv(categories: list[str] | None = None, keywords: str | None = None
         return []
 
 
+def fetch_arxiv_search(query: str, max_results: int = 25) -> list[dict]:
+    """The most relevant arXiv papers for a phrase, across all categories and years."""
+    try:
+        resp = requests.get(ARXIV_API, params={
+            "search_query": f'all:"{query}"', "start": 0, "max_results": max_results,
+            "sortBy": "relevance", "sortOrder": "descending"}, timeout=60)
+        resp.raise_for_status()
+        return parse_arxiv_atom(resp.text)
+    except Exception as exc:  # noqa: BLE001
+        print(f"arxiv search failed for {query!r}: {exc}")
+        return []
+
+
 def keyword_clause(keywords: str) -> str:
     """'power law OR criticality' -> '(all:"power law" OR all:criticality)'."""
     terms = [t.strip() for t in keywords.split(" OR ") if t.strip()]
@@ -148,7 +161,7 @@ def parse_openalex(payload: dict) -> list[dict]:
 def fetch_openalex(search: str, since: str | None = None, classic: bool = False,
                    per_page: int = 15, issns: list[str] | None = None) -> list[dict]:
     """Works matching a phrase (OpenAlex search takes AND, OR, NOT). `since` (YYYY-MM-DD) for
-    new work; `classic` sorts by citations for the foundations of a topic; `issns` keeps only
+    new work; `classic` gives the most relevant well-cited work (the foundations of a topic); `issns` keeps only
     those journals. Empty list on any failure, never a made-up entry."""
     filters = ["has_abstract:true"]
     if since:
@@ -156,13 +169,19 @@ def fetch_openalex(search: str, since: str | None = None, classic: bool = False,
     if issns:
         filters.append("primary_location.source.issn:" + "|".join(issns))
     params = {"search": search, "filter": ",".join(filters), "per-page": per_page}
-    params["sort"] = "cited_by_count:desc" if classic else "publication_date:desc"
+    if classic:
+        # Most relevant among well-cited work. Sorting by citations alone returns famous papers
+        # that merely share a word with the query (a funding-rate search found hydrology).
+        params["filter"] += ",cited_by_count:>30"
+        params["sort"] = "relevance_score:desc"
+    else:
+        params["sort"] = "publication_date:desc"
     for attempt in range(3):
         try:
-            time.sleep(1.5)                       # stay under OpenAlex's anonymous rate limit
+            time.sleep(3)                         # stay under OpenAlex's anonymous rate limit
             resp = requests.get(OPENALEX_API, params=params, timeout=60)
-            if resp.status_code == 429 and attempt < 2:
-                time.sleep(15 * (attempt + 1))
+            if resp.status_code in (429, 500, 502, 503, 504) and attempt < 2:
+                time.sleep(30 * (attempt + 1))
                 continue
             resp.raise_for_status()
             return parse_openalex(resp.json())
