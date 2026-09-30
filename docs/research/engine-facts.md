@@ -23,8 +23,11 @@ The register summaries and the research queue are added to this automatically.
   ETHUSD about 3 dollars per ETH. Spreads widen about tenfold at the 21:00 UTC rollover.
 * Real fills (E04, 38 live fills on EURUSD): no slippage on average, 1.1 s from send to fill.
 * Order round trip 369 ms minimum, 949 ms median, 3.5 s at the 99th percentile. No colocation.
-* The biggest cost for anything held overnight is the broker's financing (swap). For crypto
-  CFDs it is large.
+* The biggest cost for anything held overnight is the broker's financing (swap), and it is
+  lopsided: crypto CFD longs pay about 20% a year, crypto SHORTS PAY NOTHING. So a crypto idea
+  that is short, or mostly short, does not carry the cost that kills crypto longs. FX pairs pay
+  or earn small amounts either way (for example USDSGD long +0.44, short -1.34 points a lot a
+  day).
 * Broker D1 bars open and close at 21:00 UTC.
 
 ## What the evidence says so far
@@ -32,6 +35,14 @@ The register summaries and the research queue are added to this automatically.
 * Of 20 candidate strategies classified on 20 September 2026: 14 had a real edge before costs
   that costs removed, 4 had no edge at all, 2 were indistinguishable from luck, 0 were limited
   by speed. **The binding constraint is the cost of trading, not prediction and not latency.**
+* Before the programme (19 and 20 September 2026, docs/results/RESULTS-2026-09-19.md):
+  FX carry with point-in-time interest rates was a wash 2017 to 2024 (interest earned +0.58
+  Sharpe, cancelled by high-yield currencies falling, -0.58); trend following failed on this
+  broker's instrument set in every era 2004 to 2024 (the published trend premium lives mostly
+  in bond, rate and agricultural futures); pooled machine learning (XGBoost, GRU, random
+  forests) had a faint signal before costs that was not distinguishable from luck after them;
+  re-scoring the held signals at exchange-futures costs failed its holdout, so a cheaper venue
+  alone does not rescue them. Do not propose these again without new information.
 * Intraday momentum failed (E01, E02). Order-book imbalance on XRP failed after the spread (E03).
 * Broker depth for BTC, ETH and SOL is a synthetic symmetric ladder: imbalance was exactly zero
   in 23,565 snapshots. Order-book research needs a real exchange feed.
