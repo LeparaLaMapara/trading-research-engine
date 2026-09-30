@@ -1,9 +1,9 @@
-# E09 DRAFT pre-registration: short Ethereum only when perpetual funding is high
+# E09 pre-registration: short Ethereum only when perpetual funding is high
 
-**Status: DRAFT for the owner's review. Not registered, not run, no slot spent.** It becomes a
-pre-registration only when it is moved to `docs/programme/`, added to `register.json` and
-pushed, before any code that scores it exists. Written 30 September 2026. The funding data has
-been downloaded but has NOT been compared with prices; nothing here is tuned.
+**Status: registered 30 September 2026, committed and pushed before any scoring code exists.**
+Drafted the same day, then decided by the research lead under the owner's instruction to make
+research decisions without an approval round. The funding data has been downloaded but was NOT
+compared with prices before this was committed; nothing here is tuned.
 
 ## The idea in plain words
 

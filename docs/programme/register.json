@@ -110,6 +110,17 @@
       "verdict": "FAIL",
       "trials": 0,
       "summary": "Both live rules failed the stronger tests and are demoted (no new trades). Ethereum: beat 10,000 random-sign runs and its bootstrap interval stays above zero, but all its edge is in 2018 to 2022; the half from September 2022 is slightly negative (-0.04). USDSGD: 28% of bootstrap resamples at or below zero, so its edge cannot be told from none."
+    },
+    {
+      "id": "E09",
+      "kind": "strategy",
+      "programme": "P1",
+      "trials": 1,
+      "title": "Short Ethereum only when perpetual funding is high (crypto carry, out of sample 2022-2026)",
+      "prereg": "docs/programme/E09-eth-funding-short-prereg.md",
+      "result": "docs/results/E09-eth-funding-short.json",
+      "verdict": null,
+      "summary": "Running."
     }
   ]
 }
