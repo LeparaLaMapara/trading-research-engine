@@ -1,5 +1,5 @@
 {
- "updated": "crypto-funding",
+ "updated": "regime-trend",
  "items": [
   {
    "id": "2026-W40-1",
@@ -12,6 +12,19 @@
    "hypothesis": "The current live strategies, E07 (Ethereum 20-day trend) and E08 (USDSGD 20-day trend), when subjected to a rigorous audit protocol including \"next-label embargoes\", \"validation-only hyperparameter selection\", \"temporal permutation control\", and \"bootstrap/multiplicity-corrected uncertainty\", will show that their reported edge does not survive these stricter tests, leading to \"adjusted tests [that] are null\" or \"paired intervals [that] reach zero\".",
    "test": "Apply a rigorous audit protocol, incorporating chronological separation, next-label embargoes, and validation-only hyperparameter selection, to a historical re-evaluation of strategies E07 (Ethereum 20-day trend) and E08 (USDSGD 20-day trend). The null hypothesis for each strategy is that its net PnL (after all trading costs, including spread and financing) is not statistically different from the net PnL of the same strategy applied to a time-permuted version of its input price series (serving as a 'temporal permutation control'). Use bootstrap and multiplicity-corrected uncertainty to construct confidence intervals for the strategy's performance relative to this permuted null. The test passes if the observed net PnL of E07 and E08, when compared to their respective permuted null distributions, demonstrates a statistically significant edge (e.g., the lower bound of the confidence interval for the difference is above zero). Failure would be if 'adjusted tests are null' or 'paired intervals reach zero', indicating a lack of robust statistical significance for the previously reported edge. This re-evaluation will run on historical data, not consuming a live slot.",
    "priority": 12.5,
+   "why_killed": null
+  },
+  {
+   "id": "regime-trend-6",
+   "week": "regime-trend",
+   "status": "proposed",
+   "title": "Bayesian nonparametric portfolio selection with rolling maximum drawdown control",
+   "field": "quantitative finance",
+   "source": "doi:10.1080/14697688.2023.2250386",
+   "url": "https://doi.org/10.1080/14697688.2023.2250386",
+   "hypothesis": "Nothing testable here. The abstract describes a general methodology for portfolio selection and return prediction using an HDP-HMM, but it does not identify or specify any particular market effect or anomaly (e.g., momentum, mean reversion, value, carry) that can be isolated and tested by the engine. It focuses on *how* to predict and manage a portfolio, not *what* specific market feature is being predicted or *why* it is predictable.",
+   "test": "Not applicable.",
+   "priority": 0.0,
    "why_killed": null
   },
   {
@@ -67,6 +80,19 @@
    "why_killed": "The hypothesis seeks to explain the profitability of a strategy (E07) that has been demoted due to the disappearance of its edge since September 2022 (Audit A01). This makes the proposed correlational study a post-mortem analysis rather than a test of a new, actionable trading hypothesis for the engine."
   },
   {
+   "id": "regime-trend-5",
+   "week": "regime-trend",
+   "status": "killed",
+   "title": "Active and passive portfolio management with latent factors",
+   "field": "quantitative finance",
+   "source": "doi:10.1080/14697688.2021.1881598",
+   "url": "https://doi.org/10.1080/14697688.2021.1881598",
+   "hypothesis": "A two-state Hidden Markov Model (HMM) applied to the daily log returns of ETHUSD will identify distinct market regimes. The performance of the engine's existing 20-day trend-following rule (E07) will be significantly different (e.g., positive vs. negative Sharpe ratio before costs) when applied only during periods identified by the HMM as being in one specific regime compared to another, such that trading only in the 'favorable' regime would meet the engine's audit criteria.",
+   "test": "1. **Data**: Use daily log returns of ETHUSD from the held broker bars, covering the full available history. 2. **Model Fitting**: Fit a two-state Hidden Markov Model to these daily log returns, using standard algorithms like Baum-Welch for parameter estimation. 3. **Regime Identification**: Use the Viterbi algorithm to infer the most probable sequence of states (regimes) for the entire historical period. 4. **Strategy Application**: Apply the E07 20-day trend-following rule to ETHUSD. 5. **Performance Comparison**: Calculate the Sharpe ratio (before costs) of E07 when trades are only allowed during periods identified as State 1, and separately for State 2. 6. **Null Hypothesis**: The Sharpe ratio of E07 in State 1 is not statistically different from the Sharpe ratio of E07 in State 2, after accounting for trading costs. 7. **Failure Condition**: The test fails if the performance difference between the identified states is not statistically significant, or if the 'favorable' state's performance, when traded in isolation, does not meet the engine's pass criteria (beating a random-sign null at the 99th percentile, surviving doubled costs, and most years positive). This test can be run entirely on historical data.",
+   "priority": 6.67,
+   "why_killed": "The use of the Viterbi algorithm for regime identification on the entire historical period introduces lookahead bias, making the results of the proposed test invalid for predicting future performance in a live trading environment. Additionally, the selection bias in identifying a 'favorable' regime after the fact makes the hypothesis unfalsifiable as stated."
+  },
+  {
    "id": "crypto-funding-1",
    "week": "crypto-funding",
    "status": "killed",
@@ -80,6 +106,19 @@
    "why_killed": "The hypothesis makes a significant leap from the paper's descriptive findings about the existence and causes of high crypto carry to a claim of profitable spot momentum after trading costs. The engine's measured costs for ETHUSD CFDs (large overnight swap, significant spread) are known to be the primary constraint for profitability, and there is no evidence from the source paper to suggest this specific strategy would overcome them. Furthermore, the recent audit (A01) found that the engine's only previously passing Ethereum trend rule had lost all its edge since 2022, indicating a broader challenge for ETH-based momentum strategies."
   },
   {
+   "id": "regime-trend-1",
+   "week": "regime-trend",
+   "status": "killed",
+   "title": "Beyond the Carry Trade: Optimal Currency Portfolios",
+   "field": "quantitative finance",
+   "source": "doi:10.1017/s0022109015000460",
+   "url": "https://doi.org/10.1017/s0022109015000460",
+   "hypothesis": "For the engine's available FX currency pairs (AUDCAD, AUDNZD, EURCAD, EURGBP, USDSGD), a trading strategy that combines daily signals from interest rate carry and 20-day price momentum, and then selects the top-ranked pair(s) to trade within the engine's position limits, will generate positive net returns after trading costs.",
+   "test": "For each of the five available FX pairs, calculate a daily carry signal (long higher-yielding currency, short lower-yielding using 3-month interbank rates) and a 20-day price momentum signal (e.g., long if 20-day return is positive, short if negative). Combine these signals (e.g., an average score or a weighted sum) to rank the pairs daily. Implement a strategy that opens up to two positions based on the highest-ranked signals, respecting the engine's risk and margin limits. The null hypothesis is that the strategy's net PnL is indistinguishable from one generated by randomly assigning long/short directions to the selected pairs, using the same trading frequency and position sizing. Failure would be defined as the strategy's net PnL not beating the random-sign null at the 99th percentile, or failing to survive a doubled-costs scenario, or not achieving positive returns in most years. This test can be run on historical data.",
+   "priority": 4.0,
+   "why_killed": "The combination of previous experimental failure of FX momentum (E08/A01), the certainty of significant overnight financing costs for carry trades, and the critical time-of-day confound from rollover spread widening makes this strategy highly unlikely to overcome the engine's primary constraint of trading costs."
+  },
+  {
    "id": "crypto-funding-6",
    "week": "crypto-funding",
    "status": "killed",
@@ -91,6 +130,19 @@
    "test": "For each available crypto CFD (ETHUSD, ADAUSD, BCHUSD, LTCUSD), at the close of each Friday (21:00 UTC D1 bar close), calculate the 'MAX measure' as the maximum daily log-return observed within the preceding five trading days. Rank the four instruments by their MAX measure. Form a long-short portfolio: go long the instrument with the lowest MAX measure and short the instrument with the highest MAX measure. Hold this position for one week, closing at the next Friday's 21:00 UTC D1 bar close. Calculate the weekly raw and cost-adjusted returns, including spread and significant overnight financing costs for crypto CFDs. The null hypothesis is that the average weekly cost-adjusted return of this strategy is zero or negative. Failure would be if the strategy's Sharpe ratio is not significantly positive (e.g., fails to beat a random-sign null at the 99th percentile) or if the average weekly cost-adjusted returns are negative. This test can be run on historical data.",
    "priority": 1.5,
    "why_killed": "The engine's measured trading costs, particularly the large overnight financing for crypto CFDs and the tenfold spread widening at rollover, are highly likely to consume any potential edge from this weekly holding strategy. This is consistent with the engine's binding constraint being the cost of trading."
+  },
+  {
+   "id": "regime-trend-4",
+   "week": "regime-trend",
+   "status": "killed",
+   "title": "A Non-Homogeneous Hidden Markov Model for Precipitation Occurrence",
+   "field": "quantitative finance",
+   "source": "doi:10.1111/1467-9876.00136",
+   "url": "https://doi.org/10.1111/1467-9876.00136",
+   "hypothesis": "A Non-Homogeneous Hidden Markov Model (NHHMM) that uses broad-scale market indicators (e.g., perpetual funding rates, CFTC positioning for ETH) to influence regime transition probabilities can identify periods where the 20-day trend-following strategy on ETHUSD (as per E07) is profitable, leading to a net positive Sharpe ratio after all trading costs over the 2022-2026 period, where E07 itself previously failed.",
+   "test": "Define two hidden regimes for ETHUSD: 'trending' (e.g., 20-day Simple Moving Average slope positive or negative) and 'non-trending' (e.g., flat 20-day SMA or high mean reversion). Use daily ETHUSD returns/volatility as observable emissions. Incorporate daily ETH perpetual funding rates and weekly CFTC positioning for ETH as non-homogeneous covariates influencing regime transition probabilities. Fit the NHHMM on ETHUSD daily data from 2018-2021. For the out-of-sample period (2022-2026), use the fitted model to predict the most likely regime each day. Execute the E07 trend-following strategy (buy if trending up, sell if trending down) only when the NHHMM predicts a 'trending' regime; otherwise, stay flat. The null hypothesis is that the Sharpe ratio of this NHHMM-filtered strategy over 2022-2026 is not significantly positive after accounting for actual spreads and overnight financing costs (as measured by E04). Failure would be a Sharpe ratio not statistically different from zero, or not outperforming the -0.04 Sharpe of E07 over the same period. This test can be run entirely on historical data.",
+   "priority": 1.5,
+   "why_killed": "Costs will eat the effect"
   },
   {
    "id": "crypto-funding-7",
@@ -119,6 +171,19 @@
    "why_killed": "The combination of the engine's extremely high trading costs for ETHUSD CFDs (spread and large overnight financing) and the lack of any quantitative evidence from the source paper that claimed 'significant economic values' survive costs, makes it highly probable that any potential edge would be entirely consumed by trading costs. This is consistent with the engine's historical experience where costs are the binding constraint, and further reinforced by the recent failure of existing ETHUSD strategies (E07/A01)."
   },
   {
+   "id": "regime-trend-3",
+   "week": "regime-trend",
+   "status": "killed",
+   "title": "Risks and Returns of Cryptocurrency",
+   "field": "quantitative finance",
+   "source": "doi:10.1093/rfs/hhaa113",
+   "url": "https://doi.org/10.1093/rfs/hhaa113",
+   "hypothesis": "For ETHUSD, a weekly time-series strategy based on investor attention, where a positive (negative) standardized deviation of Google searches for 'Ethereum' (compared to the average of the preceding four weeks) predicts higher (lower) future weekly returns, will generate positive returns net of trading costs.",
+   "test": "Data: Weekly ETHUSD open/close prices from IC Markets (held data), and weekly Google Trends search volume for 'Ethereum' (free to add). Null Hypothesis: Weekly ETHUSD returns are independent of the standardized deviation of weekly Google Trends search volume for 'Ethereum' (compared to the average of the preceding four weeks), after accounting for trading costs. Procedure: At the close of each week (Sunday 21:00 UTC broker time), calculate the Google search proxy for 'Ethereum' as the raw weekly search volume for 'Ethereum' minus its average over the preceding four weeks, then standardize this difference by its historical standard deviation. If the standardized proxy is positive, open a 0.01 lot long position on ETHUSD at the next Monday 21:00 UTC open. If the standardized proxy is negative, open a 0.01 lot short position. Hold the position for one week, closing at the following Monday 21:00 UTC open. Simulate this strategy historically, applying measured spreads (ETHUSD about $3 per ETH) and overnight swap costs (large for crypto CFDs). Failure: The strategy's net Sharpe ratio is not above zero, or it does not beat a random-sign null at the 99th percentile, or it does not survive doubled costs, or most years are negative. Historical run: Yes, can run on history.",
+   "priority": 0.5,
+   "why_killed": "The hypothesis is contradicted by prior experiments (E07/A01) showing that historical ETH strategies do not persist after 2022, and a very similar idea has already been killed from the research queue."
+  },
+  {
    "id": "crypto-funding-8",
    "week": "crypto-funding",
    "status": "killed",
@@ -143,6 +208,32 @@
    "test": "1. Obtain daily S&P 500 realized volatility data and daily ETHUSD price data (broker D1 bars for E07 strategy). 2. Divide the historical period into two regimes: 'higher S&P 500 realized volatility' (e.g., above its historical median) and 'lower S&P 500 realized volatility' (below its historical median). 3. Run the demoted E07 trend-following strategy on ETHUSD for both regimes, calculating its Sharpe ratio after accounting for trading costs. 4. The null hypothesis is that there is no statistically significant difference in the Sharpe ratio of the E07 strategy between periods of higher S&P 500 realized volatility and periods of lower S&P 500 realized volatility. 5. Failure condition: The Sharpe ratio of the E07 strategy in periods of higher S&P 500 realized volatility is not significantly better (e.g., fails to beat the 99th percentile of a bootstrap distribution of the 'lower volatility' regime's Sharpe ratio) or is negative after costs. This test can be run entirely on historical data.",
    "priority": 0.33,
    "why_killed": "The proposed test attempts to revive a strategy (E07) that has been explicitly demoted due to its inability to generate returns above costs in the recent past. The engine's core problem is that costs eat the edge. If E07 no longer has an edge that survives costs, conditioning it on external factors related to volatility is unlikely to change this fundamental issue, especially given the questionable logical link between predicted lower volatility and improved trend-following performance. This is a direct contradiction of Audit A01's findings."
+  },
+  {
+   "id": "regime-trend-2",
+   "week": "regime-trend",
+   "status": "killed",
+   "title": "Common Risk Factors in Cryptocurrency",
+   "field": "quantitative finance",
+   "source": "doi:10.1111/jofi.13119",
+   "url": "https://doi.org/10.1111/jofi.13119",
+   "hypothesis": "Among the engine's available crypto CFDs (ETHUSD, ADAUSD, BCHUSD, LTCUSD), a weekly rebalanced strategy that goes long the crypto CFD with the highest 3-week momentum and shorts the crypto CFD with the lowest 3-week momentum will generate statistically significant positive excess returns after accounting for trading costs.",
+   "test": "Backtest a weekly rebalanced strategy on historical data for ETHUSD, ADAUSD, BCHUSD, LTCUSD. Each week, calculate the 3-week momentum for each of these four instruments. Go long the instrument with the highest 3-week momentum and short the instrument with the lowest 3-week momentum. The null hypothesis is that the weekly net return of this long-short portfolio is statistically indistinguishable from zero after accounting for spreads and financing costs. Failure would be if the strategy fails to beat a random-sign null at the 99th percentile, or if its Sharpe ratio is negative, or if it results in a loss after doubling historical trading costs. This test can be run on history.",
+   "priority": 0.33,
+   "why_killed": "The paper does not account for trading costs, which are the binding constraint for this engine, and its findings are based on an outdated sample period, with recent engine experiments showing a decay of similar crypto momentum/trend edges post-2022."
+  },
+  {
+   "id": "regime-trend-8",
+   "week": "regime-trend",
+   "status": "killed",
+   "title": "Downscaling of Daily Rainfall Occurrence over Northeast Brazil Using a Hidden Markov Model",
+   "field": "quantitative finance",
+   "source": "doi:10.1175/jcli-3216.1",
+   "url": "https://doi.org/10.1175/jcli-3216.1",
+   "hypothesis": "For ETHUSD, a Hidden Markov Model (HMM) trained on the sign of daily close-to-close returns can identify at least two distinct hidden market states such that the probability of a positive return in one state is statistically significantly different from the probability of a positive return in another state.",
+   "test": "1. Data: Use daily close prices for ETHUSD from IC Markets, converting them into a binary sequence representing positive (1) or negative/zero (0) close-to-close returns. 2. Model Training: Train an HMM (e.g., with 2 to 4 hidden states, similar to the paper's 'Four hidden rainfall states') on this binary sequence for ETHUSD. 3. State Characterization: For each identified hidden state, calculate the conditional probability of a positive return. Verify if at least two states have statistically significantly different conditional probabilities of positive returns. 4. Trading Strategy Simulation: Simulate a trading strategy: at the close of each day, infer the most likely hidden state using the HMM. If the inferred state's historical conditional probability of a positive return is above 50% (or above the overall average positive return probability), take a long position for the next day. If it's below 50% (or below average), take a short position. Close the position at the next day's close. 5. Cost Application: Apply typical trading costs for ETHUSD (spread, overnight swap for D1 holding) to the simulated trades. 6. Null Hypothesis: The net profit after costs of the HMM-based trading strategy is not statistically significantly better than zero, nor does it beat a random-sign trading strategy (where long/short positions are chosen randomly each day) at the 99th percentile, over the same historical period. 7. Failure Criteria: The test fails if the HMM-based strategy does not achieve a positive net profit after costs, or if its performance (e.g., Sharpe ratio) does not significantly outperform the random-sign null. 8. Run on history: This test can be run entirely on historical data before live trading.",
+   "priority": 0.33,
+   "why_killed": "The overnight financing charge for ETHUSD CFD is explicitly stated as 'large' and 'the biggest cost for anything held overnight'. A strategy that mandates holding positions overnight on a crypto CFD for daily directional bets is fundamentally incompatible with the account's cost structure and the engine's measured facts."
   },
   {
    "id": "2026-W40-2",
@@ -195,6 +286,19 @@
    "test": "Not applicable, as no testable hypothesis can be formed.",
    "priority": 0.2,
    "why_killed": "The engine cannot obtain the necessary data (especially options data for VRP and specific macro data) and does not trade the relevant instruments (US equities for recovery rate), rendering the core ideas untestable."
+  },
+  {
+   "id": "regime-trend-7",
+   "week": "regime-trend",
+   "status": "killed",
+   "title": "DeepVol: volatility forecasting from high-frequency data with dilated causal convolutions",
+   "field": "quantitative finance",
+   "source": "doi:10.1080/14697688.2024.2387222",
+   "url": "https://doi.org/10.1080/14697688.2024.2387222",
+   "hypothesis": "This abstract describes a methodological improvement in volatility forecasting accuracy and risk measurement, but it does not propose a specific trading strategy or quantify any market effect that could generate profits after trading costs. While improved volatility forecasts could potentially be used for better risk management or adaptive position sizing in a trading strategy, the abstract does not provide enough detail to formulate a falsifiable hypothesis for the engine to test regarding profitability or risk-adjusted returns. It focuses on prediction accuracy, not trading edge.",
+   "test": "Not applicable, as no specific, falsifiable trading hypothesis can be formulated from the abstract.",
+   "priority": 0.2,
+   "why_killed": "The idea card, as presented, does not propose a specific, falsifiable trading hypothesis that quantifies a market effect and considers trading costs. It focuses solely on prediction accuracy, which the engine has repeatedly found does not translate to profitable trading after costs."
   },
   {
    "id": "2026-W40-5",

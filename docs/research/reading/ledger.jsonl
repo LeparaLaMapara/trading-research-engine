@@ -713,3 +713,88 @@
 {"identifier": "doi:10.1186/s40854-021-00308-3", "title": "Liquidity connectedness in cryptocurrency market", "field": "quantitative finance", "week": "crypto-funding", "triage": 1, "read": false}
 {"identifier": "doi:10.1080/00036846.2020.1752903", "title": "Predicting cryptocurrency defaults", "field": "quantitative finance", "week": "crypto-funding", "triage": 0, "read": false}
 {"identifier": "doi:10.1287/mnsc.2024.05069", "title": "Crypto Carry", "field": "quantitative finance", "week": "crypto-funding", "triage": 4, "read": true}
+{"identifier": "doi:10.3905/jpm.2017.44.1.015", "title": "A Century of Evidence on Trend-Following Investing", "field": "quantitative finance", "week": "regime-trend", "triage": 1, "read": false}
+{"identifier": "doi:10.3390/jrfm12040165", "title": "The Cross Section of Country Equity Returns: A Review of Empirical Literature", "field": "quantitative finance", "week": "regime-trend", "triage": 0, "read": false}
+{"identifier": "doi:10.1016/j.jfineco.2013.10.005", "title": "Betting against beta", "field": "quantitative finance", "week": "regime-trend", "triage": 1, "read": false}
+{"identifier": "doi:10.3386/w25551", "title": "Factor Momentum and the Momentum Factor", "field": "quantitative finance", "week": "regime-trend", "triage": 1, "read": false}
+{"identifier": "doi:10.1111/jofi.12616", "title": "Margin Requirements and the Security Market Line", "field": "quantitative finance", "week": "regime-trend", "triage": 1, "read": false}
+{"identifier": "doi:10.1108/rbf-11-2021-0256", "title": "Behavioural finance and cryptocurrencies", "field": "quantitative finance", "week": "regime-trend", "triage": 1, "read": false}
+{"identifier": "doi:10.1016/j.jfineco.2021.06.030", "title": "Global factor premiums", "field": "quantitative finance", "week": "regime-trend", "triage": 1, "read": false}
+{"identifier": "doi:10.3386/w16942", "title": "Carry Trade and Momentum in Currency Markets", "field": "quantitative finance", "week": "regime-trend", "triage": 1, "read": false}
+{"identifier": "doi:10.1371/journal.pone.0230124", "title": "Stock price prediction using principal components", "field": "quantitative finance", "week": "regime-trend", "triage": 2, "read": false}
+{"identifier": "doi:10.1016/j.jebo.2016.07.020", "title": "Volatility clustering: A nonlinear theoretical approach", "field": "quantitative finance", "week": "regime-trend", "triage": 3, "read": false}
+{"identifier": "doi:10.1111/jofi.13229", "title": "Pockets of Predictability", "field": "quantitative finance", "week": "regime-trend", "triage": 1, "read": false}
+{"identifier": "doi:10.21799/frbp.wp.2020.21", "title": "A Survey of Fintech Research and Policy Discussion", "field": "quantitative finance", "week": "regime-trend", "triage": 0, "read": false}
+{"identifier": "doi:10.1016/j.jimonfin.2026.103636", "title": "Rethinking currency factors: The case for mean-variance optimisation", "field": "quantitative finance", "week": "regime-trend", "triage": 1, "read": false}
+{"identifier": "doi:10.1080/14697688.2026.2665153", "title": "ClusterLOB: enhancing trading strategies by clustering orders in limit order books", "field": "quantitative finance", "week": "regime-trend", "triage": 0, "read": false}
+{"identifier": "doi:10.1017/s0022109023001400", "title": "Mispricing and Risk Premia in Currency Markets", "field": "quantitative finance", "week": "regime-trend", "triage": 1, "read": false}
+{"identifier": "doi:10.1111/jofi.13195", "title": "Beliefs Aggregation and Return Predictability", "field": "quantitative finance", "week": "regime-trend", "triage": 1, "read": false}
+{"identifier": "doi:10.18637/jss.v036.i07", "title": "depmixS4 : An R Package for Hidden Markov Models", "field": "quantitative finance", "week": "regime-trend", "triage": 2, "read": false}
+{"identifier": "doi:10.1111/1467-9876.00136", "title": "A Non-Homogeneous Hidden Markov Model for Precipitation Occurrence", "field": "quantitative finance", "week": "regime-trend", "triage": 3, "read": true}
+{"identifier": "doi:10.1111/2041-210x.12995", "title": "momentuHMM: R package for generalized hidden Markov models of animal movement", "field": "quantitative finance", "week": "regime-trend", "triage": 3, "read": false}
+{"identifier": "doi:10.1093/bioinformatics/bth315", "title": "TigrScan and GlimmerHMM: two open source ab initio eukaryotic gene-finders", "field": "quantitative finance", "week": "regime-trend", "triage": 3, "read": false}
+{"identifier": "doi:10.2307/1270959", "title": "Monte Carlo Statistical Methods", "field": "quantitative finance", "week": "regime-trend", "triage": 0, "read": false}
+{"identifier": "doi:10.3390/ijfs6020036", "title": "Hidden Markov Model for Stock Trading", "field": "quantitative finance", "week": "regime-trend", "triage": 2, "read": false}
+{"identifier": "doi:10.1613/jair.301", "title": "Reinforcement Learning: A Survey", "field": "quantitative finance", "week": "regime-trend", "triage": 3, "read": false}
+{"identifier": "doi:10.1121/1.2017061", "title": "Trainable grammars for speech recognition", "field": "quantitative finance", "week": "regime-trend", "triage": 3, "read": false}
+{"identifier": "doi:10.1613/jair.839", "title": "Policy Recognition in the Abstract Hidden Markov Model", "field": "quantitative finance", "week": "regime-trend", "triage": 3, "read": false}
+{"identifier": "doi:10.1175/jcli-3216.1", "title": "Downscaling of Daily Rainfall Occurrence over Northeast Brazil Using a Hidden Markov Model", "field": "quantitative finance", "week": "regime-trend", "triage": 3, "read": true}
+{"identifier": "doi:10.1109/tnnls.2014.2315042", "title": "Adaptive Hidden Markov Model With Anomaly States for Price Manipulation Detection", "field": "quantitative finance", "week": "regime-trend", "triage": 2, "read": false}
+{"identifier": "doi:10.1109/89.242487", "title": "Shared-distribution hidden Markov models for speech recognition", "field": "quantitative finance", "week": "regime-trend", "triage": 3, "read": false}
+{"identifier": "doi:10.1093/protein/12.1.3", "title": "Machine learning approaches for the prediction of signal peptides and other protein sorting signals", "field": "quantitative finance", "week": "regime-trend", "triage": 3, "read": false}
+{"identifier": "doi:10.1002/int.22428", "title": "Semi\u2010selfish mining based on hidden Markov decision process", "field": "quantitative finance", "week": "regime-trend", "triage": 3, "read": false}
+{"identifier": "doi:10.1109/icassp.1988.196523", "title": "Phoneme recognition: neural networks vs. hidden Markov models vs. hidden Markov models", "field": "quantitative finance", "week": "regime-trend", "triage": 3, "read": false}
+{"identifier": "doi:10.1093/restud/rdag080", "title": "An Evaluation of Protected Area Policies in the European Union", "field": "quantitative finance", "week": "regime-trend", "triage": 0, "read": false}
+{"identifier": "doi:10.1080/14697688.2026.2659195", "title": "Tactical asset allocation with macroeconomic regime detection", "field": "quantitative finance", "week": "regime-trend", "triage": 2, "read": false}
+{"identifier": "doi:10.1080/14697688.2025.2599892", "title": "Dynamic estimation of sample covariance matrices via hierarchical clustering", "field": "quantitative finance", "week": "regime-trend", "triage": 1, "read": false}
+{"identifier": "doi:10.1080/14697688.2025.2511115", "title": "Stock market simulator using hidden Markov generative model and its application in risk measurement", "field": "quantitative finance", "week": "regime-trend", "triage": 1, "read": false}
+{"identifier": "doi:10.1093/rfs/hhaf033", "title": "Learning to Disclose: Disclosure Dynamics in the 1890s Streetcar Industry", "field": "quantitative finance", "week": "regime-trend", "triage": 0, "read": false}
+{"identifier": "doi:10.1080/14697688.2024.2337300", "title": "Online learning of order flow and market impact with Bayesian change-point detection methods", "field": "quantitative finance", "week": "regime-trend", "triage": 1, "read": false}
+{"identifier": "doi:10.1016/j.jeconom.2024.105741", "title": "Hybrid unadjusted Langevin methods for high-dimensional latent variable models", "field": "quantitative finance", "week": "regime-trend", "triage": 0, "read": false}
+{"identifier": "doi:10.1016/j.jeconom.2023.105632", "title": "Bellman filtering and smoothing for state\u2013space models", "field": "quantitative finance", "week": "regime-trend", "triage": 0, "read": false}
+{"identifier": "doi:10.1080/14697688.2023.2250386", "title": "Bayesian nonparametric portfolio selection with rolling maximum drawdown control", "field": "quantitative finance", "week": "regime-trend", "triage": 2, "read": true}
+{"identifier": "doi:10.1016/j.jimonfin.2023.102939", "title": "Endogenous growth and monetary policy: How do interest-rate feedback rules shape nominal and real transitional dynamics?", "field": "quantitative finance", "week": "regime-trend", "triage": 0, "read": false}
+{"identifier": "doi:10.1016/j.jeconom.2023.105476", "title": "Inference and forecasting for continuous-time integer-valued trawl processes", "field": "quantitative finance", "week": "regime-trend", "triage": 1, "read": false}
+{"identifier": "doi:10.1017/s0022109023000364", "title": "Generalized Disappointment Aversion and the Variance Term Structure", "field": "quantitative finance", "week": "regime-trend", "triage": 0, "read": false}
+{"identifier": "doi:10.1257/aer.20161622", "title": "Productivity Shocks, Long-Term Contracts, and Earnings Dynamics", "field": "quantitative finance", "week": "regime-trend", "triage": 0, "read": false}
+{"identifier": "doi:10.1093/rfs/hhab117", "title": "Comomentum: Inferring Arbitrage Activity from Return Correlations", "field": "quantitative finance", "week": "regime-trend", "triage": 1, "read": false}
+{"identifier": "doi:10.1080/14697688.2021.1881598", "title": "Active and passive portfolio management with latent factors", "field": "quantitative finance", "week": "regime-trend", "triage": 2, "read": true}
+{"identifier": "doi:10.1111/jofi.12513", "title": "Volatility\u2010Managed Portfolios", "field": "quantitative finance", "week": "regime-trend", "triage": 2, "read": false}
+{"identifier": "doi:10.3905/jpm.2019.1.107", "title": "Volatility-Managed Portfolio: Does It Really Work?", "field": "quantitative finance", "week": "regime-trend", "triage": 0, "read": false}
+{"identifier": "doi:10.1111/jofi.13395", "title": "A Multifactor Perspective on Volatility\u2010Managed Portfolios", "field": "quantitative finance", "week": "regime-trend", "triage": 0, "read": false}
+{"identifier": "doi:10.3905/jpm.2018.45.1.014", "title": "The Impact of Volatility Targeting", "field": "quantitative finance", "week": "regime-trend", "triage": 2, "read": false}
+{"identifier": "doi:10.1016/j.jfds.2021.12.001", "title": "Machine Learning Portfolio Allocation", "field": "quantitative finance", "week": "regime-trend", "triage": 2, "read": false}
+{"identifier": "doi:10.3386/w18169", "title": "Tail Risk in Momentum Strategy Returns", "field": "quantitative finance", "week": "regime-trend", "triage": 2, "read": false}
+{"identifier": "doi:10.2469/faj.v74.n3.3", "title": "When Diversification Fails", "field": "quantitative finance", "week": "regime-trend", "triage": 1, "read": false}
+{"identifier": "doi:10.1093/rfs/hhy041", "title": "Risk Everywhere: Modeling and Managing Volatility", "field": "quantitative finance", "week": "regime-trend", "triage": 2, "read": false}
+{"identifier": "doi:10.1093/rfs/hhy062", "title": "The VIX Premium", "field": "quantitative finance", "week": "regime-trend", "triage": 0, "read": false}
+{"identifier": "doi:10.3386/w28687", "title": "What Triggers Stock Market Jumps?", "field": "quantitative finance", "week": "regime-trend", "triage": 0, "read": false}
+{"identifier": "doi:10.1109/access.2021.3059960", "title": "Explainable Machine Learning Exploiting News and Domain-Specific Lexicon for Stock Market Forecasting", "field": "quantitative finance", "week": "regime-trend", "triage": 1, "read": false}
+{"identifier": "doi:10.3386/w20984", "title": "Fundamentally, Momentum is Fundamental Momentum", "field": "quantitative finance", "week": "regime-trend", "triage": 1, "read": false}
+{"identifier": "doi:10.1111/jofi.13225", "title": "Model Comparison with Transaction Costs", "field": "quantitative finance", "week": "regime-trend", "triage": 0, "read": false}
+{"identifier": "doi:10.1287/mnsc.2025.00721", "title": "Deep Parametric Portfolio Policies", "field": "quantitative finance", "week": "regime-trend", "triage": 1, "read": false}
+{"identifier": "doi:10.1016/j.jimonfin.2025.103453", "title": "The risk and reward of investing", "field": "quantitative finance", "week": "regime-trend", "triage": 0, "read": false}
+{"identifier": "doi:10.1111/jofi.13156", "title": "ISSUE INFORMATION", "field": "quantitative finance", "week": "regime-trend", "triage": 0, "read": false}
+{"identifier": "doi:10.1016/j.jfineco.2024.103949", "title": "Comparing factor models with price-impact costs", "field": "quantitative finance", "week": "regime-trend", "triage": 1, "read": false}
+{"identifier": "doi:10.1080/14697688.2024.2387222", "title": "DeepVol: volatility forecasting from high-frequency data with dilated causal convolutions", "field": "quantitative finance", "week": "regime-trend", "triage": 2, "read": true}
+{"identifier": "doi:10.1080/14697688.2023.2249996", "title": "Can volatility solve the naive portfolio puzzle?", "field": "quantitative finance", "week": "regime-trend", "triage": 1, "read": false}
+{"identifier": "doi:10.1093/rfs/hhad068", "title": "Scale or Yield? A Present-Value Identity", "field": "quantitative finance", "week": "regime-trend", "triage": 0, "read": false}
+{"identifier": "doi:10.1017/s0022109022001090", "title": "Enhanced Global Asset Pricing Factors", "field": "quantitative finance", "week": "regime-trend", "triage": 0, "read": false}
+{"identifier": "doi:10.1111/jofi.12949", "title": "The Banking View of Bond Risk Premia", "field": "quantitative finance", "week": "regime-trend", "triage": 1, "read": false}
+{"identifier": "doi:10.1016/j.jfineco.2015.12.002", "title": "Momentum crashes", "field": "quantitative finance", "week": "regime-trend", "triage": 2, "read": false}
+{"identifier": "doi:10.1108/jrf-05-2019-0075", "title": "Risk-mitigating effect of ESG on momentum portfolios", "field": "quantitative finance", "week": "regime-trend", "triage": 1, "read": false}
+{"identifier": "doi:10.1093/rfs/hhz091", "title": "Aggregation, Capital Heterogeneity, and the Investment CAPM", "field": "quantitative finance", "week": "regime-trend", "triage": 0, "read": false}
+{"identifier": "doi:10.1093/rfs/hhaa113", "title": "Risks and Returns of Cryptocurrency", "field": "quantitative finance", "week": "regime-trend", "triage": 3, "read": true}
+{"identifier": "doi:10.1111/jofi.13119", "title": "Common Risk Factors in Cryptocurrency", "field": "quantitative finance", "week": "regime-trend", "triage": 3, "read": true}
+{"identifier": "doi:10.1016/j.jfineco.2015.02.010", "title": "Tail risk premia and return predictability", "field": "quantitative finance", "week": "regime-trend", "triage": 1, "read": false}
+{"identifier": "doi:10.1257/jep.20.4.47", "title": "The Real Effects of European Monetary Union", "field": "quantitative finance", "week": "regime-trend", "triage": 0, "read": false}
+{"identifier": "doi:10.1017/s0022109015000460", "title": "Beyond the Carry Trade: Optimal Currency Portfolios", "field": "quantitative finance", "week": "regime-trend", "triage": 3, "read": true}
+{"identifier": "doi:10.3386/w20660", "title": "Momentum Trading, Return Chasing, and Predictable Crashes", "field": "quantitative finance", "week": "regime-trend", "triage": 2, "read": false}
+{"identifier": "doi:10.1017/s002210902610307x", "title": "Common Idiosyncratic Quantile Factors and Asset Prices", "field": "quantitative finance", "week": "regime-trend", "triage": 1, "read": false}
+{"identifier": "doi:10.1287/mnsc.2023.01423", "title": "Nominal Prices, Retail Investor Participation, and Return Momentum", "field": "quantitative finance", "week": "regime-trend", "triage": 1, "read": false}
+{"identifier": "doi:10.1017/s0022109024000036", "title": "Estimating Stock Market Betas via Machine Learning", "field": "quantitative finance", "week": "regime-trend", "triage": 1, "read": false}
+{"identifier": "doi:10.1017/s0022109023000959", "title": "Discontinued Positive Feedback Trading and the Decline of Return Predictability", "field": "quantitative finance", "week": "regime-trend", "triage": 1, "read": false}
+{"identifier": "doi:10.1016/j.jeconom.2023.04.002", "title": "Tail index estimation in the presence of covariates: Stock returns\u2019 tail risk dynamics", "field": "quantitative finance", "week": "regime-trend", "triage": 1, "read": false}
+{"identifier": "doi:10.1111/jofi.13226", "title": "Integrating Factor Models", "field": "quantitative finance", "week": "regime-trend", "triage": 1, "read": false}
+{"identifier": "doi:10.1017/s0022109022000874", "title": "Zeroing In on the Expected Returns of Anomalies", "field": "quantitative finance", "week": "regime-trend", "triage": 1, "read": false}
+{"identifier": "doi:10.1287/mnsc.2021.4135", "title": "What Can Explain Momentum? Evidence from Decomposition", "field": "quantitative finance", "week": "regime-trend", "triage": 1, "read": false}
