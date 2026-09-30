@@ -1,0 +1,532 @@
+{
+ "tag": "crypto-funding",
+ "stats": {
+  "harvested": 41,
+  "by_field": "41 quantitative finance",
+  "eligible": 9,
+  "full_text": 0,
+  "spend": "$0.17 over 20 calls"
+ },
+ "cards": [
+  {
+   "identifier": "doi:10.1287/mnsc.2024.05069",
+   "url": "https://doi.org/10.1287/mnsc.2024.05069",
+   "title": "Crypto Carry",
+   "field": "quantitative finance",
+   "via": "top venue '\"crypto carry\" OR \"cryptocurrency carry\"'",
+   "read_depth": "abstract",
+   "triage": 4,
+   "claim": "Carry in crypto markets, defined as the difference between futures and spot prices, can reach exceptionally high levels, sometimes exceeding 40% per annum, with significant variation over time.",
+   "mechanism": "The large and volatile crypto carry is traced to two main forces: (i) demand from smaller, trend-chasing investors seeking leveraged exposure and (ii) the limited deployment of arbitrage capital because of regulatory and margin frictions. This reflects a substantial and volatile inconvenience yield associated with holding spot cryptocurrencies relative to futures, and structural limits to arbitrage amplify these price inefficiencies.",
+   "source_concept": "carry in crypto markets\u2014the difference between futures and spot prices",
+   "market_analogue": "The 'carry' in the paper refers to the premium or discount of futures prices relative to spot prices. For the engine, the closest analogue is the perpetual funding rate for cryptocurrencies, which represents the cost or income of holding a perpetual futures position relative to the spot price. The engine's ETHUSD CFD positions incur a broker's financing (swap) cost, which is its own cost of carry for a spot-like position.",
+   "hypothesis": "When the perpetual funding rate for ETH is exceptionally high and positive, indicating a substantial premium of perpetual futures over spot, the ETHUSD CFD will exhibit positive momentum over the subsequent 1 to 20 days, driven by demand from trend-chasing investors.",
+   "test": "Identify periods where the daily ETH perpetual funding rate (from Binance, BitMEX, or OKX) exceeds its 90th percentile over the preceding 90 days. For each such period, calculate the average total return (including broker's swap and spread) of the ETHUSD CFD over the subsequent 1, 5, and 20 trading days. The null hypothesis is that the average return during these high-carry periods is not significantly different from zero or from returns during other periods. Failure would be if returns are not significantly positive after costs, or are negative. This test can be run on historical data.",
+   "instruments": [
+    "ETHUSD"
+   ],
+   "horizon": "1 to 20 days (holding period after signal)",
+   "data": [
+    {
+     "what": "ETHUSD CFD D1 bars",
+     "status": "held",
+     "source": "broker"
+    },
+    {
+     "what": "ETH perpetual funding rates (Binance, BitMEX, OKX)",
+     "status": "held",
+     "source": "Binance from 2019, BitMEX ETH from 2018, OKX"
+    }
+   ],
+   "expected_effect": "Positive returns for the ETHUSD CFD during periods following exceptionally high positive perpetual funding rates.",
+   "evidence_quality": "The abstract states that the paper 'document[s]' the phenomenon and 'trace[s]' its causes, implying empirical evidence of high carry and its drivers. It highlights 'structural limits to arbitrage' that 'amplify price inefficiencies', suggesting a persistent effect. However, the abstract does not quantify the *predictive* power for spot prices or net profitability for a retail trader.",
+   "confidence": 0.6,
+   "quotes_verified": [
+    "We analyze the dynamics of carry in crypto markets\u2014the difference between futures and spot prices\u2014and document that it can reach exceptionally high levels, sometimes exceeding 40% per annum, with significant variation over time.",
+    "This phenomenon reflects a substantial and volatile inconvenience yield associated with holding spot cryptocurrencies relative to futures.",
+    "We trace the large and volatile crypto carry to the interplay of two main forces: (i) demand from smaller, trend-chasing investors seeking leveraged exposure and (ii) the limited deployment of arbitrage capital because of regulatory and margin frictions.",
+    "Our findings highlight how structural limits to arbitrage\u2014especially severe in the case of crypto\u2014can amplify price inefficiencies across financial markets, offering lessons for understanding asset pricing and market behavior more generally."
+   ],
+   "quotes_unverified": [],
+   "grounded": true,
+   "id": "crypto-funding-1",
+   "red_team": {
+    "concerns": [
+     "The hypothesis infers predictive power for spot price momentum from the paper's descriptive findings on crypto carry and its drivers, rather than being a direct claim or empirical result from the paper itself. The abstract does not quantify the predictive power for spot prices or net profitability for a retail trader.",
+     "The engine's measured trading costs, particularly the large overnight financing (swap) for crypto CFDs and the significant spread for ETHUSD (about 3 dollars per ETH), are explicitly stated as the 'binding constraint'. It is highly probable that any potential edge from the inferred momentum would be consumed by these costs, especially given the lack of direct evidence from the paper that such a strategy would be profitable after costs.",
+     "The recent audit (A01) demoted the engine's previously passing Ethereum 20-day trend rule (E07) because all its edge came from 2018-2022 and it had been negative since September 2022. This suggests that even basic momentum strategies on ETHUSD are no longer viable, raising serious doubts about any new ETHUSD strategy, even one conditioned on funding rates.",
+     "The proposed test does not explicitly account for the exact timing of the daily funding rate signal relative to the 21:00 UTC D1 bar close/open, which is critical given the tenfold widening of spreads at rollover and the large overnight swap costs. While the 'subsequent' days mitigate lookahead, the specific entry/exit mechanics around the bar close and rollover costs need careful consideration."
+    ],
+    "fatal": "The hypothesis makes a significant leap from the paper's descriptive findings about the existence and causes of high crypto carry to a claim of profitable spot momentum after trading costs. The engine's measured costs for ETHUSD CFDs (large overnight swap, significant spread) are known to be the primary constraint for profitability, and there is no evidence from the source paper to suggest this specific strategy would overcome them. Furthermore, the recent audit (A01) found that the engine's only previously passing Ethereum trend rule had lost all its edge since 2022, indicating a broader challenge for ETH-based momentum strategies.",
+    "kill": true,
+    "information": 3,
+    "value": 2,
+    "cost": 1,
+    "revised_test": ""
+   }
+  },
+  {
+   "identifier": "doi:10.1016/j.jimonfin.2023.102963",
+   "url": "https://doi.org/10.1016/j.jimonfin.2023.102963",
+   "title": "Cryptomarket discounts",
+   "field": "quantitative finance",
+   "via": "top venue '\"bitcoin futures\" AND (basis OR premium)'",
+   "read_depth": "abstract",
+   "triage": 3,
+   "claim": "There are persistent differences in relative bitcoin prices (or discounts) across exchange-currency pairs, which revert with a half-life of 1 day and have a standard deviation of 3.9%.",
+   "mechanism": "The paper attributes the variability of these discounts to 'market segmentation and local supply and demand shocks', particularly in countries with tighter capital controls, suggesting that these are temporary mispricings that revert.",
+   "source_concept": "Market inefficiency and arbitrage opportunities arising from price discrepancies across segmented cryptocurrency markets.",
+   "market_analogue": "Price discrepancies for a cryptocurrency CFD (e.g., ETHUSD) between the engine's broker (IC Markets) and a major global spot exchange.",
+   "hypothesis": "If the price of ETHUSD CFD at IC Markets consistently deviates from a major spot exchange's ETHUSD price, and these deviations revert with a half-life of approximately one day, then a strategy of buying the relatively discounted CFD and selling the relatively premium CFD will be profitable after accounting for trading costs (spread and overnight financing).",
+   "test": "1. Collect daily closing prices for ETHUSD from IC Markets (held data) and a major spot exchange (e.g., Binance, free to add). 2. Calculate the daily price difference (IC Markets ETHUSD price - Binance ETHUSD price). 3. Analyze the statistical properties of this difference, including its mean, standard deviation, skewness, kurtosis, and estimate its half-life of mean reversion. 4. Backtest a mean-reversion strategy: buy ETHUSD CFD when the IC Markets price is at a significant discount to the spot price, and sell ETHUSD CFD when it is at a significant premium. Positions should be exited as the difference reverts towards zero. 5. Apply measured IC Markets' spread and overnight financing costs for ETHUSD to the backtest. 6. The null hypothesis is that the strategy's net profit after costs is zero or negative, or indistinguishable from a random-sign null at the 99th percentile. Failure would be if the strategy does not generate positive returns after costs, does not beat the random-sign null, fails to survive doubled costs, or does not show positive returns in most years. This test can run on historical data before spending a live slot.",
+   "instruments": [
+    "ETHUSD"
+   ],
+   "horizon": "Daily (half-life of 1 day)",
+   "data": [
+    {
+     "what": "Major spot exchange ETHUSD D1 prices (e.g., Binance)",
+     "status": "free",
+     "source": "Public API"
+    },
+    {
+     "what": "IC Markets ETHUSD spread and swap rates",
+     "status": "held",
+     "source": "Measured"
+    }
+   ],
+   "expected_effect": "A profitable mean-reversion strategy on ETHUSD CFD, due to the observed persistent, yet temporary, price discrepancies with a standard deviation of 3.9% and a 1-day half-life.",
+   "evidence_quality": "The abstract provides specific quantitative characteristics of the documented price differences (half-life, standard deviation, distribution properties).",
+   "confidence": 0.7,
+   "quotes_verified": [
+    "We document persistent differences in relative bitcoin prices (or discounts), with a half-life of 1 day, and a distribution which is leptokurtic, skewed to the right, with a standard deviation of 3.9%.",
+    "The variability of discounts is larger in countries with tighter capital controls due to the combined effect of market segmentation and local supply and demand shocks, which we relate to location-specific mining activities and investor attention."
+   ],
+   "quotes_unverified": [],
+   "grounded": true,
+   "id": "crypto-funding-2",
+   "red_team": {
+    "concerns": [
+     "Costs eat the effect: The engine facts explicitly state that overnight financing (swap) for crypto CFDs is 'large' and ETHUSD spread is about $3. The proposed strategy involves holding positions overnight with a 1-day half-life, making these costs directly applicable and likely fatal. Previous experiments (E01, E02, E03, A01) consistently show that even small edges are consumed by the engine's trading costs.",
+     "Weak analogy: The paper's findings are on Bitcoin spot prices across exchange-currency pairs, driven by 'market segmentation and local supply and demand shocks' in countries with 'tighter capital controls'. The hypothesis translates this to ETHUSD CFD at a retail broker (IC Markets) versus a major spot exchange (Binance). The drivers for CFD pricing deviations are likely different from spot market segmentation due to capital controls, and the cost structure (large overnight financing, broker spread) is fundamentally different from spot market arbitrage. The paper's 'discounts' are gross, not net of the specific, high costs of our crypto CFD account.",
+     "Hypothesis indirectly contradicted by experiment: While not a direct contradiction of this specific arbitrage, the consistent failure of strategies due to costs (E01, E02, E03, A01) strongly suggests that any gross edge needs to be substantially larger than the '3.9% standard deviation' to survive the high costs of crypto CFDs here."
+    ],
+    "fatal": "costs eat the effect and weak analogy",
+    "kill": true,
+    "information": 3,
+    "value": 4,
+    "cost": 1,
+    "revised_test": ""
+   }
+  },
+  {
+   "identifier": "doi:10.1371/journal.pone.0246331",
+   "url": "https://doi.org/10.1371/journal.pone.0246331",
+   "title": "Investor attention and cryptocurrency: Evidence from the Bitcoin market",
+   "field": "quantitative finance",
+   "via": "OpenAlex '\"bitcoin futures\" AND (basis OR premium)'",
+   "read_depth": "abstract",
+   "triage": 3,
+   "claim": "Investor attention is a non-negligible pricing factor for Bitcoin asset, Granger causes changes in both return and realized volatility, and improves prediction accuracy in Bitcoin return, which can be used to generate significant economic values.",
+   "mechanism": "Investor attention is claimed to be a Granger cause for changes in Bitcoin's return and realized volatility, with both linear and non-linear impacts. This predictive ability allows for improved forecasting of Bitcoin return and the construction of economic portfolios that generate significant value.",
+   "source_concept": "Investor attention as a behavioral finance factor influencing asset characteristics.",
+   "market_analogue": {
+    "source_concept": "Investor attention",
+    "market_analogue": "Publicly available proxies for retail investor interest or sentiment in a cryptocurrency.",
+    "variable_mapping": {
+     "Bitcoin": "ETHUSD (as the most liquid and affordable crypto CFD for the engine)",
+     "Return": "Daily percentage change in ETHUSD's close price",
+     "Realized volatility": "A daily measure of price fluctuation for ETHUSD (e.g., Parkinson's volatility or daily standard deviation of intraday returns)",
+     "Investor attention": "A quantifiable measure of public interest in Ethereum, such as Google Trends search volume for 'Ethereum' or 'ETH price'"
+    },
+    "analogy_prediction": "Changes in investor attention are expected to Granger cause changes in future ETHUSD returns and volatility, potentially leading to profitable trading opportunities.",
+    "what_could_be_wrong": "The relationship might be specific to Bitcoin, or the 'novel investor attention' measure used in the paper might not be replicable with publicly available proxies. The effect might be too small to overcome the high trading costs (spreads, overnight financing) of ETHUSD CFDs."
+   },
+   "hypothesis": "For ETHUSD, a quantifiable measure of investor attention (e.g., Google Trends search volume for 'Ethereum') Granger causes changes in future daily returns, and trading strategies based on this attention can generate positive economic value after accounting for CFD trading costs.",
+   "test": "Use historical daily ETHUSD closing prices (held data) and historical daily Google Trends search volume for 'Ethereum' (free data). Define a specific measure of 'investor attention' from the search volume (e.g., normalized daily search index). Test for Granger causality between past investor attention and future daily ETHUSD returns and/or volatility. Construct a simple long/short strategy based on investor attention signals. The null hypothesis is that the strategy's net Sharpe ratio after estimated trading costs (spread, overnight financing) is not positive, or it fails to beat a random-sign baseline at the 99th percentile, or it fails the doubled-cost test, or most years are negative. The test can be run on historical data.",
+   "instruments": [
+    "ETHUSD"
+   ],
+   "horizon": "Daily",
+   "data": [
+    {
+     "what": "Daily closing prices for ETHUSD",
+     "status": "held",
+     "source": "Broker bars (IC Markets)"
+    },
+    {
+     "what": "Daily investor attention proxy for Ethereum (e.g., Google Trends search volume for 'Ethereum' or related terms)",
+     "status": "free",
+     "source": "Google Trends API"
+    },
+    {
+     "what": "Daily perpetual funding rates for ETH",
+     "status": "held",
+     "source": "Binance/BitMEX/OKX via data_ext/fetch.py"
+    }
+   ],
+   "expected_effect": "Investor attention is expected to improve prediction accuracy for Bitcoin (analogously, Ethereum) returns and lead to profitable trading strategies, generating 'significant economic values'.",
+   "evidence_quality": "Low. The abstract provides claims of Granger causality, improved prediction accuracy, and significant economic value but offers no quantitative results (e.g., R-squared, Sharpe ratio, specific profit figures) or details on the 'novel investor attention' measure.",
+   "confidence": 0.6,
+   "quotes_verified": [
+    "investor attention is the granger cause to changes in Bitcoin market both in return and realized volatility.",
+    "investor attention improves prediction accuracy in Bitcoin return.",
+    "investor attention can further generate significant economic values.",
+    "investor attention is a non-negligible pricing factor for Bitcoin asset.",
+    "investor attention shows sophisticated impacts on return and realized volatility of Bitcoin."
+   ],
+   "quotes_unverified": [],
+   "grounded": true,
+   "id": "crypto-funding-3",
+   "red_team": {
+    "concerns": [
+     "Costs will eat the effect: ETHUSD CFD spreads are about $3 per ETH, and overnight financing for crypto CFDs is explicitly stated as 'large'. The engine facts state that 'The binding constraint is the cost of trading, not prediction and not latency,' and 14 out of 20 candidate strategies failed because costs removed their edge. The paper claims 'significant economic values' but does not quantify them after costs.",
+     "Hypothesis already contradicted by experiment: Experiment A01 demoted the Ethereum 20-day trend (E07) because all its edge came from 2018-2022, and the period since September 2022 was slightly negative. This suggests that even historically successful return-predicting strategies for ETHUSD are no longer viable, making it unlikely a new signal will overcome costs.",
+     "Paper's evidence quality is low: The abstract provides no quantitative results (e.g., Sharpe ratio, R-squared, specific profit figures) or details on the 'novel investor attention' measure. Without this, it's impossible to assess if the claimed effect is strong enough to survive the engine's high real-world trading costs. There is no mention of out-of-sample performance, after-cost results, or replication.",
+     "Analogy risk: The paper uses a 'novel investor attention' measure, which might not be adequately captured by a simple Google Trends search volume, potentially invalidating the market analogue.",
+     "Small account size and instrument limits: The account is small ($85), and even if the strategy worked, the absolute 'economic values' would be limited, especially after high costs."
+    ],
+    "fatal": "The combination of the engine's extremely high trading costs for ETHUSD CFDs (spread and large overnight financing) and the lack of any quantitative evidence from the source paper that claimed 'significant economic values' survive costs, makes it highly probable that any potential edge would be entirely consumed by trading costs. This is consistent with the engine's historical experience where costs are the binding constraint, and further reinforced by the recent failure of existing ETHUSD strategies (E07/A01).",
+    "kill": true,
+    "information": 2,
+    "value": 1,
+    "cost": 3,
+    "revised_test": ""
+   }
+  },
+  {
+   "identifier": "doi:10.3390/jrfm11020023",
+   "url": "https://doi.org/10.3390/jrfm11020023",
+   "title": "Long- and Short-Term Cryptocurrency Volatility Components: A GARCH-MIDAS Analysis",
+   "field": "quantitative finance",
+   "via": "OpenAlex '\"bitcoin futures\" AND (basis OR premium)'",
+   "read_depth": "abstract",
+   "triage": 3,
+   "claim": "Long-term cryptocurrency volatility can be predicted by external macroeconomic and market risk factors, specifically that S&P 500 realized volatility has a negative effect, S&P 500 volatility risk premium has a positive effect, and the Baltic Dry Index has a positive association.",
+   "mechanism": "The GARCH-MIDAS model is used to extract long- and short-term volatility components of cryptocurrencies, and then specific external drivers are analyzed for their effect on the long-term component.",
+   "source_concept": "Predictive relationships between external market/economic indicators (S&P 500 realized volatility, S&P 500 volatility risk premium, Baltic Dry Index) and long-term Bitcoin volatility components.",
+   "market_analogue": "The 'long-term Bitcoin volatility' in the paper is analogous to long-term ETHUSD volatility for the engine. The 'S&P 500 realized volatility', 'S&P 500 volatility risk premium', and 'Baltic dry index' are direct external market analogues.",
+   "hypothesis": "When S&P 500 realized volatility is higher, long-term ETHUSD volatility is predicted to be lower, and a simple trend-following strategy on ETHUSD (like the demoted E07) will exhibit a higher Sharpe ratio after trading costs during such periods compared to periods where S&P 500 realized volatility is lower.",
+   "test": "1. Obtain daily S&P 500 realized volatility data and daily ETHUSD price data (broker D1 bars for E07 strategy). 2. Divide the historical period into two regimes: 'higher S&P 500 realized volatility' (e.g., above its historical median) and 'lower S&P 500 realized volatility' (below its historical median). 3. Run the demoted E07 trend-following strategy on ETHUSD for both regimes, calculating its Sharpe ratio after accounting for trading costs. 4. The null hypothesis is that there is no statistically significant difference in the Sharpe ratio of the E07 strategy between periods of higher S&P 500 realized volatility and periods of lower S&P 500 realized volatility. 5. Failure condition: The Sharpe ratio of the E07 strategy in periods of higher S&P 500 realized volatility is not significantly better (e.g., fails to beat the 99th percentile of a bootstrap distribution of the 'lower volatility' regime's Sharpe ratio) or is negative after costs. This test can be run entirely on historical data.",
+   "instruments": [
+    "ETHUSD"
+   ],
+   "horizon": "Long-term volatility components, implying daily (D1) or weekly data for analysis and strategy application.",
+   "data": [
+    {
+     "what": "ETHUSD daily prices",
+     "status": "held",
+     "source": "broker bars"
+    },
+    {
+     "what": "S&P 500 realized volatility",
+     "status": "free",
+     "source": "external source (e.g., Yahoo Finance, FRED, or calculated from S&P 500 daily returns)"
+    },
+    {
+     "what": "S&P 500 volatility risk premium",
+     "status": "free",
+     "source": "external source (e.g., VIX futures data from CBOE or similar providers)"
+    },
+    {
+     "what": "Baltic Dry Index",
+     "status": "free",
+     "source": "external source (e.g., Bloomberg, investing.com, or similar economic data providers)"
+    }
+   ],
+   "expected_effect": "An improved risk-adjusted return (Sharpe ratio) for the ETHUSD trend-following strategy during periods identified by the S&P 500 realized volatility as having lower long-term ETHUSD volatility, after accounting for trading costs.",
+   "evidence_quality": "Moderate. The abstract claims statistically significant effects and associations, but specific statistical metrics (e.g., p-values, R-squared) are not provided.",
+   "confidence": 0.7,
+   "quotes_verified": [
+    "We use the GARCH-MIDAS model to extract the long- and short-term volatility components of cryptocurrencies.",
+    "S&P 500 realized volatility has a negative and highly significant effect on long-term Bitcoin volatility.",
+    "The finding is atypical for volatility co-movements across financial markets.",
+    "Moreover, we find that the S&P 500 volatility risk premium has a significantly positive effect on long-term Bitcoin volatility.",
+    "Finally, we find a strong positive association between the Baltic dry index and long-term Bitcoin volatility.",
+    "This result shows that Bitcoin volatility is closely linked to global economic activity.",
+    "Overall, our findings can be used to construct improved forecasts of long-term Bitcoin volatility."
+   ],
+   "quotes_unverified": [],
+   "grounded": true,
+   "id": "crypto-funding-4",
+   "red_team": {
+    "concerns": [
+     "The hypothesis is contradicted by existing experiments: The proposed test uses the E07 trend-following strategy, which was demoted by Audit A01 because its edge disappeared, and it became unprofitable after costs in the recent period (since September 2022, its Sharpe was -0.04).",
+     "Costs would eat the effect: The engine's binding constraint is trading costs. E07's recent failure is precisely because any potential edge was eaten by costs. Attempting to condition a strategy that already fails to be profitable after costs is highly unlikely to yield a tradeable edge.",
+     "There is a logical flaw in the hypothesis: The paper claims higher S&P 500 realized volatility predicts lower long-term cryptocurrency volatility. The hypothesis then assumes this lower volatility leads to a higher Sharpe ratio for a trend-following strategy (E07). Trend-following strategies often perform better in trending markets, which can be associated with sustained volatility or directional moves, rather than in potentially low-volatility (range-bound) environments where whipsaws and transaction costs can be particularly detrimental. This assumption is not supported by the paper and is counter-intuitive for trend-following.",
+     "The paper itself does not show its result out of sample for a trading strategy, after costs, against a naive baseline, nor has a trading strategy based on it been replicated: The source paper predicts volatility components; it does not claim profitability or improved Sharpe ratios for trading strategies after costs. The leap to a profitable trading strategy is an unverified extension by the card."
+    ],
+    "fatal": "The proposed test attempts to revive a strategy (E07) that has been explicitly demoted due to its inability to generate returns above costs in the recent past. The engine's core problem is that costs eat the edge. If E07 no longer has an edge that survives costs, conditioning it on external factors related to volatility is unlikely to change this fundamental issue, especially given the questionable logical link between predicted lower volatility and improved trend-following performance. This is a direct contradiction of Audit A01's findings.",
+    "kill": true,
+    "information": 1,
+    "value": 1,
+    "cost": 3,
+    "revised_test": ""
+   }
+  },
+  {
+   "identifier": "doi:10.1186/s40854-023-00566-3",
+   "url": "https://doi.org/10.1186/s40854-023-00566-3",
+   "title": "On the efficiency and its drivers in the cryptocurrency market: the case of Bitcoin and Ethereum",
+   "field": "quantitative finance",
+   "via": "OpenAlex '\"funding rate\" AND (bitcoin OR cryptocurrency)'",
+   "read_depth": "abstract",
+   "triage": 3,
+   "claim": "There is time variation in the market efficiency of Bitcoin and Ethereum, driven by global financial stress and cryptocurrency liquidity.",
+   "mechanism": "External macroeconomic factors, such as global financial stress, and market-specific factors, such as cryptocurrency liquidity, modulate the 'adjusted market inefficiency magnitude (AMIMs) measure'. Higher AMIMs imply greater market inefficiency, which suggests potential for predictability.",
+   "source_concept": "Time-varying market efficiency and its drivers.",
+   "market_analogue": "The 'adjusted market inefficiency magnitude (AMIMs)' measure can be analogized to the profitability or edge of a simple trend-following trading strategy on ETHUSD. The 'driving factors' are external variables that influence this strategy's performance over time.",
+   "hypothesis": "The profitability of the engine's ETHUSD 20-day trend rule (E07) is positively correlated with cryptocurrency liquidity and negatively correlated with global financial stress.",
+   "test": "Calculate the daily PnL of the ETHUSD 20-day trend rule (E07) over its historical period (2016-2023). Obtain daily values for a global financial stress index (e.g., FRED's Financial Stress Index) and daily average spread for ETHUSD as a proxy for cryptocurrency liquidity. Perform a regression or correlation analysis between the daily PnL of the trend rule and the daily values of the financial stress index and liquidity proxy. The null hypothesis is that there is no statistically significant correlation between the daily PnL and these drivers. Failure would be a statistically significant negative correlation between daily PnL and the global financial stress index, AND a statistically significant positive correlation between daily PnL and the ETHUSD daily average spread, at the 99th percentile. This test can be run on historical data.",
+   "instruments": [
+    "ETHUSD"
+   ],
+   "horizon": "Daily",
+   "data": [
+    {
+     "what": "ETHUSD daily PnL from E07 strategy",
+     "status": "held",
+     "source": "Engine's historical trade logs and D1 bars"
+    },
+    {
+     "what": "Global financial stress index (e.g., FRED's Financial Stress Index)",
+     "status": "free",
+     "source": "FRED"
+    },
+    {
+     "what": "ETHUSD daily average spread (proxy for liquidity)",
+     "status": "held",
+     "source": "Broker D1 bars/ticks"
+    },
+    {
+     "what": "Money flow data",
+     "status": "unavailable",
+     "source": "Not specified/available in engine facts"
+    }
+   ],
+   "expected_effect": "Higher cryptocurrency liquidity is expected to increase the profitability of the ETHUSD trend rule. Higher global financial stress is expected to decrease the profitability of the ETHUSD trend rule.",
+   "evidence_quality": "Moderate. The abstract states that results 'show evidence' and that factors 'positively and significantly affects' or 'negatively affects' the inefficiency measure, implying statistical significance, but without further methodological or quantitative details.",
+   "confidence": 0.8,
+   "quotes_verified": [
+    "Most previous studies on the market efficiency of cryptocurrencies consider time evolution but do not provide insights into the potential driving factors.",
+    "The results show evidence of time variation in the levels of market (in)efficiency for Bitcoin and Ethereum.",
+    "global financial stress negatively affects the AMIMs measures across all quantiles.",
+    "cryptocurrency liquidity positively and significantly affects AMIMs irrespective of the level of (in) efficiency",
+    "It uses daily data from August 7, 2016, to February 15, 2023, the adjusted market inefficiency magnitude (AMIMs) measure, and quantile regression."
+   ],
+   "quotes_unverified": [],
+   "grounded": true,
+   "id": "crypto-funding-5",
+   "red_team": {
+    "concerns": [
+     "The core strategy (E07) whose profitability is being analyzed was demoted in Audit A01, which found that all its edge came from 2018-2022 and its performance since September 2022 has been negative.",
+     "The hypothesis proposes a correlational study of past performance drivers rather than a new, actionable trading strategy or a conditional rule that could be pre-registered for live testing. The engine is designed to test new trading rules.",
+     "While the data for the proposed correlational analysis is available, the findings would pertain to a strategy that no longer demonstrates an edge, limiting direct applicability for generating new trades."
+    ],
+    "fatal": "The hypothesis seeks to explain the profitability of a strategy (E07) that has been demoted due to the disappearance of its edge since September 2022 (Audit A01). This makes the proposed correlational study a post-mortem analysis rather than a test of a new, actionable trading hypothesis for the engine.",
+    "kill": true,
+    "information": 4,
+    "value": 2,
+    "cost": 1,
+    "revised_test": ""
+   }
+  },
+  {
+   "identifier": "doi:10.1016/j.intfin.2021.101289",
+   "url": "https://doi.org/10.1016/j.intfin.2021.101289",
+   "title": "Speculation and lottery-like demand in cryptocurrency markets",
+   "field": "quantitative finance",
+   "via": "OpenAlex '\"bitcoin futures\" AND (basis OR premium)'",
+   "read_depth": "abstract",
+   "triage": 3,
+   "claim": "Cryptocurrencies exhibiting 'lottery-like demand', as measured by a modified MAX measure, show significant underperformance. Specifically, the average raw and risk-adjusted return differences between cryptocurrencies in the lowest and highest MAX quintiles exceed 1.50% per week.",
+   "mechanism": "The paper suggests that 'similar behavioral mechanisms of underlying investor behavior' to those found in stock markets are present in cryptocurrency markets, leading to 'lottery-like demand'. This demand causes assets with high recent maximum returns (high MAX measure) to be overvalued and subsequently underperform. The MAX measure is calculated using daily log-returns from the previous week.",
+   "source_concept": "Lottery-like demand and the MAX measure from behavioral finance and asset pricing literature, typically applied to stock markets.",
+   "market_analogue": "The concept of 'lottery-like demand' can be transferred to cryptocurrency CFDs. The 'daily log-returns from the previous week' directly corresponds to daily log-returns of the engine's crypto CFD instruments. The 'MAX measure' would be the maximum daily log-return over the past week. 'Portfolio sorts' imply ranking instruments, which can be done with the engine's limited crypto CFD universe. The analogy predicts that crypto CFDs with high recent maximum daily returns will underperform those with low recent maximum daily returns over the subsequent week.",
+   "hypothesis": "Among the available crypto CFD instruments (ETHUSD, ADAUSD, BCHUSD, LTCUSD), the instrument with the highest maximum daily log-return over the previous five trading days (highest MAX measure) will, on average, underperform the instrument with the lowest maximum daily log-return over the same period (lowest MAX measure) over the subsequent week, after accounting for trading costs. A weekly rebalanced long-short strategy, shorting the highest MAX instrument and longing the lowest MAX instrument, will generate positive net returns.",
+   "test": "For each available crypto CFD (ETHUSD, ADAUSD, BCHUSD, LTCUSD), at the close of each Friday (21:00 UTC D1 bar close), calculate the 'MAX measure' as the maximum daily log-return observed within the preceding five trading days. Rank the four instruments by their MAX measure. Form a long-short portfolio: go long the instrument with the lowest MAX measure and short the instrument with the highest MAX measure. Hold this position for one week, closing at the next Friday's 21:00 UTC D1 bar close. Calculate the weekly raw and cost-adjusted returns, including spread and significant overnight financing costs for crypto CFDs. The null hypothesis is that the average weekly cost-adjusted return of this strategy is zero or negative. Failure would be if the strategy's Sharpe ratio is not significantly positive (e.g., fails to beat a random-sign null at the 99th percentile) or if the average weekly cost-adjusted returns are negative. This test can be run on historical data.",
+   "instruments": [
+    "ETHUSD",
+    "ADAUSD",
+    "BCHUSD",
+    "LTCUSD"
+   ],
+   "horizon": "weekly",
+   "data": [
+    {
+     "what": "Daily OHLCV data for crypto CFDs to calculate daily log-returns.",
+     "status": "held",
+     "source": "broker bars"
+    }
+   ],
+   "expected_effect": "The paper claims that 'average raw and risk-adjusted return differences between cryptocurrencies in the lowest and highest MAX quintiles exceed 1.50% per week.' This suggests a potential weekly return of over 1.50% for a long-short strategy before costs.",
+   "evidence_quality": "The abstract makes a strong claim about the magnitude and robustness of the effect ('exceed 1.50% per week', 'robust after controlling for Bitcoin risk or potential microstructure effects'). It also mentions 'statistical tests that are robust to unknown dynamic dependency structures'. However, it is an abstract, so full methodological details and specific sample characteristics are not provided.",
+   "confidence": 0.8,
+   "quotes_verified": [
+    "This is the first paper that explores lottery-like demand in cryptocurrency markets.",
+    "we modify Bali, Cakici and Whitelaw\u2019s (2011) and Bali, Brown, Murray, and Tang\u2019s (2017) MAX measure and employ a weekly forecast horizon and daily log-returns from the previous week to calculate the metric for our portfolio sorts.",
+    "Our results show that average raw and risk-adjusted return differences between cryptocurrencies in the lowest and highest MAX quintiles exceed 1.50% per week.",
+    "These results are robust after controlling for Bitcoin risk or potential microstructure effects.",
+    "similar behavioral mechanisms of underlying investor behavior are present also in new virtual currency markets."
+   ],
+   "quotes_unverified": [],
+   "grounded": true,
+   "id": "crypto-funding-6",
+   "red_team": {
+    "concerns": [
+     "The biggest cost for anything held overnight is the broker's financing (swap), and for crypto CFDs, it is large. This strategy holds positions for a full week, incurring substantial overnight financing charges for 7 nights.",
+     "Spreads widen about tenfold at the 21:00 UTC rollover, which is exactly when the strategy proposes to rebalance and open/close positions. This will significantly increase trading costs.",
+     "The engine facts explicitly state that 'The binding constraint is the cost of trading, not prediction and not latency'. Previous experiments (E01, E02, E03, E08) have consistently shown that trading costs erode any pre-cost edge, and the recent audit (A01) demoted both live rules due to their edge disappearing after costs. It is highly probable that the claimed 1.50% weekly return will be entirely consumed by these costs.",
+     "The original paper likely uses a broad universe of cryptocurrencies for 'quintile sorts'. The proposed test uses only four instruments, which is a very small sample for robust portfolio sorting and may not accurately reflect the effect described in the paper.",
+     "The abstract does not explicitly state that the 1.50% weekly return difference is *after* accounting for all trading costs, which is a critical omission given the engine's cost structure."
+    ],
+    "fatal": "The engine's measured trading costs, particularly the large overnight financing for crypto CFDs and the tenfold spread widening at rollover, are highly likely to consume any potential edge from this weekly holding strategy. This is consistent with the engine's binding constraint being the cost of trading.",
+    "kill": true,
+    "information": 3,
+    "value": 1,
+    "cost": 2,
+    "revised_test": ""
+   }
+  },
+  {
+   "identifier": "doi:10.1080/1351847x.2025.2505757",
+   "url": "https://doi.org/10.1080/1351847x.2025.2505757",
+   "title": "Stablecoin devaluation risk",
+   "field": "quantitative finance",
+   "via": "OpenAlex '\"funding rate\" AND (bitcoin OR cryptocurrency)'",
+   "read_depth": "abstract",
+   "triage": 3,
+   "claim": "Stablecoin issuers' reliance on centralized custodians introduces a devaluation risk, analogous to traditional currencies under pegged exchange rate regimes. This risk can be measured using market data, with probabilities for full or partial default, and is influenced by factors like market volatility, transaction velocity, and elevated interest rates.",
+   "mechanism": "The paper posits that stablecoins face 'devaluation risk similar to that observed in traditional currencies under pegged exchange rate regimes' due to 'Reliance of stablecoin issuers on centralized custodians'. This risk is quantified as an 'average devaluation probability of 60 basis points annually' for full default, or 'approximately 12 percentage points on an annualized basis' for a 5% devaluation. 'Key risk factors include market volatility and transaction velocity' and 'elevated interest rates suggest heightened devaluation risk'.",
+   "source_concept": "Stablecoin devaluation risk under a pegged exchange rate regime.",
+   "market_analogue": "The engine does not trade stablecoins or traditional currencies under pegged exchange rate regimes. Its instruments (free-floating FX pairs and cryptocurrencies) do not experience 'devaluation risk' in the sense of a broken peg. Therefore, there is no direct market analogue for the core concept of the paper.",
+   "hypothesis": "Nothing testable here. The paper's core concept of 'stablecoin devaluation risk' and its analogy to 'traditional currencies under pegged exchange rate regimes' does not apply to the engine's tradeable instruments, which are free-floating cryptocurrencies and major FX pairs. The identified risk factors (market volatility, transaction velocity, elevated interest rates) are discussed in the specific context of stablecoin peg stability, not general price movements of unpegged assets.",
+   "test": "",
+   "instruments": [],
+   "horizon": "",
+   "data": [],
+   "expected_effect": "",
+   "evidence_quality": "Not applicable as the core concept does not transfer to the engine's instruments. The paper describes specific risks and probabilities for Tether, which the engine cannot trade or observe.",
+   "confidence": 0.0,
+   "quotes_verified": [
+    "Reliance of stablecoin issuers on centralized custodians introduces devaluation risk similar to that observed in traditional currencies under pegged exchange rate regimes.",
+    "We construct market-based measures of stablecoin devaluation risk using spot and futures prices for Tether.",
+    "Conditional on full default, our estimates suggest an average devaluation probability of 60 basis points annually, rising to over 200 basis points during the 2022 Terra-Luna crash.",
+    "In contrast, the probability of a partial default, defined as a 5% devaluation (trading at 95 cents), is approximately 12 percentage points on an annualized basis.",
+    "Key risk factors include market volatility and transaction velocity.",
+    "While elevated interest rates suggest heightened devaluation risk, deviations from covered interest parity indicate segmentation between traditional and stablecoin markets, reflecting the effects of leverage trading and arbitrage costs."
+   ],
+   "quotes_unverified": [],
+   "grounded": true,
+   "id": "crypto-funding-7",
+   "red_team": {
+    "concerns": [
+     "The engine's tradeable instruments (free-floating FX pairs and cryptocurrencies like ETHUSD, ADAUSD) do not experience 'devaluation risk' in the sense of a broken peg, which is the core concept of the paper.",
+     "The hypothesis is not testable with the engine's instruments because the underlying mechanism (stablecoin peg stability) is irrelevant to them.",
+     "The necessary data (spot and futures prices for Tether, or other stablecoin-specific data) is not available to the engine.",
+     "The analogy from another field (pegged exchange rates) does not apply to the engine's instruments, rendering it decorative and misleading in this context."
+    ],
+    "fatal": "The core concept and mechanism of 'stablecoin devaluation risk' and its analogy to pegged exchange rate regimes are entirely inapplicable to the engine's free-floating instruments.",
+    "kill": true,
+    "information": 1,
+    "value": 1,
+    "cost": 1,
+    "revised_test": ""
+   }
+  },
+  {
+   "identifier": "doi:10.1080/1351847x.2020.1737168",
+   "url": "https://doi.org/10.1080/1351847x.2020.1737168",
+   "title": "The impact of macroeconomic news on Bitcoin returns",
+   "field": "quantitative finance",
+   "via": "OpenAlex '\"bitcoin futures\" AND (basis OR premium)'",
+   "read_depth": "abstract",
+   "triage": 3,
+   "claim": "The paper claims that macroeconomic news, specifically the sentiment around unemployment rates and durable goods announcements, has a statistically significant inverse impact on Bitcoin returns.",
+   "mechanism": "The authors construct a sentiment index from news stories following announcements of macroeconomic indicators. This sentiment index, rather than the raw economic data, is then linked to Bitcoin returns.",
+   "source_concept": "The concept of macroeconomic news sentiment influencing asset prices, specifically applied to cryptocurrencies.",
+   "market_analogue": "The potential for sentiment derived from US macroeconomic news announcements (GDP, unemployment, CPI, durable goods) to inversely impact the returns of cryptocurrency CFDs available to the engine (e.g., ETHUSD, ADAUSD, BCHUSD, LTCUSD), by analogy with Bitcoin.",
+   "hypothesis": "The engine cannot test the specific hypothesis presented in this paper because it lacks the capability to construct or acquire a \"sentiment index based on news stories\" for macroeconomic announcements. Without this sentiment index, the core variable linking macroeconomic news to Bitcoin returns, as described in the paper, cannot be observed or replicated by the engine.",
+   "test": "Not applicable, as the primary variable required for testing (the sentiment index) is unavailable and its construction is beyond the engine's current data acquisition and processing capabilities.",
+   "instruments": [
+    "ETHUSD",
+    "ADAUSD",
+    "BCHUSD",
+    "LTCUSD"
+   ],
+   "horizon": "The paper does not explicitly state the time horizon, but the focus on 'returns' following 'announcements' suggests an effect observable over short-to-medium horizons, likely intraday or daily.",
+   "data": [
+    {
+     "what": "Sentiment index based on news stories that follow the announcements of four macroeconomic indicators: GDP, unemployment, Consumer Price Index (CPI) and durable goods.",
+     "status": "unavailable",
+     "source": "We construct a sentiment index based on news stories that follow the announcements of four macroeconomic indicators: GDP, unemployment, Consumer Price Index (CPI) and durable goods."
+    },
+    {
+     "what": "Bitcoin returns (analogue: ETHUSD, ADAUSD, BCHUSD, LTCUSD CFD prices).",
+     "status": "held",
+     "source": "broker bars"
+    },
+    {
+     "what": "Macroeconomic indicator announcement times and values for GDP, unemployment, CPI, durable goods.",
+     "status": "free",
+     "source": "economic calendars (to be added), FRED (held for some rates, but specific announcement data not yet integrated)"
+    }
+   ],
+   "expected_effect": "Increases in positive news after unemployment and durable goods announcements result in a decrease in Bitcoin returns. Conversely, an increase in the percentage of negative news surrounding these announcements is linked with an increase in Bitcoin returns. News relating to GDP and CPI are found not to have any statistically significant relationships with Bitcoin returns.",
+   "evidence_quality": "The abstract claims statistically significant relationships but provides no specific magnitudes, statistical tests, or sample period details. The evidence quality from the abstract alone is moderate, but the lack of detail on the sentiment index construction prevents assessment of its robustness.",
+   "confidence": 0.0,
+   "quotes_verified": [
+    "We construct a sentiment index based on news stories that follow the announcements of four macroeconomic indicators: GDP, unemployment, Consumer Price Index (CPI) and durable goods.",
+    "Increases in positive news after unemployment and durable goods announcements result in a decrease in Bitcoin returns.",
+    "Conversely, an increase in the percentage of negative news surrounding these announcements is linked with an increase in Bitcoin returns.",
+    "News relating to GDP and CPI are found not to have any statistically significant relationships with Bitcoin returns."
+   ],
+   "quotes_unverified": [],
+   "grounded": true,
+   "id": "crypto-funding-8",
+   "red_team": {
+    "concerns": [
+     "The core variable, a 'sentiment index based on news stories' for macroeconomic announcements, is explicitly stated as unavailable and its construction is beyond the engine's current data acquisition and processing capabilities. This would require significant NLP development, access to real-time news feeds, and substantial computational resources not currently possessed by the engine.",
+     "Trading costs for crypto CFDs are high (e.g., ETHUSD spread about $3 per ETH), and overnight financing charges are 'large' for crypto CFDs. If the effect is short-to-medium horizon and requires holding positions overnight, these costs could easily eat any potential edge.",
+     "Spreads widen about tenfold at the 21:00 UTC rollover. If the trading strategy involves holding positions across this time, the increased transaction costs would be a significant hurdle.",
+     "The abstract provides insufficient detail on the magnitude of the effect, statistical tests, sample period, or out-of-sample performance, making it difficult to assess the claim's robustness even if the data were available."
+    ],
+    "fatal": "The engine cannot test the specific hypothesis presented in this paper because it lacks the capability to construct or acquire a 'sentiment index based on news stories' for macroeconomic announcements. Without this sentiment index, the core variable linking macroeconomic news to Bitcoin returns, as described in the paper, cannot be observed or replicated by the engine.",
+    "kill": true,
+    "information": 1,
+    "value": 2,
+    "cost": 5,
+    "revised_test": ""
+   }
+  }
+ ],
+ "synthesis": {
+  "connections": [
+   "While all idea cards are categorized under 'quantitative finance', two cards, 'Investor attention and cryptocurrency' (crypto-funding-3) and 'Speculation and lottery-like demand in cryptocurrency markets' (crypto-funding-6), both draw heavily from the sub-field of behavioral finance. They independently identify distinct psychological mechanisms\u2014investor attention and lottery-like demand (preference for extreme positive outcomes)\u2014as significant drivers of cryptocurrency market characteristics, suggesting a consistent influence of non-rational investor behavior on crypto asset pricing."
+  ],
+  "belief_updates": [
+   "The engine's current trading costs for ETHUSD CFDs and other crypto CFDs (large overnight swap, significant spread, tenfold spread widening at rollover) are the primary and binding constraint preventing profitability for virtually all proposed crypto strategies based on market inefficiencies or behavioral factors.",
+   "The engine's previously viable ETHUSD trend rule (E07) has definitively lost its edge since September 2022, and attempts to revive or explain its past profitability are not actionable.",
+   "Behavioral finance factors like investor attention and lottery-like demand are identified as influencing cryptocurrency characteristics, but their potential edge is consistently consumed by the engine's high trading costs for crypto CFDs."
+  ],
+  "next_steps": [
+   {
+    "id": "crypto-funding-1, crypto-funding-2, crypto-funding-3, crypto-funding-6",
+    "why": "The consistent inability of proposed crypto strategies to overcome high trading costs (spreads, overnight financing, rollover widening) across multiple cards this week indicates a fundamental mismatch between the engine's current crypto CFD access and the potential edge from these strategies. Investigating alternative, lower-cost access methods or brokers for crypto instruments is a critical next step."
+   },
+   {
+    "id": "crypto-funding-4, crypto-funding-5",
+    "why": "The repeated attempts to revive or explain the demoted ETHUSD trend rule (E07) in these cards, despite its confirmed lack of post-cost edge, highlights a need to definitively close research on strategies based on E07's past performance and redirect resources to genuinely new, cost-aware approaches."
+   },
+   {
+    "id": "crypto-funding-8",
+    "why": "The inability to test the hypothesis from crypto-funding-8 due to the lack of a sentiment index highlights a specific data acquisition and processing capability gap. Developing this capability could unlock future research in behavioral finance, a recurring theme this week, and potentially other areas."
+   }
+  ],
+  "gaps": [
+   "A clear understanding of the minimum required edge for a crypto CFD strategy to be profitable after the engine's specific and high trading costs.",
+   "The ability to access or construct robust sentiment indices for various assets beyond simple Google Trends data.",
+   "The absence of any cards from 'different sciences' other than quantitative finance, preventing cross-disciplinary connections as per the literal interpretation of the prompt's field requirement."
+  ]
+ }
+}

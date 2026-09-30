@@ -1,5 +1,5 @@
 {
- "updated": "2026-W40",
+ "updated": "crypto-funding",
  "items": [
   {
    "id": "2026-W40-1",
@@ -39,6 +39,110 @@
    "test": "",
    "priority": 12.0,
    "why_killed": "No testable hypothesis for a trading edge."
+  },
+  {
+   "id": "crypto-funding-2",
+   "week": "crypto-funding",
+   "status": "killed",
+   "title": "Cryptomarket discounts",
+   "field": "quantitative finance",
+   "source": "doi:10.1016/j.jimonfin.2023.102963",
+   "url": "https://doi.org/10.1016/j.jimonfin.2023.102963",
+   "hypothesis": "If the price of ETHUSD CFD at IC Markets consistently deviates from a major spot exchange's ETHUSD price, and these deviations revert with a half-life of approximately one day, then a strategy of buying the relatively discounted CFD and selling the relatively premium CFD will be profitable after accounting for trading costs (spread and overnight financing).",
+   "test": "1. Collect daily closing prices for ETHUSD from IC Markets (held data) and a major spot exchange (e.g., Binance, free to add). 2. Calculate the daily price difference (IC Markets ETHUSD price - Binance ETHUSD price). 3. Analyze the statistical properties of this difference, including its mean, standard deviation, skewness, kurtosis, and estimate its half-life of mean reversion. 4. Backtest a mean-reversion strategy: buy ETHUSD CFD when the IC Markets price is at a significant discount to the spot price, and sell ETHUSD CFD when it is at a significant premium. Positions should be exited as the difference reverts towards zero. 5. Apply measured IC Markets' spread and overnight financing costs for ETHUSD to the backtest. 6. The null hypothesis is that the strategy's net profit after costs is zero or negative, or indistinguishable from a random-sign null at the 99th percentile. Failure would be if the strategy does not generate positive returns after costs, does not beat the random-sign null, fails to survive doubled costs, or does not show positive returns in most years. This test can run on historical data before spending a live slot.",
+   "priority": 12.0,
+   "why_killed": "costs eat the effect and weak analogy"
+  },
+  {
+   "id": "crypto-funding-5",
+   "week": "crypto-funding",
+   "status": "killed",
+   "title": "On the efficiency and its drivers in the cryptocurrency market: the case of Bitcoin and Ethereum",
+   "field": "quantitative finance",
+   "source": "doi:10.1186/s40854-023-00566-3",
+   "url": "https://doi.org/10.1186/s40854-023-00566-3",
+   "hypothesis": "The profitability of the engine's ETHUSD 20-day trend rule (E07) is positively correlated with cryptocurrency liquidity and negatively correlated with global financial stress.",
+   "test": "Calculate the daily PnL of the ETHUSD 20-day trend rule (E07) over its historical period (2016-2023). Obtain daily values for a global financial stress index (e.g., FRED's Financial Stress Index) and daily average spread for ETHUSD as a proxy for cryptocurrency liquidity. Perform a regression or correlation analysis between the daily PnL of the trend rule and the daily values of the financial stress index and liquidity proxy. The null hypothesis is that there is no statistically significant correlation between the daily PnL and these drivers. Failure would be a statistically significant negative correlation between daily PnL and the global financial stress index, AND a statistically significant positive correlation between daily PnL and the ETHUSD daily average spread, at the 99th percentile. This test can be run on historical data.",
+   "priority": 8.0,
+   "why_killed": "The hypothesis seeks to explain the profitability of a strategy (E07) that has been demoted due to the disappearance of its edge since September 2022 (Audit A01). This makes the proposed correlational study a post-mortem analysis rather than a test of a new, actionable trading hypothesis for the engine."
+  },
+  {
+   "id": "crypto-funding-1",
+   "week": "crypto-funding",
+   "status": "killed",
+   "title": "Crypto Carry",
+   "field": "quantitative finance",
+   "source": "doi:10.1287/mnsc.2024.05069",
+   "url": "https://doi.org/10.1287/mnsc.2024.05069",
+   "hypothesis": "When the perpetual funding rate for ETH is exceptionally high and positive, indicating a substantial premium of perpetual futures over spot, the ETHUSD CFD will exhibit positive momentum over the subsequent 1 to 20 days, driven by demand from trend-chasing investors.",
+   "test": "Identify periods where the daily ETH perpetual funding rate (from Binance, BitMEX, or OKX) exceeds its 90th percentile over the preceding 90 days. For each such period, calculate the average total return (including broker's swap and spread) of the ETHUSD CFD over the subsequent 1, 5, and 20 trading days. The null hypothesis is that the average return during these high-carry periods is not significantly different from zero or from returns during other periods. Failure would be if returns are not significantly positive after costs, or are negative. This test can be run on historical data.",
+   "priority": 6.0,
+   "why_killed": "The hypothesis makes a significant leap from the paper's descriptive findings about the existence and causes of high crypto carry to a claim of profitable spot momentum after trading costs. The engine's measured costs for ETHUSD CFDs (large overnight swap, significant spread) are known to be the primary constraint for profitability, and there is no evidence from the source paper to suggest this specific strategy would overcome them. Furthermore, the recent audit (A01) found that the engine's only previously passing Ethereum trend rule had lost all its edge since 2022, indicating a broader challenge for ETH-based momentum strategies."
+  },
+  {
+   "id": "crypto-funding-6",
+   "week": "crypto-funding",
+   "status": "killed",
+   "title": "Speculation and lottery-like demand in cryptocurrency markets",
+   "field": "quantitative finance",
+   "source": "doi:10.1016/j.intfin.2021.101289",
+   "url": "https://doi.org/10.1016/j.intfin.2021.101289",
+   "hypothesis": "Among the available crypto CFD instruments (ETHUSD, ADAUSD, BCHUSD, LTCUSD), the instrument with the highest maximum daily log-return over the previous five trading days (highest MAX measure) will, on average, underperform the instrument with the lowest maximum daily log-return over the same period (lowest MAX measure) over the subsequent week, after accounting for trading costs. A weekly rebalanced long-short strategy, shorting the highest MAX instrument and longing the lowest MAX instrument, will generate positive net returns.",
+   "test": "For each available crypto CFD (ETHUSD, ADAUSD, BCHUSD, LTCUSD), at the close of each Friday (21:00 UTC D1 bar close), calculate the 'MAX measure' as the maximum daily log-return observed within the preceding five trading days. Rank the four instruments by their MAX measure. Form a long-short portfolio: go long the instrument with the lowest MAX measure and short the instrument with the highest MAX measure. Hold this position for one week, closing at the next Friday's 21:00 UTC D1 bar close. Calculate the weekly raw and cost-adjusted returns, including spread and significant overnight financing costs for crypto CFDs. The null hypothesis is that the average weekly cost-adjusted return of this strategy is zero or negative. Failure would be if the strategy's Sharpe ratio is not significantly positive (e.g., fails to beat a random-sign null at the 99th percentile) or if the average weekly cost-adjusted returns are negative. This test can be run on historical data.",
+   "priority": 1.5,
+   "why_killed": "The engine's measured trading costs, particularly the large overnight financing for crypto CFDs and the tenfold spread widening at rollover, are highly likely to consume any potential edge from this weekly holding strategy. This is consistent with the engine's binding constraint being the cost of trading."
+  },
+  {
+   "id": "crypto-funding-7",
+   "week": "crypto-funding",
+   "status": "killed",
+   "title": "Stablecoin devaluation risk",
+   "field": "quantitative finance",
+   "source": "doi:10.1080/1351847x.2025.2505757",
+   "url": "https://doi.org/10.1080/1351847x.2025.2505757",
+   "hypothesis": "Nothing testable here. The paper's core concept of 'stablecoin devaluation risk' and its analogy to 'traditional currencies under pegged exchange rate regimes' does not apply to the engine's tradeable instruments, which are free-floating cryptocurrencies and major FX pairs. The identified risk factors (market volatility, transaction velocity, elevated interest rates) are discussed in the specific context of stablecoin peg stability, not general price movements of unpegged assets.",
+   "test": "",
+   "priority": 1.0,
+   "why_killed": "The core concept and mechanism of 'stablecoin devaluation risk' and its analogy to pegged exchange rate regimes are entirely inapplicable to the engine's free-floating instruments."
+  },
+  {
+   "id": "crypto-funding-3",
+   "week": "crypto-funding",
+   "status": "killed",
+   "title": "Investor attention and cryptocurrency: Evidence from the Bitcoin market",
+   "field": "quantitative finance",
+   "source": "doi:10.1371/journal.pone.0246331",
+   "url": "https://doi.org/10.1371/journal.pone.0246331",
+   "hypothesis": "For ETHUSD, a quantifiable measure of investor attention (e.g., Google Trends search volume for 'Ethereum') Granger causes changes in future daily returns, and trading strategies based on this attention can generate positive economic value after accounting for CFD trading costs.",
+   "test": "Use historical daily ETHUSD closing prices (held data) and historical daily Google Trends search volume for 'Ethereum' (free data). Define a specific measure of 'investor attention' from the search volume (e.g., normalized daily search index). Test for Granger causality between past investor attention and future daily ETHUSD returns and/or volatility. Construct a simple long/short strategy based on investor attention signals. The null hypothesis is that the strategy's net Sharpe ratio after estimated trading costs (spread, overnight financing) is not positive, or it fails to beat a random-sign baseline at the 99th percentile, or it fails the doubled-cost test, or most years are negative. The test can be run on historical data.",
+   "priority": 0.67,
+   "why_killed": "The combination of the engine's extremely high trading costs for ETHUSD CFDs (spread and large overnight financing) and the lack of any quantitative evidence from the source paper that claimed 'significant economic values' survive costs, makes it highly probable that any potential edge would be entirely consumed by trading costs. This is consistent with the engine's historical experience where costs are the binding constraint, and further reinforced by the recent failure of existing ETHUSD strategies (E07/A01)."
+  },
+  {
+   "id": "crypto-funding-8",
+   "week": "crypto-funding",
+   "status": "killed",
+   "title": "The impact of macroeconomic news on Bitcoin returns",
+   "field": "quantitative finance",
+   "source": "doi:10.1080/1351847x.2020.1737168",
+   "url": "https://doi.org/10.1080/1351847x.2020.1737168",
+   "hypothesis": "The engine cannot test the specific hypothesis presented in this paper because it lacks the capability to construct or acquire a \"sentiment index based on news stories\" for macroeconomic announcements. Without this sentiment index, the core variable linking macroeconomic news to Bitcoin returns, as described in the paper, cannot be observed or replicated by the engine.",
+   "test": "Not applicable, as the primary variable required for testing (the sentiment index) is unavailable and its construction is beyond the engine's current data acquisition and processing capabilities.",
+   "priority": 0.4,
+   "why_killed": "The engine cannot test the specific hypothesis presented in this paper because it lacks the capability to construct or acquire a 'sentiment index based on news stories' for macroeconomic announcements. Without this sentiment index, the core variable linking macroeconomic news to Bitcoin returns, as described in the paper, cannot be observed or replicated by the engine."
+  },
+  {
+   "id": "crypto-funding-4",
+   "week": "crypto-funding",
+   "status": "killed",
+   "title": "Long- and Short-Term Cryptocurrency Volatility Components: A GARCH-MIDAS Analysis",
+   "field": "quantitative finance",
+   "source": "doi:10.3390/jrfm11020023",
+   "url": "https://doi.org/10.3390/jrfm11020023",
+   "hypothesis": "When S&P 500 realized volatility is higher, long-term ETHUSD volatility is predicted to be lower, and a simple trend-following strategy on ETHUSD (like the demoted E07) will exhibit a higher Sharpe ratio after trading costs during such periods compared to periods where S&P 500 realized volatility is lower.",
+   "test": "1. Obtain daily S&P 500 realized volatility data and daily ETHUSD price data (broker D1 bars for E07 strategy). 2. Divide the historical period into two regimes: 'higher S&P 500 realized volatility' (e.g., above its historical median) and 'lower S&P 500 realized volatility' (below its historical median). 3. Run the demoted E07 trend-following strategy on ETHUSD for both regimes, calculating its Sharpe ratio after accounting for trading costs. 4. The null hypothesis is that there is no statistically significant difference in the Sharpe ratio of the E07 strategy between periods of higher S&P 500 realized volatility and periods of lower S&P 500 realized volatility. 5. Failure condition: The Sharpe ratio of the E07 strategy in periods of higher S&P 500 realized volatility is not significantly better (e.g., fails to beat the 99th percentile of a bootstrap distribution of the 'lower volatility' regime's Sharpe ratio) or is negative after costs. This test can be run entirely on historical data.",
+   "priority": 0.33,
+   "why_killed": "The proposed test attempts to revive a strategy (E07) that has been explicitly demoted due to its inability to generate returns above costs in the recent past. The engine's core problem is that costs eat the edge. If E07 no longer has an edge that survives costs, conditioning it on external factors related to volatility is unlikely to change this fundamental issue, especially given the questionable logical link between predicted lower volatility and improved trend-following performance. This is a direct contradiction of Audit A01's findings."
   },
   {
    "id": "2026-W40-2",
