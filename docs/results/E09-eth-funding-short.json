@@ -1,0 +1,116 @@
+{
+ "experiment": "E09",
+ "run_ts": "2026-09-30T04:43:13Z",
+ "funding_sha256": "6d5553370910f4bf084e0303bde21bbbb29abb76561b6f97f31336e8fa69ad44",
+ "deciding": {
+  "window": [
+   "2022-02-01",
+   "2026-08-31"
+  ],
+  "days": 1445,
+  "episodes": 23,
+  "stopped": 13,
+  "net_return_sum": -0.4468,
+  "mean_net_per_episode": -0.0194,
+  "net_sharpe": -0.312,
+  "episode_starts": [
+   "2022-12-19",
+   "2023-01-09",
+   "2023-01-13",
+   "2023-01-16",
+   "2023-02-20",
+   "2023-04-17",
+   "2023-06-28",
+   "2023-08-10",
+   "2023-10-30",
+   "2023-11-09",
+   "2023-12-05",
+   "2024-02-16",
+   "2024-02-26",
+   "2024-03-04",
+   "2024-03-08",
+   "2024-06-03",
+   "2024-11-12",
+   "2024-12-04",
+   "2025-07-20",
+   "2026-01-14",
+   "2026-06-02",
+   "2026-07-06",
+   "2026-08-21"
+  ],
+  "random_timing_null_p99": 0.0615,
+  "random_timing_null_mean": 0.0008,
+  "bootstrap_share_at_or_below_zero": 0.7533,
+  "net_return_first_half": -0.6076,
+  "net_return_second_half": 0.1629,
+  "split_day": "2024-09-08",
+  "net_return_sum_double_costs": -0.4765,
+  "always_short_same_window": 0.1086,
+  "largest_episode_share_of_total": null,
+  "deflated_sharpe_at_N307": 0.0,
+  "criteria": {
+   "C1_net_return_and_sharpe_positive": false,
+   "C2_beats_random_timing_p99": false,
+   "C3_at_least_8_episodes": true,
+   "C4_positive_at_double_costs": false,
+   "C5_bootstrap_share_at_or_below_zero_under_10pct": false,
+   "C6_both_halves_positive": false
+  },
+  "verdict": "FAIL"
+ },
+ "replication_in_paper_period_reported_only": {
+  "window": [
+   "2019-11-01",
+   "2022-01-31"
+  ],
+  "days": 590,
+  "episodes": 7,
+  "stopped": 6,
+  "net_return_sum": -1.5466,
+  "mean_net_per_episode": -0.2209,
+  "net_sharpe": -1.895,
+  "episode_starts": [
+   "2020-11-09",
+   "2020-11-23",
+   "2020-12-30",
+   "2021-01-04",
+   "2021-01-19",
+   "2021-03-15",
+   "2021-04-13"
+  ]
+ },
+ "bitmex_funding_reported_only": {
+  "window": [
+   "2022-02-01",
+   "2026-08-31"
+  ],
+  "days": 1445,
+  "episodes": 19,
+  "stopped": 13,
+  "net_return_sum": -1.4798,
+  "mean_net_per_episode": -0.0779,
+  "net_sharpe": -0.923,
+  "episode_starts": [
+   "2022-05-13",
+   "2022-06-27",
+   "2022-07-22",
+   "2023-10-25",
+   "2023-11-09",
+   "2023-12-05",
+   "2024-02-12",
+   "2024-02-19",
+   "2024-02-28",
+   "2024-03-05",
+   "2024-03-07",
+   "2024-04-28",
+   "2024-11-12",
+   "2024-12-04",
+   "2025-04-13",
+   "2026-02-07",
+   "2026-03-10",
+   "2026-06-10",
+   "2026-06-15"
+  ]
+ },
+ "verdict": "FAIL"
+}

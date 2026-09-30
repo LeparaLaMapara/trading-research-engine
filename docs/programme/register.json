@@ -119,8 +119,8 @@
       "title": "Short Ethereum only when perpetual funding is high (crypto carry, out of sample 2022-2026)",
       "prereg": "docs/programme/E09-eth-funding-short-prereg.md",
       "result": "docs/results/E09-eth-funding-short.json",
-      "verdict": null,
-      "summary": "Running."
+      "verdict": "FAIL",
+      "summary": "Shorting Ethereum when perpetual funding was high lost money on data the source paper never saw (Feb 2022 to Aug 2026): 23 shorts, 13 stopped out, net -45%, worse than randomly timed shorts (random average +0.1% a short, this rule -1.9%). High funding came during rallies that kept going. It also lost in the paper's own period and with BitMEX funding. Not tradeable here."
     }
   ]
 }

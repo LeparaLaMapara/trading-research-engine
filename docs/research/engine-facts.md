@@ -43,6 +43,10 @@ The register summaries and the research queue are added to this automatically.
   forests) had a faint signal before costs that was not distinguishable from luck after them;
   re-scoring the held signals at exchange-futures costs failed its holdout, so a cheaper venue
   alone does not rescue them. Do not propose these again without new information.
+* E09 (30 September 2026): shorting Ethereum when perpetual funding is high (Crypto Carry,
+  BIS WP 1087) FAILED out of sample, 2022 to 2026: 23 shorts, 13 stopped out, worse than
+  randomly timed shorts, and it lost in the paper's own period too. High funding marks rallies
+  that keep going; the crash comes later and not on a schedule a 30-day short can catch.
 * Intraday momentum failed (E01, E02). Order-book imbalance on XRP failed after the spread (E03).
 * Broker depth for BTC, ETH and SOL is a synthetic symmetric ladder: imbalance was exactly zero
   in 23,565 snapshots. Order-book research needs a real exchange feed.
@@ -50,7 +54,7 @@ The register summaries and the research queue are added to this automatically.
   from 2018 to 2022 (the half since September 2022 is -0.04). It does not work on most
   currency crosses (3 of 5 lose before costs). Breadth only helps with components that each
   have edge.
-* Every rule tried is counted. N is 306 (it never resets across programmes), so a new result needs a deflated Sharpe that
+* Every rule tried is counted. N is 307 (it never resets across programmes), so a new result needs a deflated Sharpe that
   survives that count.
 
 ## Data
@@ -69,6 +73,6 @@ The register summaries and the research queue are added to this automatically.
 ## How a test is run
 
 * Pre-registered before the result exists, one hypothesis per slot, 10 slots per programme,
-  2 left in programme P1. Audits re-test live rules and can only demote.
+  1 left in programme P1. Audits re-test live rules and can only demote.
 * Pass criteria include beating a random-sign null at the 99th percentile with the same costs,
   surviving doubled costs, and most years positive.
