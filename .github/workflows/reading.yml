@@ -1,13 +1,20 @@
 name: reading-room
 
-# Weekly: read new papers across finance, economics, statistics, mathematics, physics and
-# computer science, criticise them against what this engine has measured, and update the
-# ranked research queue (docs/research/queue.json). It reads; it never tests and never trades,
-# so it does not raise N or touch the account. See scout/reading_room.py.
+# Weekly: read new papers across finance, economics, statistics, mathematics (including
+# optimisation, PDEs, ODEs and numerical methods), physics and computer science, criticise them
+# against what this engine has measured, and update the ranked research queue
+# (docs/research/queue.json). A manual run can instead name a directed topic
+# (scout/fields.DIRECTED). It reads; it never tests and never trades, so it does not raise N or
+# touch the account. See scout/reading_room.py.
 on:
   schedule:
     - cron: "0 4 * * 0"     # Sundays 04:00 UTC (06:00 SAST)
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      topic:
+        description: Directed topic (crypto-funding, regime-trend); empty for the weekly cycle
+        required: false
+        default: ""
 
 concurrency:
   group: reading-room
@@ -26,6 +33,7 @@ jobs:
       COUNCIL_MAX_USD_PER_RUN: "6.00"    # hard cap, checked before every model call
       COUNCIL_MAX_CALLS_PER_RUN: "60"
       PYTHONUNBUFFERED: "1"
+      TOPIC: ${{ inputs.topic }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -34,13 +42,18 @@ jobs:
       - name: Install
         run: pip install -e ".[llm]"
       - name: Read
-        run: python -m scout.reading_room
-      - name: Commit the week's reading
+        run: |
+          if [ -n "$TOPIC" ]; then
+            python -m scout.reading_room --topic "$TOPIC"
+          else
+            python -m scout.reading_room
+          fi
+      - name: Commit the reading
         run: |
           git config user.name "reading-room"
           git config user.email "reading-room@users.noreply.github.com"
           git add docs/research
           if git diff --cached --quiet; then echo "nothing new"; exit 0; fi
-          git commit -m "Reading room: week $(date -u +%G-W%V)"
+          git commit -m "Reading room: ${TOPIC:-week $(date -u +%G-W%V)}"
           for i in 1 2 3; do git pull --rebase -q origin main && git push -q origin main && exit 0; sleep 10; done
           exit 1
