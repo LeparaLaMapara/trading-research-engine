@@ -1,211 +1,182 @@
 {
- "week": "2026-W40",
+ "tag": "2026-W40",
  "stats": {
-  "harvested": 674,
-  "by_field": "96 computer science, 122 economics, 9 foundations, 33 mathematical and computational economics, 115 mathematics, 90 physics, 124 quantitative finance, 85 statistics",
-  "eligible": 98,
-  "full_text": 2,
-  "spend": "$0.35 over 40 calls"
+  "harvested": 519,
+  "by_field": "135 applied and numerical mathematics, 92 computer science, 35 economics, 9 foundations, 27 mathematical and computational economics, 59 mathematics, 67 physics, 72 quantitative finance, 23 statistics",
+  "eligible": 37,
+  "full_text": 3,
+  "spend": "$0.35 over 36 calls"
  },
  "cards": [
   {
-   "identifier": "doi:10.1016/j.array.2026.101257",
-   "url": "https://doi.org/10.1016/j.array.2026.101257",
-   "title": "A reproducible protocol for auditing XAI-based trading policies: A case study on the S&P/BVL Peru General Index",
-   "field": "statistics",
-   "via": "OpenAlex 'false discovery rate backtest'",
+   "identifier": "doi:10.5281/zenodo.22759533",
+   "url": "https://doi.org/10.5281/zenodo.22759533",
+   "title": "From Forecast to Position: Order-Book Signals, Market Impact, and Causal Trading",
+   "field": "applied and numerical mathematics",
+   "via": "OpenAlex 'convex optimization portfolio transaction costs'",
    "read_depth": "abstract",
    "triage": 5,
-   "claim": "A reproducible audit protocol for trading policies, incorporating rigorous controls like chronological separation, ablation, and multiplicity control, can reveal that previously reported favorable findings do not survive stricter testing.",
-   "mechanism": "The protocol introduces explicit train/validation/test roles with next-label embargoes, validation-only hyperparameter selection, close-t to open-t+1 execution, an explainability-ablated baseline, a temporal permutation control, and bootstrap/multiplicity-corrected uncertainty. When applied as a stress test, it can lead to adjusted tests being null and paired intervals reaching zero, indicating a lack of robust statistical significance for original claims.",
-   "source_concept": "Statistical auditing and rigorous hypothesis testing methodologies, particularly from the field of Explainable AI (XAI) for trading policies.",
-   "market_analogue": "The audit protocol provides a template for critically evaluating the performance claims of any automated trading strategy, not just XAI-based ones, to prevent overfitting, data snooping, and false positives before or during live deployment. The 'explainability-ablated baseline' can be generalized to a 'feature-ablated baseline' or 'complexity-ablated baseline' for non-XAI models, and 'temporal permutation control' offers a robust null hypothesis generation method.",
-   "hypothesis": "The current live strategies, E07 (Ethereum 20-day trend) and E08 (USDSGD 20-day trend), when subjected to a rigorous audit protocol including \"next-label embargoes\", \"validation-only hyperparameter selection\", \"temporal permutation control\", and \"bootstrap/multiplicity-corrected uncertainty\", will show that their reported edge does not survive these stricter tests, leading to \"adjusted tests [that] are null\" or \"paired intervals [that] reach zero\".",
-   "test": "Run a historical re-evaluation of strategies E07 and E08 using the proposed audit protocol. The null hypothesis is that the net PnL of the strategies is not statistically different from the net PnL of the same strategies applied to a time-permuted version of their input price series. This permutation will serve as the 'temporal permutation control'. 'Bootstrap/multiplicity-corrected uncertainty' will be used to construct confidence intervals for the strategy's performance relative to this permuted null. Failure would be if the observed net PnL of E07 or E08 falls within the confidence interval of the permuted null distribution, or if 'paired intervals reach zero' when comparing the strategy to the permuted null. This test can run on history before spending a live slot.",
+   "claim": "A trading decision rule can be derived that incorporates a 'no-trade region' based on transaction costs and forecast uncertainty, where these two factors widen the same threshold for initiating a trade.",
+   "mechanism": "The paper derives loss identities and certificates for converting an order-book forecast into a trading decision, stating that \"purely proportional costs create threshold decisions with different error rates.\" It provides \"an explicit portfolio no-trade region and a scalar rule in which transaction costs and forecast uncertainty widen the same threshold.\" This implies that a forecast must exceed a certain dynamically adjusted threshold, which accounts for both the cost of trading (e.g., spread) and the inherent uncertainty of the forecast, before a trade is executed.",
+   "source_concept": "Decision theory under uncertainty and transaction costs in quantitative finance.",
+   "market_analogue": "The 'order-book forecast' can be any directional market signal the engine generates (e.g., a trend signal). 'Purely proportional costs' are analogous to the measured bid-ask spread on the engine's CFD instruments. 'Forecast uncertainty' can be approximated by the historical volatility of the asset or the forecast error. The 'no-trade region' is a range around the zero-point of the forecast where no new position is initiated because the expected gain does not sufficiently compensate for costs and uncertainty.",
+   "hypothesis": "The profitability of the engine's previously tested ETHUSD 20-day trend rule (E07), which failed audit A01 due to recent underperformance, can be improved by introducing a 'no-trade region'. This region will prevent trade initiation unless the 20-day trend signal (e.g., `close - 20-day MA`) exceeds a dynamic threshold that is widened by both the measured transaction costs (spread) and the historical volatility of ETHUSD returns, thereby filtering out low-conviction trades.",
+   "test": "1. Replicate the ETHUSD 20-day trend rule (E07): buy if `close > 20-day MA`, sell if `close < 20-day MA`. 2. Calculate the daily signal strength (e.g., `close - 20-day MA`). 3. Define a dynamic threshold `T` as a function of the measured ETHUSD spread and a rolling historical volatility (e.g., 20-day standard deviation of daily returns) for ETHUSD. 4. Modify the E07 rule: initiate a long trade only if `(close - 20-day MA) > T`; initiate a short trade only if `(close - 20-day MA) < -T`. If a position is open, hold it; otherwise, remain flat. 5. Compare the historical performance (Sharpe ratio, net profit, drawdown, and passing audit criteria) of this modified rule against the original E07 rule. The null hypothesis is that the modified rule will not achieve a statistically significant improvement in Sharpe ratio compared to the original E07 rule, or will not pass the engine's audit criteria (beat random-sign null at 99th percentile, survive doubled costs, most years positive). This test can be run on historical data before deployment.",
    "instruments": [
-    "ETHUSD",
-    "USDSGD"
+    "ETHUSD"
    ],
-   "horizon": "D1 (daily bars), consistent with the paper's case study using '3244 daily S&P/BVL Peru General Index observations'.",
+   "horizon": "Daily",
    "data": [
     {
-     "what": "Broker D1 bars for ETHUSD",
+     "what": "Daily OHLCV for ETHUSD",
      "status": "held",
-     "source": "IC Markets"
+     "source": "Broker (IC Markets cTrader Open API)"
     },
     {
-     "what": "Broker D1 bars for USDSGD",
+     "what": "Measured spreads for ETHUSD",
      "status": "held",
-     "source": "IC Markets"
+     "source": "Broker (IC Markets cTrader Open API)"
+    },
+    {
+     "what": "Historical volatility of ETHUSD daily returns",
+     "status": "held",
+     "source": "Computed from held OHLCV data"
     }
    ],
-   "expected_effect": "The paper suggests that applying such a protocol frequently converts 'favorable findings' into 'mixed, unglamorous findings'. Specifically, for the engine, this means strategies previously thought to have an edge might be re-evaluated as having no statistically significant edge under stricter controls, with 'adjusted tests [being] null under both within-seed and pooled 30-test multiplicity control' and 'paired intervals reach zero'.",
-   "evidence_quality": "The abstract describes a robust audit protocol and reports its application as a 'stress test' to a previously published case study, where original claims of 'behavioral correction' 'does not survive'. This demonstrates the protocol's effectiveness in identifying false positives, offering strong conceptual evidence for its value in rigorous evaluation.",
-   "confidence": 4.0,
+   "expected_effect": "A reduction in the number of low-conviction trades, particularly those where the forecasted edge is small or highly uncertain relative to costs, leading to an improved average profitability per trade and an overall higher risk-adjusted return for the ETHUSD trend-following strategy.",
+   "evidence_quality": "Theoretical derivation. The paper explicitly states: \"The results concern declared objectives and exogenous book laws, not empirical profitability or a solution to counterfactual market impact.\"",
+   "confidence": 0.7,
    "quotes_verified": [
-    "Explainability methods increasingly inform real-time trading interventions, but claims of \u201cbehavioral correction\u201d in this literature are rarely tested under the chronological separation, ablation, and multiplicity control that such claims require.",
-    "We introduce a reproducible audit protocol \u2014 explicit train/validation/test roles with next-label embargoes, validation-only hyperparameter selection, close- t to open- t + 1 execution, an explainability-ablated baseline, a temporal permutation control, and bootstrap/multiplicity-corrected uncertainty \u2014 and apply it as a stress test to a previously reported CXAI-Guided Dynamic Stop-Loss (CGDSL) case study (3244 daily S&P/BVL Peru General Index observations, 2011\u20132024).",
-    "Under this protocol, an originally reported \u201ctopological proof\u201d of behavioral correction (Hazard Ratio sign change, 90.6% bias-mass reduction, 0% false-alarm rate) does not survive: adjusted tests are null under both within-seed and pooled 30-test multiplicity control, paired intervals reach zero, and two of three matched interventions produce counterfactual harm.",
-    "We argue the protocol\u2019s value lies precisely in surfacing such mixed, unglamorous findings rather than only favorable ones, and offer it as a template other XAI-trading audits can apply before, not after, publication."
+    "purely proportional costs create threshold decisions with different error rates.",
+    "It gives an explicit portfolio no-trade region and a scalar rule in which transaction costs and forecast uncertainty widen the same threshold.",
+    "An order-book forecast becomes a trading decision through costs, constraints and the information available when the position is chosen.",
+    "The results concern declared objectives and exogenous book laws, not empirical profitability or a solution to counterfactual market impact."
    ],
    "quotes_unverified": [],
    "grounded": true,
    "id": "2026-W40-1",
    "red_team": {
     "concerns": [
-     "The engine's existing pass criteria already include surviving costs, and this audit would layer on top of that, asking if the statistical robustness of the edge (after costs) holds. This is not a concern that would 'eat the effect' but rather a method to verify if the effect truly exists after costs.",
-     "The engine already acknowledges the need for robust statistical testing due to multiple comparisons ('N is about 305, so a new result needs a deflated Sharpe that survives that count'), which aligns with the 'multiplicity control' aspect of the proposed audit. This idea provides a specific protocol to address this.",
-     "The idea proposes an audit of existing strategies, not a new strategy, making it distinct from other items in the queue. It is a meta-analysis or evaluation protocol.",
-     "The analogy from statistical auditing and XAI is doing real work. The proposed protocol elements (chronological separation, embargoes, permutation control, bootstrap uncertainty) are robust statistical techniques directly applicable to financial time series and strategy evaluation, not merely decorative.",
-     "The protocol explicitly addresses lookahead bias through 'chronological separation', 'next-label embargoes', and 'validation-only hyperparameter selection'. Selection bias is addressed by 'multiplicity control' and 'bootstrap/multiplicity-corrected uncertainty'. Time-of-day confounds are not introduced by the audit itself, as it re-evaluates existing D1 strategies with their defined trading hours."
+     "The source paper is purely theoretical and does not provide empirical evidence of profitability after costs, making this a test of a theoretical concept without prior real-world validation. The entire burden of proof for practical utility rests on this experiment.",
+     "The definition of 'Measured_ETHUSD_Spread' must accurately reflect the spread at the D1 bar close (21:00 UTC) when trades would be executed, as spreads widen significantly at rollover. If median hourly spreads are used, this could underestimate actual trading costs.",
+     "While the 'no-trade region' filters trades based on general transaction costs, it does not explicitly account for the lopsided crypto swap costs (longs pay ~20% p.a., shorts pay nothing). The improvement might be less pronounced for long trades due to this persistent overnight financing charge."
     ],
     "fatal": null,
     "kill": false,
-    "information": 5,
-    "value": 5,
+    "information": 4,
+    "value": 4,
     "cost": 2,
-    "revised_test": "Apply a rigorous audit protocol, incorporating chronological separation, next-label embargoes, and validation-only hyperparameter selection, to a historical re-evaluation of strategies E07 (Ethereum 20-day trend) and E08 (USDSGD 20-day trend). The null hypothesis for each strategy is that its net PnL (after all trading costs, including spread and financing) is not statistically different from the net PnL of the same strategy applied to a time-permuted version of its input price series (serving as a 'temporal permutation control'). Use bootstrap and multiplicity-corrected uncertainty to construct confidence intervals for the strategy's performance relative to this permuted null. The test passes if the observed net PnL of E07 and E08, when compared to their respective permuted null distributions, demonstrates a statistically significant edge (e.g., the lower bound of the confidence interval for the difference is above zero). Failure would be if 'adjusted tests are null' or 'paired intervals reach zero', indicating a lack of robust statistical significance for the previously reported edge. This re-evaluation will run on historical data, not consuming a live slot."
+    "revised_test": "1. Replicate the ETHUSD 20-day trend rule (E07) on historical data: The original rule buys if `close > 20-day MA` and sells if `close < 20-day MA`. When a position is open, it is held until the trend reverses. 2. Calculate the daily trend signal strength: `Signal = close - 20-day MA` (in price units). 3. Define a dynamic threshold `T` in absolute price terms as: `T = (2.0 * Measured_ETHUSD_Spread) + (1.0 * Rolling_20_Day_StDev_Daily_Log_Returns * ETHUSD_Close_Price)`. The `Measured_ETHUSD_Spread` will be the median spread observed for ETHUSD at the 21:00 UTC D1 bar close time, representing the cost of execution. `Rolling_20_Day_StDev_Daily_Log_Returns` is the standard deviation of the past 20 daily log returns of ETHUSD. The constant `2.0` for spread accounts for estimated round-trip transaction costs, and `1.0` for volatility uses one standard deviation as the uncertainty buffer. 4. Modify the E07 rule for *new trade initiation*: Initiate a long trade only if `Signal > T` and no position is currently open. Initiate a short trade only if `Signal < -T` and no position is currently open. If a long position is open, close it if `Signal < 0`. If a short position is open, close it if `Signal > 0`. If no position is open and the signal is within `[-T, T]`, remain flat. 5. Compare the historical performance (Sharpe ratio, net profit, drawdown, and passing audit criteria: beat random-sign null at 99th percentile, survive doubled costs, most years positive) of this modified rule against the original E07 rule (as it performed in audit A01 and subsequently). The null hypothesis is that the modified rule will not achieve a statistically significant improvement in Sharpe ratio compared to the original E07 rule, or will not pass the engine's audit criteria."
    }
   },
   {
-   "identifier": "arXiv:2609.34188v1",
-   "url": "http://arxiv.org/abs/2609.34188v1",
-   "title": "AlphaPareto: Formulaic Alpha Discovery with LLM-Guided Multi-Objective Reinforcement Learning",
-   "field": "computer science",
-   "via": "arXiv cs.LG",
-   "read_depth": "full",
-   "triage": 5,
-   "claim": "AlphaPareto, an RL method that integrates alpha pool semantic reasoning and Pareto-regularized multi-objective RL (MORL), outperforms existing baselines in formulaic alpha discovery, achieving higher predictive power, temporal stability, perturbation robustness, and diversity, and stronger portfolio-level performance.",
-   "mechanism": "AlphaPareto uses a large language model (LLM) as a semantic encoder for the evolving alpha pool, augmenting the state representation to address non-stationarity in the reinforcement learning (RL) process. It defines a multi-dimensional reward function that jointly characterizes the quality of the alpha pool along four axes: predictive power (Information Coefficient, IC), temporal stability (Relative Rank Entropy, RRE), perturbation robustness (Perturbation Fidelity Score, PFS), and diversity (Diversity Entropy, DH). These competing objectives are optimized using a Pareto-regularized learning method to generate alphas along the efficient frontier.",
-   "source_concept": "Formulaic alpha discovery with LLM-guided multi-objective reinforcement learning.",
-   "market_analogue": "The paper applies its method to discover formulaic alphas from historical stock market data (Chinese A-shares, S&P 500) for predicting 20-day future stock returns. This is analogous to discovering trading signals for CFDs on cryptocurrencies or currency pairs using daily bar data, where price and volume features are available. The concept of 'alpha pool' and 'mega-alpha' could apply to combining multiple signals for a trading strategy on our instruments.",
-   "hypothesis": "No specific, falsifiable hypothesis can be derived for the engine to test. The paper describes a computationally intensive method for discovering formulaic alphas but does not provide the actual discovered alpha formulas or a simplified, directly applicable rule that the engine could implement. The example formula provided in Appendix A is insufficient to form a general hypothesis about 'alphas discovered by AlphaPareto' or to replicate the method's output. The computational resources required for the AlphaPareto training pipeline (e.g., 'one RTX PRO 6000 GPU with 96 GB video memory' and '64 CPU workers' per run) are vastly beyond the engine's capabilities.",
-   "test": "N/A",
-   "instruments": [],
-   "horizon": "N/A",
-   "data": [
-    {
-     "what": "Historical market data including Open, High, Low, Close, Vwap, Volume.",
-     "status": "held",
-     "source": "Paper: 'Open/High/Low/Close/Vwap/Volume Opening/high/low/closing/vwap price or volume of stock i at time s.'"
-    },
-    {
-     "what": "Future stock returns (20-day).",
-     "status": "held",
-     "source": "Paper: 'prediction target defined as the 20-day future stock return.'"
-    },
-    {
-     "what": "Large Language Model (LLM) for semantic encoding.",
-     "status": "free",
-     "source": "Paper: 'AlphaPareto uses a frozen LLM as a semantic encoder of F_t.' (Qwen-Embedding-4B used in experiments)"
-    },
-    {
-     "what": "Computational resources (GPU servers, high RAM, multiple CPUs) for training the RL agent and LLM encoding.",
-     "status": "unavailable",
-     "source": "Paper: 'All experiments were conducted on internal GPU servers with 66 Intel(R) Xeon(R) Platinum 8470Q vCPUs, 330 GB RAM, and one RTX PRO 6000 GPU with 96 GB video memory. Each AlphaPareto training run used one GPU and 64 CPU workers.'"
-    }
-   ],
-   "expected_effect": "N/A",
-   "evidence_quality": "High. The paper conducts 'extensive experiments on large-scale real-world datasets from Chinese stock markets' and 'on the S&P 500 stock universe'. It reports out-of-sample Information Coefficients (IC) showing AlphaPareto achieving the highest IC on all three datasets (CSI300, CSI800, Market) and S&P 500, outperforming state-of-the-art baselines. Portfolio backtesting results show 'the highest annualized return, information ratio, and Sharpe ratio among all evaluated methods, with an annualized return of 58.92%, an information ratio of 2.62, and a Sharpe ratio of 2.59'. Ablation studies confirm the contribution of each component. Transaction costs ('15 basis points per side, with a minimum fee of 5 CNY') are included in backtesting.",
-   "confidence": 0.0,
-   "quotes_verified": [
-    "AlphaPareto: Formulaic Alpha Discovery with LLM-Guided Multi-Objective Reinforcement Learning",
-    "AlphaPareto augments the state to include both the alpha under construction and the current alpha pool, and applies a large language model (LLM) to encode the pool.",
-    "AlphaPareto replaces the scalar reward with a multi-objective vector-valued reward that simultaneously captures predictive power, temporal stability, perturbation robustness, and diversity, and optimizes these objectives through a Pareto-regularized learning procedure.",
-    "Empirical applications to real-world datasets show that our AlphaPareto method outperforms its competitors.",
-    "All experiments were conducted on internal GPU servers with 66 Intel(R) Xeon(R) Platinum 8470Q vCPUs, 330 GB RAM, and one RTX PRO 6000 GPU with 96 GB video memory.",
-    "Each AlphaPareto training run used one GPU and 64 CPU workers.",
-    "Transaction costs are set to 15 basis points per side, with a minimum fee of 5 CNY.",
-    "The prediction target defined as the 20-day future stock return."
-   ],
-   "quotes_unverified": [
-    "AlphaPareto achieves the highest annualized return, information ratio, and Sharpe ratio among all evaluated methods, with an annualized return of 58.92%"
-   ],
-   "grounded": true,
-   "id": "2026-W40-2",
-   "red_team": {
-    "concerns": [
-     "it needs data we cannot get",
-     "the hypothesis is not specific or falsifiable for this engine",
-     "computational resources are vastly beyond the engine's capabilities"
-    ],
-    "fatal": "computational resources are vastly beyond the engine's capabilities",
-    "kill": true,
-    "information": 1,
-    "value": 1,
-    "cost": 5,
-    "revised_test": ""
-   }
-  },
-  {
-   "identifier": "doi:10.38124/ijisrt/26sep754",
-   "url": "https://doi.org/10.38124/ijisrt/26sep754",
-   "title": "Beyond Buy and Sell: An AI-Driven Deep Reinforcement Learning for Sentiment-Aware and Risk Managed Cryptocurrency Trading",
-   "field": "mathematical and computational economics",
-   "via": "OpenAlex 'computational economics market microstructure simulation'",
-   "read_depth": "abstract",
-   "triage": 5,
-   "claim": "The paper claims that integrating Deep Reinforcement Learning (DRL), sentiment analysis, and intelligent risk management within a unified trading environment leads to successful, adaptive, efficient, and safer autonomous cryptocurrency trading.",
-   "mechanism": "A Deep QNetwork (DQN) is employed to learn trading decisions from multiple market state variables, including price movements, trading volume, volatility indicators, order-book information, and sentiment scores derived from external information sources like news and social media. The system also integrates cost-aware execution mechanisms and intelligent risk controls such as stop-loss, take-profit, balance allocation, and trade-exposure limits.",
-   "source_concept": "Deep Reinforcement Learning (DRL), Deep QNetwork (DQN), Sentiment Analysis, Intelligent Risk Management.",
-   "market_analogue": "The DRL/DQN acts as a learning agent making buy, sell, and hold decisions. Market state variables like price movements, trading volume, volatility indicators, and order-book information correspond directly to available market data. Sentiment scores derived from news, social media, community discussions, and web-based information are proposed as a novel input for 'qualitative market intelligence'. Cost-aware execution mechanisms and intelligent risk controls (stop-loss, take-profit, balance allocation, trade-exposure limits) are analogous to the engine's existing cost accounting and risk management parameters.",
-   "hypothesis": "The abstract does not specify conditions under which market predictability appears or disappears. It describes a comprehensive system that adapts to changing market conditions and uses sentiment, but it does not provide a specific, falsifiable signal or condition related to the modulation of predictability that could be directly observed or tested by the engine.",
-   "test": "Not applicable, as no specific testable hypothesis regarding predictability conditions is derived from this abstract.",
+   "identifier": "doi:10.1080/14697688.2026.2705206",
+   "url": "https://doi.org/10.1080/14697688.2026.2705206",
+   "title": "Multivariate quadratic Hawkes processes\u2014part II: non-parametric empirical calibration",
+   "field": "physics",
+   "via": "OpenAlex 'econophysics'",
+   "read_depth": "truncated at 120000 chars of 122588",
+   "triage": 3,
+   "claim": "A cross-leverage effect, whereby the sign of the return of one asset impacts the volatility of another asset, is clearly identified, with negative returns of a market factor increasing the residual volatility of individual assets.",
+   "mechanism": "The paper identifies a 'cross-leverage effect' where the sign of the return of one asset (e.g., the e-mini futures contract as a market factor) impacts the volatility of another asset. Specifically, negative past returns of the market factor are shown to increase the future residual volatility of individual stocks. This feedback is captured by a leverage kernel, L_ij, within a Quadratic Hawkes (or coarse-grained MQARCH) process model, where the intensity (approximated by squared volatility) of asset i is influenced by the signed returns of asset j.",
+   "source_concept": "Leverage effect, a concept from financial economics where negative returns are associated with increased future volatility, is here extended to a cross-asset context and framed within a self-exciting point process (Hawkes process) model. The core idea is that past signed price changes from one asset influence the intensity (volatility) of future price changes in another asset.",
+   "market_analogue": "The 'e-mini futures contract' serves as a highly liquid, broad market index instrument in the paper; its analogue for the engine's instruments is ETHUSD, given its dominance in the cryptocurrency space. 'Residual volatility of single stocks' refers to the idiosyncratic volatility of individual stocks after accounting for the market factor; its analogue for the engine could be the residual volatility of other altcoin CFDs (ADAUSD, BCHUSD, LTCUSD) relative to ETHUSD. The 'sign of the return' corresponds to the direction of the daily log-return, and 'volatility' corresponds to future daily realized residual volatility.",
+   "hypothesis": "For the engine's available crypto CFDs, a negative daily log-return of ETHUSD will predict higher future daily realized residual volatility for ADAUSD, BCHUSD, and LTCUSD CFDs.",
+   "test": "1. For each target crypto CFD (ADAUSD, BCHUSD, LTCUSD), calculate daily log returns (r_i,t) and for ETHUSD (r_ETHUSD,t). 2. Over the entire historical period (from 2014 or earliest available date), regress r_i,t on r_ETHUSD,t to obtain the estimated static beta (\u03b2_i) and the time series of residual returns (e_i,t = r_i,t - \u03b2_i * r_ETHUSD,t). 3. Calculate the daily realized residual volatility (\u03c3^2_e_i,t = e^2_i,t). 4. For each target crypto i, regress \u03c3^2_e_i,t on r_ETHUSD,t-1: \u03c3^2_e_i,t = \u03b3_0 + \u03b3_1 * r_ETHUSD,t-1 + \u03b6_t. 5. The null hypothesis is \u03b3_1 = 0. Failure would be \u03b3_1 >= 0 or a p-value > 0.01 for \u03b3_1 after accounting for multiple testing. This test runs on historical data.",
    "instruments": [
     "ETHUSD",
     "ADAUSD",
     "BCHUSD",
     "LTCUSD"
    ],
-   "horizon": "Not explicitly specified, but 'rapid price movements' suggests potential for shorter horizons, while 'buy, sell, and hold decisions' implies positions can be held over varying durations.",
+   "horizon": "Daily (D1 bars), as the paper states the 'leverage effect predominantly appears at the daily scale'.",
    "data": [
     {
-     "what": "Price movements, trading volume, volatility indicators",
+     "what": "Daily OHLCV data for ETHUSD, ADAUSD, BCHUSD, LTCUSD CFDs.",
      "status": "held",
-     "source": "Broker bars for 64 instruments (D1 back to 2014 or later for many)"
-    },
-    {
-     "what": "Order-book information",
-     "status": "held",
-     "source": "Top-of-book ticks for some crypto, XRP depth for 120 hours"
-    },
-    {
-     "what": "Sentiment scores derived from external information sources (news, social media, community discussions, and web-based information)",
-     "status": "unavailable",
-     "source": "Not listed as free to add or available from current data sources."
-    },
-    {
-     "what": "Transaction fees, slippage, market volatility, execution latency",
-     "status": "held",
-     "source": "Measured by the engine"
+     "source": "IC Markets broker data"
     }
    ],
-   "expected_effect": "The DQN-based trading engine successfully generated autonomous buy, sell, and hold decisions and adapted to changing market conditions. The system also demonstrated improved execution efficiency through cost-minimization mechanisms, while risk-control features supported safer trading operations and portfolio protection.",
-   "evidence_quality": "The system was 'evaluated through controlled simulations using historical cryptocurrency data and simulated exchange environments.' This is simulation-based evidence, not live market validation, and therefore has low real-world applicability without further testing.",
+   "expected_effect": "A statistically significant negative coefficient (\u03b3_1) for ETHUSD's previous day's log-return when predicting the target crypto's next day's realized residual volatility. This implies that a negative daily log-return of ETHUSD leads to higher future daily realized residual volatility for the target crypto CFDs.",
+   "evidence_quality": "High. The paper explicitly states: \"A cross-leverage effect, whereby the sign of the return of one asset impacts the volatility of another asset, is also clearly identified. The cross-leverage effect between the e-mini and the residual volatility of single stocks is notable, and surprisingly universal across the universe of stocks that we considered.\" It also notes that \"the leverage effect predominantly appears at the daily scale\" and that \"the negative exponential shape of Li 0 indicates that the e-mini negative past returns directly increase the residual volatility of single stocks.\"",
+   "confidence": 0.8,
+   "quotes_verified": [
+    "A cross-leverage effect, whereby the sign of the return of one asset impacts the volatility of another asset, is also clearly identified.",
+    "the leverage effect predominantly appears at the daily scale",
+    "we posit here that the volatility of the market factorf0 is unaffected by the dynamics of residuals ei and given by a 1D-QGARCH, while the eis themselves follow a 2D-QGARCH model with (i) self-feedback and (ii) feedback from the market factor."
+   ],
+   "quotes_unverified": [
+    "The cross-leverage effect between the e-mini and the residual volatility of single stocks is notable, and surprisingly universal across the universe of stocks that we considered.",
+    "the negative exponential shape ofLi 0 indicates that thee-mininegative past returns directly increase the residual volatility of single stocks.",
+    "Specifically, the returns of stock i are decomposed into a sum of their market exposure, represented by the factor component f0, with an exposure coefficient\u03b2i, and a residual componentei,t, which is idiosyncratic to the stock dynamics: ri t =\u03b2if0,t +ei,t."
+   ],
+   "grounded": true,
+   "id": "2026-W40-2",
+   "red_team": {
+    "concerns": [
+     "The hypothesis concerns a statistical relationship about volatility, not a directional edge. Given the engine's severe trading cost constraints (spreads, high crypto long financing) and lack of instruments for pure volatility trading (e.g., options, futures), identifying this effect, even if true, does not offer a clear or feasible path to a profitable trading strategy for this account. The engine's binding constraint is the cost of trading, and this idea does not address how to overcome it.",
+     "The paper identifies a statistical effect but does not demonstrate its profitability after costs, nor does it propose a specific trading strategy that could be implemented by the engine. The engine's previous experiments consistently show that even real edges are eaten by costs, and this hypothesis provides no mechanism to circumvent this."
+    ],
+    "fatal": "The engine's binding constraint is the cost of trading, and this hypothesis, even if true, does not offer a clear path to a profitable trading strategy given the available instruments and cost structure.",
+    "kill": true,
+    "information": 3,
+    "value": 1,
+    "cost": 2,
+    "revised_test": ""
+   }
+  },
+  {
+   "identifier": "doi:10.17605/osf.io/7q3yk",
+   "url": "https://doi.org/10.17605/osf.io/7q3yk",
+   "title": "A frozen forecast: do DeFi fixed rates predict realized yields? Implied fixed rates of Pendle principal tokens versus the realized yields of their underlying assets to maturity, a preregistered forecast test",
+   "field": "economics",
+   "via": "OpenAlex 'exchange rate forecasting'",
+   "read_depth": "abstract",
+   "triage": 5,
+   "claim": "The paper investigates whether implied fixed interest rates derived from Pendle's Principal Tokens (PTs) in DeFi markets accurately predict the realized yields of their underlying yield-bearing assets until maturity.",
+   "mechanism": "The mechanism is the 'DeFi version of the expectations hypothesis of the term structure of interest rates'. This hypothesis posits that if investors are risk-neutral and yields are paid in cash, the implied APY (annual percentage yield) from a Principal Token (PT) \u2013 which trades at a discount and is worth one unit of the reference asset at maturity \u2013 should equal the expected yield of the underlying asset until its maturity.",
+   "source_concept": "Expectations hypothesis of the term structure of interest rates.",
+   "market_analogue": "For the engine's FX instruments, this concept is analogous to the Uncovered Interest Rate Parity (UIRP) or Covered Interest Rate Parity (CIRP), where interest rate differentials (or forward rates) are expected to predict future spot exchange rate movements. For crypto CFDs, it's analogous to the relationship between the basis (spot-future price difference) or perpetual funding rates and future spot returns. The analogy predicts that if the expectations hypothesis holds, the implied fixed rate (e.g., an implied forward rate from FX interest rate differentials or a crypto perpetual funding rate) should accurately predict the realized future yield or price change of the corresponding asset. What could be wrong is that risk premia, market frictions, or specific market inefficiencies might cause systematic deviations, making the implied rate a biased predictor.",
+   "hypothesis": "Nothing testable here. The engine cannot directly trade the specific DeFi instruments (Pendle Principal Tokens or Yield Tokens) described in the paper. Furthermore, the engine lacks access to the specific on-chain data required to measure the implied APYs or realized yields from Pendle markets. The paper explicitly states that it is 'a study of how accurate a market forecast is' and 'not investment advice, and no positions are taken'. General versions of the expectations hypothesis applied to the engine's tradable instruments (FX carry and crypto carry) have already been tested and failed (E08 and E09).",
+   "test": "N/A",
+   "instruments": [],
+   "horizon": "N/A",
+   "data": [
+    {
+     "what": "implied APY of Pendle markets",
+     "status": "unavailable",
+     "source": "recorded by a passive collector on four chains"
+    },
+    {
+     "what": "realized yield of underlying assets",
+     "status": "unavailable",
+     "source": "measured on chain from the exchange rate of each market's standardized-yield (SY) token"
+    }
+   ],
+   "expected_effect": "N/A",
+   "evidence_quality": "N/A",
    "confidence": 0.0,
    "quotes_verified": [
-    "Cryptocurrency markets are characterized by high volatility, rapid price movements, fragmented market information, transaction costs, and strong sensitivity to investor sentiment, thereby making conventional trading approaches increasingly inadequate for autonomous decision making.",
-    "This study developed and evaluated an artificial intelligence driven framework for autonomous cryptocurrency trading that integrates Deep Reinforcement Learning (DRL), sentiment analysis, and intelligent risk management within a unified trading environment.",
-    "The framework employed a Deep QNetwork (DQN) to learn trading decisions from multiple market state variables, which included price movements, trading volume, volatility indicators, order-book information, and sentiment scores derived from external information sources.",
-    "Unlike conventional trading systems that rely predominantly on historical numerical indicators, the proposed framework incorporated qualitative market intelligence from news, social media, community discussions, and web-based information to improve the contextual awareness of autonomous trading decisions.",
-    "The system further integrates cost aware execution cost-aware execution mechanisms that account for transaction fees, slippage, market volatility, and execution latency",
-    "intelligent risk controls such as stop-loss, take-profit, balance allocation, and trade-exposure limits are all incorporated to reduce potential losses and improve portfolio stability.",
-    "Results demonstrated that the DQN-based trading engine successfully generated autonomous buy, sell, and hold decisions and adapted to changing market conditions.",
-    "The system also demonstrated improved execution efficiency through cost-minimization mechanisms, while risk-control features supported safer trading operations and portfolio protection.",
-    "The developed system was implemented as an autonomous web-based trading application and evaluated through controlled simulations using historical cryptocurrency data and simulated exchange environments."
+    "Pendle is a DeFi protocol that splits a yield-bearing token, for example a staked stablecoin, into two tokens with a fixed maturity date",
+    "a principal token (PT), which is worth one unit of the reference asset at maturity",
+    "The PT trades at a discount, so its price fixes an interest rate: the implied APY.",
+    "Suppose investors are risk-neutral and the yield is paid in cash. Then the implied APY should equal the expected yield of the underlying until maturity.",
+    "This is the DeFi version of the expectations hypothesis of the term structure of interest rates.",
+    "Appendix A lists the implied APY of all 45 Pendle markets live at S0, as recorded by a passive collector on four chains. The forecasts are therefore public before any outcome exists.",
+    "The outcome is the yield the underlying actually earns from S0 to maturity. It is measured on chain from the exchange rate of each market's standardized-yield (SY) token.",
+    "This is a study of how accurate a market forecast is. It is not investment advice, and no positions are taken."
    ],
    "quotes_unverified": [],
    "grounded": true,
    "id": "2026-W40-3",
    "red_team": {
     "concerns": [
-     "The core differentiating input for the proposed mechanism, 'sentiment scores derived from external information sources (news, social media, community discussions, and web-based information)', is explicitly listed as unavailable in the engine's data sources. This means a key component of the strategy cannot be implemented.",
-     "The engine's primary constraint is the high cost of trading (spread, overnight financing for crypto, rollover). Previous experiments (E01, E02, E03) showed that even strategies with a small edge before costs were eliminated by costs. Without the 'qualitative market intelligence' from sentiment, a DRL system relying solely on market data inputs is unlikely to find an edge strong enough to overcome these costs.",
-     "The hypothesis itself is not specific or falsifiable regarding predictability conditions, making it difficult to design a precise, testable experiment. The card describes a comprehensive system rather than a specific signal or condition.",
-     "Implementing a Deep Reinforcement Learning (DRL) system like a Deep QNetwork (DQN) is a high-cost endeavor in terms of development time, computational resources, and data pipeline setup, especially for a system with many inputs. This is disproportionate given the unavailability of a key input.",
-     "The complexity of a DRL system increases the risk of lookahead bias or data leakage if not handled with extreme care during backtesting, especially if proxies for sentiment were to be sought or constructed."
+     "The engine cannot directly trade the specific DeFi instruments (Pendle Principal Tokens or Yield Tokens) described in the paper.",
+     "The engine lacks access to the specific on-chain data required to measure the implied APYs or realized yields from Pendle markets, as explicitly stated in the card (data status: unavailable).",
+     "General versions of the underlying mechanism ('expectations hypothesis') applied to the engine's tradable instruments (FX carry and crypto carry) have already been tested and failed (E08 and E09). This directly contradicts the core predictive power implied by the hypothesis for analogous markets.",
+     "The idea is a disguised variant of something already in the queue, specifically the failed FX carry (E08) and crypto carry (E09) strategies, which are direct market analogues of the expectations hypothesis."
     ],
-    "fatal": "The strategy critically depends on 'sentiment scores' as a novel input for 'qualitative market intelligence', which the engine's facts explicitly state is 'Not available'. Without this core component, the proposed mechanism is incomplete and cannot be tested as described.",
+    "fatal": "The engine cannot acquire the necessary data (implied APY of Pendle markets, realized yield of underlying assets) and cannot trade the specific DeFi instruments (Pendle Principal Tokens or Yield Tokens). This makes the hypothesis untestable for this engine.",
     "kill": true,
     "information": 1,
     "value": 1,
@@ -214,137 +185,151 @@
    }
   },
   {
-   "identifier": "doi:10.1108/rbf-01-2026-0039",
-   "url": "https://doi.org/10.1108/rbf-01-2026-0039",
-   "title": "Capital flight or speculative demand: asymmetric drivers of the crypto exchange rate premium in distressed zones",
-   "field": "economics",
-   "via": "OpenAlex 'limits to arbitrage'",
-   "read_depth": "abstract",
-   "triage": 5,
-   "claim": "The crypto exchange rate premium in distressed zones is driven by asymmetric factors: geopolitical risk, trade uncertainty, and macroeconomic sentiment in Ukraine (capital flight), and inflation and trade uncertainty in Argentina (inflation hedging and financial arbitrage). Global crypto price uncertainty dampens this premium in both cases.",
-   "mechanism": "In crisis contexts, crypto serves as a 'crisis-driven channel for capital outflows' (Ukraine) or 'primarily facilitates inflation hedging and financial arbitrage' (Argentina). However, 'heightened global crypto price uncertainty dampens the premium in both countries, highlighting limits to crypto as a flight or speculative instrument'.",
-   "source_concept": "Economics, specifically international finance and macroeconomics, focusing on capital flight, inflation hedging, and arbitrage in distressed economies.",
-   "market_analogue": "The 'crypto exchange rate premium' refers to the difference in crypto prices between local and international exchanges, often driven by local economic conditions, capital controls, or demand. The engine trades global crypto CFDs (e.g., ETHUSD) against USD on an international broker and does not have access to local exchange prices or the ability to trade these specific premiums.",
-   "hypothesis": "This paper's findings, as described in the abstract, focus on 'crypto exchange rate premiums in two distinct crisis contexts' which are not directly observable or tradable by the engine. The engine trades global crypto prices (e.g., ETHUSD) and does not have access to local exchange prices or the specific macroeconomic and geopolitical data for the distressed zones described, nor can it execute trades that exploit these local premiums. Therefore, there is no direct, testable hypothesis for this engine based on the provided abstract.",
-   "test": "No test can be formulated as the core concept is not applicable to the engine's trading capabilities.",
-   "instruments": [],
-   "horizon": "Not applicable due to untestability, but the study uses 'monthly data from January 2020 to December 2024'.",
-   "data": [
-    {
-     "what": "Crypto exchange rate premiums in Ukraine and Argentina",
-     "status": "unavailable",
-     "source": "Paper abstract implies specific local exchange data"
-    },
-    {
-     "what": "Geopolitical risk (GPR), trade uncertainty, macroeconomic sentiment for Ukraine and Argentina",
-     "status": "unavailable",
-     "source": "Paper abstract implies specific local indicators"
-    },
-    {
-     "what": "Inflation for Argentina",
-     "status": "unavailable",
-     "source": "Paper abstract implies specific local indicators"
-    },
-    {
-     "what": "Global crypto price uncertainty",
-     "status": "held",
-     "source": "Can be derived from held crypto price data (e.g., ETHUSD, ADAUSD, BCHUSD, LTCUSD)"
-    }
-   ],
-   "expected_effect": "Not applicable due to untestability.",
-   "evidence_quality": "Moderate. The abstract states 'This study finds a significant divergence' and 'This study employs the Nonlinear Autoregressive Distributed Lag model on monthly data', indicating empirical findings from a quantitative model. However, specific statistical significance or model fit details are not provided.",
-   "confidence": 0.0,
-   "quotes_verified": [
-    "The purpose of this study is to examine the asymmetric determinants of the crypto exchange rate premiums in two distinct crisis contexts: Ukraine\u2019s war economy and Argentina\u2019s high-inflation regime.",
-    "This study employs the Nonlinear Autoregressive Distributed Lag model on monthly data from January 2020 to December 2024.",
-    "This study finds a significant divergence in the function of crypto assets across jurisdictions.",
-    "In Ukraine, the crypto exchange rate premium functions as a war barometer, responding asymmetrically to geopolitical risk (GPR), trade uncertainty and macroeconomic sentiment.",
-    "These findings support the capital flight hypothesis, with crypto serving as a crisis-driven channel for capital outflows.",
-    "Conversely, Argentina\u2019s premium is driven by inflation and trade uncertainty rather than political conflict, indicating that crypto primarily facilitates inflation hedging and financial arbitrage.",
-    "Moreover, heightened global crypto price uncertainty dampens the premium in both countries, highlighting limits to crypto as a flight or speculative instrument."
-   ],
-   "quotes_unverified": [],
-   "grounded": true,
-   "id": "2026-W40-4",
-   "red_team": {
-    "concerns": [
-     "It needs data we cannot get: The core of the idea relies on 'crypto exchange rate premiums' which are the difference between local and international exchange prices. The engine trades global crypto CFDs (e.g., ETHUSD) on an international broker and does not have access to local exchange prices or the ability to trade these specific premiums.",
-     "It needs data we cannot get: The hypothesis also requires specific geopolitical risk, trade uncertainty, and macroeconomic sentiment data for Ukraine and Argentina, as well as local inflation data for Argentina, which are not available to the engine. While some macroeconomic data can be obtained (FRED), the specificity and granularity required to drive these local premiums are not guaranteed or listed as available.",
-     "The analogy from another field is not doing real work: The 'market analogue' section correctly identifies that the engine trades global crypto CFDs and cannot access or trade the local premiums central to the paper's findings. The mechanism described (capital flight, inflation hedging, arbitrage) is specific to local market conditions and capital controls, which are entirely outside the engine's operational scope."
-    ],
-    "fatal": "It needs data we cannot get",
-    "kill": true,
-    "information": 1,
-    "value": 1,
-    "cost": 5,
-    "revised_test": ""
-   }
-  },
-  {
-   "identifier": "arXiv:2609.31870v1",
-   "url": "http://arxiv.org/abs/2609.31870v1",
-   "title": "Deep Reinforcement Learning for Equity Trading: Benchmarking Actor-Critic Methods with Forward Retraining",
-   "field": "computer science",
-   "via": "arXiv cs.MA",
-   "read_depth": "full",
-   "triage": 5,
-   "error": "read failed: Invalid \\escape: line 7 column 431 (char 2470)",
-   "grounded": false,
-   "id": "2026-W40-5"
-  },
-  {
-   "identifier": "doi:10.21953/lse.00004955",
-   "url": "https://doi.org/10.21953/lse.00004955",
-   "title": "Essays in empirical asset pricing",
+   "identifier": "doi:10.17034/32640483",
+   "url": "https://doi.org/10.17034/32640483",
+   "title": "Currency return predictability: utilising forward curve information",
    "field": "quantitative finance",
    "via": "OpenAlex 'currency returns predictability'",
    "read_depth": "abstract",
    "triage": 5,
-   "claim": "This paper presents claims regarding currency risk premia based on macroeconomic fundamentals and the Currency Volatility Risk Premium (VRP), and an equity recovery rate factor for US equities. However, none of these are directly or cheaply testable by the engine given its current resources and data availability.",
-   "mechanism": "The paper discusses several mechanisms: 1. Macroeconomic fundamentals contribute noisy information to a dense currency Stochastic Discount Factor (SDF), where an aggregated Bayesian Model Averaged (BMA) SDF shows superior out-of-sample pricing power. 2. The VRP term-structure forecasts currency appreciation and excess returns, particularly at longer horizons, linked to compensation for bearing risk during adverse economic conditions. 3. A novel 'equity recovery rate' factor shows a robust, inverse relationship with subsequent risk-adjusted returns in US equities, distinct from leverage or traditional distress risk.",
-   "source_concept": "Empirical asset pricing, macroeconomic foundations of risk premia, volatility risk premium, equity recovery rate.",
-   "market_analogue": "For Essay 1 and 2, the concepts directly apply to currency markets. For Essay 3, the concept is specific to equity markets. While a broad analogy of 'distress' or 'recovery' could be sought in crypto, the paper defines it specifically for market equity in bankruptcy.",
-   "hypothesis": "There is no specific, falsifiable hypothesis that can be formulated and tested by the engine based on this abstract, primarily due to data availability and the complexity of the proposed models.",
-   "test": "Not applicable, as no testable hypothesis can be formed.",
+   "claim": "Strategies based on 'basis momentum' (BM) and 'currency slope and curvature' yield significant excess returns in FX markets.",
+   "mechanism": "The abstract states that \"Carry and momentum factors drive BM returns in currency and commodity markets\" and \"Carry explains a large number of slope and curvature returns, with minimal contributions from other currency factors.\"",
+   "source_concept": "The abstract refers to 'basis momentum (BM)' and 'currency slope and curvature strategies' as concepts that derive returns from 'forward curve information'. However, the abstract does not define what 'basis momentum', 'currency slope', or 'currency curvature' specifically measure or how they are constructed from the FX curve. It also does not define what an 'FX curve' entails beyond its name.",
+   "market_analogue": "Without definitions of 'basis momentum', 'currency slope', or 'currency curvature' from the abstract, a precise market analogue cannot be identified. The engine has access to spot FX rates and interbank interest rates, which are components of FX forward rates, but the method to construct the 'FX curve' or the specific strategies from these is not described.",
+   "hypothesis": "Nothing testable here. The core concepts of 'basis momentum', 'FX curve', 'currency slope', and 'currency curvature strategies' are not defined in the abstract, making it impossible to formulate a specific, falsifiable hypothesis for the engine to test.",
+   "test": "Not applicable due to undefined concepts.",
    "instruments": [],
-   "horizon": "Not applicable.",
+   "horizon": "The paper mentions \"BM-3 performs best in FX markets\" and that slope and curvature strategies generate returns across \"1, 3, 6, 9, and 12-month periods.\"",
    "data": [
     {
-     "what": "Specific 11 macroeconomic fundamentals for currency risk premia (Essay 1)",
-     "status": "unavailable",
-     "source": "Paper abstract does not specify; engine has FRED and central bank rates but not necessarily these 11 specific fundamentals over a century."
+     "what": "FX spot rates",
+     "status": "held",
+     "source": "broker bars"
     },
     {
-     "what": "Currency Volatility Risk Premium (VRP) term-structure data (Essay 2)",
-     "status": "unavailable",
-     "source": "This typically requires options market data, which is explicitly not available to the engine."
+     "what": "Policy and 3-month interbank rates for USD, EUR, GBP, JPY, AUD, NZD, CAD, CHF",
+     "status": "held",
+     "source": "FRED"
     },
     {
-     "what": "Equity recovery rate data for US equities (Essay 3)",
+     "what": "FX forward curve information or specific forward rates",
      "status": "unavailable",
-     "source": "The engine does not trade US equities, and this specific factor is defined for equities."
+     "source": "Not explicitly held or defined how to derive from held data in the abstract."
     }
    ],
-   "expected_effect": "Not applicable.",
-   "evidence_quality": "Not applicable, as no testable hypothesis can be formed.",
+   "expected_effect": "The strategies are claimed to yield \"significant excess returns and high Sharpe ratios\".",
+   "evidence_quality": "Low. The claims are made in an abstract, without detailed methodology or empirical results for verification.",
    "confidence": 0.0,
    "quotes_verified": [
-    "The first essay studies the macroeconomic foundations of currency risk premia using a dataset spanning a century. It decomposes the predictability of 11 fundamentals into cross-sectional (CS) and Dollar components, finding CS predictability is more robust.",
-    "Using a Bayesian framework to navigate the resulting \u201dfactor zoo,\u201d the analysis reveals a dense currency Stochastic Discount Factor (SDF) where many fundamentals contribute noisy information.",
-    "The second essay investigates the time-series predictive power of the Currency Volatility Risk Premium (VRP). It shows that the VRP term-structure significantly forecasts currency appreciation and excess returns, particularly at longer horizons.",
-    "The third essay introduces a novel risk factor in the cross-section of U.S. equities: the \u201dequity recovery rate,\u201d defined as the fraction of market equity recoverable in bankruptcy."
+    "This thesis examines the characteristics and risk profile of basis momentum (BM) across various asset classes and explores the foreign exchange (FX) curve in FX markets.",
+    "We also analyse currency slope and curvature strategies, finding they generate significantly positive excess returns across 1, 3, 6, 9, and 12-month periods.",
+    "Carry explains a large number of slope and curvature returns, with minimal contributions from other currency factors."
+   ],
+   "quotes_unverified": [
+    "We find that BM strategies yield significant excess returns and high Sharpe ratios across different formation periods: BM-3 performs best in FX markets.",
+    "Carry and momentum factors drive BM returns in currency and commodity markets."
+   ],
+   "grounded": true,
+   "id": "2026-W40-4",
+   "red_team": {
+    "concerns": [
+     "The core concepts of 'basis momentum', 'FX curve', 'currency slope', and 'currency curvature strategies' are not defined in the abstract, making it impossible to formulate a specific, falsifiable hypothesis.",
+     "The abstract does not provide sufficient detail on how to construct 'FX forward curve information' or the specific signals (basis momentum, slope, curvature) from available data (spot and interbank rates), rendering the necessary data effectively unavailable for testing.",
+     "The evidence quality is low, as claims are made in an abstract without detailed methodology or empirical results, making it impossible to assess if results hold out of sample, after costs, or against a naive baseline, or if they have been replicated."
+    ],
+    "fatal": "The core concepts and methodology are undefined, making it impossible to formulate a testable hypothesis.",
+    "kill": true,
+    "information": 1,
+    "value": 1,
+    "cost": 5,
+    "revised_test": ""
+   }
+  },
+  {
+   "identifier": "doi:10.1080/14697688.2026.2729193",
+   "url": "https://doi.org/10.1080/14697688.2026.2729193",
+   "title": "A new input convex neural network with application to options pricing",
+   "field": "quantitative finance",
+   "via": "top venue",
+   "read_depth": "full (open-access PDF)",
+   "triage": 3,
+   "claim": "The paper claims to efficiently and accurately price options with convex payoffs, ensuring convexity in the pricing function to avoid arbitrage opportunities. This is achieved through a new Input Convex Neural Network architecture.",
+   "mechanism": "The proposed 'Convex Network' (CN) is designed to inherently produce convex functions of its inputs. It leverages the principle that any convex function can be represented as the supremum of the affine functions it dominates. The architecture uses stacked linear layers without activation functions ('Scrambling') before a final maximum (or LogSumExp) activation function in the output layer. This 'Scrambling' phase is stated to improve training efficiency and flexibility.",
+   "source_concept": "Input Convex Neural Networks (ICNNs) and their application to the pricing of financial options with convex payoffs (e.g., Basket, Bermudan, and Swing options).",
+   "market_analogue": "The engine does not trade options, nor does it have access to option prices or order books. The core benefit of Input Convex Neural Networks, as described in the paper, is to ensure the convexity of option pricing functions, which is essential for avoiding arbitrage opportunities when *making* or *quoting* option prices. As the engine is a price-taker for CFDs and does not engage in option trading or price quotation, this specific application and its associated benefits (arbitrage-free pricing) are not directly transferable to its operations. While the paper mentions that the network can 'easily retrieve the sensitivity of the Bermudan option price with respect to the underlying asset price (often called Delta)', this still relies on the ability to price options, which the engine cannot do.",
+   "hypothesis": "Nothing testable here. The paper focuses on a specific methodological improvement for option pricing models, a domain outside the engine's current capabilities and instrument set. The engine does not trade options, and its existing CFD trading strategies (trend following, crypto carry) do not involve identifying or approximating inherently convex target functions where this architecture's primary benefit (guaranteed convexity) would apply to prevent arbitrage.",
+   "test": "N/A",
+   "instruments": [],
+   "horizon": "N/A",
+   "data": [],
+   "expected_effect": "N/A",
+   "evidence_quality": "N/A",
+   "confidence": 0.0,
+   "quotes_verified": [
+    "In many fields, such as finance, the target function to approximate is often convex, and preserving this convexity is essential, as failing to do so can lead to financial losses because of arbitrage opportunities.",
+    "Finally, we demonstrate numerically the effectiveness of these networks in estimating prices for three types of options with convex payoffs: Basket, Bermudan, and Swing options.",
+    "This allows for stacking hidden layers without activation functions while still producing a maximum of affine functions as output.",
+    "Table 1 showcases the ability of ourConvex Network to retrieve the basket option prices.",
+    "Table 2 proves the effectiveness of ourConvex Network which gives prices that are very close (relative errors are less than1%) to those given by theDeep Optimal Stoppingmethod (see [BCJ19]).",
+    "Thus, by performing the pricing with ourConvex Network, one can easily retrieve the sensitivity of the Bermudan option price with respect to the underlying asset price (often calledDelta) by just looking at the weightw\u2217 obtained at the end of the training phase."
+   ],
+   "quotes_unverified": [
+    "We introduce a new class of neural networks designed to be convex functions of their inputs, leveraging the principle that any convex function can be represented as the supremum of the affine functions it dominates."
+   ],
+   "grounded": true,
+   "id": "2026-W40-5",
+   "red_team": {
+    "concerns": [
+     "The engine does not trade options and lacks access to option prices or order books, making the core application of Input Convex Neural Networks (ICNNs) for option pricing untestable.",
+     "The primary benefit of the proposed 'Convex Network' (arbitrage-free option pricing) is not transferable to the engine's role as a price-taker for CFDs.",
+     "The hypothesis explicitly states 'Nothing testable here' and identifies the domain as outside the engine's capabilities and instrument set."
+    ],
+    "fatal": "Does it need data we cannot get",
+    "kill": true,
+    "information": 1,
+    "value": 1,
+    "cost": 1,
+    "revised_test": ""
+   }
+  },
+  {
+   "identifier": "doi:10.1016/j.jeconom.2026.106345",
+   "url": "https://doi.org/10.1016/j.jeconom.2026.106345",
+   "title": "Nonparametric identification of first-price auction with unobserved competition: A density discontinuity framework",
+   "field": "mathematical and computational economics",
+   "via": "OpenAlex 'computational economics market microstructure simulation'",
+   "read_depth": "abstract",
+   "triage": 3,
+   "claim": "The paper claims to provide a method for nonparametric identification of the distribution of the number of bidders (N) and the private value distribution in first-price auction models.",
+   "mechanism": "If bidders observe N, the resulting discontinuities in the winning bid density can be used to identify the distribution of N. The private value distribution is then identified in a second step.",
+   "source_concept": "Nonparametric identification of independent private value first-price auction models with unobserved competition, relying on discontinuities in winning bid density when bidders observe the number of competitors (N).",
+   "market_analogue": "There is no direct, testable market analogue for the engine. Financial markets, especially continuous CFD trading, do not operate as first-price auctions where only winning bids are observed in isolation. The core mechanism relies on bidders observing 'N', the number of competitors, which is not a general characteristic of participants in continuous financial markets. The paper's focus is on identifying structural parameters of an auction model, not on market predictability or price movements that could inform a trading strategy.",
+   "hypothesis": "Nothing testable here. The abstract does not discuss market predictability, price movements, or conditions under which predictability appears or disappears. It focuses on econometric identification of auction model parameters, which does not translate into a falsifiable trading hypothesis for the engine.",
+   "test": null,
+   "instruments": [],
+   "horizon": null,
+   "data": [],
+   "expected_effect": null,
+   "evidence_quality": "None",
+   "confidence": 0.0,
+   "quotes_verified": [
+    "We consider nonparametric identification of independent private value first-price auction models, in which the analyst only observes winning bids.",
+    "Our benchmark model assumes an exogenous number of bidders N.",
+    "We show that, if the bidders observe N, the resulting discontinuities in the winning bid density can be used to identify the distribution of N.",
+    "The private value distribution can be nonparametrically identified in a second step."
    ],
    "quotes_unverified": [],
    "grounded": true,
    "id": "2026-W40-6",
    "red_team": {
     "concerns": [
-     "Needs data we cannot get: Essay 1 requires specific macroeconomic fundamentals over a century, which are not confirmed to be available and would be costly to acquire/integrate. Essay 2's Currency Volatility Risk Premium (VRP) requires options market data, which is explicitly unavailable to the engine. Essay 3's equity recovery rate data is specific to US equities, which the engine does not trade.",
-     "Instrument mismatch: Essay 3 is focused on US equities, which are not tradable by this engine.",
-     "Complexity and cost of testing: The proposed mechanisms (Bayesian Model Averaged SDF, VRP term-structure) are highly complex and would require significant research, data acquisition, and coding effort, making a cheap, honest test impossible.",
-     "No testable hypothesis: The card itself states that no specific, falsifiable hypothesis can be formulated and tested by the engine based on this abstract, primarily due to data availability and model complexity."
+     "The paper's subject matter (nonparametric identification of first-price auction models) is fundamentally incompatible with the engine's trading environment (continuous CFD markets).",
+     "There is no direct, testable market analogue for the engine's trading instruments, as continuous CFD trading does not operate as a first-price auction.",
+     "The hypothesis explicitly states 'Nothing testable here' and confirms it does not discuss market predictability or price movements relevant to a trading strategy.",
+     "The data required (winning bids from a first-price auction where bidders observe N) is not available to the engine and cannot be obtained for its trading context.",
+     "The core mechanism relies on bidders observing 'N' (number of competitors), which is not a characteristic of participants in continuous financial markets."
     ],
-    "fatal": "The engine cannot obtain the necessary data (especially options data for VRP and specific macro data) and does not trade the relevant instruments (US equities for recovery rate), rendering the core ideas untestable.",
+    "fatal": "The fundamental mismatch between the paper's domain (auction theory and econometric identification) and the engine's domain (continuous CFD trading), resulting in no testable hypothesis or relevant data for the engine.",
     "kill": true,
     "information": 1,
     "value": 1,
@@ -353,142 +338,138 @@
    }
   },
   {
-   "identifier": "doi:10.1002/fut.70144",
-   "url": "https://doi.org/10.1002/fut.70144",
-   "title": "Execution Feasibility and Limits to Arbitrage: High\u2010Frequency Evidence From KOSPI 200 Box Spreads",
-   "field": "economics",
-   "via": "OpenAlex 'uncovered interest parity deviations'",
-   "read_depth": "abstract",
-   "triage": 5,
-   "claim": "The paper claims that \"Most quote-level violations disappear once these frictions are imposed\" and that \"The remaining opportunities are few, larger in conditional profitability, and concentrated during market-stress periods.\" It also states that \"implementation frictions, execution timing, capital requirements, and market state jointly determine the boundary between mispricing and arbitrage.\"",
-   "mechanism": "The economic mechanism is that \"implementation frictions, execution timing, capital requirements, and market state jointly determine the boundary between mispricing and arbitrage.\" These factors prevent arbitrageurs from fully eliminating all apparent mispricings, allowing some to persist and become \"execution-feasible arbitrage\" particularly \"during market-stress periods.\"",
-   "source_concept": "The concept of 'limits to arbitrage' due to 'implementation frictions' (transaction costs, execution delays, capital requirements) and the observation that any surviving 'execution-feasible arbitrage' opportunities are 'concentrated during market-stress periods'.",
-   "market_analogue": "While the engine does not trade options or engage in box-spread arbitrage, the general principle that 'implementation frictions' (analogous to the engine's measured spreads, slippage, order round trip times, and financing costs) eliminate most 'apparent mispricing' (analogous to any observed 'edge before costs') is highly relevant. The paper's 'execution delays' correspond to the engine's 1.1s average fill time, and 'capital requirements' to its 6% risk limit. The 'market-stress periods' could be analogous to periods of high volatility or large price dislocations in the engine's CFD instruments. The analogy predicts that any previously identified but cost-eaten edges might become profitable only during such stress periods. This analogy could be wrong because the paper specifically discusses arbitrage in options, which is a different mechanism from the engine's trend-following or momentum strategies, and the findings about arbitrage might not directly transfer to other forms of market predictability.",
-   "hypothesis": "Intraday momentum on EURUSD, which previously failed to be profitable after accounting for trading costs (E01), becomes conditionally profitable (i.e., survives costs) during periods of high market stress.",
-   "test": "Re-evaluate the historical performance of the E01 intraday momentum strategy on EURUSD using the held broker bar data. Define 'market stress periods' as any 24-hour period where the 1-day historical volatility of EURUSD (calculated from 1-minute or 5-minute bars) exceeds its 90th percentile over the entire backtest period. Run the E01 strategy exclusively during these defined stress periods, applying the same measured trading costs (spread, fill data from E04). The null hypothesis is that the net profitability (after costs) during stress periods is not significantly positive. A statistically significant positive net P&L (e.g., beating a random-sign null at the 99th percentile, with most years positive) would constitute passing. This test can be run entirely on historical data.",
+   "identifier": "doi:10.54254/2754-1169/2026.ld37291",
+   "url": "https://doi.org/10.54254/2754-1169/2026.ld37291",
+   "title": "Weight Determination and Portfolio Construction Based on Interval and Distributional Surface Forecasts in Financial Engineering",
+   "field": "applied and numerical mathematics",
+   "via": "OpenAlex 'convex optimization portfolio transaction costs'",
+   "read_depth": "full (open-access PDF)",
+   "triage": 4,
+   "claim": "Incorporating interval forecasts and distributional forecasts into portfolio optimization can reduce estimation error, lead to more stable weights, and improve risk budgeting and rebalancing compared to using only point estimates of returns or risk.",
+   "mechanism": "Interval width \u03ba acts as a penalty on effective expected return or as a bound on the feasible set, so a wider interval shrinks active positions. For a long position, the least favorable move lowers the mean, and for a short position, it raises the mean; the size of that move is set by \u03ba. Distribution shape changes risk measurement: a thicker left tail raises CVaR and lowers the weight on that asset. A practical response is to incorporate transaction costs into the portfolio objective and align learning with a net economic objective.",
+   "source_concept": "Robust portfolio optimization and risk management under parameter and distributional uncertainty.",
+   "market_analogue": "The estimated expected excess return (e.g., daily return) of a CFD instrument (`^\u03bc`). The statistical uncertainty or half-width of the confidence interval around this estimated expected return (`\u03ba`). The estimated conditional distribution of daily returns for a CFD instrument, capturing tail thickness and asymmetry (`F`). The position size or allocation weight for a CFD instrument (`w`). The daily loss of a position in a CFD instrument (`L(w)`). The Conditional Value-at-Risk of a CFD instrument's daily loss (`CVaR\u03b1(L)`).",
+   "hypothesis": "A trend-following strategy on ETHUSD that adjusts its position size based on the statistical uncertainty of its trend signal (where the effective expected return `^\u03bc_effective = ^\u03bc - c * \u03ba` for long positions and `^\u03bc_effective = ^\u03bc + c * \u03ba` for short positions, with `\u03ba` being the standard error of the trend estimate and `c` a calibration constant) will achieve a higher Sharpe ratio after trading costs than the engine's current fixed-size trend-following strategy (E07), particularly in the post-September 2022 period.",
+   "test": "1. **Strategy:** For ETHUSD, calculate the 20-day average daily return (`^\u03bc`) and its standard error (`\u03ba`) daily. 2. **Entry/Exit:** Use the same entry/exit logic as E07 (e.g., go long if `^\u03bc > 0`, short if `^\u03bc < 0`). 3. **Position Sizing:** Instead of a fixed risk per trade, the signal strength is adjusted. If `^\u03bc > 0` (long signal): calculate `^\u03bc_effective = ^\u03bc - c * \u03ba`. If `^\u03bc_effective <= 0`, do not take a long position. Otherwise, scale the target position size proportionally to `^\u03bc_effective`. If `^\u03bc < 0` (short signal): calculate `^\u03bc_effective = ^\u03bc + c * \u03ba`. If `^\u03bc_effective >= 0`, do not take a short position. Otherwise, scale the target position size proportionally to `| ^\u03bc_effective |`. Set `c=1`. The final position size will still respect the engine's 6% risk per trade limit, but the target size will be adjusted by `^\u03bc_effective`. 4. **Null Hypothesis:** The `\u03ba`-adjusted trend-following strategy on ETHUSD will not achieve a Sharpe ratio significantly higher than zero (or a random-sign null) after trading costs, or it will not outperform the original E07 strategy in the post-September 2022 period. 5. **Failure Criteria:** The strategy fails if its net Sharpe ratio (after costs) does not beat a random-sign null at the 99th percentile, or does not survive doubled costs, or does not have positive returns in most years, particularly failing to show improvement in the post-September 2022 period where E07 struggled. 6. **Run on history:** Yes, this test can be run on historical data from 2014 to the present.",
    "instruments": [
-    "EURUSD"
+    "ETHUSD"
    ],
-   "horizon": "Intraday (for the E01 strategy) within 24-hour stress periods.",
+   "horizon": "Daily",
    "data": [
     {
-     "what": "Broker bars for EURUSD (1-minute and 5-minute resolution)",
+     "what": "Daily close prices for ETHUSD",
      "status": "held",
-     "source": "Broker"
+     "source": "broker"
     },
     {
-     "what": "Historical volatility for EURUSD",
-     "status": "free",
-     "source": "Calculated from held broker bars"
+     "what": "Daily open, high, low prices for ETHUSD (for calculating returns and standard errors)",
+     "status": "held",
+     "source": "broker"
     }
    ],
-   "expected_effect": "A positive net P&L for the intraday momentum strategy during market stress periods, despite previously being unprofitable after costs in normal periods.",
-   "evidence_quality": "The paper uses \"high-frequency trade-and-quote data\" and \"dense-sampling tests using 5- and 1-second grids\" to support its claims, indicating high quality for its specific domain of KOSPI 200 index options. However, the direct relevance to CFD markets and non-arbitrage strategies is an analogy.",
+   "expected_effect": "For ETHUSD, reduced position sizes or no positions taken when the 20-day trend signal is highly uncertain, leading to improved risk-adjusted returns and potentially positive performance in the post-September 2022 period where the original E07 strategy failed. The paper suggests \"lower exposure or more hedging\".",
+   "evidence_quality": "Theoretical. \"The argument is theoretical. It does not rest on a new backtest.\"",
    "confidence": 0.6,
    "quotes_verified": [
-    "Most quote-level violations disappear once these frictions are imposed.",
-    "The remaining opportunities are few, larger in conditional profitability, and concentrated during market-stress periods.",
-    "implementation frictions, execution timing, capital requirements, and market state jointly determine the boundary between mispricing and arbitrage."
+    "If portfolio optimization uses only point estimates of returns or risk, estimation error often becomes extreme weights and too much trading.",
+    "Interval forecasts give ranges for parameters or returns. Distributional forecasts give conditional distributions, quantiles, and tail features. Together they give fuller inputs for choosing weights.",
+    "Distribution shape changes risk measurement: a thicker left tail raises CVaR and lowers the weight on that asset.",
+    "A practical response is to incorporate transaction costs into the portfolio objective and align learning with a net economic objective.",
+    "The argument is theoretical. It does not rest on a new backtest.",
+    "For the same central forecast, narrow intervals and thin tails can support larger active weights. Wide intervals and thick tails call for lower exposure or more hedging."
    ],
-   "quotes_unverified": [],
+   "quotes_unverified": [
+    "Interval width \u03ba acts as a penalty on effective expected return or as a bound on the feasible set, so a wider interval shrinks active positions.",
+    "For a long position the least favorable move lowers the mean, and for a short position it raises the mean; the size of that move is set by \u03ba. Thus \u03ba acts like a penalty on effective expected return, and larger \u03ba implies stronger shrinkage toward safer holdings."
+   ],
    "grounded": true,
    "id": "2026-W40-7",
    "red_team": {
     "concerns": [
-     "The definition of 'market stress periods' using the 90th percentile over the entire backtest period involves lookahead bias, as it uses future information to define the conditions for past trading decisions.",
-     "While the analogy from options arbitrage to CFD momentum is acknowledged as potentially weak, the core concept of 'limits to arbitrage' due to 'implementation frictions' is highly relevant to the engine's cost-constrained environment and is doing real work in guiding the hypothesis."
+     "The source paper is purely theoretical, offering no empirical validation for the proposed mechanism in a trading context. This means the idea lacks any prior backtested evidence.",
+     "The choice of `c=1` for the calibration constant is arbitrary and may not be optimal. The effectiveness of the strategy could be sensitive to this parameter.",
+     "The measure of uncertainty (`kappa`, standard error of 20-day return) and the specific `mu_effective` formula are assumptions that may not perfectly capture the relevant market uncertainty or translate optimally into position sizing.",
+     "The strategy still fundamentally relies on a trend-following signal, which (as E07 showed) can have periods of underperformance (e.g., post-September 2022)."
     ],
-    "fatal": "The proposed method for defining 'market stress periods' involves lookahead bias.",
-    "kill": true,
-    "information": 4,
-    "value": 3,
+    "fatal": null,
+    "kill": false,
+    "information": 5,
+    "value": 5,
     "cost": 1,
-    "revised_test": "Re-evaluate the historical performance of the E01 intraday momentum strategy on EURUSD using the held broker bar data. Define 'market stress periods' for any given day as a day where the 1-day historical volatility of EURUSD (calculated from 5-minute bars over the preceding 24 hours) exceeds the 90th percentile of this same 1-day historical volatility calculated over the immediately preceding 252 trading days. Run the E01 strategy (as originally defined, flat before 21:00 UTC) exclusively during these defined stress periods, applying the same measured trading costs (spread, fill data from E04). The null hypothesis is that the net profitability (after costs) during stress periods is not significantly positive. A statistically significant positive net P&L (e.g., beating a random-sign null at the 99th percentile, with most years positive) would constitute passing. This test can be run entirely on historical data."
+    "revised_test": "For ETHUSD, daily: 1. **Signal Calculation:** Calculate the 20-day simple moving average of daily returns (`mu`) and its standard error (`kappa`). 2. **Direction:** Go long if `mu > 0`, go short if `mu < 0`. 3. **Effective Signal & Position Sizing:** For a long signal (`mu > 0`): Calculate `mu_effective = mu - c * kappa`. If `mu_effective <= 0`, no position. Otherwise, target a position size proportional to `mu_effective`, capped by the engine's 6% risk limit and minimum 0.01 lots. For a short signal (`mu < 0`): Calculate `mu_effective = mu + c * kappa`. If `mu_effective >= 0`, no position. Otherwise, target a position size proportional to `|mu_effective|`, capped by the engine's 6% risk limit and minimum 0.01 lots. Initially, set `c=1`. 4. **Entry/Exit:** Enter a position when the effective signal dictates a non-zero size and no position is currently held. Exit when the effective signal dictates zero size or the position reverses direction. 5. **Hypothesis:** This `kappa`-adjusted, bidirectional trend-following strategy will achieve a higher Sharpe ratio after trading costs than the original E07 strategy, particularly in the post-September 2022 period, due to its adaptive sizing and the ability to profit from cheap crypto shorts (zero overnight financing). 6. **Null Hypothesis & Failure Criteria:** The strategy fails if its net Sharpe ratio (after costs) does not beat a random-sign null at the 99th percentile, or does not survive doubled costs, or does not have positive returns in most years, and specifically if it fails to show improved performance (positive Sharpe) in the post-September 2022 period relative to E07's negative performance. 7. **Run on history:** Backtest on ETHUSD daily data from 2014 to present."
    }
   },
   {
-   "identifier": "doi:10.5281/zenodo.21211414",
-   "url": "https://doi.org/10.5281/zenodo.21211414",
-   "title": "RED-BASIS-2026: OKX spot-perpetual basis and funding observations for BTC, ETH and SOL",
-   "field": "quantitative finance",
-   "via": "OpenAlex 'carry trade returns'",
+   "identifier": "doi:10.1021/acs.iecr.6c02860",
+   "url": "https://doi.org/10.1021/acs.iecr.6c02860",
+   "title": "A Data-Centric Diagnostic Framework for Experimental Design and Mechanistic Modeling: Application to mRNA Production",
+   "field": "applied and numerical mathematics",
+   "via": "OpenAlex 'ordinary differential equation market dynamics'",
    "read_depth": "abstract",
-   "triage": 5,
-   "claim": "No specific market effect or anomaly that could lead to a trading edge is claimed. The paper explicitly withdraws claims about mean-reversion of basis and efficient market signatures.",
-   "mechanism": "",
-   "source_concept": "",
-   "market_analogue": "",
-   "hypothesis": "This paper describes data and observations of the OKX spot-perpetual basis and funding rates for BTC, ETH, and SOL, but it explicitly withdraws claims about market effects (e.g., mean-reversion of basis) that would be testable for a trading edge. Therefore, there is no testable hypothesis for the engine based on this abstract.",
-   "test": "",
+   "triage": 3,
+   "claim": "The paper presents a data-centric framework for diagnosing and refining mechanistic models by comparing them against data-driven surrogate models and analyzing the resulting discrepancies.",
+   "mechanism": "The framework links 'experimental-response surrogate modeling', a 'surrogate model of error characterizing model\u2013experiment discrepancy', and 'mechanistic parameter sensitivity within a unified workflow'. It uses Gaussian Process Regression (GPR) and Global Sensitivity Analysis (GSA) to identify 'statistically anomalous observations', 'characterize the process variables and interactions governing the response', and identify 'principal contributors to the discrepancy between mechanistic and experimental-surrogate predictions' for 'parameter recalibration, and structural model refinement'.",
+   "source_concept": "Data-centric diagnostic framework for experimental design and mechanistic modeling",
+   "market_analogue": "A framework for diagnosing and refining financial market models (e.g., economic theory-driven models) by comparing their predictions against data-driven statistical models (e.g., machine learning models predicting returns) and analyzing the systematic errors to improve the theory-driven models.",
+   "hypothesis": "Nothing testable here. The paper describes a methodology for model diagnostics and refinement, not a direct market prediction or trading strategy. It does not propose any specific conditions under which market predictability appears or disappears, nor does it suggest that the 'surrogate model of error' itself generates a tradable signal.",
+   "test": "N/A",
    "instruments": [],
-   "horizon": "",
-   "data": [
-    {
-     "what": "spot and USDT-margined perpetual last-trade prices with the current funding rate for BTC, ETH and SOL",
-     "status": "free",
-     "source": "OKX public market data"
-    },
-    {
-     "what": "hourly cross-section of funding rates and prices for 20 perpetual swaps",
-     "status": "free",
-     "source": "OKX public market data"
-    },
-    {
-     "what": "spot, perpetual and dated-futures prices for BTC and ETH",
-     "status": "free",
-     "source": "OKX public market data"
-    }
-   ],
-   "expected_effect": "",
-   "evidence_quality": "",
+   "horizon": "N/A",
+   "data": [],
+   "expected_effect": "N/A",
+   "evidence_quality": "N/A",
    "confidence": 0.0,
    "quotes_verified": [
-    "The claims that the basis is mean-reverting and that the venue shows the signature of an efficient market are withdrawn.",
-    "RED-BASIS-2026 holds OKX public market data in three files: spot and USDT-margined perpetual last-trade prices with the current funding rate for BTC, ETH and SOL; an hourly cross-section of funding rates and prices for 20 perpetual swaps; and spot, perpetual and dated-futures prices for BTC and ETH.",
-    "The perpetual trades below spot in at least 99.9% of rows."
+    "In this study, we present a data-centric framework for the integrated investigation of experimental behavior and mechanistic model performance in complex biochemical systems.",
+    "Rather than analyzing experimental data and mechanistic models independently, the framework links experimental-response surrogate modeling, a surrogate model of error characterizing model\u2013experiment discrepancy, and mechanistic parameter sensitivity within a unified workflow.",
+    "Gaussian Process Regression (GPR) and Global Sensitivity Analysis (GSA) are first used to interrogate experimental data, identify statistically anomalous observations, and characterize the process variables and interactions governing the response.",
+    "Predictions from the resulting experimental-response surrogate are then compared with those of an existing mechanistic model, and the resulting discrepancy is represented through a surrogate model of error and subjected to GSA.",
+    "The resulting framework provides a systematic basis for directing subsequent repeat or targeted experimentation, parameter recalibration, and structural model refinement."
    ],
    "quotes_unverified": [],
    "grounded": true,
    "id": "2026-W40-8",
    "red_team": {
     "concerns": [
-     "The card explicitly states there is no specific market effect or anomaly claimed that could lead to a trading edge.",
-     "The card explicitly states there is no testable hypothesis for the engine based on this abstract.",
-     "This is an observational paper describing data and withdrawing claims, not a proposed trading strategy or anomaly."
+     "The hypothesis explicitly states 'Nothing testable here.' The engine's purpose is to find and test specific trading strategies, not to implement or evaluate a general methodology for model diagnostics and refinement.",
+     "The 'market analogue' describes applying a diagnostic framework to financial models, but it does not translate into a concrete, falsifiable trading hypothesis that the engine can execute or backtest.",
+     "Implementing such a framework to diagnose and refine the engine's internal models would be a significant research and development project, not a single, contained test of a trading rule."
     ],
-    "fatal": "No testable hypothesis for a trading edge.",
+    "fatal": "The idea does not propose a testable trading hypothesis or a direct market prediction, which is a fundamental requirement for the engine's operation.",
     "kill": true,
-    "information": 4,
-    "value": 3,
-    "cost": 1,
+    "information": 1,
+    "value": 1,
+    "cost": 5,
     "revised_test": ""
    }
   }
  ],
  "synthesis": {
   "connections": [
-   "Card 2026-W40-1 (statistics) and Card 2026-W40-7 (economics) both highlight the critical role of real-world trading costs and execution realities in nullifying theoretical 'edges' or 'arbitrage opportunities'. The statistical auditing protocol in 2026-W40-1 is designed to rigorously test if a reported edge survives 'stricter tests' that account for such frictions, aiming to show 'adjusted tests are null' or 'paired intervals reach zero'. This directly parallels the economic concept in 2026-W40-7 of 'implementation frictions' (transaction costs, execution delays, capital requirements) eliminating most 'apparent mispricing' and creating 'limits to arbitrage'. Essentially, 2026-W40-1 provides a statistical methodology to detect the erosion of edge, while 2026-W40-7 offers an economic explanation for why that erosion occurs."
+   "Card 2026-W40-2 (physics) describes how past negative returns in ETHUSD predict higher future residual volatility in altcoins, illustrating a cross-asset 'leverage effect' that propagates market uncertainty. This insight directly informs the decision-making mechanisms proposed in Card 2026-W40-1 (applied and numerical mathematics) and Card 2026-W40-7 (applied and numerical mathematics). Both 2026-W40-1 and 2026-W40-7 address how to manage trading decisions (e.g., trade initiation or position sizing) by explicitly incorporating measured or statistical uncertainty (volatility) and transaction costs. Thus, the physics-based prediction of volatility provides a crucial input for the applied mathematics frameworks designed to robustify trading strategies against market uncertainty."
   ],
   "belief_updates": [
-   "The engine should strengthen its belief that any apparent trading edge, especially from simpler models, is highly susceptible to being nullified when subjected to rigorous statistical auditing that correctly accounts for real-world trading frictions (2026-W40-1).",
-   "The engine should reinforce its understanding that 'implementation frictions' (transaction costs, slippage, execution delays, capital requirements), as detailed in 2026-W40-7, are a primary and fundamental reason why many theoretical 'edges' do not translate into profitable strategies.",
-   "The engine should increase its skepticism towards any proposed strategy that does not explicitly consider robust statistical validation and the impact of real-world trading costs, as such strategies are likely to be illusory or unprofitable in practice."
+   "The engine must rigorously filter ideas upstream based on practical constraints: hypotheses must offer a clear path to profitability under the engine's specific cost structure, rely on currently available data and tradable instruments, and be sufficiently detailed in their abstracts to formulate a testable hypothesis. Too many ideas this week were killed due to fundamental mismatches with the engine's operational domain (e.g., continuous CFD trading vs. auction theory or options markets) or lack of actionable detail.",
+   "The engine should prioritize research that directly addresses known performance issues of existing strategies, such as the underperformance of ETHUSD trend rule E07, by incorporating robust decision-making frameworks that account for transaction costs and signal uncertainty."
   ],
   "next_steps": [
    {
     "id": "2026-W40-1",
-    "why": "This card provides a directly actionable, rigorous audit protocol for existing strategies (E07, E08). Its high information and value, coupled with its presence in the queue, make it a paramount next step to validate the true edge of current live strategies against stricter, real-world-aware tests."
+    "why": "This card proposes a high-value, low-cost hypothesis to improve the profitability of the engine's previously failed ETHUSD 20-day trend rule (E07) by introducing a 'no-trade region' that dynamically accounts for transaction costs and historical volatility, directly addressing a known performance issue."
    },
    {
     "id": "2026-W40-7",
-    "why": "Despite the initial hypothesis being killed due to lookahead bias, the underlying economic concept of 'limits to arbitrage' due to 'implementation frictions' and the conditional appearance of opportunities during 'market-stress periods' is highly valuable. A new, non-lookahead-biased hypothesis should be formulated to explore this mechanism, providing an economic framework to complement the statistical auditing of 2026-W40-1."
+    "why": "This card presents another high-value, low-cost hypothesis aimed at improving the ETHUSD trend-following strategy (E07) by adjusting position sizing based on the statistical uncertainty of the trend signal, offering a complementary approach to robustify existing strategies against market uncertainty."
+   },
+   {
+    "id": "2026-W40-1",
+    "why": "The queue item 'A reproducible protocol for auditing XAI-based trading policies' (ID: 2026-W40-1) is a high-priority item. Given the recent audit failure of strategy E07, implementing a robust auditing protocol is crucial for validating future strategies and understanding their performance characteristics, ensuring long-term reliability."
    }
   ],
   "gaps": [
-   "Persistent lack of access to crucial data types, including sentiment scores (2026-W40-3), local exchange prices and specific macroeconomic/geopolitical data for distressed zones (2026-W40-4), and options data (2026-W40-6), severely limits the range of research the engine can pursue.",
-   "Inability to leverage advanced, computationally intensive methods, such as LLM-guided multi-objective reinforcement learning for alpha discovery (2026-W40-2), due to insufficient computational resources.",
-   "The challenge of defining 'market-stress periods' robustly and without lookahead bias remains, hindering the ability to test conditional profitability hypotheses effectively (2026-W40-7).",
-   "Difficulty in systematically deriving specific, testable hypotheses from papers that describe complex systems or observations without providing explicit, directly applicable signals or conditions (e.g., 2026-W40-3, 2026-W40-8)."
+   "There is a significant gap in the initial screening process for idea cards, as many were killed due to fundamental mismatches with the engine's data access, tradable instruments, or operational domain. A more stringent filter is needed to prevent resource allocation to untestable or irrelevant concepts.",
+   "The engine struggles to translate predictive insights (e.g., cross-asset volatility predictions from 2026-W40-2) into actionable, profitable trading strategies, especially given its binding constraint of trading costs. Further research is needed on how to bridge this gap effectively.",
+   "The engine consistently lacks access to specific on-chain DeFi data or option market data, which limits its ability to explore promising research avenues in these areas and fully test hypotheses derived from such markets."
   ]
  }
 }
