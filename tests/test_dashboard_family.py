@@ -160,13 +160,18 @@ def test_pages_lead_with_family_section(monkeypatch):
     c = TestClient(app_mod.app)
     for path in ("/", "/plain"):
         page = c.get(path).text
-        fam = re.search(r"<section class='fam'.*?</section>", page, re.S).group(0)
-        # The family section comes before any technical block.
-        assert page.index("id='family'") < page.index("<details")
-        assert page.index("id='family'") < page.index("id='programme'")
-        txt = _text(fam)
+        # "/" leads with the story, "/plain" with the family section; both before any detail.
+        anchor = "id='story'" if path == "/" else "id='family'"
+        assert page.index(anchor) < page.index("<details class=\"sec\"" if path == "/"
+                                               else "<details")
+        assert page.index(anchor) < page.index("id='programme'")
+        if path == "/":
+            top = re.search(r"<div class='st' id='story'>.*?</div><style>", page, re.S).group(0)
+        else:
+            top = re.search(r"<section class='fam'.*?</section>", page, re.S).group(0)
+        txt = _text(top)
         assert "Put in R1,530" in txt and "losing at most about R91" in txt
-        assert not _banned_hits(txt)
+        assert not _banned_hits(txt), _banned_hits(txt)
         assert not DASHES.search(_visible(page)), DASHES.findall(_visible(page))
     full = c.get("/").text
     # Technical parts sit inside <details>, and the charts redraw when one opens.

@@ -37,6 +37,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse
 
 from config import settings
+from dashboard.story import _currency_words, read_universe, story_html
 from research.goals import GoalSpec, assess, suggest_reachable
 
 app = FastAPI(title="Trading research")
@@ -223,13 +224,18 @@ def _family(acct: dict | None, open_positions: list[dict], now: float | None = N
         p0 = open_positions[0]
         what = _asset_word(p0.get("symbol") or "")
         way = "goes down" if (p0.get("side") or "").upper() == "SELL" else "goes up"
+        pair = _currency_words(p0.get("symbol") or "")
         risks = [_num(p.get("risk_usd")) for p in open_positions]
         if all(r is not None for r in risks):
             loss = _money(sum(risks) * ZAR_PER_USD)
             tail = f"If it is wrong, it gets out automatically, losing at most about {loss}."
         else:
             tail = "If it is wrong, it gets out automatically at a price set in advance."
-        fam["doing"] = f"It is betting {what}'s price {way}. {tail}"
+        if pair:
+            rises = "falls" if way == "goes down" else "rises"
+            fam["doing"] = f"It is betting the {pair[0]} {rises} against the {pair[1]}. {tail}"
+        else:
+            fam["doing"] = f"It is betting {what}'s price {way}. {tail}"
     else:
         fam["doing"] = "It is waiting for its next signal. It checks once a day."
 
@@ -262,12 +268,11 @@ def _family(acct: dict | None, open_positions: list[dict], now: float | None = N
 
 
 FAMILY_INTRO = ("Thabang's experiment: a computer program that trades a small amount of money "
-                "in Ethereum (a digital currency) by itself, following rules that were tested "
-                "on nine years of history.")
-FAMILY_HOW = ("How it decides: if Ethereum's price rose over the last 20 days, it bets the "
-              "price keeps rising. If it fell, it bets it keeps falling. It gets out when the "
-              "direction changes or its safety price is hit. In testing it made money in 6 of "
-              "8 years, but it lost money in 2023 and 2024, so losing months are normal.")
+                "by itself, following rules that were tested on years of history first.")
+FAMILY_HOW = ("How it decides: if a price rose over the last 20 days, it bets the price "
+              "keeps rising, and if it fell, that it keeps falling. It gets out when the "
+              "direction changes or its safety price is hit. It may only use a rule that "
+              "passed its tests, so losing months are expected and sometimes it waits.")
 
 
 def _family_html(fam: dict) -> str:
@@ -319,7 +324,10 @@ def _dashboard_data() -> dict:
     # select=* so the newer columns (deposited_usd, peak_equity, halted) arrive when present
     # and simply go missing, not break the query, on a table that lacks them.
     acct = _sb("trading_account", "select=*&order=ts.desc&limit=1")
-    history = _sb("trading_account", "select=balance,ts&order=ts.asc&limit=400")
+    # The very first reading is the milestone baseline; the chart wants the newest 400.
+    # (Ordering ascending with a limit stopped the chart at whatever day reading 400 fell on.)
+    history = _sb("trading_account", "select=balance,ts&order=ts.asc&limit=1")
+    recent = _sb("trading_account", "select=balance,ts&order=ts.desc&limit=1000")[::-1]
     strategies = _sb("trading_strategies",
                      "select=run_ts,symbol,kind,verdict,total_return,pnl_on_10,pnl_on_200,"
                      "dev_sharpe,holdout_sharpe&"
@@ -342,7 +350,7 @@ def _dashboard_data() -> dict:
     # hourly). It used to come from environment variables a human had to remember to change,
     # which is why this panel said "0 trades" on the day a position was open.
     trades = _sb("trading_trades", "select=trade_id,ts,symbol,side,volume_lots,filled_price,"
-                                   "net_usd,status,purpose,note&order=ts.desc&limit=50")
+                                   "net_usd,status,purpose,note&order=ts.desc&limit=300")
     positions = _sb("trading_positions",
                     "select=position_id,symbol,side,volume_lots,entry_price,current_price,"
                     "stop_loss,take_profit,unrealised_usd,risk_usd,swap_usd,opened_ts,updated_ts,status"
@@ -392,7 +400,7 @@ def _dashboard_data() -> dict:
     # --- data shaped for the charts -------------------------------------------------
     # Balance in rands over time. One reading is not a line, and the chart says so
     # rather than drawing a flat stub that looks like a measurement.
-    balance_series = [{"t": r["ts"], "v": float(r["balance"]) * ZAR_PER_USD} for r in history
+    balance_series = [{"t": r["ts"], "v": float(r["balance"]) * ZAR_PER_USD} for r in recent
                       if _num(r.get("balance")) is not None and r.get("ts")]
 
     # What each tested idea WOULD have done to this stake. Hypothetical, from backtests,
@@ -489,8 +497,13 @@ def _dashboard_data() -> dict:
 
 
 @app.get("/api/data")
-def api_data() -> JSONResponse:
-    return JSONResponse({**_dashboard_data(), "programme": _programme_data()})
+def api_data(request: Request) -> JSONResponse:
+    d = _dashboard_data()
+    if not _authed(request):
+        # Who typed a goal, and the exact words, are private; the verdicts are not.
+        d["goals"] = [{k: v for k, v in g.items() if k not in ("author", "raw_text")}
+                      for g in d.get("goals") or []]
+    return JSONResponse({**d, "programme": _programme_data()})
 
 
 @app.get("/health")
@@ -742,9 +755,6 @@ PAGE = """
   details.sec[open]{padding-bottom:14px}
   details.sec .viz,details.sec .prog,details.sec .chat{border-left-width:1px}
 </style></head><body><div class="wrap">
-<header>
-  <h1>Thabang's trading experiment</h1>
-</header>
 
 <!-- FAMILY SECTION. Server rendered, no script needed, written for people who do not trade.
      It must fit on one phone screen. Everything technical is folded away below it. -->
@@ -1340,6 +1350,17 @@ def _family_block(d: dict | None) -> str:
                 f"</section>")
 
 
+def _story_block(d: dict | None) -> str:
+    """The story on top; the plain family section if anything in it cannot be drawn."""
+    if d is None or not (d.get("family") or {}).get("known"):
+        return _family_block(d)
+    try:
+        reg, _ = _read_json(REPO_ROOT / REGISTER_PATH)
+        return story_html(d, _programme_data(), reg or {}, read_universe(REPO_ROOT))
+    except Exception:                             # noqa: BLE001
+        return _family_block(d)
+
+
 def _plain_fallback(d: dict | None = None, err: str = "") -> str:
     """The four headline numbers as static HTML, for browsers that cannot run the page."""
     if d is None:
@@ -1416,6 +1437,6 @@ def index() -> str:
     # The decorator belongs here. From 63ab960 until this fix it sat on _plain_fallback, so
     # "/" served only the bare fallback fragment and never the full page.
     d, err = _safe_data()
-    return (PAGE.replace("__FAMILY__", _family_block(d))
+    return (PAGE.replace("__FAMILY__", _story_block(d))
                 .replace("__PLAIN__", _plain_fallback(d, err))
                 .replace("__PROGRAMME__", _programme_html()))
