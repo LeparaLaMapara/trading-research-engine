@@ -13,6 +13,7 @@ from __future__ import annotations
 import html
 import json
 import re
+from datetime import datetime, timedelta
 from pathlib import Path
 
 esc = html.escape
@@ -33,20 +34,6 @@ KIND_WORDS = {"crypto": "digital currencies", "currency": "currency pairs", "met
               "energy": "oil and gas", "index": "share indices"}
 
 # Fixed history. Dates are from the broker's trade record and the experiment register.
-JOURNEY = [
-    ("7 Aug", "Built", "R180 went in, only to measure what real trading costs."),
-    ("22 Sep", "A plan of ten tests", "No more daily guessing: ten ideas, each written down "
-               "before it is tested, so luck cannot be dressed up as skill."),
-    ("22 Sep", "First real trade", "Ethereum, after its 20-day rule passed the test."),
-    ("23 Sep", "Trading on its own", "Thabang topped up to R1,530 and let it run without "
-               "asking him."),
-    ("29 Sep", "A tougher re-check", "Both rules that had passed were tested again, harder. "
-               "Both failed, so they may not open new trades."),
-    ("7 Oct", "A loss, as designed", "An Ethereum trade hit its safety price and closed "
-              "itself, losing about R102."),
-]
-
-
 def _r(zar: float | None) -> str:
     if zar is None:
         return "?"
@@ -199,16 +186,213 @@ def _day(iso: str) -> str:
         return iso
 
 
-def _journey(d: dict) -> str:
+MILESTONES = [
+    # (SA date, title, words). Moments that moved no money. Money events come from the data.
+    ("2026-09-20", "First real trade", "Thabang bought a little Ethereum by hand, to test "
+                   "the whole system end to end with real money."),
+    ("2026-09-22", "A plan of ten tests", "No more daily guessing: ten ideas, each written "
+                   "down before it is tested, so luck cannot be dressed up as skill."),
+    ("2026-09-22", "Its own rule starts trading", "Ethereum's 20-day rule passed its test, so "
+                   "the program began trading it by itself."),
+    ("2026-09-29", "A tougher re-check", "Both rules that had passed were tested again, "
+                   "harder. Both failed, so they may not open new trades."),
+    ("2026-09-29", "A dollar trade opens", "Before the re-check landed, a currency rule "
+                   "bought US dollars against the Singapore dollar. It is still open."),
+]
+SA_OFFSET_H = 2
+MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+
+def _when(ts: str) -> datetime | None:
+    try:
+        return datetime.fromisoformat((ts or "").replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
+def _sa_day(ts: str) -> str:
+    """The South African calendar day of a UTC timestamp, as YYYY-MM-DD."""
+    t = _when(ts)
+    return (t + timedelta(hours=SA_OFFSET_H)).strftime("%Y-%m-%d") if t else (ts or "")[:10]
+
+
+def _closed_trades(trades: list[dict]) -> list[dict]:
+    """Closed trades with a result, each counted once.
+
+    The broker's own closing deal ('deal-...') is the record. A hand-written row for the same
+    close (same market, same result, within ten minutes) is a duplicate and is dropped.
+    """
+    done = [t for t in trades if t.get("net_usd") is not None and _when(t.get("ts"))]
+    deals = [t for t in done if str(t.get("trade_id", "")).startswith("deal-")]
+    out = []
+    for t in done:
+        if not str(t.get("trade_id", "")).startswith("deal-"):
+            tw = _when(t["ts"])
+            if any(x.get("symbol") == t.get("symbol") and x.get("net_usd") == t.get("net_usd")
+                   and abs((_when(x["ts"]) - tw).total_seconds()) < 600 for x in deals):
+                continue
+        out.append(t)
+    return out
+
+
+def _trade_name(symbol: str) -> str:
+    what = _asset(symbol)
+    if what != "what it is trading":
+        return f"{'An' if what[0] in 'AEIOU' else 'A'} {what} trade"
+    pair = _currency_words(symbol)
+    return f"A {pair[0]} trade" if pair else "A trade"
+
+
+def money_events(d: dict) -> list[dict]:
+    """One entry per day something happened, oldest first, ending with today.
+
+    Each day: what the account was worth that evening in rand, a tone (in: money came in,
+    out: money went out, none: nothing moved) and the plain sentences. Top-ups are found, not
+    typed: they are the part of a day's change in the balance that no trade explains.
+    """
+    zpu = d.get("zar_per_usd") or 18.0
+    eod: dict[str, float] = {}
+    for p in d.get("balance_series") or []:
+        if isinstance(p.get("v"), (int, float)) and p.get("t"):
+            eod[_sa_day(p["t"])] = float(p["v"])          # last reading of the day wins
+    days: dict[str, dict] = {}
+
+    def day(k: str) -> dict:
+        return days.setdefault(k, {"day": k, "lines": [], "in": 0.0, "out": 0.0})
+
+    realised: dict[str, float] = {}
+    probes: dict[str, list[float]] = {}
+    gains: dict[tuple[str, str], list[float]] = {}
+    for t in _closed_trades(d.get("trades") or []):
+        k = _sa_day(t["ts"])
+        net = float(t["net_usd"]) * zpu
+        realised[k] = realised.get(k, 0.0) + net
+        if str(t.get("purpose") or "").startswith("telemetry"):
+            probes.setdefault(k, []).append(net)
+            continue
+        ev, name = day(k), _trade_name(t.get("symbol") or "")
+        if net >= 0:
+            ev["in"] += net
+            gains.setdefault((k, name), []).append(net)
+        else:
+            ev["out"] += -net
+            ev["lines"].append(("out", f"{name} hit its safety price and closed itself, "
+                                       f"losing {_r(-net)}."))
+    for (k, name), nets in gains.items():       # same-day wins on one market: one line
+        many = len(nets) > 1
+        what = (name.replace("An ", "", 1).replace("A ", "", 1) + "s") if many else name
+        days[k]["lines"].append(("in", f"{len(nets) if many else ''}{' ' if many else ''}"
+                                       f"{what} closed with {'gains' if many else 'a gain'} of "
+                                       f"{_r(sum(nets))}{' in total' if many else ''}."))
+    for k, nets in probes.items():
+        ev, cost, n = day(k), -sum(nets), len(nets)
+        ev["out"] += max(cost, 0.0)
+        ev["lines"].append(("out" if cost > 0 else "none",
+                            f"{n} practice trade{'s' if n != 1 else ''} to measure real "
+                            f"costs: {_r(abs(cost))} in total."))
+
+    prev = 0.0
+    for i, k in enumerate(sorted(eod)):
+        added = eod[k] - prev - realised.get(k, 0.0)
+        if added > zpu:                                     # more than a dollar: a top-up
+            added = round(added / zpu) * zpu                # top-ups are whole dollars
+            ev = day(k)
+            ev["in"] += added
+            ev["lines"].insert(0, ("in", f"Built. {_r(added)} went in, only to measure what "
+                                         f"real trading costs." if i == 0 else
+                                         f"Thabang added {_r(added)}."))
+        prev = eod[k]
+    for k, title, words in MILESTONES:
+        day(k)["lines"].append(("none", f"{title}. {words}"))
+
+    out = []
+    for k in sorted(days):
+        before = [kk for kk in eod if kk <= k]
+        ev = days[k]
+        ev["worth"] = eod[max(before)] if before else None
+        ev["tone"] = "in" if ev["in"] > ev["out"] else "out" if ev["out"] > 0 else "none"
+        out.append(ev)
     fam = d.get("family") or {}
-    items = list(JOURNEY) + [("Today", "Where it stands",
-                              f"Worth {_r(fam.get('worth_zar'))}, from {_r(fam.get('put_in_zar'))}"
-                              f" put in. Still learning.")]
-    li = "".join(f"<li class='rv' style='--i:{i}'><span class='st-date'>{esc(a)}</span>"
-                 f"<strong>{esc(b)}</strong><span>{esc(c)}</span></li>"
-                 for i, (a, b, c) in enumerate(items))
-    return (f"<section class='st-card'><h3 class='st-h'>The story so far</h3>"
-            f"<ol class='st-time'>{li}</ol></section>")
+    out.append({"day": "today", "worth": fam.get("worth_zar"), "tone": "today",
+                "lines": [("none", f"Worth {_r(fam.get('worth_zar'))}, from "
+                                   f"{_r(fam.get('put_in_zar'))} put in. Still learning.")]})
+    return out
+
+
+def _label(k: str) -> str:
+    return "Today" if k == "today" else f"{int(k[8:10])} {MONTHS[int(k[5:7]) - 1]}"
+
+
+def _journey(d: dict) -> str:
+    evs = [e for e in money_events(d) if e.get("worth") is not None]
+    if len(evs) < 2:
+        return ""
+    # Two drawings of the same chart: wide for screens, narrow for phones, so the text in
+    # each is readable at its own size. CSS shows one.
+    charts = (_chart(evs, 640.0, 230.0, 46.0, "st-wide", short=False)
+              + _chart(evs, 360.0, 230.0, 40.0, "st-narrow", short=True))
+    li = []
+    for i, e in enumerate(evs):
+        body = "".join(f"<span class='st-l {t}'>{esc(s)}</span>" for t, s in e["lines"])
+        li.append(f"<li class='rv {e['tone']}' style='--i:{i}'><span class='st-pin'>{i + 1}"
+                  f"</span><div><span class='st-date'>{esc(_label(e['day']))} &middot; worth "
+                  f"{esc(_r(e['worth']))}</span>{body}</div></li>")
+    return (f"<section class='st-card rv'><h3 class='st-h'>The story so far</h3>"
+            f"<p class='st-legend'><span class='st-key in'></span>money came in "
+            f"<span class='st-key out'></span>money went out "
+            f"<span class='st-key none'></span>no money moved</p>"
+            f"<div class='st-chartwrap'>{charts}</div>"
+            f"<p class='st-cap'>Each dot is a day something happened, spaced evenly so busy "
+            f"days stay readable. The height is what the account was worth that evening.</p>"
+            f"<ol class='st-events'>{''.join(li)}</ol></section>")
+
+
+def _chart(evs: list[dict], w: float, h: float, pad_l: float, cls: str, short: bool) -> str:
+    pad_r, top, bot = 14.0, 16.0, 34.0
+    hi = max(e["worth"] for e in evs) * 1.08
+    step = (w - pad_l - pad_r) / (len(evs) - 1)
+
+    def px(i: int) -> float:
+        return pad_l + i * step
+
+    def py(v: float) -> float:
+        return top + (1 - v / hi) * (h - top - bot)
+
+    grid = [f"<line class='st-grid' x1='{pad_l}' x2='{w - pad_r}' y1='{py(g):.1f}' "
+            f"y2='{py(g):.1f}'/><text class='st-ax' x='{pad_l - 6}' y='{py(g) + 4:.1f}' "
+            f"text-anchor='end'>R{g:,}</text>" for g in (500, 1000, 1500, 2000) if g < hi]
+    segs, dots, labels = [], [], []
+    for i, e in enumerate(evs):
+        x, y = px(i), py(e["worth"])
+        if i:
+            x0, y0 = px(i - 1), py(evs[i - 1]["worth"])
+            segs.append(f"<path class='st-flat' d='M{x0:.1f},{y0:.1f} H{x:.1f}'/>")
+            if abs(y - y0) > 0.5:
+                tone = "in" if y < y0 else "out"
+                segs.append(f"<path class='st-jump {tone}' d='M{x:.1f},{y0:.1f} V{y:.1f}'/>")
+        tone = e["tone"]
+        dots.append(f"<g class='st-pt {tone}' style='--i:{i}'><circle cx='{x:.1f}' "
+                    f"cy='{y:.1f}' r='9'/><text x='{x:.1f}' y='{y + 4:.1f}' "
+                    f"text-anchor='middle'>{i + 1}</text></g>")
+        labels.append(f"<text class='st-ax st-xl' x='{x:.1f}' y='{h - 10:.1f}' "
+                      f"text-anchor='middle'>{_short(evs, i) if short else _label(e['day'])}"
+                      f"</text>")
+    first, last = evs[0], evs[-1]
+    return (f"<svg class='st-story {cls}' viewBox='0 0 {w:.0f} {h:.0f}' role='img' "
+            f"aria-label='Money over time, from {_r(first['worth'])} on {_label(first['day'])} to "
+            f"{_r(last['worth'])} today. Each numbered dot is explained below.'>"
+            f"{''.join(grid)}<g class='st-path'>{''.join(segs)}</g>{''.join(dots)}"
+            f"{''.join(labels)}</svg>")
+
+
+def _short(evs: list[dict], i: int) -> str:
+    """Phone labels: the month only when it changes, so eight dates fit across."""
+    k = evs[i]["day"]
+    if k == "today":
+        return "Now"
+    if i and evs[i - 1]["day"][:7] == k[:7]:
+        return str(int(k[8:10]))
+    return _label(k)
 
 
 def _tests(prog: dict, demoted: list[str], measured: set[str]) -> str:
@@ -392,15 +576,7 @@ STORY_CSS = """<style>
 @keyframes st-pulse{0%,100%{opacity:1}50%{opacity:.45}}
 .st-list{margin:6px 0 10px;padding-left:20px}
 .st-list li{margin-bottom:8px}
-.st-time{list-style:none;margin:0;padding:0 0 0 22px;position:relative}
-.st-time::before{content:'';position:absolute;left:6px;top:6px;bottom:6px;width:2px;
-  background:var(--line)}
-.st-time li{position:relative;padding:0 0 16px;display:grid;gap:1px}
-.st-time li::before{content:'';position:absolute;left:-21px;top:5px;width:12px;height:12px;
-  border-radius:50%;background:var(--card);border:2.5px solid var(--clay)}
-.st-time li:last-child::before{background:var(--clay)}
 .st-date{color:var(--clay);font-size:13px;font-weight:700}
-.st-time span:last-child{color:var(--muted);font-size:15px}
 .st-cells{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;margin:12px 0 8px}
 .st-cell{display:inline-block;aspect-ratio:1;border-radius:6px;background:var(--line);min-width:12px}
 .st-cell.pass{background:var(--good)} .st-cell.fail{background:var(--bad)}
@@ -438,6 +614,38 @@ STORY_CSS = """<style>
 .st-lights{list-style:none;margin:0;padding:0;display:grid;gap:10px;
   grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
 .st-lights li{display:flex;gap:10px;align-items:center}
+.st-chartwrap{margin:6px -4px 4px}
+.st-story{width:100%;height:auto;display:block;overflow:visible}
+.st-narrow{display:none}
+@media (max-width:560px){.st-wide{display:none}.st-narrow{display:block}}
+.st-grid{stroke:var(--line);stroke-width:1}
+.st-ax{fill:var(--muted);font-size:12px}
+.st-flat{fill:none;stroke:var(--muted);stroke-width:2.5;opacity:.55}
+.st-jump{fill:none;stroke-width:4;stroke-linecap:round}
+.st-jump.in{stroke:var(--good)} .st-jump.out{stroke:var(--bad)}
+.st-pt circle{stroke:var(--card);stroke-width:2.5}
+.st-pt text{fill:#fff;font-size:11px;font-weight:700}
+.st-pt.in circle{fill:var(--good)} .st-pt.out circle{fill:var(--bad)}
+.st-pt.none circle{fill:var(--muted)} .st-pt.today circle{fill:var(--clay)}
+.st-key{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:-6px;
+  vertical-align:-1px}
+.st-key.in{background:var(--good)} .st-key.out{background:var(--bad)}
+.st-key.none{background:var(--muted)}
+.st-events{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:12px}
+.st-events li{display:grid;grid-template-columns:26px 1fr;gap:10px;align-items:start}
+.st-pin{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;color:#fff;
+  font-size:12px;font-weight:700;background:var(--muted)}
+.st-events li.in .st-pin{background:var(--good)} .st-events li.out .st-pin{background:var(--bad)}
+.st-events li.today .st-pin{background:var(--clay)}
+.st-events .st-date{display:block;font-weight:700;font-size:13px;color:var(--ink)}
+.st-l{display:block;color:var(--muted);font-size:15px;margin-top:2px}
+.st-l.in{color:var(--good);font-weight:600} .st-l.out{color:var(--bad);font-weight:600}
+.st-motion .st-path{clip-path:inset(-10% 100% -10% 0)}
+.st-motion .seen .st-path{animation:st-wipe 2.2s ease-out .2s both}
+.st-motion .st-pt{opacity:0}
+.st-motion .seen .st-pt{animation:st-pop .45s cubic-bezier(.3,1.6,.5,1) both;
+  animation-delay:calc(.3s + var(--i,0)*230ms);transform-box:fill-box;transform-origin:center}
+@keyframes st-pop{from{opacity:0;transform:scale(.2)}to{opacity:1;transform:none}}
 @keyframes st-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @keyframes st-wipe{from{clip-path:inset(-10% 100% -10% 0)}to{clip-path:inset(-10% -2% -10% 0)}}
 @keyframes st-grow{from{width:0}to{width:var(--w)}}

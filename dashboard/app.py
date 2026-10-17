@@ -327,7 +327,7 @@ def _dashboard_data() -> dict:
     # The very first reading is the milestone baseline; the chart wants the newest 400.
     # (Ordering ascending with a limit stopped the chart at whatever day reading 400 fell on.)
     history = _sb("trading_account", "select=balance,ts&order=ts.asc&limit=1")
-    recent = _sb("trading_account", "select=balance,ts&order=ts.desc&limit=400")[::-1]
+    recent = _sb("trading_account", "select=balance,ts&order=ts.desc&limit=1000")[::-1]
     strategies = _sb("trading_strategies",
                      "select=run_ts,symbol,kind,verdict,total_return,pnl_on_10,pnl_on_200,"
                      "dev_sharpe,holdout_sharpe&"
@@ -350,7 +350,7 @@ def _dashboard_data() -> dict:
     # hourly). It used to come from environment variables a human had to remember to change,
     # which is why this panel said "0 trades" on the day a position was open.
     trades = _sb("trading_trades", "select=trade_id,ts,symbol,side,volume_lots,filled_price,"
-                                   "net_usd,status,purpose,note&order=ts.desc&limit=50")
+                                   "net_usd,status,purpose,note&order=ts.desc&limit=300")
     positions = _sb("trading_positions",
                     "select=position_id,symbol,side,volume_lots,entry_price,current_price,"
                     "stop_loss,take_profit,unrealised_usd,risk_usd,swap_usd,opened_ts,updated_ts,status"
