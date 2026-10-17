@@ -47,7 +47,7 @@ jobs:
         run: |
           # The self-check needs the balance to judge "can it still trade". It was UNKNOWN
           # every day because nothing handed it over.
-          python -m market.account | tee account.log || true
+          python -m market.account > account.log 2>&1 || true   # kept out of the log: public repo
           B=$(grep -o "balance=[0-9.]*" account.log | head -1 | cut -d= -f2)
           if [ -n "$B" ]; then echo "ACCOUNT_BALANCE_USD=$B" >> "$GITHUB_ENV"; fi
       - name: Refresh bar history

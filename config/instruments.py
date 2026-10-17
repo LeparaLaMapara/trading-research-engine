@@ -30,7 +30,7 @@ BASKET = [
 # against its currency, an index against its constituents' currency, crypto against the
 # dollar) is also where most of the opportunity classes in docs/ARCHITECTURE.md live.
 #
-# Verified present and enabled on the live account (46748922) on 2026-09-15. The demo
+# Verified present and enabled on the live account on 2026-09-15. The demo
 # account carries 830 symbols against live's 348, so this list is taken from LIVE: a
 # strategy researched on an instrument the live account cannot trade is wasted work.
 RESEARCH_UNIVERSE: dict[str, list[str]] = {
