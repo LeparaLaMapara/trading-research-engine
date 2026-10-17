@@ -186,19 +186,6 @@ def _day(iso: str) -> str:
         return iso
 
 
-MILESTONES = [
-    # (SA date, title, words). Moments that moved no money. Money events come from the data.
-    ("2026-09-20", "First real trade", "Thabang bought a little Ethereum by hand, to test "
-                   "the whole system end to end with real money."),
-    ("2026-09-22", "A plan of ten tests", "No more daily guessing: ten ideas, each written "
-                   "down before it is tested, so luck cannot be dressed up as skill."),
-    ("2026-09-22", "Its own rule starts trading", "Ethereum's 20-day rule passed its test, so "
-                   "the program began trading it by itself."),
-    ("2026-09-29", "A tougher re-check", "Both rules that had passed were tested again, "
-                   "harder. Both failed, so they may not open new trades."),
-    ("2026-09-29", "A dollar trade opens", "Before the re-check landed, a currency rule "
-                   "bought US dollars against the Singapore dollar. It is still open."),
-]
 SA_OFFSET_H = 2
 MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
@@ -244,7 +231,8 @@ def _trade_name(symbol: str) -> str:
 
 
 def money_events(d: dict) -> list[dict]:
-    """One entry per day something happened, oldest first, ending with today.
+    """One entry per day real money moved, oldest first, ending with today. No tests, no
+    simulations: only top-ups and trades that closed at the broker.
 
     Each day: what the account was worth that evening in rand, a tone (in: money came in,
     out: money went out, none: nothing moved) and the plain sentences. Top-ups are found, not
@@ -288,8 +276,9 @@ def money_events(d: dict) -> list[dict]:
         ev, cost, n = day(k), -sum(nets), len(nets)
         ev["out"] += max(cost, 0.0)
         ev["lines"].append(("out" if cost > 0 else "none",
-                            f"{n} practice trade{'s' if n != 1 else ''} to measure real "
-                            f"costs: {_r(abs(cost))} in total."))
+                            f"{n} tiny real trade{'s' if n != 1 else ''}, opened and closed "
+                            f"at once to measure the broker's costs: {_r(abs(cost))} in "
+                            f"total."))
 
     prev = 0.0
     for i, k in enumerate(sorted(eod)):
@@ -302,8 +291,6 @@ def money_events(d: dict) -> list[dict]:
                                          f"real trading costs." if i == 0 else
                                          f"Thabang added {_r(added)}."))
         prev = eod[k]
-    for k, title, words in MILESTONES:
-        day(k)["lines"].append(("none", f"{title}. {words}"))
 
     out = []
     for k in sorted(days):
@@ -339,11 +326,11 @@ def _journey(d: dict) -> str:
                   f"{esc(_r(e['worth']))}</span>{body}</div></li>")
     return (f"<section class='st-card rv'><h3 class='st-h'>The story so far</h3>"
             f"<p class='st-legend'><span class='st-key in'></span>money came in "
-            f"<span class='st-key out'></span>money went out "
-            f"<span class='st-key none'></span>no money moved</p>"
+            f"<span class='st-key out'></span>money went out</p>"
             f"<div class='st-chartwrap'>{charts}</div>"
-            f"<p class='st-cap'>Each dot is a day something happened, spaced evenly so busy "
-            f"days stay readable. The height is what the account was worth that evening.</p>"
+            f"<p class='st-cap'>Real money only, from the broker's own record: top-ups, and "
+            f"trades that closed. Each dot is one such day, spaced evenly so busy days stay "
+            f"readable. The height is what the account was worth that evening.</p>"
             f"<ol class='st-events'>{''.join(li)}</ol></section>")
 
 
