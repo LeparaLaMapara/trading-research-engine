@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: databricks/setup-cli@main
       - name: Who am I
-        run: databricks current-user me --output json | jq '{userName, displayName, active}'
+        run: databricks current-user me --output json | jq '{active}'
       - name: Run one serverless job
         run: |
           set -e

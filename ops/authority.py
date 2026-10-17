@@ -39,7 +39,7 @@ standing authority: delete the secret file and run `python -m ops.authority --re
 
 To authorise live trading the owner runs, in the live environment only:
 
-    python -m ops.authority --grant --account 46748922 --max-capital-zar 5000
+    python -m ops.authority --grant --account <CTRADER_ACCOUNT_ID> --max-capital-zar 5000
 
 with `LIVE_AUTHORITY_SECRET` set in that shell. Nothing else creates a valid grant.
 """

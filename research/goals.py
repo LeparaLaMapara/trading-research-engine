@@ -34,7 +34,7 @@ from dataclasses import asdict, dataclass
 #
 # LEVERAGE WAS WRONG UNTIL 2026-09-15. It had been inferred as 1:100 from that rejection,
 # and everything downstream was built on it. The cTrader grant screen then showed the account
-# holding the money (login 6133776) is 1:50, which DOUBLES the margin per trade. This is why
+# holding the money (a second login) is 1:50, which DOUBLES the margin per trade. This is why
 # `ProtoOATraderUpdatedEvent` carries `leverageInCents` and why it must be read rather than
 # guessed: the whole risk table hangs off this one number.
 MIN_LOT_NOTIONAL_USD = 1150.0   # 0.01 lots EURUSD = 1000 EUR at ~1.15

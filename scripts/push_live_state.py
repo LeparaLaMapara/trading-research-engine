@@ -14,6 +14,7 @@ Run:  python -m scripts.push_live_state
 from __future__ import annotations
 
 import argparse
+import os
 import sqlite3
 import sys
 import time
@@ -97,12 +98,21 @@ def _headers() -> dict:
             "Prefer": "resolution=merge-duplicates"}
 
 
+# GitHub Actions logs are public on a public repo: never print money there.
+IN_CI = os.environ.get("GITHUB_ACTIONS") == "true"
+
+
+def shown(text: str) -> str:
+    """The amount locally; a placeholder in CI logs."""
+    return "(hidden in CI)" if IN_CI else text
+
+
 def upsert(table: str, rows: list[dict], dry: bool) -> None:
     if not rows:
         print(f"  {table}: nothing to write")
         return
     if dry or not (settings.SUPABASE_URL and settings.SUPABASE_KEY):
-        print(f"  {table}: would write {len(rows)} row(s) {rows[:1]}")
+        print(f"  {table}: would write {len(rows)} row(s) {shown(str(rows[:1]))}")
         return
     r = requests.post(f"{settings.SUPABASE_URL}/rest/v1/{table}", headers=_headers(),
                       json=rows, timeout=30)
@@ -240,7 +250,7 @@ class Collector:
         t = Protobuf.extract(msg).trader
         self.balance = t.balance / (10 ** t.moneyDigits)
         self.fetch_cashflow()
-        print(f"  balance ${self.balance:,.2f}")
+        print(f"  balance {shown(f'${self.balance:,.2f}')}")
         req = ProtoOAReconcileReq(); req.ctidTraderAccountId = self.conn.account_id
         self.conn.client.send(req).addCallbacks(self.on_reconcile, self.fail)
 
@@ -310,9 +320,9 @@ class Collector:
                                            time.gmtime(td.openTimestamp / 1000)),
                 "updated_ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "status": "OPEN",
                 "purpose": "live_research_trade"})
-            print(f"  {sym} {side} entry {entry} now {now} stop {p.stopLoss} "
+            print(f"  {sym} {side} " + shown(f"entry {entry} now {now} stop {p.stopLoss} "
                   f"target {p.takeProfit} unrealised "
-                  f"{'n/a' if unreal is None else f'${unreal:+.2f}'}")
+                  f"{'n/a' if unreal is None else f'${unreal:+.2f}'}"))
         self.rows = rows
         if reactor.running:
             reactor.stop()
@@ -336,7 +346,7 @@ def main() -> int:
     print("publishing...")
     if c.balance is not None:
         equity = equity_of(c.balance, c.rows)
-        print(f"  equity {'unknown (a position had no quote)' if equity is None else f'${equity:,.2f}'}")
+        print(f"  equity {'unknown (a position had no quote)' if equity is None else shown(f'${equity:,.2f}')}")
         extra = {}
         if not c.cash_pending and c.cash["rows"]:
             import json
@@ -347,8 +357,8 @@ def main() -> int:
         if es.get("peak") is not None:
             extra["peak_equity"] = round(max(float(es["peak"]), equity or 0.0), 2)
         extra["halted"] = es.get("halted")
-        print(f"  put in ${extra.get('deposited_usd', 'unknown')}, peak "
-              f"${extra.get('peak_equity', 'unknown')}, halted {extra['halted']}")
+        print("  " + shown(f"put in ${extra.get('deposited_usd', 'unknown')}, peak "
+                           f"${extra.get('peak_equity', 'unknown')}") + f", halted {extra['halted']}")
         upsert("trading_account", [{**extra, "balance": c.balance, "equity": equity,
                                     "currency": "USD",
                                     "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}], a.dry_run)

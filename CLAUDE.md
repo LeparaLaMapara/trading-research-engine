@@ -136,7 +136,7 @@ tests/        pip math, tz, hash determinism, cost-map, sweep, fail-closed risk
 
 - **Phase 1a built.** Passive telemetry logger + store + cost map + ledger/risk scaffolds +
   unit tests. Reuses the proven `ctrader-connect` auth sequence.
-- Runs on **live** (`CTRADER_ENV=live`, account 46748922) to measure the real broker.
+- Runs on **live** (`CTRADER_ENV=live`, the live account, id in .env) to measure the real broker.
 - **Deferred, owner sign-off before the relevant phase:** §1 hard-limit numbers and §7
   graduation numbers (lock before 1d); tax practitioner; IC Markets FSCA/ODP status;
   minimum viable live funding.
