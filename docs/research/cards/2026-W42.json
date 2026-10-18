@@ -1,0 +1,560 @@
+{
+ "tag": "2026-W42",
+ "stats": {
+  "harvested": 806,
+  "by_field": "131 applied and numerical mathematics, 95 computer science, 117 economics, 8 foundations, 30 mathematical and computational economics, 113 mathematics, 83 physics, 146 quantitative finance, 83 statistics",
+  "eligible": 88,
+  "full_text": 7,
+  "spend": "$0.54 over 45 calls"
+ },
+ "cards": [
+  {
+   "identifier": "arXiv:2610.21648v1",
+   "url": "http://arxiv.org/abs/2610.21648v1",
+   "title": "conformalForecast: An R package for sequential conformal prediction in time series",
+   "field": "statistics",
+   "via": "arXiv stat.ME",
+   "read_depth": "full",
+   "triage": 5,
+   "claim": "Sequential conformal prediction, specifically the Autocorrelated multistep conformal prediction (AcMCP) method, can provide \"reliable uncertainty quantification\" and \"model-agnostic intervals with coverage guarantee\" for time series, even under dependence and nonstationarity. The AcMCP method is designed to achieve \"exact long-run calibration at each fixed forecast horizon\" and has been observed to produce the \"narrowest intervals on average\" in an electricity price forecasting application.",
+   "mechanism": "The `conformalForecast` R package implements adaptive conformal prediction methods like AcMCP. These methods \"adjust thresholds directly on the score scale\" and use a \"structured forecast-error adjustment\" based on an MA(h-1) model for errors. This allows them to produce prediction intervals with \"long-run calibration at each fixed forecast horizon\" and improved interval efficiency, by updating calibration \"as new observations arrive without repeating earlier computations.\"",
+   "source_concept": "Sequential conformal prediction for time series, with a focus on the Autocorrelated multistep conformal prediction (AcMCP) method for generating prediction intervals.",
+   "market_analogue": "The univariate time series $\\{y_t\\}_{t=1}^T$ corresponds to the daily close price of a CFD instrument (e.g., USDSGD). The forecast horizon $h$ is 1 day. The forecast error $e_{t+h|t}$ is the difference between the actual future daily close price and its point forecast. The nonconformity score $s_{t+h|t}$ is derived from this forecast error (e.g., absolute or signed error). The conformal threshold $q_{t,h}$ determines the width of the prediction interval $\\widehat{C}^{\\alpha}_{t+h|t}$ for the future market price. The 'interval width' itself serves as an analogue for market predictability or uncertainty at a given horizon. The analogy predicts that reliable uncertainty quantification can improve trading decisions. This could be wrong if the properties observed in electricity markets (e.g., AcMCP producing the narrowest intervals) do not transfer to highly non-stationary financial markets like FX or crypto, or if \"No method is best on every criterion, and these rankings are specific to the data and forecasting setup.\" Additionally, \"Neither property [marginal validity nor long-run validity] implies conditional coverage at each origin, coverage in every local window, or simultaneous coverage of the forecast path,\" whereas trading decisions are inherently conditional and local. Finally, even if intervals are reliably narrow, they might still be too wide to provide actionable signals that overcome trading costs.",
+   "hypothesis": "For the USDSGD CFD, a 20-day trend-following strategy will achieve a higher Sharpe ratio after costs if trade initiation is conditional on the `AcMCP` 90% prediction interval for the next day's close price being narrower than its 20-day historical median width, compared to initiating trades on all trend-following signals.",
+   "test": "1. Use daily close prices for USDSGD (held data). 2. For each day, generate a 1-day ahead point forecast for the USDSGD close price (e.g., using an ARIMA(1,1,0) or ETS model from the R `forecast` package). 3. Calibrate `AcMCP` 90% prediction intervals for the 1-day ahead forecasts using a rolling window of 192 observations for `ncal` and `rolling=TRUE`, with `lr=0.005`, `Tg=1000`, and `KI=100`, as suggested in the paper's application. 4. Calculate the width of these 1-day ahead prediction intervals. 5. Determine the 20-day historical median width of the `AcMCP` intervals. 6. Simulate two 20-day trend-following strategies (e.g., buy if price > 20-day MA, sell if price < 20-day MA): a) a baseline strategy initiating trades on all signals, and b) a filtered strategy initiating trades only if the current day's `AcMCP` 90% prediction interval for the next day's close is narrower than its 20-day historical median width. 7. Apply the engine's standard trading costs (spread, swap) to both strategies. The null hypothesis is that the Sharpe ratio of the filtered strategy is not statistically significantly higher than that of the baseline strategy, or that the filtered strategy's Sharpe ratio after costs is not positive. Failure occurs if the filtered strategy's Sharpe ratio is not higher than the baseline's, or if the difference is not significant (e.g., p-value > 0.01), or if the filtered strategy's Sharpe ratio after costs is not positive. This test can be run entirely on historical data.",
+   "instruments": [
+    "USDSGD"
+   ],
+   "horizon": "Daily (1-day ahead prediction interval, 20-day trend)",
+   "data": [
+    {
+     "what": "Daily close prices for USDSGD",
+     "status": "held",
+     "source": "broker bars"
+    },
+    {
+     "what": "Point forecasts for USDSGD daily close (e.g., ARIMA or ETS model)",
+     "status": "free",
+     "source": "R `forecast` package or similar"
+    }
+   ],
+   "expected_effect": "The filtered trend-following strategy will achieve a higher Sharpe ratio after costs, as filtering based on narrower `AcMCP` prediction intervals will reduce exposure to periods of high uncertainty or low predictability, thereby avoiding costly false signals. This is supported by the paper's finding that \"AcMCP gives the narrowest intervals on average in all five regions while maintaining empirical coverage close to the nominal level\" and that \"Reliable uncertainty quantification is central to modern forecasting.\"",
+   "evidence_quality": "Medium. The paper demonstrates the package's functionality and shows that AcMCP can produce narrow intervals with good coverage in electricity markets. However, it does not directly test a trading strategy or apply the methods to financial markets like FX, where market dynamics and cost structures may differ significantly. The claim about \"narrowest intervals\" is specific to the electricity price data used, and \"No method is best on every criterion, and these rankings are specific to the data and forecasting setup.\"",
+   "confidence": 0.6,
+   "quotes_verified": [
+    "Reliable uncertainty quantification is central to modern forecasting.",
+    "Conformal prediction offers model-agnostic intervals with coverage guarantee under exchangeability, but existing software often targets general prediction problems or individual time series procedures rather than integrated workflows for multistep forecasting applications.",
+    "AcMCP therefore combines an MA (h-1) model for the available h -step errors with a regression linking errors from the same forecast origin; unavailable within-path errors are supplied recursively.",
+    "Under the same predictable-threshold and integrator conditions as the multistep PID construction, AcMCP achieves exact long-run calibration at each horizon.",
+    "The adjustment targets interval efficiency rather than a stronger coverage criterion, while longer horizons require more history and incur a larger finite-sample delay term.",
+    "In short-term wholesale electricity markets, for example, a nominal 90% price prediction interval supports hedging and operational planning only if it is well calibrated, with empirical coverage close to 90%, and sharp enough to distinguish different levels of price risk.",
+    "Point forecasts may come from many sources, including operational systems outside R, so calibration is separated from forecasting and accepts any function that returns a forecast object.",
+    "No method is best on every criterion, and these rankings are specific to the data and forecasting setup."
+   ],
+   "quotes_unverified": [
+    "AcMCP gives the narrowest intervals on average in all five regions while maintaining empirical coverage close to the nominal level.",
+    "Conformal PID control instead updates thresholds directly on the score scale ( Angelopoulos et al. 2023 ) . For each horizon h , the proportional tracking state and final threshold are... Autocorrelated multistep conformal prediction (AcMCP) replaces the generic PID scorecaster with a structured forecast-error adjustment ( Wang & Hyndman 2024 ) ."
+   ],
+   "grounded": true,
+   "id": "2026-W42-1",
+   "red_team": {
+    "concerns": [
+     "The baseline strategy (USDSGD 20-day trend-following) has already been audited (A01) and found to have no statistically significant edge after costs, with 28% of bootstrap resamples at or below zero. Filtering an unprofitable strategy is highly unlikely to make it profitable.",
+     "The engine's primary constraint is trading costs. Even if the conformal prediction filter could identify periods of higher predictability, the underlying USDSGD trend strategy was already unable to overcome these costs. Simply reducing the number of trades (by filtering) is improbable to create a positive edge where none existed.",
+     "The analogy from electricity price forecasting may not transfer to highly non-stationary financial markets like FX, where market dynamics and cost structures are significantly different. The source paper itself notes that performance is \"specific to the data and forecasting setup.\"",
+     "The source paper focuses on the statistical properties of the `conformalForecast` package and AcMCP method, primarily in electricity price forecasting. It does not provide evidence for the profitability of a trading strategy using these intervals in financial markets, nor does it account for trading costs relevant to this engine."
+    ],
+    "fatal": "The baseline strategy (USDSGD 20-day trend-following) has been explicitly demoted by Audit A01 due to its inability to show a statistically significant edge after costs. Building a filter on a strategy already proven to be unprofitable after costs is a non-starter.",
+    "kill": true,
+    "information": 2,
+    "value": 2,
+    "cost": 3,
+    "revised_test": ""
+   }
+  },
+  {
+   "identifier": "doi:10.48550/arxiv.2610.17815",
+   "url": "https://doi.org/10.48550/arxiv.2610.17815",
+   "title": "$L^2$ convergence rates for singular stochastic wave dynamics",
+   "field": "applied and numerical mathematics",
+   "via": "OpenAlex 'Fokker-Planck price dynamics'",
+   "read_depth": "full (open-access PDF)",
+   "triage": 3,
+   "claim": "Kinetic Langevin dynamics, which incorporate both position and velocity variables and a damping parameter, exhibit a substantial acceleration in their L2 convergence to equilibrium compared to their overdamped counterparts (stochastic heat equations), particularly in a 'small-gap regime' where the mass parameter 'm' is small.",
+   "mechanism": "The acceleration arises from a mechanism known as hypocoercivity, where noise and dissipation act directly on the velocity variable, and relaxation of the position variable is induced through its coupling with the velocity. For the \u03a6 42 model, optimizing the damping parameter '\u03b3' by choosing '\u03b3=m' yields a kinetic relaxation rate of at least order 'm', which is a 'genuine acceleration over the order-m2 relaxation rate of the overdamped dynamics'.",
+   "source_concept": "Hypocoercivity and L2 convergence rates for singular stochastic damped wave equations (kinetic Langevin dynamics) versus stochastic heat equations (overdamped dynamics) in quantum field theory models.",
+   "market_analogue": "The 'position' variable `u(x, t)` can be analogized to the log-price of a financial instrument. The 'velocity' variable `\u2202tu(x, t)` can be analogized to the instrument's log-return or short-term momentum. The 'equilibrium' corresponds to a long-term moving average of the log-price. The 'mass parameter' `m` (or the 'Poincar\u00e9 constant' `\u03c3p` where `\u03c3p \u2248 m^2`) is a measure of the inverse of mean-reversion strength or predictability; a 'small-gap regime' implies weak, slow mean-reversion or high noise. The 'damping parameter' `\u03b3` represents the strength of a momentum-dissipating force. A 'kinetic mean-reverting strategy' incorporates both price deviation and momentum, while an 'overdamped mean-reverting strategy' relies solely on price deviation.",
+   "hypothesis": "For CFD instruments identified as being in a 'small-gap regime' (e.g., exhibiting low estimated mean-reversion speed from an Ornstein-Uhlenbeck process fit to price deviations), a mean-reverting trading strategy that conditions entries on both price deviation from a long-term mean and short-term momentum in the direction of mean reversion (a 'kinetic' analogue) will achieve a statistically significant higher mean-reversion rate (e.g., shorter average holding periods for profitable trades and/or higher profit per trade) compared to a strategy based solely on price deviation (an 'overdamped' analogue), after accounting for trading costs.",
+   "test": "1. Identify 'small-gap' instruments from the available set (ETHUSD, ADAUSD, BCHUSD, LTCUSD, AUDCAD, AUDNZD, EURCAD, EURGBP, USDSGD). This classification will be based on fitting an Ornstein-Uhlenbeck process to the daily log-price deviations from a 200-day moving average over historical data (e.g., 2014-2023). Instruments with a mean-reversion speed `\u03bb` below the median `\u03bb` across all instruments will be considered 'small-gap'.\n2. Define two mean-reverting strategies:\n   a. **Overdamped (OD) Strategy**: Enter a long position when `log_price < MA_200 - K * StdDev_20_deviations` (where `K` is a fixed threshold, e.g., 1.5 standard deviations of recent price deviations from the MA). Exit when `log_price >= MA_200`.\n   b. **Kinetic (K) Strategy**: Enter a long position when `log_price < MA_200 - K * StdDev_20_deviations` AND `log_price - log_price_yesterday < 0` (i.e., price is falling, indicating momentum in the direction of mean reversion). Exit when `log_price >= MA_200`.\n   (Symmetric short positions will also be defined for both strategies).\n3. Backtest both strategies on the identified 'small-gap' instruments using out-of-sample D1 broker bar data (e.g., 2024-present).\n4. Measure and compare the average holding period for profitable trades, average profit per trade, and Sharpe ratio for both strategies, accounting for actual trading costs (spread, swap).\n5. The null hypothesis is that the kinetic strategy does not achieve a statistically significant higher mean-reversion rate (or better risk-adjusted returns after costs) compared to the overdamped strategy. Failure would be if the kinetic strategy's performance metrics are not statistically better than the overdamped strategy, or if it does not beat a random-sign null after costs.",
+   "instruments": [
+    "ETHUSD",
+    "ADAUSD",
+    "BCHUSD",
+    "LTCUSD",
+    "AUDCAD",
+    "AUDNZD",
+    "EURCAD",
+    "EURGBP",
+    "USDSGD"
+   ],
+   "horizon": "D1",
+   "data": [
+    {
+     "what": "D1 broker bars for all listed instruments (log-prices, log-returns)",
+     "status": "held",
+     "source": "broker"
+    }
+   ],
+   "expected_effect": "The kinetic mean-reverting strategy will exhibit a higher Sharpe ratio, shorter average holding period for profitable trades, and/or a higher win rate, particularly on 'small-gap' instruments, compared to the overdamped strategy, after accounting for trading costs.",
+   "evidence_quality": "Weak",
+   "confidence": 0.6,
+   "quotes_verified": [
+    "optimizing the damping yields a kinetic rate of order\u221a\u03c3p, compared with the optimal overdamped rate\u03c3 p. This represents a substantial acceleration in the small-gap regime.",
+    "For \u03a6 42, we verify that, in a weak- coupling, small-mass regime, optimizing the damping yields a kinetic relaxation rate of at least orderm. This yields a genuine acceleration over the order-m2 relaxation rate of the overdamped dynamics.",
+    "Equation (1.3) is infinite-dimensional kinetic Langevin dynamics, whereas (1.2) is its over- damped counterpart: after the natural rescaling of time, the latter arises from the former in the large-damping, or Smoluchowski\u2013Kramers, limit [15, 52].",
+    "noise and dissipation act directly only on the velocity variable, while relaxation of the position variable is induced through its coupling with the velocity."
+   ],
+   "quotes_unverified": [],
+   "grounded": true,
+   "id": "2026-W42-2",
+   "red_team": {
+    "concerns": [
+     "The hypothesis targets a 'small-gap regime' (weak, slow mean-reversion), which implies a low signal-to-noise ratio. The engine's primary constraint is the cost of trading (spread, swap), which has consistently removed real edges in 14 out of 20 candidate strategies. A weak signal is highly unlikely to overcome these costs.",
+     "The test uses D1 broker bars. D1 bars open and close at 21:00 UTC, when spreads widen about tenfold. The proposed mean-reverting strategy relies on frequent entries and exits, which, if triggered around the 21:00 UTC rollover, would incur significantly higher transaction costs than assumed, making profitability extremely difficult.",
+     "Crypto CFD longs pay about 20% a year in overnight financing. While the strategy aims for shorter holding periods, any overnight long crypto position will be heavily penalized, further eroding potential profits.",
+     "The analogy from theoretical physics about 'acceleration in L2 convergence to equilibrium' does not directly translate to profitability after real-world transaction costs in financial markets. The paper's context is not about trading strategy performance but theoretical convergence rates."
+    ],
+    "fatal": "The combination of a weak signal (small-gap regime) and the engine's binding constraint of high trading costs (especially magnified by the D1 bar rollover) makes this idea highly likely to fail.",
+    "kill": true,
+    "information": 4,
+    "value": 2,
+    "cost": 3,
+    "revised_test": ""
+   }
+  },
+  {
+   "identifier": "doi:10.36287/setsci.25.3.001",
+   "url": "https://doi.org/10.36287/setsci.25.3.001",
+   "title": "Can We Stop the Backtest Yet? Anytime-Valid Promotion Tests for Adaptive Financial Research Agents",
+   "field": "statistics",
+   "via": "OpenAlex 'false discovery rate backtest'",
+   "read_depth": "full (open-access PDF)",
+   "triage": 4,
+   "claim": "Adaptive financial research systems, which can continuously generate, discard, revise, and monitor trading rules, can achieve anytime-valid control over the familywise error rate (FWER) for promoting rules to forward evaluation. This is done by assigning each candidate a predictable, nonrefundable share of a lifetime testing budget and accumulating a bounded, cost-adjusted e-process only from post-registration returns.",
+   "mechanism": "The proposed 'Promote' protocol assigns each candidate rule 'mass \ud835\udf0b\u210e' from a total error budget. For each rule, a unique identity is frozen, and its 'e-process' (\ud835\udc38\u203e\u210e,\ud835\udc61, a supermartingale under the null) accumulates evidence from its 'post-birth' (post-registration) clipped net scores. The null hypothesis (\ud835\udc3b\u210e) is that the rule's conditional expected clipped net score, after predictable transaction costs, is nonpositive at every scored date after its birth. A rule is promoted only when its \ud835\udc38\u203e\u210e,\ud835\udc61 crosses a predefined boundary (\ud835\udefc\ud835\udf0b\u210e)\u22121. This mechanism ensures that 'the probability of any false promotion despite dependent rules, adaptive births, and indefinite monitoring' is controlled, meaning the FWER across the entire research program is bounded by \ud835\udefc.",
+   "source_concept": "Anytime-valid inference, e-processes, supermartingales, familywise error rate control, and statistical methods for correcting backtest overfitting in adaptive research settings.",
+   "market_analogue": "The engine's automated research process for generating and evaluating trading rules is analogous to an 'Adaptive Financial Research Agent'. Each specific trading rule proposed or revised by the engine (e.g., 'Ethereum 20-day trend rule') is a 'candidate \u210e'. The moment a new rule or revision is registered for testing is its 'birth \ud835\udf08\u210e'. The trading logic of the rule, including instrument, direction, sizing, and entry/exit, is its 'executable map (exposure \ud835\udc4e\u210e,\ud835\udc61)'. The engine's measured trading costs (spread, swap, slippage) are the 'cost debit', which must be predictably incorporated into the rule's 'clipped net score \ud835\udc4c\u210e,\ud835\udc61'. This score is the daily net return, scaled by a predictable positive scale \ud835\udc60\u210e,\ud835\udc61 and clipped to [-1, 1]. The 'mass \ud835\udf0b\u210e' is a portion of the total error budget (\ud835\udefc) allocated to a rule. The 'e-process \ud835\udc38\u203e\u210e,\ud835\udc61' is a statistical evidence metric that accumulates daily. 'Promotion' refers to the decision to authorize a rule for live forward evaluation or deployment. The 'null hypothesis \ud835\udc3b\u210e' states that the true conditional expected clipped net score of a rule is nonpositive at every future scored date after its registration.",
+   "hypothesis": "Implementing the 'Promote' protocol for all new candidate trading rules or revisions proposed by the engine will ensure that the familywise error rate (the probability of falsely promoting at least one non-profitable rule) over the engine's entire research program is controlled at a pre-specified level \ud835\udefc, significantly reducing the chance of deploying rules that have no true positive conditional expected net return after costs.",
+   "test": "The engine will implement the 'Promote' protocol for all *new* candidate trading rules or *revisions* to existing rules. Each new rule/revision will be assigned a unique identity (fingerprint) and a nonrefundable mass \ud835\udf0b\u210e from a total error budget \ud835\udefc (e.g., \ud835\udefc=0.05). For each rule, an e-process \ud835\udc38\u203e\u210e,\ud835\udc61 will be initialized to 1 at its 'birth' (\ud835\udf08\u210e). Daily, for each active candidate, its 'clipped net score \ud835\udc4c\u210e,\ud835\udc61' will be calculated using historical data *from its birth date onwards*, incorporating the engine's measured predictable costs. The e-process will be updated daily using the mixture specified in the paper (\u039b = {.025, .05, .10, .20, .35}). The rule will be 'promoted' if \ud835\udc38\u203e\u210e,\ud835\udc61 crosses the boundary (\ud835\udefc\ud835\udf0b\u210e)\u22121. The null hypothesis for the test is \ud835\udc3b\u210e: \ud835\udd3c[\ud835\udc4c\u210e,\ud835\udc61 \u2223 \u2131\ud835\udc61\u22121] \u2264 0 for every \ud835\udc61 > \ud835\udf08\u210e. Failure would be observed if, after promoting a set of rules using this protocol, a significant number of them (more than \ud835\udefc times the number of rules if \ud835\udf0b\u210e is constant, or proportional to \ud835\udefc for variable \ud835\udf0b\u210e) are subsequently found to have negative true expected net returns in a forward evaluation period, suggesting the FWER control failed. This test can be run on historical data for rules 'born' in the past (accumulating evidence only from their birth date), but its primary benefit is for *future* rules generated by the engine. The cheapest honest test would be to apply it to the next 10-20 candidate rules the engine generates internally, accumulating evidence on historical data from their respective 'birth' dates.",
+   "instruments": [
+    "ETHUSD",
+    "ADAUSD",
+    "BCHUSD",
+    "LTCUSD",
+    "AUDCAD",
+    "AUDNZD",
+    "EURCAD",
+    "EURGBP",
+    "USDSGD"
+   ],
+   "horizon": "Indefinite monitoring, as the e-process is anytime-valid. The accumulation of evidence can continue as long as the rule is active and not promoted.",
+   "data": [
+    {
+     "what": "Daily close-to-close returns for all available instruments",
+     "status": "held",
+     "source": "Broker bars (IC Markets)"
+    },
+    {
+     "what": "Predictable transaction cost models (spread, swap, slippage)",
+     "status": "held",
+     "source": "Engine's internal cost models"
+    },
+    {
+     "what": "Mechanism to generate/define new candidate trading rules and their 'birth' dates",
+     "status": "free",
+     "source": "Engine's research process"
+    }
+   ],
+   "expected_effect": "A lower number of rules will be promoted compared to previous informal methods, but those that are promoted will have a higher statistical likelihood of possessing a genuine positive conditional expected net return after costs. The overall familywise error rate for the engine's research program will be bounded by \ud835\udefc.",
+   "evidence_quality": "High. The paper provides theoretical guarantees (supermartingale property, FWER control) and strong empirical evidence from simulations showing vastly reduced false positive rates compared to nominal testing ('0/3,000 crossings' vs. '94.5% familywise error' for nominal tests under shared-sign null).",
+   "confidence": 0.95,
+   "quotes_verified": [
+    "Adaptive research systems can generate, discard, revise, and monitor trading rules faster than their selection history can be audited.",
+    "The proposed protocol assigns each candidate a predictable, nonrefundable share of one lifetime testing budget and accumulates a bounded, cost - adjusted e -process only from post -registration returns.",
+    "The relevant error event is direct: did the research program ever promote a candidate whose declared net score has no positive conditional mean?",
+    "A valid promotion process must also freeze the executable rule before scoring, charge every revision to a finite budget, define costs predictably, prevent pre-registration evidence from following a revised rule, and start economic execution after the crossing observation.",
+    "Let \ud835\udc5f\u210e,\ud835\udc61net } be the period return after the predictable transaction-cost debit and let \ud835\udc60\u210e,\ud835\udc61 > 0 be a predictable scale. Define \ud835\udc4c\u210e,\ud835\udc61 = clip(\ud835\udc5f\u210e,\ud835\udc61net/\ud835\udc60\u210e,\ud835\udc61, \u22121,1).",
+    "The candidate null is \ud835\udc3b\u210e: \ud835\udd3c[\ud835\udc4c\u210e,\ud835\udc61 \u2223 \u2131\ud835\udc61\u22121] \u2264 0 for every \ud835\udc61 > \ud835\udf08\u210e.",
+    "Repeated nominal testing reaches 94.5% familywise error in the shared -sign null, whereas both equally funded rules record 0/3,000 crossings (Table 1).",
+    "The 2015\u20132026 market replay promotes no rule after costs."
+   ],
+   "quotes_unverified": [
+    "Under the null that a candidate\u2019s clipped net score has nonpositive conditional mean at every scored date, a conditional Ville argument controls the probability of any false promotion despite dependent rules, adaptive births, and indefinite monitoring.",
+    "The core theorem controls lifetime familywise error without cross-rule independence and permits data -dependent identities and birth times."
+   ],
+   "grounded": true,
+   "id": "2026-W42-3",
+   "red_team": {
+    "concerns": [
+     "This idea is not a trading strategy but a statistical methodology for validating trading strategies. It directly addresses the engine's core problem: identifying genuinely profitable rules amidst adaptive research, backtest overfitting, and the high cost of trading, as evidenced by past failures (e.g., A01 demoting live rules).",
+     "The mechanism explicitly incorporates 'predictable transaction costs' into its 'clipped net score', which aligns perfectly with the engine's measured costs (spread, swap, slippage) and addresses the 'binding constraint is the cost of trading'.",
+     "All required data (daily returns, cost models, rule generation mechanism) are either held or inherent to the engine's operation, requiring no new data acquisition.",
+     "This is a meta-level statistical framework, not a specific trading rule or data analysis technique, making it distinct from anything currently in the research queue.",
+     "The statistical concepts are clearly mapped to the engine's operations, indicating the analogy is doing real work in translating a robust statistical framework to the engine's research process.",
+     "The protocol is explicitly designed to prevent lookahead bias by accumulating evidence 'only from post-registration returns' and to combat selection bias inherent in adaptive research. Time-of-day confounds are handled by the requirement for predictable cost incorporation.",
+     "The paper provides strong theoretical guarantees and empirical simulations, comparing favorably against nominal testing, and explicitly addresses 'after costs' and 'out of sample' (via post-registration evidence accumulation)."
+    ],
+    "fatal": null,
+    "kill": false,
+    "information": 5,
+    "value": 5,
+    "cost": 2,
+    "revised_test": "Pre-register the 'Promote' protocol for the next 10 new candidate trading rules or revisions generated by the engine. For each rule 'i', assign a unique identity and an equal share of the total error budget (e.g., \u03b2\u2032\u2032\u2032\u2032\u2032 = \u03b1/10 for \u03b1=0.05). Initialize its e-process \ud835\udc38\u203e\u2032\u2032\u2032\u2032\u2032,\ud835\udc61 to 1 at its 'birth' date (\ud835\udf08\u2032\u2032\u2032\u2032\u2032). Daily, calculate the rule's 'clipped net score \ud835\udc4c\u2032\u2032\u2032\u2032\u2032,\ud835\udc61' using historical data *from its birth date onwards*, incorporating the engine's measured predictable costs (spread, swap, slippage). Update the e-process daily using the mixture specified in the paper (\u039b = {.025, .05, .10, .20, .35}). Promote the rule if \ud835\udc38\u203e\u2032\u2032\u2032\u2032\u2032,\ud835\udc61 crosses the boundary (\u03b1\u03b2\u2032\u2032\u2032\u2032\u2032)\u22121. The null hypothesis for each rule is \ud835\udc3b\u2032\u2032\u2032\u2032\u2032: \ud835\udd3c[\ud835\udc4c\u2032\u2032\u2032\u2032\u2032,\ud835\udc61 \u2223 \u2131\ud835\udc61\u22121] \u2264 0 for every \ud835\udc61 > \ud835\udf08\u2032\u2032\u2032\u2032\u2032. The overall test of the protocol's FWER control will be evaluated by tracking the subsequent performance of any promoted rules in a *separate, truly out-of-sample forward evaluation period* (e.g., live trading or a dedicated forward paper trading period). The protocol fails if more than \u03b1 (e.g., 5%) of the *total* rules ever promoted by the engine (across all research programmes, after this test is implemented) are found to have a true negative conditional expected net return after costs in their forward evaluation."
+   }
+  },
+  {
+   "identifier": "arXiv:2610.19699v1",
+   "url": "http://arxiv.org/abs/2610.19699v1",
+   "title": "Effective-Balance Design in Ethereum Proof-of-Stake",
+   "field": "computer science",
+   "via": "arXiv cs.GT",
+   "read_depth": "full",
+   "triage": 4,
+   "claim": "The paper implies that increased total effective stake and operational visible identity count enhance network security and participation in Ethereum Proof-of-Stake.",
+   "mechanism": "The paper models how \"well-calibrated staking reward mechanisms\" incentivize \"broad and meaningful participation.\" It states: \"As more ETH is staked, the cost of a majority attack rises and its feasibility wanes.\" and \"total effective stake $S$ , which raises the economic cost of an attack\". This suggests that higher $S$ and $D_{\\mathrm{op}}$ (operational visible identity count) lead to a more secure and decentralized network. The paper's simulation shows that \"lowering the reserve from 32 ETH to 30 ETH increases active identities by 5.922% and total effective stake by 0.098%\".",
+   "source_concept": "The core concepts are \"total effective stake\" ($S$) and \"operational visible-identity count\" ($D_{\\mathrm{op}}$) which are presented as fundamental indicators of network economic security and decentralization in Ethereum Proof-of-Stake.",
+   "market_analogue": "The total amount of ETH locked in staking contracts on the Ethereum Beacon Chain (S) and the number of active validators (D_op) can serve as observable proxies for the Ethereum network's health and security. The analogy predicts that an increase in these metrics, signaling improved network fundamentals, should lead to an increase in the ETHUSD price.",
+   "hypothesis": "If the 30-day moving average of the total effective stake on the Ethereum Beacon Chain (measured in ETH) increases by more than 0.5% over the previous 30 days, then ETHUSD CFD will, on average, appreciate over the subsequent 7 days, after accounting for trading costs.",
+   "test": {
+    "data": "Daily time series of total effective stake (S) and operational visible-identity count (D_op) on the Ethereum Beacon Chain, obtained from public blockchain explorers or APIs (e.g., Dune Analytics, Etherscan). Daily ETHUSD CFD OHLCV data.",
+    "null_hypothesis": "The average 7-day return of ETHUSD CFD, after accounting for spread and overnight financing costs for long positions, is not statistically different from zero following a signal where the 30-day moving average of total effective stake increased by more than 0.5% over the prior 30 days.",
+    "failure_criteria": "The average 7-day return is not positive and statistically significant (p < 0.01) against the null, or it fails to beat a random-sign null at the 99th percentile with the same costs, or it fails when costs are doubled, or most years are not positive.",
+    "historical_run": "Yes, this test can be run on historical data from Ethereum's transition to PoS (September 2022 onwards)."
+   },
+   "instruments": [
+    "ETHUSD"
+   ],
+   "horizon": "7 days",
+   "data": [
+    {
+     "what": "Daily total effective stake (S) and operational visible-identity count (D_op) on Ethereum Beacon Chain",
+     "status": "free",
+     "source": "Dune Analytics / Etherscan / Beacon Chain API (public)"
+    },
+    {
+     "what": "ETHUSD CFD OHLCV data",
+     "status": "held",
+     "source": "IC Markets"
+    }
+   ],
+   "expected_effect": "Price appreciation of ETHUSD CFD.",
+   "evidence_quality": "Low. The paper is a theoretical and simulation study of protocol design incentives, not an empirical study of asset price prediction or market behavior. The link to price is an analogy and inference made for the trading engine, not a direct claim within the paper.",
+   "confidence": 0.2,
+   "quotes_verified": [
+    "The economic security of PoS relies critically on incentivizing broad and meaningful participation through well-calibrated staking reward mechanisms.",
+    "As more ETH is staked, the cost of a majority attack rises and its feasibility wanes.",
+    "total effective stake $S$ , which raises the economic cost of an attack",
+    "operational visible-identity count $D_{\\mathrm{op}}$ , which is an observable indicator of identity-level operational decentralization.",
+    "lowering the reserve from 32 ETH to 30 ETH increases active identities by 5.922% and total effective stake by 0.098%.",
+    "lowering the threshold to 30 ETH admits marginal addresses and increases active identity count while leaving total effective stake close to the current-threshold benchmark."
+   ],
+   "quotes_unverified": [],
+   "grounded": true,
+   "id": "2026-W42-4",
+   "red_team": {
+    "concerns": [
+     "costs (spread, the overnight financing charge, the rollover) would eat the effect",
+     "the analogy from another field is decoration, not doing real work",
+     "the paper itself does not show its result out of sample, after costs, against a naive baseline, and has not been replicated for price prediction"
+    ],
+    "fatal": "costs (spread, the overnight financing charge, the rollover) would eat the effect",
+    "kill": true,
+    "information": 3,
+    "value": 3,
+    "cost": 1,
+    "revised_test": ""
+   }
+  },
+  {
+   "identifier": "arXiv:2610.15309v1",
+   "url": "http://arxiv.org/abs/2610.15309v1",
+   "title": "Online Change-Point Detection in Linear Regression with Autoregressive Errors via Streaming Variational Bayes",
+   "field": "statistics",
+   "via": "arXiv stat.ME",
+   "read_depth": "truncated at 120000 chars of 175444",
+   "triage": 4,
+   "claim": "The Streaming Variational Bayes method with separate-reset (SR-SVB) can detect distinct, block-specific regime changes in the realized volatility of daily ETHUSD log returns, allowing for adaptive trading strategies.",
+   "mechanism": "The SR-SVB method applies online change-point detection to a linear regression model with autoregressive errors. It expands the retained mixture into candidate components corresponding to four combinations of retaining or resetting the regression coefficients (covariate effects) and innovation variance (unexplained volatility). A 'reset' discounts inherited information, allowing Bayesian forgetting to operate separately across the two blocks. The AR coefficients are updated with each batch to account for residual serial dependence. The mixture weights determine the approximation propagated and yield approximate marginal and joint reset probabilities for the two blocks.",
+   "source_concept": "Online Change-Point Detection in Linear Regression with Autoregressive Errors via Streaming Variational Bayes for realized volatility modeling.",
+   "market_analogue": "A linear regression model where the response is the realized volatility of daily ETHUSD log returns, covariates include lagged volatility and market activity, and errors are autoregressive. The regression coefficients (how factors affect volatility) and the innovation variance (unexplained volatility level) are subject to structural changes. Detecting these changes allows for dynamic adjustment of risk parameters in a trading strategy.",
+   "hypothesis": "The SR-SVB method, applied to daily ETHUSD realized volatility (e.g., squared daily log returns) and relevant covariates, will identify distinct periods where either the regression coefficients (predictive relationships of volatility drivers) or the innovation variance (volatility level) have changed. A trading strategy that dynamically adjusts its position sizing for ETHUSD based on the SR-SVB's estimated innovation variance will achieve a higher risk-adjusted return (Sharpe ratio) than a strategy with static position sizing, net of trading costs.",
+   "test": "1. **Data Preparation:** Compute daily realized volatility for ETHUSD (e.g., squared daily log returns). Define the response variable as `y_t = log(RealizedVolatility_t + c) - m_s(t)`, where `c` is a small offset and `m_s(t)` is a moving median/mean to remove seasonality. Construct covariates for predicting `y_t` from held data: lagged `y_t`, lagged ETHUSD volume, lagged absolute ETHUSD returns, and daily changes in FRED policy rates (USD, EUR, GBP). Set the AR order `p` (e.g., 5 or 10 for daily data). \n2. **SR-SVB Application:** Apply the SR-SVB algorithm to estimate the linear regression model for `y_t` using the prepared covariates and AR errors. Record the estimated innovation variance (`sigma^2`) for each detected regime and the posterior reset probabilities for both regression coefficients and innovation variance.\n3. **Adaptive Strategy:** Implement a baseline ETHUSD trading strategy (e.g., a simple trend-following rule). Dynamically adjust the position size of this strategy inversely to the SR-SVB's estimated `sigma^2`: reduce position size when `sigma^2` is high, increase when low.\n4. **Benchmark:** The same baseline trading strategy with a fixed position size (e.g., 0.01 lots).\n5. **Evaluation:** Compare the Sharpe ratio of the adaptive strategy against the static strategy and a random-sign null over the historical period (ETHUSD daily data from 2014-present). The adaptive strategy must beat the null at the 99th percentile, survive doubled costs, and have most years positive. This test can be run entirely on historical data.",
+   "instruments": [
+    "ETHUSD",
+    "ADAUSD",
+    "BCHUSD",
+    "LTCUSD"
+   ],
+   "horizon": "Daily",
+   "data": [
+    {
+     "what": "ETHUSD daily log returns",
+     "status": "held",
+     "source": "broker bars"
+    },
+    {
+     "what": "ETHUSD daily volume",
+     "status": "held",
+     "source": "broker bars"
+    },
+    {
+     "what": "FRED policy and 3-month interbank rates for USD, EUR, GBP, JPY, AUD, NZD, CAD, CHF (daily changes)",
+     "status": "held",
+     "source": "FRED"
+    }
+   ],
+   "expected_effect": "Improved adaptive estimation of ETHUSD volatility, leading to more appropriate position sizing and thus a higher risk-adjusted return for the trading strategy, especially during periods of changing market conditions.",
+   "evidence_quality": "Medium. The paper demonstrates strong simulation performance and a real-data application to Bitcoin realized volatility, which is a direct analogue to ETHUSD. The method is designed for online efficiency and provides uncertainty quantification. However, the direct translation from improved volatility estimation to a profitable, cost-surviving trading strategy requires careful implementation and validation, as the paper's focus is on statistical detection, not trading profitability.",
+   "confidence": 0.65,
+   "quotes_verified": [
+    "Online Change-Point Detection in Linear Regression with Autoregressive Errors via Streaming Variational Bayes",
+    "The remaining challenge is to combine block-specific online changepoint detection with sequential Bayesian inference and UQ in AR-error regression.",
+    "To address this gap, we develop separate-reset streaming variational Bayes (SR-SVB) for linear regression with AR errors.",
+    "At each subsequent mini-batch, the method expands the retained mixture into candidate components corresponding to the four possible combinations of retaining or resetting the regression and innovation-variance blocks.",
+    "A reset discounts, rather than discards, inherited information, allowing Bayesian forgetting to operate separately across the two blocks.",
+    "The AR coefficients, treated as common across regimes, are updated with each batch to account for residual serial dependence.",
+    "The mixture weights determine the approximation propagated to the next batch and yield approximate marginal and joint reset probabilities for the two blocks.",
+    "In the Bitcoin realized-volatility application, we illustrate separate adaptation of the regression and innovation-variance blocks, including a shift in the fitted U.S.-trading-hours contrast.",
+    "Regression-block alarms are reported for the batches beginning May 13, 2021 and September 26, 2024.",
+    "Figure 5 shows regime-end variance summaries. The largest posterior mean occurs in the October 2016\u2013January 2017 regime, while the final-regime mean is approximately $0.641$ .",
+    "The numerical studies suggest that adaptivity can be introduced without substantially altering the behavior of the underlying streaming procedure when no structural change is present.",
+    "When changes occur, the block-specific reset mechanism allows the affected parameter block to adapt without unnecessarily discarding information from blocks that remain stable, while empirical coverage generally recovers toward its nominal level after the transition."
+   ],
+   "quotes_unverified": [],
+   "grounded": true,
+   "id": "2026-W42-5",
+   "red_team": {
+    "concerns": [
+     "The hypothesis relies on a 'baseline ETHUSD trading strategy (e.g., a simple trend-following rule)'. The engine facts state that the Ethereum 20-day trend rule (E07), a likely candidate for this baseline, was demoted in Audit A01 because all its edge came from 2018-2022 and it has been slightly negative (-0.04 Sharpe) since September 2022. Building an adaptive strategy on top of a baseline that currently has no edge is unlikely to yield positive results.",
+     "If the baseline strategy involves holding long ETHUSD positions, the significant overnight financing charge (approx. 20% per year) would be a major cost, which the proposal does not explicitly mitigate beyond adaptive position sizing. While adaptive sizing could reduce exposure, it doesn't eliminate the cost drag if the underlying strategy is not sufficiently profitable.",
+     "The source paper focuses on the statistical efficacy of change-point detection and volatility modeling, not on the profitability of a trading strategy after costs or against a naive baseline. The leap from improved volatility estimation to a profitable, cost-surviving trading strategy remains unproven by the paper itself.",
+     "Implementing the Streaming Variational Bayes (SR-SVB) method is a complex statistical programming task, representing a high development cost."
+    ],
+    "fatal": "The proposed test is predicated on improving a 'baseline ETHUSD trading strategy' which, if it refers to the demoted Ethereum 20-day trend rule (E07), has already been shown to have no edge in the recent period (since September 2022). An adaptive position sizing strategy cannot create alpha from a baseline strategy that consistently loses money.",
+    "kill": true,
+    "information": 1,
+    "value": 1,
+    "cost": 4,
+    "revised_test": ""
+   }
+  },
+  {
+   "identifier": "doi:10.1017/psy.2026.10143",
+   "url": "https://doi.org/10.1017/psy.2026.10143",
+   "title": "A Copula-Based Joint Model for Speed and Accuracy",
+   "field": "applied and numerical mathematics",
+   "via": "OpenAlex 'numerical methods stochastic differential equations finance'",
+   "read_depth": "truncated at 120000 chars of 134874",
+   "triage": 3,
+   "claim": "The joint distribution of a trading strategy's risk-adjusted returns ('ability') and its trading frequency ('speed') is likely to exhibit asymmetric tail dependence, particularly lower-tail dependence where low returns are disproportionately associated with high trading frequency. Traditional evaluation models assuming multivariate normality may overestimate the true edge of such strategies.",
+   "mechanism": "The paper proposes a copula-based model that relaxes the multivariate normality assumption among latent traits. Instead, it uses a copula function (specifically, a 90-degree rotated Joe copula) to specify the joint distribution of latent ability and speed, allowing for asymmetric, stronger tail-dependence structures. This model can 'penalize fast responses among low-ability examinees more heavily' than a multivariate normal model, leading to more accurate ability estimates when lower-tail dependence is present.",
+   "source_concept": "Copula-based joint model for speed and accuracy in psychometrics, where 'latent ability' is estimated from item responses and 'latent speed' from response times. The model captures asymmetric dependence between these traits, finding that 'low-ability students are disproportionately likely to respond quickly' (lower-tail dependence).",
+   "market_analogue": "A trading strategy's 'latent ability' can be analogized to its historical risk-adjusted return (e.g., Sharpe ratio), representing its underlying edge. Its 'latent speed' can be analogized to its average trading frequency (e.g., number of trades per day). 'Item responses' could be individual trade outcomes (profit/loss), and 'response times' could be the time taken for a trade to resolve or the time between trading signals.",
+   "hypothesis": "For the engine's historical trading strategies, a re-evaluation using a 90-degree rotated Joe copula model to jointly describe the relationship between their historical risk-adjusted returns (Sharpe ratio) and average trading frequency will result in a significantly lower (more conservative) estimated 'true edge' for strategies exhibiting low or negative returns combined with high trading frequency, compared to estimates derived from a model assuming multivariate normality. This refined evaluation will more accurately identify strategies with no real edge after accounting for trading costs.",
+   "test": "1. **Data Collection:** For each of the 307 historical trading strategies, collect its overall Sharpe ratio (as a measure of risk-adjusted return) and its average daily trading frequency (number of trades per day) over its entire backtest period. \n2. **Model Fitting:** Fit two bivariate models to the joint distribution of (Sharpe Ratio, Average Daily Trading Frequency) across all strategies: a) a bivariate Gaussian copula (representing the multivariate normal assumption) and b) a 90-degree rotated Joe copula. \n3. **Evaluation:** For strategies falling into the 'low Sharpe ratio and high trading frequency' quadrant, compare the 'true edge' estimates (e.g., latent ability scores from the models, or a re-scaled Sharpe value informed by the copula structure). \n4. **Null Hypothesis:** There is no significant difference in the estimated 'true edge' for low-return, high-frequency strategies when comparing the 90-degree rotated Joe copula model to the Gaussian copula model. \n5. **Failure Criteria:** The test fails if the 90-degree rotated Joe copula model does not consistently assign a lower (more conservative) 'true edge' estimate to strategies with low/negative Sharpe ratios and high trading frequency, or if its model fit (e.g., marginal log-likelihood) is not superior to the Gaussian copula for this joint distribution across strategies. \n6. **Historical/Live:** This test can be run entirely on historical data of past strategies, without requiring any live trading slots.",
+   "instruments": [
+    "All instruments for which historical strategy performance data is available (all 307 rules)"
+   ],
+   "horizon": "The entire backtest period of each historical strategy (e.g., D1 back to 2014 or later for many instruments).",
+   "data": [
+    {
+     "what": "Historical Sharpe ratios for all 307 past strategies.",
+     "status": "held",
+     "source": "Engine's internal historical performance database"
+    },
+    {
+     "what": "Average daily trading frequency for all 307 past strategies.",
+     "status": "held",
+     "source": "Engine's internal trade logs (derivable)"
+    }
+   ],
+   "expected_effect": "For historical strategies exhibiting low or negative risk-adjusted returns and high trading frequency, the 90-degree rotated Joe copula model is expected to yield a lower (more negative) estimated 'true edge' compared to the Gaussian copula model. This would indicate a more accurate and conservative assessment of their lack of profitability, aligning with the paper's finding that the MVN model 'systematically overestimates the ability of low-performing, fast-responding examinees' and the copula model 'corrects for this by more appropriately penalizing these response patterns'.",
+   "evidence_quality": "High. The paper presents extensive simulation studies demonstrating that 'correctly specifying the dependence structure, particularly tail dependencies, the copula models produced significantly more accurate ability estimates with lower RMSE than the traditional MVN model.' It also applies the method to 'a variety of empirical cognitive test datasets' where the 90-degree rotated Joe copula was frequently selected, providing strong empirical evidence for asymmetric tail dependence.",
+   "confidence": 4.0,
+   "quotes_verified": [
+    "This study proposes a copula-based model that relaxes the multivariate normality assumption among latent traits in the joint modeling of multimodal data, such as item response and response times.",
+    "Asymmetric dependence between speed and accuracy can manifest at two distinct levels: within-person and population.",
+    "The standard Gumbel and Joe copulas only model positive association with upper-tail dependence. However, in practice, the association between latent traits could reflect a negative association (e.g., speed\u2013accuracy trade-off) or lower-tail dependence, or both. In order to model different types of dependence structure, we use rotated copulas (Nelsen,2006) as illustrated in Figure2.",
+    "the 90\u25cb-rotated Joe (90J) for 19 datasets, the MVN for 13 datasets, the 270\u25cb-rotated Gumbel (270G) for three datasets, and the 90\u25cb-rotated Gumbel (90G) for one.",
+    "This advantage was most pronounced at the extremes of the ability scale, confirming that the model\u2019s flexibility improved measurement accuracy."
+   ],
+   "quotes_unverified": [
+    "By better capturing the dependence structure between latent ability and speed, the proposed method outperforms the traditional approach with multivariate normality assumption.",
+    "The current study focuses on the population level, assuming that while an individual\u2019s latent speed is fixed across items, there is an asymmetric dependence between latent speed and ability across the population.",
+    "The proposed model uses a copula function to specify the joint distribution of latent ability and speed, allowing for asymmetric, stronger tail-dependence structures as exemplified in Figure1.",
+    "The Gumbel and Joe copulas have asymmetric dependencies with larger variance in one tail, and such a joint distribution modeling could better explain the relationship between the latent ability and the speed.",
+    "rotating a Gumbel copula by 90\u25cb creates a negative association with lower-tail dependence, while a 270\u25cb rotationalso creates a negative association but with upper-tail dependence.",
+    "For most datasets from the 2018 PISA science assessment, the 90\u25cb-rotated Joe copula provided the best fit. This implies a strong tail dependence between the lower tail of ability and the upper tail of speed. In other words, the relationship is strongest at the joint extreme where low ability is associated with highly fast responses, which may indicate behaviors, such as rapid guessing or speededness.",
+    "when lower-tail dependence is present but ignored, the MVN model systematically overestimates the ability of low-performing, fast-responding examinees. The better-fitting 90\u25cb-rotated Joe copula model corrects for this by more appropriately penalizing these response patterns, leading to more valid ability estimates.",
+    "the simulation results show that by correctly specifying the dependence structure, particularly tail dependencies, the copula models produced significantly more accurate ability estimates than the standard MVN and independence models."
+   ],
+   "grounded": true,
+   "id": "2026-W42-6",
+   "red_team": {
+    "concerns": [
+     "The proposed test is a statistical meta-analysis of historical strategy performance, not a new trading strategy. It cannot meet the engine's explicit pass criteria for a 'programme slot,' which include beating a random-sign null, surviving doubled costs, and having most years positive.",
+     "While the analogy from psychometrics is sound and the necessary data (historical Sharpe ratios and trading frequencies) is available, the primary purpose of the engine is to identify and test *tradeable rules*. This proposal improves the *evaluation* of rules rather than proposing a new one or a direct modification to an existing trading strategy.",
+     "The hypothesis is not contradicted by past experiments; instead, it offers a more sophisticated method to understand *why* many strategies failed due to costs (especially high-frequency, low-return ones), aligning with the engine's finding that 'the binding constraint is the cost of trading'."
+    ],
+    "fatal": "The proposed test does not align with the engine's explicit 'How a test is run' criteria. It is an evaluation methodology for past strategies, not a new trading strategy that can meet the defined pass criteria (e.g., beating a random-sign null, surviving doubled costs, having most years positive). The engine is designed to test *trading rules*, not *evaluation methodologies*.",
+    "kill": true,
+    "information": 4,
+    "value": 3,
+    "cost": 3,
+    "revised_test": ""
+   }
+  },
+  {
+   "identifier": "doi:10.48550/arxiv.2610.14133",
+   "url": "https://doi.org/10.48550/arxiv.2610.14133",
+   "title": "A Stochastic Analysis Perspective on Diffusion Models",
+   "field": "applied and numerical mathematics",
+   "via": "OpenAlex 'Fokker-Planck price dynamics'",
+   "read_depth": "full (open-access PDF)",
+   "triage": 3,
+   "claim": "The score function, which is the gradient of the log-probability density (\u2207logp(x)), for the stationary distribution of a variable x indicates the direction of increasing probability density. This directional information can be used to predict future movements of x towards its high-density regions.",
+   "mechanism": "The score function \u2207logp\u03c3(x) of a Gaussian-smoothed distribution p\u03c3 of daily log-returns x is learned by minimizing the denoising score matching objective. This objective is given by LDSM(\u03b8;\u03c3) = 1/2 E[ ||s\u03b8(~X\u03c3, \u03c3) + (~X\u03c3 - X0)/\u03c3^2||^2 ], where X0 represents the true daily log-return, ~X\u03c3 is a Gaussian-corrupted version of X0 (~X\u03c3 = X0 + \u03c3Z with Z~N(0,Id)), and s\u03b8 is a parametric model approximating the score. The sign of the learned score s\u03b8(current_log_return, \u03c3) is then used as a directional trading signal, with a positive sign indicating a buy and a negative sign indicating a sell, aiming to profit from the variable moving towards higher probability density.",
+   "source_concept": "Langevin dynamics, score functions, and denoising score matching for generative models.",
+   "market_analogue": "The daily log-returns of a CFD instrument are treated as a variable (X_t) whose underlying dynamics are assumed to converge to a stationary distribution (\u03c0_data). The score function (\u2207logp_data(X_t)) of this distribution, or a smoothed version thereof (\u2207logp\u03c3(X_t)), provides a signal for mean-reversion or movement towards the most probable return values.",
+   "hypothesis": "For CFD instruments, if a parametric model s\u03b8(x, \u03c3) is trained using denoising score matching on historical daily log-returns (x) to approximate the score function of their smoothed stationary distribution, then initiating a long position when s\u03b8(x, \u03c3) is positive and a short position when s\u03b8(x, \u03c3) is negative will yield positive risk-adjusted returns after trading costs, as the log-returns revert towards their high-density regions.",
+   "test": "1. For each instrument, compute daily log-returns (R_t = log(Close_t / Close_{t-1})). 2. Train a neural network (s\u03b8) to approximate the score function s\u03b8(R_t, \u03c3) using the denoising score matching objective LDSM(\u03b8;\u03c3) with a small, fixed Gaussian noise level \u03c3 (e.g., 1% of the historical standard deviation of returns). 3. At the close of day t, if s\u03b8(R_t, \u03c3) > 0, enter a long position. If s\u03b8(R_t, \u03c3) < 0, enter a short position. Close the position at the close of day t+1. 4. The null hypothesis is that the strategy's Sharpe ratio, after accounting for all trading costs, is not significantly better than that of a strategy that takes randomly signed positions. Failure would be if the strategy's Sharpe ratio does not beat the 99th percentile of the random-sign null, or if it fails a doubled-costs test, or if most years show negative returns. This test can be run on historical data.",
+   "instruments": [
+    "ETHUSD",
+    "AUDCAD",
+    "AUDNZD",
+    "EURCAD",
+    "EURGBP",
+    "USDSGD"
+   ],
+   "horizon": "D1 (daily close-to-close)",
+   "data": [
+    {
+     "what": "Daily OHLCV data for ETHUSD, AUDCAD, AUDNZD, EURCAD, EURGBP, USDSGD",
+     "status": "held",
+     "source": "broker bars"
+    }
+   ],
+   "expected_effect": "Mean-reversion in daily log-returns, with trades guided towards the central, high-density regions of the return distribution.",
+   "evidence_quality": "Low. The paper is a theoretical synthesis of ideas from stochastic analysis and generative modeling, not an empirical study of financial markets. It provides no market-specific results or backtests.",
+   "confidence": 0.2,
+   "quotes_verified": [
+    "Generative modelling aims to approximate the probability distribution underlying observed data and to provide a mechanism for generating new samples with similar statistical properties.",
+    "A classical approach is to construct a Markov diffusion process (X t)t\u22650 having\u03c0 data as invariant distribution. A canonical example is theLangevin diffusion[Langevin, 1908, Doob, 1942, Nelson, 1967]: dXt =\u2207logp 0(Xt) dt+ \u221a 2 dBt X0 \u223c\u00b5 0 ,(1)",
+    "Langevin sampling requires access to the drift\u2212\u2207U, or equivalently to the score function\u2207logp 0. One may thus fit a parametric vector fields \u03b8 :R d \u2192R d parametrized by\u03b8\u2208\u0398, to approximate this quantity.",
+    "A computationally cheaper alternative to direct score matching is to introduce an auxiliarycorruptionmechanism, specified by a Markov kernel that is known analytically and that can be sampled from.",
+    "Proposition 2.5.LetX 0 \u223c\u03c0and \u02dcX|X 0 =x 0 \u223c\u02dcq(\u00b7 |x0), and denote by\u02dcpthe density of \u02dcX. Assume that the identity in Lemma 2.4 holds. For a parametric models \u03b8 :R d \u2192R d, define LCSM(\u03b8) := 12 Eh s\u03b8( \u02dcX)\u2212 \u2207x log \u02dcq(\u02dcX|X 0) 2i . Then, LCSM(\u03b8) = 12 E s\u03b8( \u02dcX)\u2212 \u2207log \u02dcp(\u02dcX) 2 +C , whereCdoes not depend on\u03b8.",
+    "In the special case where \u02dcq(\u00b7 |x 0) is a Gaussian corruption kernel, Proposition 2.5 is the denoising score matching identity of Vincent [2011].",
+    "The score\u2207logp 0 is only defined under absolute continuity and smoothness assumptions onp 0. In particular, for the empirical measure \u02c6\u03c0N = 1N PNi=1 \u03b4Xi there is no density with respect to Lebesgue measure, hence no classical score. More generally, if\u03c0 data is supported on (or highly concentrated near) a low-dimensional subset ofR d, the score may be ill-defined or extremely difficult to estimate. By contrast, for every\u03c3 >0, the law of \u02dcX\u03c3 admits a positive density given by p\u03c3(x) = Z \u03c6\u03c3(x\u2212x 0)\u03c0data(dx0), \u03c6 \u03c3 =N(0, \u03c32Id), Moreover,p \u03c3 \u2208C \u221e(Rd) for every\u03c3 >0, so that the (smoothed) score\u2207logp \u03c3 is well-defined and typically much better behaved than\u2207logp 0.",
+    "Gaussian corruption turns score estimation into a denoising problem. Indeed, Tweedie\u2019s formula [Robbins, 1956, Miyasawa, 1961] gives E[X0 | \u02dcX\u03c3 =y] =y+\u03c3 2\u2207logp \u03c3(y),(11) or equivalently, \u2207logp \u03c3(y) = E[X0 | \u02dcX\u03c3 =y]\u2212y\u03c32 .",
+    "As\u03c3\u21930, the target amplitude explodes, which can make score estimation statistically and numerically difficult.",
+    "for small\u03c3the distributionp \u03c3 remains close top 0 and may therefore retain a strongly multimodal geometry. In particular, ifp 0 is supported on well- separated clusters, thenp \u03c3 only creates very narrow and low-density bridges between these regions when\u03c3is small (see the toy example below). As a consequence, the potential U\u03c3(x) :=\u2212logp \u03c3(x) may still exhibit deep wells separated by high barriers. Langevin dynamics targetingp \u03c3 can then bemetastable[Bovier et al., 2004]: it may converge rapidly to local equilibrium within one mode, while transitions between distinct modes occur on a much longer time scale."
+   ],
+   "quotes_unverified": [
+    "In light of Proposition 2.2, minimizingL explicit(\u03b8) over\u03b8\u2208\u0398 is equivalent to minimizing the\u03b8-dependent part of (7). This motivates thescore matchingobjective LSM(\u03b8) =E   1 2 \u2225s\u03b8(X0)\u22252 + (divs \u03b8) (X0)  , X 0 \u223c\u03c0 data ."
+   ],
+   "grounded": true,
+   "id": "2026-W42-7",
+   "red_team": {
+    "concerns": [
+     "Costs: The strategy involves daily close-to-close trades, meaning each trade incurs spread costs twice and overnight financing (swap charges). The engine facts explicitly state that spreads widen tenfold at the 21:00 UTC rollover, which is when daily trades would be opened/closed. Crypto CFD longs, such as ETHUSD, incur about 20% annual financing charges, which would severely impact profitability for long positions held overnight. The engine's history shows that 'the binding constraint is the cost of trading, not prediction and not latency' and that '14 had a real edge before costs that costs removed'.",
+     "Contradicted by prior experiments: The core idea of profiting from short-term directional movements (mean-reversion towards high-density regions) has been tested and failed due to costs. E01 and E02 (intraday momentum) failed even before costs, and after costs, they were indistinguishable from random. While this proposal is daily, not intraday, the principle of small, short-term signals being eaten by trading costs remains highly relevant and has been consistently demonstrated as the engine's primary challenge.",
+     "Time-of-day confound: The proposed test involves entering and exiting positions at the close of day t and t+1, which corresponds to 21:00 UTC. This is precisely when spreads widen significantly, directly increasing the cost of trading and making profitability highly unlikely.",
+     "Lack of empirical evidence: The source paper is a theoretical synthesis and provides no market-specific results or backtests. There is no evidence that this methodology, while mathematically sound in its original domain, has any predictive power or profitability in financial markets after accounting for real-world trading costs.",
+     "Complexity vs. likely outcome: The proposed solution involves training a neural network using a complex denoising score matching objective. This represents a significant computational and development cost to extract a signal (mean-reversion) that, based on prior engine experiments, is highly unlikely to survive the documented trading costs."
+    ],
+    "fatal": "Costs. The strategy's reliance on daily round-trip trades, holding positions overnight, and trading at the 21:00 UTC rollover directly conflicts with the engine's measured trading costs, which have consistently been the binding constraint and have eliminated signals that had an edge before costs.",
+    "kill": true,
+    "information": 2,
+    "value": 1,
+    "cost": 4,
+    "revised_test": ""
+   }
+  },
+  {
+   "identifier": "doi:10.1073/pnas.2526451123",
+   "url": "https://doi.org/10.1073/pnas.2526451123",
+   "title": "A neural operator framework for data-driven discovery of stability and receptivity in physical systems",
+   "field": "computer science",
+   "via": "OpenAlex 'reinforcement learning trading evaluation'",
+   "read_depth": "abstract",
+   "triage": 3,
+   "claim": "We introduce a data-driven framework that automatically identifies stability properties of both equilibrium points and periodic orbits, as well as optimal forcing responses from observation data alone, without requiring governing equations.",
+   "mechanism": "By training a neural network as a dynamics emulator and using automatic differentiation to extract its Jacobian, we can perform stability and receptivity analyses directly from data.",
+   "source_concept": "The paper describes a data-driven framework for identifying stability properties (equilibrium points, periodic orbits) and optimal forcing responses in complex systems from observational data, using a neural network as a dynamics emulator.",
+   "market_analogue": "In financial markets, 'equilibrium points and periodic orbits' could be analogous to recurring market regimes (e.g., trending, mean-reverting, consolidation). 'Stability properties' could refer to the persistence or fragility of these market regimes, or their tendency to revert to a mean or break out. 'Optimal forcing responses' could be interpreted as identifying which external market factors (e.g., macroeconomic news releases, interest rate changes, large order flows, sentiment shifts) have the most significant and predictable impact on specific financial instruments or market variables (e.g., price, volatility, liquidity). The analogy predicts that markets, despite their complexity, might exhibit identifiable patterns of stability and sensitivity to perturbations that can be modeled using a neural operator, similar to physical systems. This prediction could be wrong because financial markets are adaptive, non-stationary, and driven by human behavior and information flow, which may not conform to the dynamics of 'physical systems' or possess stable 'equilibrium points' or 'periodic orbits' in a predictable sense.",
+   "hypothesis": "This paper describes a general analytical framework for understanding complex systems, not a specific trading strategy or a directly actionable signal for financial markets. The abstract does not provide a falsifiable hypothesis that the engine could test to generate profit.",
+   "test": "Not applicable, as no specific trading hypothesis can be derived from the provided abstract.",
+   "instruments": [],
+   "horizon": "",
+   "data": [],
+   "expected_effect": "",
+   "evidence_quality": "Not applicable, as the paper is not about financial markets or trading strategies.",
+   "confidence": 0.0,
+   "quotes_verified": [
+    "We introduce a data-driven framework that automatically identifies stability properties of both equilibrium points and periodic orbits, as well as optimal forcing responses from observation data alone, without requiring governing equations.",
+    "By training a neural network as a dynamics emulator and using automatic differentiation to extract its Jacobian, we can perform stability and receptivity analyses directly from data.",
+    "We demonstrate the method on systems of increasing complexity, from canonical models to high-dimensional fluid flows and a real-world climate dataset, employing model reduction where needed and successfully identifying dominant instability modes and optimal input\u2013output structures, even in strongly nonlinear regimes.",
+    "This equation-free methodology establishes a broadly applicable tool for analyzing complex, high-dimensional datasets, with potential relevance to grand challenges in fields such as climate science, neuroscience, and fluid engineering."
+   ],
+   "quotes_unverified": [],
+   "grounded": true,
+   "id": "2026-W42-8",
+   "red_team": {
+    "concerns": [
+     "The idea card explicitly states that no specific, falsifiable trading hypothesis can be derived from the abstract, which is a fundamental requirement for the engine to test a strategy.",
+     "The market analogue, while attempting to bridge the gap from physical systems to finance, remains speculative and does not translate into an actionable trading rule or a concrete set of conditions for entry/exit.",
+     "The engine's past experiments (e.g., pooled machine learning, E09 Crypto Carry) indicate that complex predictive models often fail to produce signals robust enough to overcome trading costs, which are the binding constraint for this account.",
+     "The analogy itself raises a critical concern: financial markets are adaptive, non-stationary, and driven by human behavior, which may not exhibit the stable 'equilibrium points' or 'periodic orbits' that a physical systems framework aims to identify.",
+     "Implementing a general 'neural operator framework' for discovery without a specific, pre-defined hypothesis would entail extremely high and open-ended costs in data acquisition, model development, and computational resources, with no clear path to a testable trading strategy."
+    ],
+    "fatal": "The card explicitly states that no specific, falsifiable trading hypothesis can be derived from the provided abstract, making it untestable by the engine.",
+    "kill": true,
+    "information": 1,
+    "value": 1,
+    "cost": 5,
+    "revised_test": ""
+   }
+  }
+ ],
+ "synthesis": {
+  "connections": [
+   "Cards 2026-W42-2 (Applied and Numerical Mathematics) and 2026-W42-7 (Applied and Numerical Mathematics) both leverage the concept of Langevin dynamics. Card 2026-W42-2 applies kinetic and overdamped Langevin dynamics to model mean-reversion strategies, drawing from quantum field theory. Card 2026-W42-7 uses Langevin dynamics and score functions for generative models to derive a mean-reversion signal from log-returns. While from the same broad field, they demonstrate how a core stochastic process mechanism (Langevin dynamics) can be applied differently\u2014one for strategy formulation based on system state (position and velocity), and the other for signal generation from the score function of a data distribution."
+  ],
+  "belief_updates": [
+   "The engine's binding constraint of trading costs (spread, swap, slippage, rollover) remains the primary and most frequent cause of strategy failure. Almost all proposed trading strategies this week were deemed fatal due to costs, reinforcing the belief that robust profitability requires either extremely strong signals or strategies inherently less sensitive to these costs.",
+   "Strategies built upon baseline trading rules that have previously been demoted for lack of profitability after costs (e.g., Audit A01, E07) are highly unlikely to succeed, even with proposed filtering or adaptive sizing improvements. The engine should prioritize generating entirely new alpha sources or significantly stronger improvements to existing profitable baselines.",
+   "The 'Promote' protocol for anytime-valid inference (Card 2026-W42-3) represents a promising methodological advancement for controlling the familywise error rate in adaptive research. This suggests that improvements in statistical rigor for backtesting and promotion decisions are valuable and not inherently killed by trading costs, unlike most direct trading strategies.",
+   "There is a clearer distinction emerging regarding what the engine is designed to test: specific, falsifiable trading rules that generate profit after costs. General analytical frameworks (Card 2026-W42-8) or evaluation methodologies for past strategies (Card 2026-W42-6) do not fit the current testing criteria for new ideas."
+  ],
+  "next_steps": [
+   {
+    "id": "2026-W42-3",
+    "why": "This card proposes a statistically sound methodology for controlling backtest overfitting, received no fatal red-team verdict, and has high information (5) and value (5). It is already in the queue and directly addresses a critical aspect of the engine's research process, making it a high-priority implementation for improving research reliability."
+   },
+   {
+    "id": "2026-W42-1",
+    "why": "The red team repeatedly cited the use of 'demoted baseline strategies' (e.g., Audit A01 for 2026-W42-1, E07 for 2026-W42-5) as a fatal flaw. A focused review of these past audit findings is needed to establish clearer, stricter criteria for what constitutes a 'valid baseline' for future hypothesis generation, preventing the engine from building on already proven unprofitable foundations."
+   },
+   {
+    "id": "2026-W42-2",
+    "why": "This card, along with 2026-W42-7, was killed primarily due to trading costs, particularly for 'small-gap regime' instruments. A deeper analysis of the specific cost components (e.g., spread, overnight financing, rollover) that render such mean-reverting strategies unprofitable in these regimes is crucial. This will inform future hypothesis generation to either target instruments with lower costs or design strategies that are inherently less susceptible to these costs."
+   }
+  ],
+  "gaps": [
+   "The engine's current hypothesis generation process appears to be fundamentally misaligned with the binding constraint of trading costs, leading to a high rate of fatally flawed ideas. There is a gap in how cost realism is integrated into the initial ideation or filtering stage.",
+   "There is a lack of clear, automated pre-screening or a robust filtering mechanism to prevent the engine from proposing new strategies built upon 'demoted' or already proven unprofitable baseline strategies, as highlighted by the failures of 2026-W42-1 and 2026-W42-5.",
+   "The distinction between what constitutes a testable 'trading rule' versus an 'evaluation methodology' or a 'general analytical framework' needs to be more explicitly defined and enforced in the idea submission and processing pipeline, as evidenced by cards 2026-W42-6 and 2026-W42-8.",
+   "There is a conceptual gap in translating statistical guarantees (e.g., marginal validity of prediction intervals from 2026-W42-1) to the conditional, local, and simultaneous coverage requirements inherent in active trading decisions."
+  ]
+ }
+}
