@@ -43,13 +43,16 @@ jobs:
         run: |
           PARAMS=$(jq -cn --arg c "$CODE" --arg m "$MODULE" --arg a "$ARGS" \
             '[$c, $m] + ($a | split(" ") | map(select(length > 0)))')
+          # pyarrow stays below 26: 26.0.0 (2026-10-09) refuses to import without NumPy 2, and
+          # serverless environment client 2 keeps NumPy 1.26.4, so every parquet write failed
+          # ("Unable to find a usable engine"), e.g. external-data on 2026-10-19.
           jq -n --arg f "$CODE/dbx/run_module.py" --arg m "$MODULE" --argjson p "$PARAMS" '{
             run_name: ("engine: " + $m),
             tasks: [{task_key: "run", environment_key: "e",
                      spark_python_task: {python_file: $f, parameters: $p}}],
             environments: [{environment_key: "e", spec: {client: "2", dependencies: [
               "pandas>=2.2", "numpy>=1.26", "scipy>=1.11", "statsmodels>=0.14",
-              "pyarrow>=16.0", "python-dotenv>=1.0", "tzdata>=2024.1", "requests"]}}]
+              "pyarrow>=16.0,<26", "python-dotenv>=1.0", "tzdata>=2024.1", "requests"]}}]
           }' > run.json
           RUN=$(databricks jobs submit --json @run.json --no-wait --output json | jq -r .run_id)
           echo "run id: $RUN"
