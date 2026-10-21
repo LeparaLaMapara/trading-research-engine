@@ -252,7 +252,7 @@ def check_secrets_present() -> Check:
     missing = [k for k in required if not os.environ.get(k)]
     if missing:
         return Check("secrets_present", "Does the system have the keys it needs?", FAIL,
-                     f"{len(missing)} credential(s) are missing, so part of the system is "
+                     f"Missing credentials: {len(missing)}, so part of the system is "
                      f"quietly doing nothing.", ", ".join(missing))
     return Check("secrets_present", "Does the system have the keys it needs?", PASS,
                  "All required credentials are set.", f"{len(required)} checked")

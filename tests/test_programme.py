@@ -103,5 +103,11 @@ def test_an_audit_may_not_add_trials(tmp_path):
     assert any("audit but adds trials" in p for p in st.problems)
 
 
-def test_real_register_counts_n_306():
-    assert P.status(P.load(), check_git=False).n_tried == 306
+def test_real_register_counts_every_declared_trial():
+    # Was pinned to 306, which went stale each time an experiment was registered. N must be
+    # the documented base plus every non-audit experiment's trials, recomputed independently.
+    reg = P.load()
+    expect = reg["n_before_programme"] + sum(
+        int(e.get("trials", 0 if e.get("kind") == "measurement" else 1))
+        for e in reg["experiments"] if e.get("kind", "strategy") != "audit")
+    assert P.status(reg, check_git=False).n_tried == expect >= 307

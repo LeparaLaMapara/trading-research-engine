@@ -41,6 +41,15 @@ def kind(s: str) -> str:
     return "currency"
 
 
+def risk_band(stop_loss_usd: float, balance: float) -> dict:
+    """Risk of one minimum-size trade with a 2-ATR stop, as % of equity, and its band."""
+    pct = 100.0 * stop_loss_usd / balance if balance > 0 else float("inf")
+    band = ("under 1%" if pct < 1 else "1-2%" if pct <= 2 else
+            f"2-{RISK * 100:.0f}%" if pct <= RISK * 100 else "too big")
+    return {"risk_pct_at_min": round(pct, 2), "risk_band": band,
+            "equity_for_2pct_usd": round(stop_loss_usd / 0.02, 0)}
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--db", default=str(ROOT / "data" / "market.db"))
@@ -103,11 +112,16 @@ def main() -> int:
                      "spread_usd": None if sp is None else round(sp * pip * units * conv, 3)})
 
     priced = [r for r in rows if r["priced"]]
+    # Design rule 6 (2026-10-21): prefer instruments where the minimum lot at a sane stop risks
+    # 1 to 2% of equity; the signed limit (6%) is the ceiling, not the target.
+    for r in priced:
+        r.update(risk_band(r["stop_loss_usd"], a.balance))
     fits = {str(b): sum(1 for r in priced if r["stop_loss_usd"] <= b * RISK) for b in (a.balance, *BALANCES)}
     out = {"generated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
            "balance_usd": a.balance, "risk_per_trade": RISK, "symbols": len(rows),
            "fits_at": fits,
            "fits_now": [r["symbol"] for r in priced if r["stop_loss_usd"] <= a.balance * RISK],
+           "preferred_now": [r["symbol"] for r in priced if r["risk_band"] == "1-2%"],
            "rows": rows}
     Path(a.out).write_text(json.dumps(out, indent=1) + "\n", encoding="utf-8")
     print(f"{len(out['fits_now'])} of {len(rows)} fit at ${a.balance}: {out['fits_now']}")

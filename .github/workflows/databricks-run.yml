@@ -19,6 +19,10 @@ concurrency:
   group: databricks-run-${{ inputs.module }}
   cancel-in-progress: false
 
+permissions:
+  contents: read
+  issues: write
+
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -87,3 +91,13 @@ jobs:
           name: dbx-results
           path: dbx-results
           if-no-files-found: ignore
+      - name: Report job health (same-day alert)
+        # Records the job in ops_checks (dashboard banner) and opens or closes its
+        # "Job failing" issue, which GitHub emails to the owner. The weekly outside-data fetch
+        # reports as external-data, anything else as databricks-run. Never fails the job.
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SUPABASE_URL: https://bprargrqppufeuewryze.supabase.co
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: python ops/job_health.py --job ${{ inputs.module == 'data_ext.fetch' && 'external-data' || 'databricks-run' }} --status "${{ job.status }}" --url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"

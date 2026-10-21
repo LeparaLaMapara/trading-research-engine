@@ -35,4 +35,4 @@ addopts = "-q"
 # Flat top-level packages; run modules with `python -m telemetry.logger`.
 packages = ["config", "connection", "telemetry", "ledger", "risk", "backtest",
             "strategy", "market", "report", "analysis", "research", "council", "scout",
-            "dashboard"]
+            "dashboard", "learning", "ops"]
