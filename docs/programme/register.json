@@ -121,6 +121,17 @@
       "result": "docs/results/E09-eth-funding-short.json",
       "verdict": "FAIL",
       "summary": "Shorting Ethereum when perpetual funding was high lost money on data the source paper never saw (Feb 2022 to Aug 2026): 23 shorts, 13 stopped out, net -45%, worse than randomly timed shorts (random average +0.1% a short, this rule -1.9%). High funding came during rallies that kept going. It also lost in the paper's own period and with BitMEX funding. Not tradeable here."
+    },
+    {
+      "id": "E10",
+      "kind": "strategy",
+      "programme": "P1",
+      "trials": 431,
+      "title": "Six evidence families across the 60 instruments the broker offers (screen for forward tests)",
+      "prereg": "docs/programme/E10-family-screen-prereg.md",
+      "result": null,
+      "verdict": null,
+      "summary": null
     }
   ]
 }

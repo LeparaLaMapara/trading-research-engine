@@ -89,6 +89,13 @@ def _remote_save(tokens: dict[str, Any]) -> None:
         pass
 
 
+def _obtained(t: dict[str, Any]) -> float:
+    try:
+        return float(t.get("obtained_at") or 0)
+    except (TypeError, ValueError):
+        return 0.0
+
+
 def load() -> dict[str, Any]:
     """File, then the shared store, then the env-var seed.
 
@@ -99,10 +106,19 @@ def load() -> dict[str, Any]:
     fixes every consumer at once, with nothing to paste.
     """
     store = settings.TOKEN_STORE
+    local: dict[str, Any] = {}
     if store and os.path.exists(store):
         with open(store) as f:
-            return json.load(f)
+            local = json.load(f)
     remote = _remote_load()
+    # The PC and CI share one token lineage, and a refresh on either side kills the other's
+    # copy. Whoever refreshed last wrote the shared store too, so take the NEWER of the two.
+    # (Until 2026-10-21 the file always won, and a stale cached file failed CI for 3 days.)
+    if local.get("access_token") and remote.get("access_token"):
+        newer_remote = _obtained(remote) > _obtained(local)
+        return remote if newer_remote else local
+    if local.get("access_token"):
+        return local
     if remote.get("access_token"):
         return remote
     seed_access = os.environ.get("CTRADER_ACCESS_TOKEN")

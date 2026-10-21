@@ -8,6 +8,10 @@ on:
     - cron: "0 5 * * *"     # daily 05:00 UTC (07:00 SAST)
   workflow_dispatch: {}       # manual "Run workflow" button
 
+permissions:
+  contents: read
+  issues: write
+
 concurrency:
   group: research
   cancel-in-progress: false
@@ -87,3 +91,12 @@ jobs:
         # audit matters most.
         if: always()
         run: python -m ops.audit
+      - name: Report job health (same-day alert)
+        # Records job:research in ops_checks (dashboard banner) and opens or closes the
+        # "Job failing: research" issue, which GitHub emails to the owner. Never fails the job.
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SUPABASE_URL: https://bprargrqppufeuewryze.supabase.co
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: python ops/job_health.py --job research --status "${{ job.status }}" --url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"

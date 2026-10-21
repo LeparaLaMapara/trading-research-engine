@@ -10,11 +10,14 @@ on:
 
 permissions:
   actions: write
+  contents: read
+  issues: write
 
 jobs:
   refresh:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - name: Run the fetch on Databricks
         env:
           GH_TOKEN: ${{ github.token }}
@@ -23,3 +26,13 @@ jobs:
             -f module=data_ext.fetch \
             -f args="--out /Volumes/workspace/trading_engine/external"
           echo "Started; see the databricks-run workflow for the result."
+      - name: Report job health (same-day alert)
+        # Records job:external-data in ops_checks (dashboard banner) and opens or closes the
+        # "Job failing: external-data" issue, which GitHub emails to the owner. Never fails the job.
+        # Only a failed dispatch is reported here; the fetch itself reports from databricks-run.
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SUPABASE_URL: https://bprargrqppufeuewryze.supabase.co
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: python ops/job_health.py --job external-data --status "${{ job.status }}" --url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"

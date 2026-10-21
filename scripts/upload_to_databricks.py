@@ -61,6 +61,12 @@ def main() -> int:
         fh.write(time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()) + "\n")
     ok &= upload(stamp)
     print(f"{'uploaded' if ok else 'upload had failures'} in {time.time() - t0:.0f} s")
+    # Same-day alert (dashboard banner). It failed silently into a log file for days when the
+    # Databricks sign-in on this PC expired.
+    from ops.job_health import record
+    record("pc-dbx-upload", ok, "uploaded" if ok else
+           "upload failed: usually the Databricks sign-in on the PC expired "
+           "(databricks auth login --profile DEFAULT)")
     return 0 if ok else 1
 
 
