@@ -41,6 +41,14 @@ jobs:
           key: research-data-${{ github.run_id }}
           restore-keys: |
             research-data-
+      - name: Use the shared token store, not a cached token file
+        run: |
+          # The cache above restores data/tokens.json from an earlier run, and tokens.load()
+          # reads that file first. Once the engine PC refreshed the cTrader token (2026-10-16)
+          # the cached file was dead and every daily run failed (2026-10-18 to 20). Without the
+          # file, load() uses the shared Supabase store, which every refresh writes, and the
+          # repo secrets only as the last resort.
+          rm -f data/tokens.json
       - name: Install
         run: pip install -e .
       - name: Snapshot account balance -> Supabase
