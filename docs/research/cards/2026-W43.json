@@ -1,0 +1,462 @@
+{
+ "tag": "2026-W43",
+ "stats": {
+  "harvested": 627,
+  "by_field": "109 applied and numerical mathematics, 77 computer science, 112 economics, 10 foundations, 26 mathematical and computational economics, 95 mathematics, 71 physics, 85 quantitative finance, 42 statistics",
+  "eligible": 89,
+  "full_text": 6,
+  "spend": "$0.41 over 39 calls"
+ },
+ "cards": [
+  {
+   "identifier": "arXiv:2610.22656v1",
+   "url": "http://arxiv.org/abs/2610.22656v1",
+   "title": "A Bayesian Hidden Markov Model with Singh--Maddala Emission Distributions for Heavy-Tailed Regime-Switching Time Series",
+   "field": "statistics",
+   "via": "arXiv stat.ME",
+   "read_depth": "full",
+   "triage": 3,
+   "claim": "The HMMSM model provides superior predictive performance and identifies distinct, persistent regimes with quantifiable statistical properties (like conditional means and tail indices) in heavy-tailed, regime-switching time series, including financial asset returns.",
+   "mechanism": "The HMMSM uses Singh\u2013Maddala emission distributions within a Bayesian HMM framework to simultaneously capture temporal dependence, latent regime structure, and heavy-tailed emissions. It identifies regimes with distinct conditional means and tail indices, which helps distinguish between scale-driven (predictable) and tail-driven (unpredictable) extremes.",
+   "source_concept": "Hidden Markov Model (HMM) with heavy-tailed emission distributions for regime-switching time series.",
+   "market_analogue": "Financial asset returns (specifically daily log returns) as a heavy-tailed, regime-switching time series. Regimes correspond to distinct market states (e.g., bull/bear, high/low volatility, high/low expected return). The conditional mean of emissions corresponds to the expected daily log return in that regime. The tail index corresponds to the fatness of the tail of returns in that regime. A scale-driven extreme in returns would be predictable from the identified regime, while a tail-driven extreme would not.",
+   "hypothesis": "A Bayesian Hidden Markov Model with Singh\u2013Maddala emission distributions (HMMSM), applied to daily log returns of ETHUSD, will identify at least two distinct market regimes. If one regime is characterized by a statistically higher positive conditional mean daily log return (a \"bullish\" regime) and another by a statistically lower or negative conditional mean daily log return (a \"bearish\" regime), then a strategy that goes long ETHUSD CFD when the model assigns a high posterior probability to the \"bullish\" regime, and short when it assigns a high posterior probability to the \"bearish\" regime, will yield a positive Sharpe ratio after accounting for the engine's trading costs.",
+   "test": "Data: Daily close-to-close log returns for ETHUSD from the engine's held broker bars (back to 2014). Method: Implement the HMMSM (using the provided open-source code) to infer regimes and their parameters (especially conditional mean returns) for ETHUSD daily log returns. Use Bayesian model selection criteria (WAIC, DIC, LOO) to determine the optimal number of regimes (K). For each day, calculate the posterior probability of being in each regime. Strategy: Define \"high posterior probability\" (e.g., > 0.8). If the model identifies a \"bullish\" regime (highest positive conditional mean log return) and a \"bearish\" regime (lowest or negative conditional mean log return), enter a long position when the \"bullish\" regime probability is high and exit when it drops or the \"bearish\" regime probability becomes high. Conversely, enter a short position when the \"bearish\" regime probability is high and exit when it drops or the \"bullish\" regime probability becomes high. Hold positions until regime probabilities shift. Null hypothesis: The Sharpe ratio of this strategy, after accounting for measured trading costs (spread, swap), is not significantly different from zero, or not statistically distinguishable from a random-sign strategy with equivalent costs and exposure. Failure criteria: The strategy's Sharpe ratio is less than or equal to zero, or its 99th percentile bootstrap resample (with block bootstrap to preserve autocorrelation) falls at or below zero. This test can be run on historical data first.",
+   "instruments": [
+    "ETHUSD"
+   ],
+   "horizon": "Daily",
+   "data": [
+    {
+     "what": "Daily close-to-close log returns for ETHUSD",
+     "status": "held",
+     "source": "broker bars"
+    },
+    {
+     "what": "HMMSM model code",
+     "status": "free",
+     "source": "https://github.com/safaakadhem-s/hmmsm-singh-maddala"
+    }
+   ],
+   "expected_effect": "The HMMSM will identify distinct market regimes in ETHUSD returns, allowing for a strategy that exploits differences in conditional mean returns between these regimes, leading to a positive Sharpe ratio. The distinction between scale-driven and tail-driven extremes may help in risk management by identifying periods where extreme moves are more predictable.",
+   "evidence_quality": "High for the statistical model's performance on simulated data and its ability to identify regimes in rainfall. Moderate for direct financial application, as the paper only mentions financial applications in general terms and does not conduct a financial market study. The model's code is open-source and verified for correctness.",
+   "confidence": 0.7,
+   "quotes_verified": [
+    "Heavy-tailed time series that exhibit regime switching are common in environmental, financial, and engineering applications, yet their statistical modeling remains challenging because conventional emission distributions \u2014 such as the Gaussian, Gamma, or Weibull \u2014 fail to capture simultaneously the extreme right-skewness, the slowly decaying upper tails, and the temporal dependence that characterize such processes.",
+    "This paper develops a fully Bayesian Hidden Markov Model with Singh\u2013Maddala (Burr Type XII) emission distributions (HMMSM).",
+    "The proposed model combines a Hidden Markov Model with Singh\u2013Maddala (Burr Type XII) emission distributions and implements a fully Bayesian inferential framework via Markov Chain Monte Carlo (MCMC).",
+    "The Singh\u2013Maddala family is particularly attractive here for three reasons. First, its tail index $\\alpha=aq$ can be tuned continuously to reproduce tail behaviors ranging from exponential to polynomial decay",
+    "the reparameterization fully stabilizes the tail index $\\alpha_{k}$ and the second shape parameter $q_{k}$",
+    "The framework is general-purpose and applicable to any positive-valued process with heavy tails and latent regime dynamics.",
+    "The simulation study establishes that HMMSM delivers superior predictive performance on heavy-tailed data",
+    "On a simulated benchmark with heavy tails ( $\\alpha_{3}=2.25$ ), Bayesian model selection via WAIC, DIC, and LOO correctly identifies $K=3$ , and HMMSM outperforms seven competing specifications by large differences ( $\\Delta\\text{WAIC}\\geq 51.76$ ).",
+    "On a real 26-year gridded rainfall record for the Republic of Ireland ( $T=312$ monthly observations, 2000\u20132025), HMMSM attains the lowest WAIC among all candidates",
+    "identifies two persistent, seasonally coherent regimes with conditional means of $87.4$ mm and $134.0$ mm respectively.",
+    "The identifiable parameters \u2014 the tail indices $\\alpha_{k}=a_{k}q_{k}$ , the shape parameters $q_{k}$ , the transition probabilities, the stationary distribution, and the conditional means \u2014 all satisfy $\\hat{R}<1.02$ with effective sample sizes exceeding $1{,}900$ .",
+    "Open-source, reproducible code is provided for reproducibility."
+   ],
+   "quotes_unverified": [
+    "The two regimes differ primarily in scale, not in tail behavior. ... A scale-driven extreme is predictable from the regime; a tail-driven extreme is not."
+   ],
+   "grounded": true,
+   "id": "2026-W43-1",
+   "red_team": {
+    "concerns": [
+     "The 20% annual financing charge for ETHUSD long positions is extremely high and would likely consume any conditional mean return identified by the model, making the strategy unprofitable. Spreads for ETHUSD ($3 per ETH) also add significant friction, especially if the model generates frequent trades.",
+     "Previous attempts to find edge on ETHUSD (E07, A01) showed its predictability vanished after 2022. E09 (crypto carry short) also failed. This suggests that even sophisticated models will struggle to find a profitable edge on this instrument that survives costs.",
+     "The core concept of using a Hidden Markov Model (HMM) to identify market regimes in ETHUSD daily log returns for trading has already been proposed and killed multiple times (e.g., \"[killed] Active and passive portfolio management with latent factors: A two-state Hidden Markov Model (HMM) applied to the daily log returns of ETHUSD...\"). This proposal, while using a specific variant of HMM, addresses the same problem with the same core methodology on the same instrument, violating the \"do not propose these again without new information\" rule. The specific emission distribution is incremental, not fundamental \"new information\" to revive a killed concept.",
+     "The paper demonstrates statistical performance on simulated data and rainfall, but does not provide any evidence of profitability or even testing on financial market data, after costs, or against a financial baseline."
+    ],
+    "fatal": "Disguised variant of a killed idea; prohibitive costs for long positions.",
+    "kill": true,
+    "information": 2,
+    "value": 2,
+    "cost": 4,
+    "revised_test": ""
+   }
+  },
+  {
+   "identifier": "arXiv:2610.28915v1",
+   "url": "http://arxiv.org/abs/2610.28915v1",
+   "title": "A Model-Free Continuous-Time RL Algorithm from Discrete-Time Off-Policy Data with End-to-End Guarantees",
+   "field": "mathematics",
+   "via": "arXiv math.OC",
+   "read_depth": "truncated at 120000 chars of 146239",
+   "triage": 3,
+   "claim": "A Model-Free Continuous-Time RL Algorithm from Discrete-Time Off-Policy Data with End-to-End Guarantees. We develop a model-free PhiBE policy iteration (PhiBE-PI) framework that uses a single state-action critic while preserving the continuous-time action-ranking scale. We further develop an implementation under linear function approximation and establish a local end-to-end suboptimality guarantee for the learned policy.",
+   "mechanism": "The PhiBE policy iteration (PhiBE-PI) framework learns a single state-action critic directly from sampled increments and reuses the same fixed off-policy batch for successive policy updates. The policy evaluation equation is estimated directly from observed increments $\\Delta s_{i}/\\Delta t$ and $\\Delta s_{i}\\Delta s_{i}^{\\top}/(2\\Delta t)$ without explicitly estimating the drift or diffusion. Policy improvement uses a hard-greedy update, where the policy maximizes the fitted Q-function: $\\pi_{k+1}(s)\\in\\arg\\max_{a\\in\\mathcal{A}}\\widehat{Q}^{\\pi_{k}}_{\\Delta t}(s,a)$.",
+   "source_concept": "Model-Free Continuous-Time Reinforcement Learning (PhiBE-PI)",
+   "market_analogue": "The market is modeled as a system evolving in continuous time (state $s_t$, action $a_t$, reward rate $r(s_t, a_t)$), but only discrete-time observations (OHLCV bars) are available. The state $s$ corresponds to market features (e.g., log price, log volume, log returns). The action $a$ corresponds to trading decisions (e.g., long, short, cash). The reward $r$ is the instantaneous profit/loss rate. The sampling interval $\\Delta t$ is the bar duration (e.g., 4-hours). The fixed off-policy batch $\\mathcal{D}$ is historical market data. The policy $\\pi(s)$ is a trading strategy mapping market state to action. The Q-function $Q(s,a)$ is the expected discounted future reward from taking action $a$ in state $s$ and then following policy $\\pi$. The underlying stochastic differential equation for market prices is unknown.",
+   "hypothesis": "For ETHUSD CFD, a PhiBE-PI trading policy, using linear function approximation with `log(close_price)`, `log(volume)`, and `log(close_price / previous_close_price)` as state features and discrete actions {long 0.01 lot, short 0.01 lot, cash}, when trained and deployed on 4-hour bars, will achieve a higher Sharpe ratio after trading costs than a baseline discrete-time Q-learning policy (BE-PI) using the same features and actions, also trained and deployed on 4-hour bars.",
+   "test": "1. Implement PhiBE-PI and a standard discrete-time Q-learning (BE-PI) algorithm, both using linear function approximation and hard-greedy policy improvement. 2. Define state features as `log(close_price)`, `log(volume)`, and `log(close_price / previous_close_price)` from 4-hour bars. Actions are {long 0.01 lot, short 0.01 lot, cash}. The reward for a 4-hour period is the P&L after accounting for spread and overnight swap costs. 3. Train both algorithms on a fixed off-policy batch of historical ETHUSD CFD 4-hour bar data. 4. Simulate trading performance for both policies over a multi-year historical period, applying measured trading costs (spread, swap). 5. Null hypothesis: The Sharpe ratio of the PhiBE-PI policy is not statistically significantly higher than that of the BE-PI policy (e.g., p-value > 0.01 in a bootstrap test for difference in Sharpe ratios). 6. Failure criteria: If the PhiBE-PI policy's Sharpe ratio is not higher than the BE-PI policy's, or if it fails to beat a random-sign null at the 99th percentile with the same costs, or if it does not survive doubled costs, or if most years are not positive. This test can be run entirely on historical data.",
+   "instruments": [
+    "ETHUSD"
+   ],
+   "horizon": "Multi-year, evaluated on 4-hour bar data.",
+   "data": [
+    {
+     "what": "ETHUSD CFD 4-hour OHLCV bars",
+     "status": "held",
+     "source": "IC Markets (broker data)"
+    }
+   ],
+   "expected_effect": "PhiBE-PI is expected to yield a higher Sharpe ratio than BE-PI. The paper states: \"Discrete-time Q-learning fits the data interface, but loses the continuous-time action scale.\" In contrast, PhiBE-PI \"preserves the continuous-time action-ranking scale.\" The paper's experiments show PhiBE-PI outperforming BE-PI at finer control intervals: \"PhiBE-PI benefits from updating actions more frequently at deployment than in the training data and outperforms the BE-PI baseline at the finer control intervals tested.\" and \"PhiBE-PI has lower total gain error than BE-PI throughout the tested range.\"",
+   "evidence_quality": "Medium",
+   "confidence": 0.7,
+   "quotes_verified": [
+    "A Model-Free Continuous-Time RL Algorithm from Discrete-Time Off-Policy Data with End-to-End Guarantees",
+    "In this paper, we study continuous-time reinforcement learning, where the state follows an unknown stochastic differential equation but only a fixed off-policy batch of discrete-time transitions is available.",
+    "We develop a model-free PhiBE policy iteration (PhiBE-PI) framework that uses a single state-action critic while preserving the continuous-time action-ranking scale.",
+    "We further develop an implementation under linear function approximation and establish a local end-to-end suboptimality guarantee for the learned policy.",
+    "PhiBE-PI benefits from updating actions more frequently at deployment than in the training data and outperforms the BE-PI baseline at the finer control intervals tested.",
+    "PhiBE-PI has lower total gain error than BE-PI throughout the tested range."
+   ],
+   "quotes_unverified": [
+    "The resulting policy-evaluation equation is estimated directly from the observed increments $\\Delta s_{i}/\\Delta t$ and $\\Delta s_{i}\\Delta s_{i}^{\\top}/(2\\Delta t)$, without fitting the drift or diffusion as separate functions.",
+    "The improvement oracle may maximize the fitted Q-function through the greedy update $\\pi_{k+1}(s)\\in\\arg\\max_{a\\in\\mathcal{A}}\\widehat{Q}^{\\pi_{k}}_{\\Delta t}(s,a)$",
+    "Discrete-time Q-learning fits the data interface, but loses the continuous-time action scale.",
+    "Assumption A1 (Global dynamics). The state space is $\\mathbb{R}^{d}$... The reward $r$, drift $b$, and diffusion coefficient $\\sigma$ admit three times continuously differentiable extensions... The covariance is independent of the action and uniformly elliptic: $\\Sigma(s,a):=\\sigma(s,a)\\sigma(s,a)^{\\top}=\\Sigma_{0}(s)\\succeq\\lambda_{0}I,\\qquad(s,a)\\in\\mathbb{R}^{d}\\times\\mathcal{A},$ for some $\\lambda_{0}>0$."
+   ],
+   "grounded": true,
+   "id": "2026-W43-2",
+   "red_team": {
+    "concerns": [
+     "Costs (spread, overnight financing, rollover) would likely eat the effect: ETHUSD longs incur about 20% annual financing charges. Previous crypto strategies (E07, E09) have failed due to high costs or their edge disappearing post-2022.",
+     "The hypothesis is contradicted by previous experiments: Pooled machine learning (XGBoost, GRU, random forests) failed to distinguish signal from luck after costs. E07 (Ethereum 20-day trend) earned all its edge before 2022 and none since, and was demoted. E09 (crypto carry short) failed out of sample. The engine's binding constraint is the cost of trading, not prediction.",
+     "The paper itself does not show its result out of sample, after costs, against a naive baseline in a financial context, nor has it been replicated in such a context. Its guarantees are theoretical regarding 'total gain error' and 'suboptimality', not financial profitability.",
+     "Testing on history would need explicit train/test split details to ensure out-of-sample performance and prevent lookahead bias. While implied, it's not explicitly stated for the 'multi-year historical period' simulation."
+    ],
+    "fatal": "The binding constraint is the cost of trading, not prediction. High costs (especially for crypto longs) have consistently killed similar ideas, and there's no evidence this particular ML approach would overcome that. The paper's theoretical benefits are not shown to translate to real-world financial profitability after costs, and prior ML attempts on this instrument have failed.",
+    "kill": true,
+    "information": 3,
+    "value": 2,
+    "cost": 4,
+    "revised_test": ""
+   }
+  },
+  {
+   "identifier": "doi:10.1080/14697688.2026.2744185",
+   "url": "https://doi.org/10.1080/14697688.2026.2744185",
+   "title": "The dollar's double life for cross-currency basis swaps: a closer look at G10 panels",
+   "field": "quantitative finance",
+   "via": "top venue",
+   "read_depth": "abstract",
+   "triage": 3,
+   "claim": "Dollar appreciations widen cross-currency basis swap spreads in low-dollar regimes, while their effects weaken or even reverse in high-dollar regimes, resulting in basis tightening. This asymmetry is strongest at the short end of the basis curve.",
+   "mechanism": "Cross-currency basis swap spreads arise from dollar regime-dependent hedging behaviour by global investors, suggesting a particularly important role for short-term funding and liquidity pressures.",
+   "source_concept": "Dollar regime-dependent asymmetry in cross-currency basis swap spreads.",
+   "market_analogue": "The paper discusses cross-currency basis swap spreads for G10 currencies vis-\u00e0-vis the US dollar, which are interbank market instruments not directly tradeable by the engine. While these spreads can reflect and influence broader FX market conditions, the abstract does not provide a direct, observable, or tradable analogue for spot FX, metals, or crypto CFDs that the engine can access.",
+   "hypothesis": "Nothing testable here. The paper's findings relate to cross-currency basis swap spreads, which are not tradable instruments for the engine. Furthermore, the described effects are less stable and often statistically insignificant in the post-LIBOR era, which is the relevant period for the engine's available data.",
+   "test": "N/A",
+   "instruments": [],
+   "horizon": "N/A",
+   "data": [
+    {
+     "what": "Cross-currency basis swap spreads for G10 currencies vs. USD",
+     "status": "unavailable",
+     "source": "N/A"
+    },
+    {
+     "what": "Definition and data for 'low-dollar' and 'high-dollar' regimes",
+     "status": "unavailable",
+     "source": "Paper abstract does not specify"
+    }
+   ],
+   "expected_effect": "N/A",
+   "evidence_quality": "The effects were observed 'during the LIBOR period' but 'in the post-LIBOR era, however, these threshold effects become less stable and are often statistically insignificant'.",
+   "confidence": 0.0,
+   "quotes_verified": [
+    "We present a model in which cross-currency basis swap spreads arise from dollar regime-dependent hedging behaviour by global investors.",
+    "Using a panel of G10 currencies vis-\u00e0-vis the US dollar, we show that, during the LIBOR period, dollar appreciations widen the basis in low-dollar regimes, while their effects weaken or even reverse in high-dollar regimes, resulting in basis tightening.",
+    "This asymmetry is strongest at the short end of the basis curve, suggesting a particularly important role for short-term funding and liquidity pressures in the observed term-structure response.",
+    "In the post-LIBOR era, however, these threshold effects become less stable and are often statistically insignificant, possibly reflecting both the shorter sample and changes in benchmark conventions."
+   ],
+   "quotes_unverified": [],
+   "grounded": true,
+   "id": "2026-W43-3",
+   "red_team": {
+    "concerns": [
+     "The core instruments (cross-currency basis swaps) are not tradable by the engine.",
+     "The paper's abstract explicitly states it does not provide a direct, observable, or tradable analogue for spot FX, metals, or crypto CFDs that the engine can access.",
+     "The necessary data (cross-currency basis swap spreads, definition and data for 'low-dollar' and 'high-dollar' regimes) is unavailable to the engine.",
+     "The paper itself indicates that the described effects are 'less stable and often statistically insignificant' in the post-LIBOR era, which is the relevant period for the engine's available data, rendering the claimed effect potentially non-existent or untrustworthy.",
+     "The idea card explicitly states 'Nothing testable here' in its hypothesis section."
+    ],
+    "fatal": "The idea is not testable due to untradable instruments, lack of a clear market analogue, unavailable data, and the paper's own admission of statistical insignificance in the relevant period.",
+    "kill": true,
+    "information": 1,
+    "value": 1,
+    "cost": 5,
+    "revised_test": ""
+   }
+  },
+  {
+   "identifier": "arXiv:2610.31418v1",
+   "url": "http://arxiv.org/abs/2610.31418v1",
+   "title": "A Resource Allocation Tournament",
+   "field": "economics",
+   "via": "arXiv econ.TH",
+   "read_depth": "full",
+   "triage": 3,
+   "claim": "This paper introduces and analyzes equilibrium strategies for resource allocation in round-robin tournaments under different payoff schemes and player counts.",
+   "mechanism": "The paper defines a game where players simultaneously allocate a fixed unit of resources across their matches. Match outcomes depend on relative allocations (all-pay mechanism). Two payoff schemes are considered: total points and winner-takes-all. Equilibrium strategies are derived or approximated for various player counts.",
+   "source_concept": "Game Theory, Contest Theory, Resource Allocation Tournament",
+   "market_analogue": "The core concepts of strategic resource allocation and equilibrium strategies in a defined contest do not directly translate to a predictable economic mechanism for market prices or a market inefficiency that could be arbitraged. The 'players' in the paper are agents making strategic choices within a closed game, not market participants whose actions directly lead to predictable price movements or unexploited arbitrage opportunities in an open financial market. The paper's focus is on optimal behavior within a defined game structure, not on market dynamics or price formation.",
+   "hypothesis": "Nothing testable here. The paper describes game-theoretic equilibria for resource allocation in abstract tournaments, not an economic mechanism that would make financial prices predictable, identify a specific 'other side of the trade' in an open market, or explain an unarbitraged market inefficiency. The models are prescriptive for agents within a defined contest, not descriptive or predictive of financial market behavior.",
+   "test": "N/A",
+   "instruments": [],
+   "horizon": "N/A",
+   "data": [],
+   "expected_effect": "N/A",
+   "evidence_quality": "N/A",
+   "confidence": 0.0,
+   "quotes_verified": [
+    "We introduce and analyze a round-robin simultaneous resource allocation contest, motivated by sports leagues and other competitive environments where agents must distribute limited resources across multiple encounters.",
+    "Players allocate resources in advance to matches against all opponents, and match outcomes are determined by relative allocations.",
+    "We study two payoff schemes: total points, where players accumulate rewards for each win, and winner-takes-all, where only the tournament winner is rewarded.",
+    "Thus, while sports provide natural and intuitive motivation, the underlying allocation problem is relevant in a wide range of settings."
+   ],
+   "quotes_unverified": [],
+   "grounded": true,
+   "id": "2026-W43-4",
+   "red_team": {
+    "concerns": [
+     "The idea card explicitly states that the core concepts do not directly translate to a predictable economic mechanism for market prices or a market inefficiency that could be arbitraged.",
+     "The idea card explicitly states that there is 'Nothing testable here', as the paper describes game-theoretic equilibria for abstract tournaments, not an economic mechanism that would make financial prices predictable.",
+     "The mechanism described is prescriptive for agents within a defined contest, rather than descriptive or predictive of open financial market behavior or price formation.",
+     "There is no clear 'other side of the trade' or identifiable market inefficiency that could be exploited by the engine."
+    ],
+    "fatal": "The idea card explicitly states that there is 'Nothing testable here' and that the concepts 'do not directly translate to a predictable economic mechanism for market prices or a market inefficiency that could be arbitraged.' This makes it fundamentally untestable and irrelevant to the engine's purpose of finding and testing trading strategies.",
+    "kill": true,
+    "information": 1,
+    "value": 1,
+    "cost": 1,
+    "revised_test": ""
+   }
+  },
+  {
+   "identifier": "arXiv:2610.28863v1",
+   "url": "http://arxiv.org/abs/2610.28863v1",
+   "title": "A game-theoretic analysis of the market microstructure in decentralized exchanges with concentrated liquidity",
+   "field": "quantitative finance",
+   "via": "arXiv q-fin.MF",
+   "read_depth": "full",
+   "triage": 3,
+   "claim": "In decentralized exchanges with concentrated liquidity, free entry by liquidity providers (LPs) drives the ratio of realized volatility to a critical volatility (the 'participation margin' $s$) to a specific equilibrium value ($s_{\\star}$), which is slightly below one and set by rebalancing costs. This critical volatility is computed from observable pool quantities.",
+   "mechanism": "Liquidity providers strategically choose the width of their price range and when to rebalance it. They pay transaction costs at each rebalancing and share fees collected at each tick in proportion to their liquidity. As competing liquidity is added, each provider's share of fees falls. Free entry ensures that LPs earn zero excess profit at equilibrium, which determines the aggregate liquidity and sets the participation margin $s$ at $s_{\\star}$. The critical volatility $\\sigma_c$ is derived from the fee tier, traded volume, active-tick liquidity, and price, representing the volatility at which fee income stops covering impermanent loss and rebalancing costs.",
+   "source_concept": "Mean-field game theory applied to strategic liquidity provision in decentralized exchanges, specifically focusing on the free-entry equilibrium for liquidity providers.",
+   "market_analogue": "The paper directly analyzes decentralized exchange (DEX) markets, specifically WETH/USDC liquidity pools. The engine's role is that of a trader in CFD markets, not a liquidity provider in a DEX. The concept of an 'optimal liquidity provision strategy' or 'free-entry margin' for LPs does not directly translate into a trading strategy for a non-LP participant in a CFD market. The paper describes the profitability of providing liquidity, not a directional signal or arbitrage opportunity for a trader.",
+   "hypothesis": "Nothing testable. The paper describes the optimal behavior and equilibrium profitability for liquidity providers (LPs) in decentralized exchanges, not a strategy for a trader taking directional positions or exploiting an arbitrage opportunity as a non-LP. The engine operates as a trader, not a liquidity provider. The paper does not propose any market effect (e.g., price movement, spread changes in a way that affects CFD fills, or predictive signal) that could be exploited by a non-LP trader.",
+   "test": "Not applicable.",
+   "instruments": [],
+   "horizon": "Not applicable.",
+   "data": [],
+   "expected_effect": "Not applicable.",
+   "evidence_quality": "Not applicable.",
+   "confidence": 0.0,
+   "quotes_verified": [
+    "Free entry holds a pool strictly below this threshold, at a margin set by the rebalancing cost.",
+    "The critical volatility is computed from the fee tier, traded volume, active-tick liquidity and price alone, with no fitted parameter.",
+    "On two and a half years of hourly data from five WETH/USDC pools on Ethereum and Base, it tracks realized volatility.",
+    "On the Ethereum $0.3\\%$ pool the ratio of realized to critical volatility is less than one, and optimal value $w^{*}$ exists.",
+    "free entry predicts $s=s_{\\star}$ , slightly below one."
+   ],
+   "quotes_unverified": [
+    "The object under test is the participation margin $s$.",
+    "The critical volatility $\\sigma_c$ is the volatility at which fee income stops covering the impermanent loss at every width."
+   ],
+   "grounded": true,
+   "id": "2026-W43-5",
+   "red_team": {
+    "concerns": [
+     "The paper describes the behavior and equilibrium profitability of liquidity providers (LPs) in decentralized exchanges (DEXes), which is a distinct role from the engine's function as a price-taking CFD trader. The engine does not provide liquidity.",
+     "The paper does not propose any market effect, directional signal, or arbitrage opportunity that could be exploited by a non-LP trader in a CFD market.",
+     "The data required to compute the 'critical volatility' (e.g., DEX-specific fee tiers, active-tick liquidity, pool traded volume) is not available to the engine. Even if it were, the paper does not translate this information into a trading signal for a CFD trader.",
+     "The analogy from another field (DEX market microstructure for LPs) is not doing real work; it describes a different market participant's economics and does not offer a transferable trading strategy for the engine."
+    ],
+    "fatal": "The idea card explicitly states 'Nothing testable' for the hypothesis and 'Not applicable' for the test, instruments, horizon, data, and expected effect. This means there is no actionable trading strategy or hypothesis for the engine to pursue.",
+    "kill": true,
+    "information": 1,
+    "value": 1,
+    "cost": 1,
+    "revised_test": ""
+   }
+  },
+  {
+   "identifier": "doi:10.1007/s41060-026-01341-0",
+   "url": "https://doi.org/10.1007/s41060-026-01341-0",
+   "title": "A structured overview and empirical evaluation of fine-tuning pre-trained transformer models for software defect prediction",
+   "field": "mathematics",
+   "via": "OpenAlex 'stochastic control optimal execution'",
+   "read_depth": "full (open-access PDF)",
+   "triage": 3,
+   "claim": "Pre-trained transformer models (PTMs) can learn rich contextual representations from sequences to perform binary classification tasks.",
+   "mechanism": "Transformer models, initially pre-trained on large unlabeled corpora (e.g., source code), are fine-tuned on task-specific labeled datasets. This process allows them to capture syntactic structures and semantic relationships within sequences, which are then used for classification. The study highlights that 'language model pre-training has proven highly effective at learning global language representations from large-scale unlabeled data' and that fine-tuning 'involves introducing simple parameters for a specific task and training them on subsequent tasks, thereby tuning all pre-trained parameters into a large, general set'. The models generate dynamic embeddings that 'understand' the context of tokens in a sequence.",
+   "source_concept": "Fine-tuned pre-trained transformer models for sequence classification, with an emphasis on the comparative performance and run-to-run variability of different architectures.",
+   "market_analogue": "The 'source code' sequences in software defect prediction can be analogous to sequences of daily log-returns or other price-derived features for a financial instrument. The 'defective' or 'non-defective' classification can be analogous to predicting a significant directional movement (e.g., 'significantly lower close') or non-movement in the market. The 'transformer model' (e.g., DistilBERT for efficiency) would be fine-tuned on historical market data to learn contextual patterns in price sequences.",
+   "hypothesis": "A small, computationally efficient transformer model (e.g., DistilBERT), fine-tuned on sequences of daily log-returns for ETHUSD, can predict whether the next day's close will be significantly lower (defined as more than 0.5 standard deviations down) than the current close with an F1-score that is statistically better than a random classifier, after accounting for trading costs. The model's performance should be assessed across multiple random initializations to account for run-to-run variability.",
+   "test": "Conduct a backtest on historical daily ETHUSD data. Define the target variable as binary: 1 if the next day's close-to-close log-return is below -0.5 times the historical standard deviation of daily log-returns, and 0 otherwise. Form sequences of the last 20 daily log-returns as input features. Fine-tune a DistilBERT model for binary classification on a rolling window of historical data (e.g., 3 years training, 1 year validation, 1 year test, rolling forward). Train the model five times with different random seeds (e.g., 42, 52, 62, 72, 82, as in the paper). Evaluate the mean F1-score, Precision, and Recall on the test set, simulating spread costs for each trade. The null hypothesis is that the mean F1-score is not statistically different from a classifier that randomly predicts the positive class with its historical frequency. Failure would be if the F1-score after costs is not significantly better than this null, or if the run-to-run variability (standard deviation across seeds) is excessively high, indicating unreliability.",
+   "instruments": [
+    "ETHUSD"
+   ],
+   "horizon": "D1 (daily)",
+   "data": [
+    {
+     "what": "Daily OHLCV for ETHUSD",
+     "status": "held",
+     "source": "broker bars (back to 2014)"
+    }
+   ],
+   "expected_effect": "A modest improvement in F1-score over a random baseline, after accounting for trading costs. Given the paper's finding that 'none of the pairwise performance differences remain statistically significant at \u03b1 = 0.05 after Holm correction' among different transformer architectures, the expected edge might be small and sensitive to costs, but the concept of learning contextual patterns from sequences for classification should hold.",
+   "evidence_quality": "Medium. The paper provides a controlled empirical evaluation of transformer models for a specific sequence classification task (software defect prediction). It rigorously tests multiple models across multiple runs and performs statistical analysis. However, the domain (software code) is fundamentally different from financial markets (price sequences), and the transferability of 'semantic relationships' from code to numerical price data is an analogy that could be flawed.",
+   "confidence": 0.6,
+   "quotes_verified": [
+    "Software defect prediction (SDP) is an important task in software engineering that aims to identify defect-prone software components before deployment, thereby supporting software reliability and reducing maintenance effort.",
+    "The experimental results show that CodeBERT achieves the highest mean Accuracy (72.69 \u00b1 0.88%), Precision (74.33 \u00b1 1.75%), and F1-score (66.60 \u00b1 1.67%), whereas BERT Base obtains the highest mean Recall (61.48 \u00b1 3.07%).",
+    "DistilBERT achieves an Accuracy of 69.29 \u00b1 0.87% and an F1-score of 64.33 \u00b1 1.48% while requiring substantially less training time than the larger models.",
+    "Nevertheless, none of the pairwise performance differences remain statistically significant at \u03b1 = 0.05 after Holm correction.",
+    "The findings demonstrate the importance of repeated-run evaluation, statistical analysis, class-wise assessment, error analysis, and computational considerations when benchmarking transformer-based models for SDP.",
+    "When applied to source code, these models can capture syntactic structures and semantic relationships, making them promising approaches for improving SDP performance.",
+    "Each model is independently fine-tuned using five random seeds (42, 52, 62, 72, and 82), resulting in 20 training runs.",
+    "Language model pre-training has proven highly effective at learning global language representations from large-scale unlabeled data."
+   ],
+   "quotes_unverified": [
+    "Recent advances in pre-trained transformer models (PTMs) have demonstrated considerable potential for source-code understanding and automated defect detection.",
+    "The fine-tuning approach, also called transfer learning in some contexts, involves introducing simple parameters for a specific task and training them on subsequent tasks, thereby tuning all pre-trained parameters into a large, general set.",
+    "Unlike other context-free models, which ignore the context and always give the same static embedding for the word, BERT is an embedding model that can \u201cunderstand\u201d the context and then generate the dynamic embedding for the word in a given context."
+   ],
+   "grounded": true,
+   "id": "2026-W43-6",
+   "red_team": {
+    "concerns": [
+     "The analogy from software defect prediction to financial market log-returns is weak and decorative; the 'semantic relationships' learned in code do not directly translate to numerical price sequences.",
+     "Prior experiments (E01, E02, E09, and general findings on pooled machine learning models) consistently show that any faint signal from complex machine learning models on price data is entirely consumed by trading costs. The engine's binding constraint is the cost of trading, not prediction.",
+     "The expected effect is a 'modest improvement... sensitive to costs,' which aligns with previous ML strategies that had a signal before costs but failed after them. The small edge from the source paper's own domain (where the analogy is strong) suggests it would be negligible or negative after financial costs.",
+     "The proposed strategy implies shorting ETHUSD daily. While crypto shorts pay no overnight financing, the ETHUSD spread of about $3 per ETH is substantial relative to a target move of 0.5 standard deviations, likely eating any potential edge.",
+     "While not a direct variant, the general concept of applying complex machine learning models (like transformers) to historical price sequences to predict future movements has been explored and failed (e.g., XGBoost, GRU, random forests on price data were indistinguishable from luck after costs)."
+    ],
+    "fatal": "The analogy from software defect prediction to financial market log-returns is fundamentally flawed, and prior experimental evidence strongly indicates that complex machine learning models on price data cannot overcome trading costs.",
+    "kill": true,
+    "information": 1,
+    "value": 1,
+    "cost": 4,
+    "revised_test": ""
+   }
+  },
+  {
+   "identifier": "doi:10.1007/s10791-026-10749-y",
+   "url": "https://doi.org/10.1007/s10791-026-10749-y",
+   "title": "An improved remora optimization algorithm for optimizing a support vector machine based network anomaly traffic detection model",
+   "field": "mathematics",
+   "via": "OpenAlex 'stochastic control optimal execution'",
+   "read_depth": "full (open-access PDF)",
+   "triage": 3,
+   "claim": "The paper claims to have developed an improved metaheuristic optimization algorithm (IROA) that, when used to optimize Support Vector Machine (SVM) hyperparameters, significantly enhances network anomaly traffic detection performance.",
+   "mechanism": "The IROA integrates the White Shark Optimizer into the host-switching mechanism for global exploration, uses an adaptive weight operator for refining experiential attacks, and embeds a quadratic interpolation strategy to strengthen global search and escape local optima. This IROA is then employed to optimize the penalty parameter (C) and kernel parameter (g) of an SVM model, aiming to minimize classification error. The IROA-SVM model demonstrated superior performance across Accuracy, Precision, F1-score, ROC-AUC, and MCC on the NSL-KDD dataset.",
+   "source_concept": "Improved metaheuristic optimization algorithm (IROA) for hyperparameter tuning of a Support Vector Machine (SVM) classifier.",
+   "market_analogue": "The IROA could be used to optimize hyperparameters (e.g., C and gamma for an RBF kernel) of an SVM applied to market data for a classification task, such as predicting future price direction (up/down). The 'anomaly detection' aspect could be analogous to identifying unusual market conditions or regime shifts.",
+   "hypothesis": "Nothing testable here. The engine's prior research (E01, E02, E03, pooled machine learning) has consistently shown that machine learning models, including general classification tasks, yield signals too faint to overcome trading costs on the available instruments. This paper presents an improved optimization algorithm for such models, but does not provide new information about the existence or strength of a market signal that could overcome this fundamental constraint. Furthermore, the paper notes that its method's 'inherently high computational complexity' and reliance on an 'outdated nature of the NSL-KDD dataset' limit its applicability to real-time detection, concerns that are amplified in financial markets.",
+   "test": "Nothing testable here.",
+   "instruments": [],
+   "horizon": "N/A",
+   "data": [],
+   "expected_effect": "N/A",
+   "evidence_quality": "N/A",
+   "confidence": 0.0,
+   "quotes_verified": [
+    "To improve the detection performance of anomalous network traffic, a network anomaly traffic detection model was developed by integrating an improved Remora Optimization Algorithm (IROA) with Support Vector Machine (SVM).",
+    "Specifically, the White Shark Optimizer was incorporated into the host-switching mechanism of the Remora Optimization Algorithm to enhance global exploration. An adaptive weight operator was adopted to refine the experiential attack process, thus improving the convergence accuracy. In addition, a quadratic interpolation strategy was embedded to strengthen the global search performance and the ability to escape local optima.",
+    "Results demonstrate that IROA-SVM achieves the highest performance across Accuracy, Precision, F1-score, ROC-AUC, and MCC.",
+    "However, the inherently high computational complexity of IROA and the outdated nature of the NSL-KDD dataset limit its direct applicability to real-time detection in modern network environments."
+   ],
+   "quotes_unverified": [],
+   "grounded": true,
+   "id": "2026-W43-7",
+   "red_team": {
+    "concerns": [
+     "The engine's prior research (E01, E02, E03, pooled machine learning) has consistently shown that machine learning models, including general classification tasks, yield signals too faint to overcome trading costs on the available instruments. This idea is a disguised variant of something already in the queue (pooled machine learning) that failed.",
+     "The hypothesis itself states that there is 'nothing testable here' and explicitly references the engine's prior failures of machine learning models due to trading costs.",
+     "The paper's context is network anomaly detection, not financial markets. The 'market analogue' is a weak analogy, as the core issue for the engine is the existence of a robust, cost-surviving signal, not merely an improved optimization technique for a classification task.",
+     "The paper itself notes the method's 'inherently high computational complexity,' which would translate to high compute costs and potentially slow execution in a trading context, further exacerbating the cost problem.",
+     "The paper's results are on the NSL-KDD dataset (network traffic), not financial data, and do not account for trading costs. There is no evidence of out-of-sample performance in a financial context, after costs, or against a naive baseline relevant to trading, nor has it been replicated in this domain."
+    ],
+    "fatal": "The hypothesis is already contradicted by multiple experiments (E01, E02, E03, pooled machine learning) which showed that machine learning models, including general classification tasks, yield signals too faint to overcome trading costs on the available instruments. This is a disguised variant of something already in the queue and killed.",
+    "kill": true,
+    "information": 1,
+    "value": 1,
+    "cost": 4,
+    "revised_test": ""
+   }
+  },
+  {
+   "identifier": "doi:10.1126/science.1225244",
+   "url": "https://doi.org/10.1126/science.1225244",
+   "title": "Anticipating Critical Transitions",
+   "field": "foundations",
+   "via": "classic 'critical transitions'",
+   "read_depth": "abstract",
+   "triage": 3,
+   "claim": "Financial markets, like other complex systems, exhibit 'tipping points' or 'critical transitions' that can be anticipated by 'generic empirical indicators'.",
+   "mechanism": "Fundamental architectural features may cause financial markets to have tipping points, and there exist generic empirical indicators that signal proximity to these critical thresholds.",
+   "source_concept": "Critical Transitions and Generic Empirical Indicators of Proximity to Critical Thresholds from the study of complex systems.",
+   "market_analogue": "In financial markets, 'tipping points' would correspond to sudden, large price movements or regime shifts in asset prices. 'Generic empirical indicators' would be market-observable metrics that signal these impending shifts, though the paper does not specify what these indicators are. 'Financial markets' are explicitly mentioned as a system that may have tipping points.",
+   "hypothesis": "Nothing testable here. The paper discusses the *existence* of tipping points and the *potential* for generic indicators in financial markets but does not specify any indicators or mechanisms that could be directly tested by the engine.",
+   "test": "N/A",
+   "instruments": [],
+   "horizon": "Undefined, as the paper does not specify the timescale of 'critical transitions' or the predictive horizon of 'anticipation'.",
+   "data": [],
+   "expected_effect": "Anticipating critical transitions would allow for profitable trading by positioning before large price movements or regime shifts in financial markets.",
+   "evidence_quality": "Conceptual discussion about the potential for anticipating critical transitions in complex systems, including financial markets. No specific empirical evidence or methods are presented in the abstract.",
+   "confidence": 0.0,
+   "quotes_verified": [
+    "Tipping points in complex systems may imply risks of unwanted collapse, but also opportunities for positive change.",
+    "One line of work is revealing fundamental architectural features that may cause ecological networks, financial markets, and other complex systems to have tipping points.",
+    "Another field of research is uncovering generic empirical indicators of the proximity to such critical thresholds.",
+    "work at the crossroads of these emerging fields offers new approaches for anticipating critical transitions."
+   ],
+   "quotes_unverified": [],
+   "grounded": true,
+   "id": "2026-W43-8",
+   "red_team": {
+    "concerns": [
+     "The hypothesis is not testable as presented, lacking specific indicators or mechanisms.",
+     "The source paper is conceptual and does not provide specific empirical evidence or methods for direct testing by the engine."
+    ],
+    "fatal": "The hypothesis explicitly states 'Nothing testable here,' as it does not specify any indicators or mechanisms that could be directly tested.",
+    "kill": true,
+    "information": 1,
+    "value": 1,
+    "cost": 5,
+    "revised_test": ""
+   }
+  }
+ ],
+ "synthesis": {
+  "connections": [
+   "The concept of 'regime shifts' in financial markets, as modeled statistically by a Bayesian Hidden Markov Model with heavy-tailed emissions in card 2026-W43-1 (statistics), finds a theoretical parallel in the 'critical transitions' and 'tipping points' discussed in card 2026-W43-8 (foundations). Both papers, from different fields, point to the existence of distinct, often sudden, changes in market dynamics, suggesting a common underlying mechanism of non-linear system behavior."
+  ],
+  "belief_updates": [
+   "The engine's belief that high trading costs, particularly for long positions in ETHUSD CFD, are a binding constraint for strategy profitability is strongly reinforced. Multiple machine learning and statistical modeling approaches (2026-W43-1, 2026-W43-2, 2026-W43-6, 2026-W43-7) were deemed unprofitable due to these costs, re-validating prior experimental findings that 'faint signals' cannot overcome them.",
+   "The engine's understanding that ideas must translate into concrete, testable hypotheses directly applicable to its tradable instruments and data is reinforced. Several cards (2026-W43-3, 2026-W43-4, 2026-W43-5, 2026-W43-8) were killed for being untestable, irrelevant, or too abstract for direct application."
+  ],
+  "next_steps": [
+   {
+    "id": "2026-W43-1",
+    "why": "While the direct trading strategy proposed in 2026-W43-1 was killed due to costs, the underlying mechanism of identifying distinct market regimes (e.g., bull/bear, high/low volatility, tail behavior) remains valuable. A next step is to explore how these identified regimes could inform risk management (e.g., dynamic position sizing, stop-loss adjustments) rather than direct directional trading, as such applications might be less sensitive to high trading costs."
+   },
+   {
+    "id": "2026-W43-2",
+    "why": "The consistent failure of various machine learning approaches (2026-W43-2, 2026-W43-6, 2026-W43-7) due to 'faint signals' and prohibitive trading costs highlights a fundamental gap. A next step is to initiate a study to quantitatively characterize the minimum required predictive edge or signal strength necessary for any strategy to overcome the engine's current trading costs on ETHUSD CFD, especially for long positions. This will provide a crucial benchmark for future ML-driven ideas."
+   },
+   {
+    "id": "2026-W42-3",
+    "why": "With many ideas being killed, often for fundamental reasons like costs or untestability, it is critical to ensure that the evaluation methodology for any proposed strategy is as rigorous as possible. Prioritizing the investigation and implementation of 'Anytime-Valid Promotion Tests for Adaptive Financial Research Agents' from queue item 2026-W42-3 will enhance the reliability of backtesting and prevent wasted effort on potentially flawed evaluations."
+   }
+  ],
+  "gaps": [
+   "There is a gap in the engine's precise quantitative understanding of the minimum required predictive edge (e.g., signal-to-noise ratio, expected return per trade) for a strategy to overcome current trading costs on ETHUSD CFD, particularly for long positions. This leads to repeated rejections of ML-based ideas without a clear target for required performance.",
+   "The engine lacks a systematic approach to effectively translate abstract scientific concepts of market dynamics (e.g., regime shifts, critical transitions) into concrete, cost-aware trading or risk management strategies directly applicable to its instruments.",
+   "There is a gap in the early-stage filtering of idea cards to identify and reject those that are fundamentally untestable or irrelevant to the engine's operational scope, as evidenced by multiple cards being killed for these reasons."
+  ]
+ }
+}

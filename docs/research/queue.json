@@ -1,5 +1,5 @@
 {
- "updated": "2026-W42",
+ "updated": "2026-W43",
  "items": [
   {
    "id": "2026-W40-1",
@@ -202,6 +202,19 @@
    "why_killed": "Costs will eat the effect"
   },
   {
+   "id": "2026-W43-2",
+   "week": "2026-W43",
+   "status": "killed",
+   "title": "A Model-Free Continuous-Time RL Algorithm from Discrete-Time Off-Policy Data with End-to-End Guarantees",
+   "field": "mathematics",
+   "source": "arXiv:2610.28915v1",
+   "url": "http://arxiv.org/abs/2610.28915v1",
+   "hypothesis": "For ETHUSD CFD, a PhiBE-PI trading policy, using linear function approximation with `log(close_price)`, `log(volume)`, and `log(close_price / previous_close_price)` as state features and discrete actions {long 0.01 lot, short 0.01 lot, cash}, when trained and deployed on 4-hour bars, will achieve a higher Sharpe ratio after trading costs than a baseline discrete-time Q-learning policy (BE-PI) using the same features and actions, also trained and deployed on 4-hour bars.",
+   "test": "1. Implement PhiBE-PI and a standard discrete-time Q-learning (BE-PI) algorithm, both using linear function approximation and hard-greedy policy improvement. 2. Define state features as `log(close_price)`, `log(volume)`, and `log(close_price / previous_close_price)` from 4-hour bars. Actions are {long 0.01 lot, short 0.01 lot, cash}. The reward for a 4-hour period is the P&L after accounting for spread and overnight swap costs. 3. Train both algorithms on a fixed off-policy batch of historical ETHUSD CFD 4-hour bar data. 4. Simulate trading performance for both policies over a multi-year historical period, applying measured trading costs (spread, swap). 5. Null hypothesis: The Sharpe ratio of the PhiBE-PI policy is not statistically significantly higher than that of the BE-PI policy (e.g., p-value > 0.01 in a bootstrap test for difference in Sharpe ratios). 6. Failure criteria: If the PhiBE-PI policy's Sharpe ratio is not higher than the BE-PI policy's, or if it fails to beat a random-sign null at the 99th percentile with the same costs, or if it does not survive doubled costs, or if most years are not positive. This test can be run entirely on historical data.",
+   "priority": 1.5,
+   "why_killed": "The binding constraint is the cost of trading, not prediction. High costs (especially for crypto longs) have consistently killed similar ideas, and there's no evidence this particular ML approach would overcome that. The paper's theoretical benefits are not shown to translate to real-world financial profitability after costs, and prior ML attempts on this instrument have failed."
+  },
+  {
    "id": "2026-W42-1",
    "week": "2026-W42",
    "status": "killed",
@@ -226,6 +239,45 @@
    "test": "",
    "priority": 1.0,
    "why_killed": "The core concept and mechanism of 'stablecoin devaluation risk' and its analogy to pegged exchange rate regimes are entirely inapplicable to the engine's free-floating instruments."
+  },
+  {
+   "id": "2026-W43-1",
+   "week": "2026-W43",
+   "status": "killed",
+   "title": "A Bayesian Hidden Markov Model with Singh--Maddala Emission Distributions for Heavy-Tailed Regime-Switching Time Series",
+   "field": "statistics",
+   "source": "arXiv:2610.22656v1",
+   "url": "http://arxiv.org/abs/2610.22656v1",
+   "hypothesis": "A Bayesian Hidden Markov Model with Singh\u2013Maddala emission distributions (HMMSM), applied to daily log returns of ETHUSD, will identify at least two distinct market regimes. If one regime is characterized by a statistically higher positive conditional mean daily log return (a \"bullish\" regime) and another by a statistically lower or negative conditional mean daily log return (a \"bearish\" regime), then a strategy that goes long ETHUSD CFD when the model assigns a high posterior probability to the \"bullish\" regime, and short when it assigns a high posterior probability to the \"bearish\" regime, will yield a positive Sharpe ratio after accounting for the engine's trading costs.",
+   "test": "Data: Daily close-to-close log returns for ETHUSD from the engine's held broker bars (back to 2014). Method: Implement the HMMSM (using the provided open-source code) to infer regimes and their parameters (especially conditional mean returns) for ETHUSD daily log returns. Use Bayesian model selection criteria (WAIC, DIC, LOO) to determine the optimal number of regimes (K). For each day, calculate the posterior probability of being in each regime. Strategy: Define \"high posterior probability\" (e.g., > 0.8). If the model identifies a \"bullish\" regime (highest positive conditional mean log return) and a \"bearish\" regime (lowest or negative conditional mean log return), enter a long position when the \"bullish\" regime probability is high and exit when it drops or the \"bearish\" regime probability becomes high. Conversely, enter a short position when the \"bearish\" regime probability is high and exit when it drops or the \"bullish\" regime probability becomes high. Hold positions until regime probabilities shift. Null hypothesis: The Sharpe ratio of this strategy, after accounting for measured trading costs (spread, swap), is not significantly different from zero, or not statistically distinguishable from a random-sign strategy with equivalent costs and exposure. Failure criteria: The strategy's Sharpe ratio is less than or equal to zero, or its 99th percentile bootstrap resample (with block bootstrap to preserve autocorrelation) falls at or below zero. This test can be run on historical data first.",
+   "priority": 1.0,
+   "why_killed": "Disguised variant of a killed idea; prohibitive costs for long positions."
+  },
+  {
+   "id": "2026-W43-4",
+   "week": "2026-W43",
+   "status": "killed",
+   "title": "A Resource Allocation Tournament",
+   "field": "economics",
+   "source": "arXiv:2610.31418v1",
+   "url": "http://arxiv.org/abs/2610.31418v1",
+   "hypothesis": "Nothing testable here. The paper describes game-theoretic equilibria for resource allocation in abstract tournaments, not an economic mechanism that would make financial prices predictable, identify a specific 'other side of the trade' in an open market, or explain an unarbitraged market inefficiency. The models are prescriptive for agents within a defined contest, not descriptive or predictive of financial market behavior.",
+   "test": "N/A",
+   "priority": 1.0,
+   "why_killed": "The idea card explicitly states that there is 'Nothing testable here' and that the concepts 'do not directly translate to a predictable economic mechanism for market prices or a market inefficiency that could be arbitraged.' This makes it fundamentally untestable and irrelevant to the engine's purpose of finding and testing trading strategies."
+  },
+  {
+   "id": "2026-W43-5",
+   "week": "2026-W43",
+   "status": "killed",
+   "title": "A game-theoretic analysis of the market microstructure in decentralized exchanges with concentrated liquidity",
+   "field": "quantitative finance",
+   "source": "arXiv:2610.28863v1",
+   "url": "http://arxiv.org/abs/2610.28863v1",
+   "hypothesis": "Nothing testable. The paper describes the optimal behavior and equilibrium profitability for liquidity providers (LPs) in decentralized exchanges, not a strategy for a trader taking directional positions or exploiting an arbitrage opportunity as a non-LP. The engine operates as a trader, not a liquidity provider. The paper does not propose any market effect (e.g., price movement, spread changes in a way that affects CFD fills, or predictive signal) that could be exploited by a non-LP trader.",
+   "test": "Not applicable.",
+   "priority": 1.0,
+   "why_killed": "The idea card explicitly states 'Nothing testable' for the hypothesis and 'Not applicable' for the test, instruments, horizon, data, and expected effect. This means there is no actionable trading strategy or hypothesis for the engine to pursue."
   },
   {
    "id": "crypto-funding-3",
@@ -332,6 +384,32 @@
    "why_killed": "The proposed test is predicated on improving a 'baseline ETHUSD trading strategy' which, if it refers to the demoted Ethereum 20-day trend rule (E07), has already been shown to have no edge in the recent period (since September 2022). An adaptive position sizing strategy cannot create alpha from a baseline strategy that consistently loses money."
   },
   {
+   "id": "2026-W43-6",
+   "week": "2026-W43",
+   "status": "killed",
+   "title": "A structured overview and empirical evaluation of fine-tuning pre-trained transformer models for software defect prediction",
+   "field": "mathematics",
+   "source": "doi:10.1007/s41060-026-01341-0",
+   "url": "https://doi.org/10.1007/s41060-026-01341-0",
+   "hypothesis": "A small, computationally efficient transformer model (e.g., DistilBERT), fine-tuned on sequences of daily log-returns for ETHUSD, can predict whether the next day's close will be significantly lower (defined as more than 0.5 standard deviations down) than the current close with an F1-score that is statistically better than a random classifier, after accounting for trading costs. The model's performance should be assessed across multiple random initializations to account for run-to-run variability.",
+   "test": "Conduct a backtest on historical daily ETHUSD data. Define the target variable as binary: 1 if the next day's close-to-close log-return is below -0.5 times the historical standard deviation of daily log-returns, and 0 otherwise. Form sequences of the last 20 daily log-returns as input features. Fine-tune a DistilBERT model for binary classification on a rolling window of historical data (e.g., 3 years training, 1 year validation, 1 year test, rolling forward). Train the model five times with different random seeds (e.g., 42, 52, 62, 72, 82, as in the paper). Evaluate the mean F1-score, Precision, and Recall on the test set, simulating spread costs for each trade. The null hypothesis is that the mean F1-score is not statistically different from a classifier that randomly predicts the positive class with its historical frequency. Failure would be if the F1-score after costs is not significantly better than this null, or if the run-to-run variability (standard deviation across seeds) is excessively high, indicating unreliability.",
+   "priority": 0.25,
+   "why_killed": "The analogy from software defect prediction to financial market log-returns is fundamentally flawed, and prior experimental evidence strongly indicates that complex machine learning models on price data cannot overcome trading costs."
+  },
+  {
+   "id": "2026-W43-7",
+   "week": "2026-W43",
+   "status": "killed",
+   "title": "An improved remora optimization algorithm for optimizing a support vector machine based network anomaly traffic detection model",
+   "field": "mathematics",
+   "source": "doi:10.1007/s10791-026-10749-y",
+   "url": "https://doi.org/10.1007/s10791-026-10749-y",
+   "hypothesis": "Nothing testable here. The engine's prior research (E01, E02, E03, pooled machine learning) has consistently shown that machine learning models, including general classification tasks, yield signals too faint to overcome trading costs on the available instruments. This paper presents an improved optimization algorithm for such models, but does not provide new information about the existence or strength of a market signal that could overcome this fundamental constraint. Furthermore, the paper notes that its method's 'inherently high computational complexity' and reliance on an 'outdated nature of the NSL-KDD dataset' limit its applicability to real-time detection, concerns that are amplified in financial markets.",
+   "test": "Nothing testable here.",
+   "priority": 0.25,
+   "why_killed": "The hypothesis is already contradicted by multiple experiments (E01, E02, E03, pooled machine learning) which showed that machine learning models, including general classification tasks, yield signals too faint to overcome trading costs on the available instruments. This is a disguised variant of something already in the queue and killed."
+  },
+  {
    "id": "2026-W40-2",
    "week": "2026-W40",
    "status": "killed",
@@ -408,6 +486,32 @@
    "test": "Not applicable, as no specific trading hypothesis can be derived from the provided abstract.",
    "priority": 0.2,
    "why_killed": "The card explicitly states that no specific, falsifiable trading hypothesis can be derived from the provided abstract, making it untestable by the engine."
+  },
+  {
+   "id": "2026-W43-3",
+   "week": "2026-W43",
+   "status": "killed",
+   "title": "The dollar's double life for cross-currency basis swaps: a closer look at G10 panels",
+   "field": "quantitative finance",
+   "source": "doi:10.1080/14697688.2026.2744185",
+   "url": "https://doi.org/10.1080/14697688.2026.2744185",
+   "hypothesis": "Nothing testable here. The paper's findings relate to cross-currency basis swap spreads, which are not tradable instruments for the engine. Furthermore, the described effects are less stable and often statistically insignificant in the post-LIBOR era, which is the relevant period for the engine's available data.",
+   "test": "N/A",
+   "priority": 0.2,
+   "why_killed": "The idea is not testable due to untradable instruments, lack of a clear market analogue, unavailable data, and the paper's own admission of statistical insignificance in the relevant period."
+  },
+  {
+   "id": "2026-W43-8",
+   "week": "2026-W43",
+   "status": "killed",
+   "title": "Anticipating Critical Transitions",
+   "field": "foundations",
+   "source": "doi:10.1126/science.1225244",
+   "url": "https://doi.org/10.1126/science.1225244",
+   "hypothesis": "Nothing testable here. The paper discusses the *existence* of tipping points and the *potential* for generic indicators in financial markets but does not specify any indicators or mechanisms that could be directly tested by the engine.",
+   "test": "N/A",
+   "priority": 0.2,
+   "why_killed": "The hypothesis explicitly states 'Nothing testable here,' as it does not specify any indicators or mechanisms that could be directly tested."
   },
   {
    "id": "2026-W40-5",
