@@ -8,6 +8,11 @@
       "id": "P1",
       "budget": 10,
       "started": "2026-09-22"
+    },
+    {
+      "id": "P2",
+      "budget": 10,
+      "started": "2026-10-31"
     }
   ],
   "experiments": [
@@ -129,9 +134,9 @@
       "trials": 431,
       "title": "Six evidence families across the 60 instruments the broker offers (screen for forward tests)",
       "prereg": "docs/programme/E10-family-screen-prereg.md",
-      "result": null,
-      "verdict": null,
-      "summary": null
+      "result": "docs/results/E10-family-screen.json",
+      "verdict": "FAIL",
+      "summary": "Screened six families with published evidence (time-series momentum, FX carry, currency cross-sectional momentum, short-term reversal, turn of month, time of day) on the 60 instruments with enough daily history, 2015 to 2026-09-15, net of measured spread, commission and financing: 431 trials, 0 IN, 199 OUT, 232 UNDECIDED. Best t 2.70 (turn of month, BTCUSD), under the 3.0 bar for a new family. No forward candidate. Programme P1 is fully spent with no live rule left (E07, E08 demoted by A01)."
     }
   ]
 }

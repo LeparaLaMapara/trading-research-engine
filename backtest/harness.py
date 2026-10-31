@@ -30,6 +30,13 @@ class CostModel:
     pip_size: float             # 10**-pip_position (e.g. 0.0001 EURUSD, 0.01 JPY/XAU)
     ref_price: float            # representative price, to turn a price spread into a return
     commission_per_side: float = 0.000035   # ~$3.5/side per $100k notional (IC raw), as a fraction
+    #: Broker overnight financing as a fraction of notional a year (data/swaps.json, the fee
+    #: part). Charged for every 17:00 New York rollover a position is held through. 0 keeps the
+    #: old behaviour; any rule that holds overnight must set it or its result is too kind.
+    financing_annual: float = 0.0
+    #: "fx": weekday rollovers, Wednesday counts three nights (the weekend). "daily": crypto
+    #: CFDs, charged every night including weekends.
+    rollover_style: str = "fx"
 
     def cost_per_unit_turnover(self) -> float:
         """Cost as a return fraction for a position change of 1.0 (one spread crossing).
@@ -37,6 +44,42 @@ class CostModel:
         of |Δposition| that is half a spread, plus one side of commission."""
         spread_return = (self.spread_pips * self.pip_size) / self.ref_price
         return 0.5 * spread_return + self.commission_per_side
+
+
+def rollover_nights(ts_utc: pd.Series, style: str = "fx") -> pd.Series:
+    """Nights of financing charged during each bar: rollovers (17:00 New York) that fall inside
+    (end of previous bar, end of this bar]. `ts_utc` is the bar OPEN time in seconds; the bar
+    length is the median spacing. The position held during bar i is the one financed."""
+    from zoneinfo import ZoneInfo
+    ny = ZoneInfo("America/New_York")
+    ts = pd.Series(ts_utc).astype("int64").to_numpy()
+    if len(ts) < 2:
+        return pd.Series(np.zeros(len(ts)))
+    step = int(np.median(np.diff(ts)))
+    ends = ts + step
+    first = pd.Timestamp(ends[0] - step, unit="s", tz="UTC").tz_convert(ny).normalize()
+    last = pd.Timestamp(ends[-1], unit="s", tz="UTC").tz_convert(ny).normalize()
+    days = pd.date_range(first - pd.Timedelta(days=1), last + pd.Timedelta(days=1), freq="D")
+    rolls, weights = [], []
+    for d in days:
+        wd = d.weekday()                       # Monday 0 .. Sunday 6
+        if style == "fx":
+            if wd >= 5:
+                continue                       # no rollover Saturday or Sunday
+            w = 3 if wd == 2 else 1
+        elif style == "daily":
+            w = 1
+        else:
+            raise ValueError(f"unknown rollover_style {style!r}")
+        roll = d.replace(hour=17).tz_localize(None).tz_localize(ny)
+        rolls.append(int(roll.tz_convert("UTC").timestamp()))
+        weights.append(w)
+    rolls, weights = np.asarray(rolls), np.asarray(weights, dtype=float)
+    cum = np.concatenate([[0.0], np.cumsum(weights)])
+    prev_end = np.concatenate([[ends[0] - step], ends[:-1]])
+    hi = np.searchsorted(rolls, ends, side="right")
+    lo = np.searchsorted(rolls, prev_end, side="right")
+    return pd.Series(cum[hi] - cum[lo])
 
 
 @dataclass
@@ -64,6 +107,9 @@ def run_backtest(bars: pd.DataFrame, strategy: Strategy, costs: CostModel,
 
     turnover = positions.diff().abs().fillna(positions.abs())  # first bar: cost to open
     cost = turnover * costs.cost_per_unit_turnover()
+    if costs.financing_annual:
+        nights = rollover_nights(bars["ts_utc"], costs.rollover_style)
+        cost = cost + positions.abs() * nights * (costs.financing_annual / 365.0)
     net = gross - cost
 
     equity = metrics.equity_curve(net)
