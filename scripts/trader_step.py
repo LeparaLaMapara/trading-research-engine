@@ -46,6 +46,7 @@ from twisted.internet import reactor
 
 from config import settings
 from connection.client import CTraderConnection
+from execution import guards
 from lab import eth_trend as E
 from ops import authority
 from risk.limits import LIVE_LIMITS
@@ -209,8 +210,33 @@ INSTRUMENTS = (
 SPREAD_S = 300
 
 
+CALENDAR_EVERY_S = 6 * 3600      # the feed allows a few requests an hour; four a day is plenty
+
+
+def calendar_refresh(now: float | None = None) -> None:
+    """Fetch the week's economic calendar every six hours (news/calendar.py). A failed fetch
+    is logged and changes nothing: the guards fail closed once the week is not covered."""
+    from news import calendar as cal
+    now = now if now is not None else time.time()
+    marker = "data/calendar_fetched.txt"
+    try:
+        if now - float(open(marker, encoding="utf-8").read().strip()) < CALENDAR_EVERY_S:
+            return
+    except (OSError, ValueError):
+        pass
+    try:
+        store = cal.fetch(now=now)
+        with open(marker, "w", encoding="utf-8") as fh:
+            fh.write(str(now))
+        print(json.dumps({"calendar": f"{len(store['events'])} events, "
+                                      f"{len(store['weeks'])} weeks covered"}))
+    except Exception as exc:  # noqa: BLE001 - logged, and the guard fails closed on its own
+        print(json.dumps({"calendar": f"fetch failed: {type(exc).__name__}: {exc}"}))
+
+
 def run_all() -> int:
     worst = 0
+    calendar_refresh()
     for sym, label, blackout, record in INSTRUMENTS:
         if record:
             try:
@@ -379,6 +405,12 @@ def main() -> int:
         elif st.get(f"paused:{SYMBOL}"):
             # research/live_check.py paused new entries: costs broke the backtest's promise.
             action = f"skip: paused ({st[f'paused:{SYMBOL}']})"
+        elif blocked_by := guards.entry_check(SYMBOL, now):
+            # Rollover, news or a missing calendar. The bar stays undecided, so the next
+            # hourly step after the window opens the trade (exits above were never blocked).
+            save_state(st)
+            log_decision({**decision, "action": "wait", "why": "; ".join(blocked_by)})
+            return 0
         else:
             side = "BUY" if want > 0 else "SELL"
             r = subprocess.run(

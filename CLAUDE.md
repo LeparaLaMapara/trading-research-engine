@@ -70,6 +70,21 @@ losses. So the engine now trades the live account on its own:
   minutes a month would run out. The family section reads `deposited_usd`, `peak_equity` and
   `halted` from making_money.trading_account (published by scripts/push_live_state.py).
 
+### Update 2026-10-31: the goal is profit
+
+The owner reset the goal: be the best on cTrader and **make profits, accurately, with the
+capital the account has now**. The honesty gates below stay, because they are what keeps a
+loss from looking like an edge; they are the means, not the goal. Plan (owner said "Yes"):
+1. intraday holds (no overnight financing, and a 0.01 lot FX stop then fits the 6% limit),
+   the economic calendar and entry guards; 2. the FX fix pattern and the FOMC-day dollar,
+   with meta-labelling; 3. an RD-Agent-style idea loop feeding the gate; 4. demo forward test,
+   then live. Step 1 is built: `news/calendar.py` (weekly Forex Factory feed, merged into
+   `data/calendar.json`; the Hugging Face 2007-2025 history is mistimed and NOT used),
+   `execution/guards.py` (rollover 17:00 New York -30/+60 min, high-impact news +-30 min,
+   live spread > 2x measured median; all fail closed; exits never blocked), checked in
+   `scripts/trader_step.py` before opening and in `scripts/live_trade.py` on the real quote,
+   and `CostModel.financing_annual` in `backtest/harness.py` (charged per rollover held).
+
 ## The one constraint everything flows from
 
 The owner has stated he cannot verify strategy mathematics by inspection. So the system is

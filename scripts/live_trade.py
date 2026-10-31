@@ -32,6 +32,7 @@ from ctrader_open_api.messages.OpenApiMessages_pb2 import (ProtoOAExecutionEvent
 from ctrader_open_api.messages.OpenApiModelMessages_pb2 import ProtoOAOrderType, ProtoOATradeSide
 from twisted.internet import reactor
 
+from execution import guards
 from execution.sizing import size_position
 from lab import clock as _clock
 from lab.lifecycle import OrderLifecycle
@@ -111,8 +112,19 @@ class LiveTrade(R.Rehearsal):
             return self.finish()
         self.auth = auth
         self._steps = [self.step_account, self.step_spec, self.step_currency, self.step_quote,
-                       self.step_margin, self.step_decide_and_size, self.step_risk,
-                       self.step_place]
+                       self.step_guards, self.step_margin, self.step_decide_and_size,
+                       self.step_risk, self.step_place]
+        self.next_step()
+
+    def step_guards(self) -> None:
+        """Rollover, news and the live spread (execution/guards.py), checked on the real quote.
+        Like the risk layer, a dry run carries on so the owner sees the whole order."""
+        spread_pips = (self.ask - self.bid) / self.spec.pip_size
+        reasons = guards.entry_check(self.symbol, time.time(), spread_pips=spread_pips)
+        R.stage("entry guards (rollover, news, spread)", not reasons,
+                "; ".join(reasons) or f"clear, spread {spread_pips:.2f} pips")
+        if reasons and self.confirm:
+            return self.finish()
         self.next_step()
 
     def step_decide_and_size(self) -> None:
