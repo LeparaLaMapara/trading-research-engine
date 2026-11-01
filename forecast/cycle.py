@@ -100,13 +100,16 @@ def predictions(hour: int, quotes: dict, xgb_model, meta: dict, lag_s: float = 0
                         "bid": q["bid"], "ask": q["ask"], "spread_bps": round(spread_bps(q), 4),
                         "pred_z": round(float(zi), 6), "pred_bps": round(pb, 4),
                         "vol24": float(row.vol24), "trade": bool(abs(pb) > spread_bps(q)),
-                        "model": meta["sha256"], "made_utc": time.time(), "lag_s": round(lag_s, 1)})
+                        "model": meta["sha256"], "version": meta.get("version"),
+                        "made_utc": time.time(), "lag_s": round(lag_s, 1)})
     return out
 
 
 def score(resolutions: list[dict], preds_by_sha: dict) -> list[dict]:
     rows = []
-    ok = [r for r in resolutions if r["status"] == "ok"]
+    # Only the current model version is judged (v1 was retired unjudged; its lines lack "version").
+    ok = [r for r in resolutions if r["status"] == "ok"
+          and preds_by_sha[r["pred_sha"]].get("version") == M.VERSION]
     for player in P.PLAYERS:
         rs = [r for r in ok if r["player"] == player]
         if not rs:
