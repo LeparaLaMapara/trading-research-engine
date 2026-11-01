@@ -145,9 +145,9 @@
       "trials": 10,
       "title": "The dollar around the European currency fixes (ECB and London), out of sample 2020-2026",
       "prereg": "docs/programme/E11-fx-fix-reversal-prereg.md",
-      "result": null,
-      "verdict": null,
-      "summary": null
+      "result": "docs/results/E11-fx-fix-reversal.json",
+      "verdict": "FAIL",
+      "summary": "Out of sample 2020 to 2026-09 at Dukascopy bid/ask plus 0.35 bps commission, the EURUSD+GBPUSD book lost: mean -1.97 bps a day, net Sharpe -0.91, t -2.35, 1,734 days; under the random-timing null p95 (-0.62); negative in 6 of 7 years. Inside the paper's years (2015-2019) it was only +1.32 bps a day, t 1.35. All 9 diagnostics negative. The published reversal is gone after costs, as the authors' decay warning suggested."
     },
     {
       "id": "E12",
@@ -156,9 +156,9 @@
       "trials": 8,
       "title": "Short the dollar on scheduled Fed decision days, out of sample 2014-2026",
       "prereg": "docs/programme/E12-fomc-day-dollar-prereg.md",
-      "result": null,
-      "verdict": null,
-      "summary": null
+      "result": "docs/results/E12-fomc-day-dollar.json",
+      "verdict": "FAIL",
+      "summary": "Short the dollar against 7 majors from 16:00 ET the day before each scheduled FOMC day to 16:00 ET on the day, 99 events 2014 to 2026-09: mean +5.70 bps net, t 0.97 (bar 2.0). It beats the random-day null p95 (4.55 bps), stays positive at 1.5x costs (4.45) and in both halves (5.8 and 5.6 bps), so the sign agrees with the paper, but 8 events a year cannot prove it. FAIL on criterion 1; deflated Sharpe 0.45. Not a forward candidate."
     }
   ]
 }

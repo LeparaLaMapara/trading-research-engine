@@ -1,0 +1,152 @@
+{
+ "experiment": "E12",
+ "generated": "2026-11-01T01:40:20Z",
+ "prereg": "docs/programme/E12-fomc-day-dollar-prereg.md",
+ "deciding_sample": [
+  "2014-01-01",
+  "2026-09-30"
+ ],
+ "events_in_sample": 101,
+ "events_dropped": 2,
+ "book": {
+  "n_events": 99,
+  "mean_bps": 5.698,
+  "t": 0.965,
+  "sharpe": 0.274,
+  "per_obs_sharpe": 0.09700691808002758
+ },
+ "book_1p5x_costs": {
+  "n_events": 99,
+  "mean_bps": 4.454,
+  "t": 0.755,
+  "sharpe": 0.215,
+  "per_obs_sharpe": 0.07586059725425764
+ },
+ "halves": {
+  "2014-2019": {
+   "n_events": 46,
+   "mean_bps": 5.804,
+   "t": 0.635,
+   "sharpe": 0.265,
+   "per_obs_sharpe": 0.09363327794571044
+  },
+  "2020-2026": {
+   "n_events": 53,
+   "mean_bps": 5.606,
+   "t": 0.724,
+   "sharpe": 0.281,
+   "per_obs_sharpe": 0.09945801134403591
+  }
+ },
+ "null": {
+  "draws": 2000,
+  "mean_bps_p50": -2.564,
+  "mean_bps_p95": 4.546
+ },
+ "criteria": {
+  "1_mean_positive_t_ge_2": false,
+  "2_beats_null_p95": true,
+  "3_positive_at_1p5x_costs": true,
+  "4_both_halves_positive": true
+ },
+ "n_total": 756,
+ "dsr_at_N": 0.446,
+ "verdict": "FAIL",
+ "trials": [
+  {
+   "id": "EURUSD",
+   "n_events": 101,
+   "mean_bps": 3.777,
+   "t": 0.576,
+   "sharpe": 0.162,
+   "per_obs_sharpe": 0.05733743203058312
+  },
+  {
+   "id": "GBPUSD",
+   "n_events": 101,
+   "mean_bps": 8.52,
+   "t": 1.487,
+   "sharpe": 0.418,
+   "per_obs_sharpe": 0.14795859625921337
+  },
+  {
+   "id": "AUDUSD",
+   "n_events": 101,
+   "mean_bps": 4.144,
+   "t": 0.479,
+   "sharpe": 0.135,
+   "per_obs_sharpe": 0.047709374332290624
+  },
+  {
+   "id": "NZDUSD",
+   "n_events": 99,
+   "mean_bps": 6.681,
+   "t": 0.805,
+   "sharpe": 0.229,
+   "per_obs_sharpe": 0.08093818312320122
+  },
+  {
+   "id": "USDJPY",
+   "n_events": 101,
+   "mean_bps": 3.547,
+   "t": 0.55,
+   "sharpe": 0.155,
+   "per_obs_sharpe": 0.05476177831452137
+  },
+  {
+   "id": "USDCHF",
+   "n_events": 101,
+   "mean_bps": 2.997,
+   "t": 0.463,
+   "sharpe": 0.13,
+   "per_obs_sharpe": 0.046079421828363214
+  },
+  {
+   "id": "USDCAD",
+   "n_events": 101,
+   "mean_bps": 1.724,
+   "t": 0.326,
+   "sharpe": 0.092,
+   "per_obs_sharpe": 0.03239397985495893
+  },
+  {
+   "id": "book",
+   "n_events": 99,
+   "mean_bps": 5.698,
+   "t": 0.965,
+   "sharpe": 0.274,
+   "per_obs_sharpe": 0.09700691808002758
+  }
+ ],
+ "data": {
+  "EURUSD": {
+   "bid": "3b25e16c8b3de8795c00010980972c9a29a65a34ce45aa3953e716636af8a1e4",
+   "ask": "9b5dfe47d177296fb07e681b1cc83c8cbda867ee3d1066e2ca6c5ca4bf9de6ce"
+  },
+  "GBPUSD": {
+   "bid": "4cb0200ceec5ade4cc742d5344f651518b439ad61d97c2dfed8dd2640fe19ddd",
+   "ask": "070568ad4ff2a146b0cced46bdadfa2cca85c76f7768ee0ebdf3ec3a8a5677fc"
+  },
+  "AUDUSD": {
+   "bid": "de2045a8fae439ae3231f519eab20354df06faad2d27e091e264b7c8e524843b",
+   "ask": "27e1bbc392b5cadf93eea542ed57f059d506a0653840caaa67e798ddc7afb816"
+  },
+  "NZDUSD": {
+   "bid": "9f324b86b8e3d49ea66ad49e6ad7dde5a4f1c485124238a1483880eae1d812aa",
+   "ask": "31749ca89258264cffb0773b98024f861f7a3a7cdb83936ceb6dd6475eb3edf8"
+  },
+  "USDJPY": {
+   "bid": "479ed8b250f1c84a914bcc07c5f5a712c5fc094ed798cd58ffbc1efae02274c5",
+   "ask": "a6d015c159ebbb304a4db4d6ca8a0fbbf9e705148efcce8ddd5f162947affd51"
+  },
+  "USDCHF": {
+   "bid": "1cc88a6a05c1d84e1b110318f829284ddd0b6dfaa6d1c93facfaa56d6befe11c",
+   "ask": "8ac189c815b4fa9f78e267b8fd4b09ffcf693dc838bff49363fe195d6e542d86"
+  },
+  "USDCAD": {
+   "bid": "a25339e94af0ac6b1e5d237a14fea8edf7f14c47437404d581fc0181bbfaae9a",
+   "ask": "598bb5a4d3100c9819fce63435a126589763617855225624140d06b7393b735e"
+  }
+ },
+ "seconds": 18.5
+}

@@ -1,0 +1,190 @@
+{
+ "experiment": "E11",
+ "generated": "2026-11-01T01:40:59Z",
+ "prereg": "docs/programme/E11-fx-fix-reversal-prereg.md",
+ "deciding_sample": [
+  "2020-01-01",
+  "2026-09-30"
+ ],
+ "replication_sample": [
+  "2015-01-01",
+  "2019-12-31"
+ ],
+ "book": {
+  "n_days": 1734,
+  "mean_bps": -1.97,
+  "sharpe": -0.905,
+  "t": -2.351,
+  "per_obs_sharpe": -0.05644652762446691,
+  "bars_per_year": 257.1
+ },
+ "book_1p5x_costs": {
+  "n_days": 1734,
+  "mean_bps": -3.167,
+  "sharpe": -1.456,
+  "t": -3.78,
+  "per_obs_sharpe": -0.09076733602575918,
+  "bars_per_year": 257.1
+ },
+ "by_year_net_pct": {
+  "2020": -7.3,
+  "2021": -5.09,
+  "2022": -0.86,
+  "2023": 2.87,
+  "2024": -4.67,
+  "2025": -10.91,
+  "2026": -8.2
+ },
+ "null": {
+  "draws": 2000,
+  "sharpe_p50": -0.882,
+  "sharpe_p95": -0.624
+ },
+ "replication_2015_2019": {
+  "n_days": 1278,
+  "mean_bps": 1.324,
+  "sharpe": 0.603,
+  "t": 1.348,
+  "per_obs_sharpe": 0.037703767971015045,
+  "bars_per_year": 255.9
+ },
+ "criteria": {
+  "1_sharpe_positive_t_ge_2": false,
+  "2_beats_null_p95": false,
+  "3_positive_at_1p5x_costs": false,
+  "4_positive_5_of_7_years": false
+ },
+ "n_total": 756,
+ "dsr_at_N": 0.0,
+ "verdict": "FAIL",
+ "trials": [
+  {
+   "id": "EURUSD:pre",
+   "n_days": 1748,
+   "mean_bps": -0.369,
+   "sharpe": -0.224,
+   "t": -0.581,
+   "per_obs_sharpe": -0.013905523045839306,
+   "bars_per_year": 259.2
+  },
+  {
+   "id": "EURUSD:post",
+   "n_days": 1742,
+   "mean_bps": -1.209,
+   "sharpe": -0.913,
+   "t": -2.37,
+   "per_obs_sharpe": -0.05678107326636898,
+   "bars_per_year": 258.3
+  },
+  {
+   "id": "EURUSD:both",
+   "n_days": 1741,
+   "mean_bps": -1.558,
+   "sharpe": -0.725,
+   "t": -1.882,
+   "per_obs_sharpe": -0.045106506192059144,
+   "bars_per_year": 258.2
+  },
+  {
+   "id": "GBPUSD:pre",
+   "n_days": 1747,
+   "mean_bps": -0.954,
+   "sharpe": -0.477,
+   "t": -1.24,
+   "per_obs_sharpe": -0.02965862890553165,
+   "bars_per_year": 259.1
+  },
+  {
+   "id": "GBPUSD:post",
+   "n_days": 1742,
+   "mean_bps": -1.281,
+   "sharpe": -0.794,
+   "t": -2.063,
+   "per_obs_sharpe": -0.049424909596286974,
+   "bars_per_year": 258.3
+  },
+  {
+   "id": "GBPUSD:both",
+   "n_days": 1740,
+   "mean_bps": -2.259,
+   "sharpe": -0.864,
+   "t": -2.243,
+   "per_obs_sharpe": -0.053775049709508874,
+   "bars_per_year": 258.0
+  },
+  {
+   "id": "USDCHF:pre",
+   "n_days": 1743,
+   "mean_bps": -1.491,
+   "sharpe": -0.833,
+   "t": -2.163,
+   "per_obs_sharpe": -0.051818992185881534,
+   "bars_per_year": 258.6
+  },
+  {
+   "id": "USDCHF:post",
+   "n_days": 1739,
+   "mean_bps": -2.479,
+   "sharpe": -1.804,
+   "t": -4.682,
+   "per_obs_sharpe": -0.11228585487402887,
+   "bars_per_year": 258.0
+  },
+  {
+   "id": "USDCHF:both",
+   "n_days": 1733,
+   "mean_bps": -4.008,
+   "sharpe": -1.803,
+   "t": -4.682,
+   "per_obs_sharpe": -0.11246621907350766,
+   "bars_per_year": 257.1
+  },
+  {
+   "id": "book",
+   "n_days": 1734,
+   "mean_bps": -1.97,
+   "sharpe": -0.905,
+   "t": -2.351,
+   "per_obs_sharpe": -0.05644652762446691,
+   "bars_per_year": 257.1
+  }
+ ],
+ "dropped_days": {
+  "EURUSD": 20,
+  "GBPUSD": 21,
+  "USDCHF": 28
+ },
+ "data": {
+  "EURUSD": {
+   "bid": {
+    "file": "eurusd-m5-bid-2014-01-01-2026-09-30.csv",
+    "sha256": "d41edf732a55aa67e0dafb51941adc510fd33dc29876d0f511f4d44c98691a0b"
+   },
+   "ask": {
+    "file": "eurusd-m5-ask-2014-01-01-2026-09-30.csv",
+    "sha256": "c9b71bd89e940328972d962b50730e4c3adbfe92a5d57d14b7e70b428a83db57"
+   }
+  },
+  "GBPUSD": {
+   "bid": {
+    "file": "gbpusd-m5-bid-2014-01-01-2026-09-30.csv",
+    "sha256": "5f1e9c0762a3ea08a084b0e70ab0f993fda4c822b009f3177f606870ac31d065"
+   },
+   "ask": {
+    "file": "gbpusd-m5-ask-2014-01-01-2026-09-30.csv",
+    "sha256": "3d5bd241a482c24bf813e8da5f18375b6a50918ad7513dd0d52447c39cac71a8"
+   }
+  },
+  "USDCHF": {
+   "bid": {
+    "file": "usdchf-m5-bid-2014-01-01-2026-09-30.csv",
+    "sha256": "0b895c18c029fa9e3bef4e374f8929cee7356aba86dc13db77703200fa900520"
+   },
+   "ask": {
+    "file": "usdchf-m5-ask-2014-01-01-2026-09-30.csv",
+    "sha256": "b030d1da870cda84c50406c423c49adff14f50a0b1d2169f7064e05fdc23801b"
+   }
+  }
+ },
+ "seconds": 26.7
+}
