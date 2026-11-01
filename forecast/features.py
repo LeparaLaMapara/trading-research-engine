@@ -1,8 +1,13 @@
 """Inputs for the E16 model, from hourly bars only (docs/programme/E16-forward-scoreboard-prereg.md).
 
-A row is one instrument at one hour: the bar that OPENED at `ts` (UTC seconds) and closed an
-hour later. Everything in the row is known at that close. The target is the next bar's return
-divided by the 24-hour volatility known now.
+Version 2 (the live one): a row is one instrument at the START of the hour `ts` (UTC seconds),
+and "now" is that hour's opening price. Live, the opening price is the snapshot's bid, taken a
+minute after the hour, so the model is trained on exactly the interval it is scored on: from
+this hour's open to the next hour's open. The target is that return divided by the 24-hour
+volatility known now. (Version 1 used bar closes, which the live snapshot never sees.)
+
+Volatility skips the jump across a closed market (a weekend, a daily break): that move is real
+and stays in the returns, but it is not one hour of normal wobble.
 """
 from __future__ import annotations
 
@@ -34,9 +39,9 @@ def asset_class(sym: str) -> int:
     return 1                                      # stock index
 
 
-def load_bars(db: str = MARKET_DB, symbols: list[str] | None = None, since: float = 0) -> pd.DataFrame:
-    q = "select symbol, ts_utc as ts, close from bars where period='H1' and ts_utc >= ?"
-    with sqlite3.connect(db) as c:
+def load_bars(db: str | None = None, symbols: list[str] | None = None, since: float = 0) -> pd.DataFrame:
+    q = "select symbol, ts_utc as ts, open, close from bars where period='H1' and ts_utc >= ?"
+    with sqlite3.connect(db or MARKET_DB) as c:
         df = pd.read_sql(q, c, params=(since,))
     if symbols is not None:
         df = df[df.symbol.isin(symbols)]
@@ -58,11 +63,13 @@ def event_dates() -> dict[str, set]:
 
 
 def _per_symbol(g: pd.DataFrame) -> pd.DataFrame:
-    lc = np.log(g["close"].to_numpy(float))
+    lc = np.log(g["open"].to_numpy(float))
     s = pd.Series(lc, index=g.index)
     r1 = s.diff()
-    vol24 = r1.rolling(24, min_periods=20).std()
-    vol120 = r1.rolling(120, min_periods=100).std()
+    gap = (g["ts"].diff() != 3600).to_numpy()
+    calm_r1 = r1.where(~gap)                        # the jump over a closed market is not wobble
+    vol24 = calm_r1.rolling(24, min_periods=20).std()
+    vol120 = calm_r1.rolling(120, min_periods=100).std()
     out = pd.DataFrame(index=g.index)
     for k in (1, 4, 24, 120):
         out[f"ret{k}"] = (s - s.shift(k)) / (vol24 * np.sqrt(k))
@@ -80,8 +87,8 @@ def make_features(bars: pd.DataFrame, events: dict | None = None) -> pd.DataFram
     events = events if events is not None else event_dates()
     parts = [_per_symbol(g) for _, g in bars.groupby("symbol", sort=False)]
     f = pd.concat(parts).loc[bars.index]
-    df = pd.concat([bars[["symbol", "ts", "close"]], f], axis=1)
-    close_ny = pd.to_datetime(df["ts"] + 3600, unit="s", utc=True).dt.tz_convert(NY)
+    df = pd.concat([bars[["symbol", "ts", "open"]], f], axis=1)
+    close_ny = pd.to_datetime(df["ts"], unit="s", utc=True).dt.tz_convert(NY)      # "now"
     df["hour_ny"] = close_ny.dt.hour
     df["weekday"] = close_ny.dt.weekday
     day = close_ny.dt.strftime("%Y-%m-%d")

@@ -1,7 +1,7 @@
 """The players on the E16 scoreboard. Each turns a row of inputs into a predicted next-hour
 move in units of 24-hour volatility. All are counted trials (Holm over the players).
 
-* xgb_v1     the pooled XGBoost blend (forecast/model.py)
+* xgb_v2     the pooled XGBoost blend (forecast/model.py); v1 retired 2026-11-01 unjudged
 * trend      ride the last 24 hours: slope x ret24
 * reversion  snap back from the last hour: slope x ret1
 * regime     calm market (24 h vol below 120 h vol): trend; wild market: snap-back
@@ -17,7 +17,7 @@ import pandas as pd
 
 from forecast import model as M
 
-PLAYERS = ("xgb_v1", "trend", "reversion", "regime")
+PLAYERS = ("xgb_v2", "trend", "reversion", "regime")
 
 
 def _slope(x: pd.Series, y: pd.Series) -> float:
@@ -37,7 +37,7 @@ def fit_slopes(df: pd.DataFrame) -> dict:
 def predict_all(rows: pd.DataFrame, xgb_model, slopes: dict) -> dict[str, np.ndarray]:
     calm = (rows["vol24"] < rows["vol120"]).to_numpy()
     return {
-        "xgb_v1": M.predict(xgb_model, rows),
+        "xgb_v2": M.predict(xgb_model, rows),
         "trend": slopes["trend"] * rows["ret24"].to_numpy(float),
         "reversion": slopes["reversion"] * rows["ret1"].to_numpy(float),
         "regime": np.where(calm, slopes["regime_calm"] * rows["ret24"].to_numpy(float),

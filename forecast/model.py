@@ -25,6 +25,7 @@ PARAMS = dict(n_estimators=300, max_depth=4, learning_rate=0.05, subsample=0.8,
               colsample_bytree=0.8, min_child_weight=200, objective="reg:squarederror",
               tree_method="hist", random_state=16, n_jobs=4)
 CLIP = 5.0
+VERSION = "v2"          # v2: open-to-open target and inputs (what the live snapshot sees)
 
 
 def file_sha(path: str) -> str:
@@ -47,7 +48,7 @@ def save(m: xgb.XGBRegressor, cutoff_ts: int, n_rows: int, slopes: dict | None =
     final = os.path.join(DIR, f"model-{sha[:16]}.json")
     os.replace(tmp, final)
     with open(CURRENT, "w", encoding="utf-8") as fh:
-        json.dump({"file": final, "sha256": sha, "version": "v1", "trained_to_ts": cutoff_ts,
+        json.dump({"file": final, "sha256": sha, "version": VERSION, "trained_to_ts": cutoff_ts,
                    "rows": n_rows, "slopes": slopes or {}, "trained": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}, fh)
     return sha
 

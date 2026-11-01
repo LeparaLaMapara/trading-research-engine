@@ -197,7 +197,7 @@
       "id": "E16",
       "kind": "strategy",
       "programme": "P2",
-      "trials": 4,
+      "trials": 8,
       "title": "Forward scoreboard: one pooled model predicts every instrument every hour, locked in a hash chain, judged only on the future",
       "prereg": "docs/programme/E16-forward-scoreboard-prereg.md",
       "result": null,

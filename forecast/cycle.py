@@ -76,10 +76,18 @@ def resolve(prev_preds: list[dict], quotes: dict, hour: int, traded: set[str] | 
     return out
 
 
-def predictions(hour: int, quotes: dict, xgb_model, meta: dict, lag_s: float = 0.0) -> list[dict]:
+def predictions(hour: int, quotes: dict, xgb_model, meta: dict, lag_s: float = 0.0,
+                traded: set[str] | None = None) -> list[dict]:
+    """Version 2: "now" is this hour's opening price, which live is the snapshot's bid (bars
+    are bid prices). Only markets that traded over the last hour are predicted."""
     bars = F.load_bars(since=hour - HISTORY_DAYS * 86400)
+    bars = bars[bars.ts < hour]
+    live = [s for s in quotes if traded is None or s in traded]
+    now = pd.DataFrame({"symbol": live, "ts": hour, "open": [quotes[s]["bid"] for s in live],
+                        "close": np.nan})
+    bars = pd.concat([bars, now], ignore_index=True).sort_values(["symbol", "ts"]).reset_index(drop=True)
     df = F.make_features(bars)
-    rows = df[(df.ts == hour - 3600) & df.symbol.isin(quotes)].dropna(subset=F.FEATURES)
+    rows = df[(df.ts == hour) & df.symbol.isin(live)].dropna(subset=F.FEATURES)
     if rows.empty:
         return []
     preds = P.predict_all(rows, xgb_model, meta.get("slopes", {}))
@@ -179,9 +187,10 @@ def _run(snapshot_fn=None, now_hour: int | None = None, log=print) -> dict:
         return {"failed": True}
     late = lag > MAX_LAG_S
     prev = [x for x in existing if x["kind"] == "prediction" and x["hour_utc"] == hour - 3600]
-    res = resolve(prev, quotes, hour, traded_last_hour(hour), late)
+    traded = traded_last_hour(hour)
+    res = resolve(prev, quotes, hour, traded, late)
     xgb_model, meta = M.load()
-    preds = [] if late else predictions(hour, quotes, xgb_model, meta, lag)
+    preds = [] if late else predictions(hour, quotes, xgb_model, meta, lag, traded)
     snap_line = {"kind": "snapshot", "hour_utc": hour, "n_quotes": len(quotes), "made_utc": time.time(),
                  "lag_s": round(lag, 1), "late": late}
     head, n = L.append([snap_line] + res + preds)

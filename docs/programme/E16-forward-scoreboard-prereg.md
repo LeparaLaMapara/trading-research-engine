@@ -87,3 +87,15 @@ Trials are now 4. A player passes only if both criteria hold at a Holm-corrected
 closes, not judged): the blend's mean hourly IC was 0.048, positive in 55% of hours. Bar closes
 can show a bounce between bid and ask that no one can trade, so this says nothing about profit;
 the paper book at live spreads is what decides.
+
+## Addendum 2, 1 November 2026, 09:00 UTC: version 2 replaces version 1 before any hour is scored
+
+The independent check found that version 1 learned from bar CLOSES while the live scoreboard
+measures from snapshot to snapshot, taken a minute after the hour. Version 2 learns and predicts
+the same interval it is scored on: from this hour's opening price (live: the snapshot's bid; bars
+are bid prices) to the next hour's. Volatility now skips the jump across a closed market.
+Version 1 made predictions for one hour (2026-11-01 08:00 UTC, 32 lines, still in the record) and
+is retired unjudged; its 4 players count as trials (E16 trials 8). Only version 2's players are
+judged, Holm over the 4 running. Diagnostic on 2025 to 2026-09 bars, not judged: blend IC 0.0545
+(FX 0.064, indices 0.014, metals 0.042); trend IC -0.031; reversion 0.047. Bid-only bars can still
+show a bounce no one can trade; the paper book at live bid and ask decides.

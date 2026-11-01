@@ -45,7 +45,7 @@ def world(tmp_path, monkeypatch):
     monkeypatch.setattr(M, "CURRENT", str(tmp_path / "cur.json"))
     df = F.make_features(F.load_bars(db), events={"nfp": set(), "cpi": set(), "fomc": set()})
     M.save(M.fit(df), int(df.ts.max()), len(df), P.fit_slopes(df))
-    last = {s: float(df[df.symbol == s].close.iloc[-1]) for s in syms}
+    last = {s: float(df[df.symbol == s].open.iloc[-1]) for s in syms}
     return end, last
 
 
