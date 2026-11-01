@@ -18,6 +18,7 @@ on:
       - forecast/model.py
       - forecast/players.py
       - .github/workflows/retrain.yml
+      - pyproject.toml
 
 permissions:
   contents: write            # publish the model release, nothing else

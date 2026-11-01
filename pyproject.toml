@@ -19,6 +19,7 @@ dependencies = [
     "tfilterspy>=1.0.6",
     # E16 scoreboard model (forecast/model.py); trained weekly on GitHub Actions.
     "xgboost>=3.0",
+    "scikit-learn>=1.4",   # xgboost's XGBRegressor needs it
     "requests>=2.31",
 ]
 
