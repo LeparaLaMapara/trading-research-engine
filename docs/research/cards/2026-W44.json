@@ -1,0 +1,187 @@
+{
+ "tag": "2026-W44",
+ "stats": {
+  "harvested": 656,
+  "by_field": "125 applied and numerical mathematics, 81 computer science, 114 economics, 10 foundations, 25 mathematical and computational economics, 91 mathematics, 66 physics, 100 quantitative finance, 44 statistics",
+  "eligible": 2,
+  "full_text": 1,
+  "spend": "$2.70 over 28 calls"
+ },
+ "cards": [
+  {
+   "identifier": "doi:10.21203/rs.3.rs-11272412/v1",
+   "url": "https://doi.org/10.21203/rs.3.rs-11272412/v1",
+   "title": "Indistinguishable from Chance: Auditing LLM-Generated Trading Strategies Against Exposure-Matched Nulls",
+   "field": "statistics",
+   "via": "OpenAlex 'false discovery rate backtest'",
+   "read_depth": "full (open-access PDF)",
+   "triage": 3,
+   "claim": "A strategy that beats buy-and-hold or a symmetric random-sign null may still contain no timing skill: its edge can come from exposure, meaning time spent long, short or flat. Shuffling a strategy's own blocks of constant position keeps that exposure and the block lengths and destroys only the timing. In the paper, positive-control oracles show this exposure-matched test detects a gross timing Sharpe of about 0.5\u20130.6 in 63\u201380% of runs and about 1.0 in every run. Every apparent improvement in the LLM strategies (a robustness prompt, a larger model, the gold market) turned out to be exposure, not timing.",
+   "mechanism": "A long-biased rule on a market that drifts up earns the drift without choosing its moments. A random-sign null is long half the time, so beating it rewards long bias as if it were skill. A block-shuffle null holds long, short and flat time fixed, so whatever the rule earns above its shuffles can only come from when it held its positions.",
+   "source_concept": "Exposure-matched permutation null (E4 in the paper). Cut the position series at every change of position, put the blocks in a random order 200 times, and compare gross Sharpe. The one-sided p-value is (1 + number of shuffles with Sharpe at or above the strategy's) / 201. Run on gross returns because merged blocks trade less. Power is calibrated with oracles of known edge.",
+   "market_analogue": "Direct. The engine's pass criteria and audit A01 use a random-sign null. The Ethereum 20-day trend (E07) beat 10,000 random-sign runs, but all its edge came in 2018 to 2022, an era when ETH rose strongly. A long-biased trend rule there could beat random signs on exposure alone. The block shuffle separates the two. Swap cost is driven by time spent long, which the shuffle preserves (apart from swap rates changing over time), so the comparison is fair even though crypto longs pay about 20% a year and shorts pay nothing.",
+   "hypothesis": "Rebuild E07's ETHUSD daily position series (2017\u20132026, broker D1 bars). Its gross Sharpe will NOT exceed the 99th percentile of at least 2,000 shuffles of its own blocks of constant position. That would mean its random-sign pass reflected long exposure in the 2018\u20132022 rise, not trend timing. If instead its gross Sharpe beats the shuffle 99th percentile over the full sample and in 2018\u20132022, the edge was genuine timing that has since decayed. Run the same check on E08 (USDSGD) as a secondary diagnostic; no edge is expected there.",
+   "test": "History only, no slot needed. A01 has already demoted E07 and E08, so this is a diagnostic plus a method upgrade, not a new rule.\n\n1. Rebuild E07 and E08 position series from held broker D1 bars.\n2. Compute gross daily returns, and separately costs (spread plus swap).\n3. Generate at least 2,000 block shuffles per series and compute each shuffle's gross Sharpe.\n4. Calibrate power on ETHUSD and USDSGD with the paper's oracles: 20-day holds with accuracy p in {0.55, 0.60, 0.70}, 10 seeds each, so we know what timing Sharpe the test could detect at our block counts.\n\nNull: the strategy's gross Sharpe is a draw from its shuffle distribution.\n\nRejecting the hypothesis: E07's p-value is below 0.01 over the full sample and in 2018\u20132022.\n\nThe test itself fails, and its verdict means nothing, if oracles with timing Sharpe near 1.0 are not detected in most runs. That is likely if E07 has few blocks, since it trades about half as often as E05.\n\nIf the test proves powerful enough, add 'beats its own exposure-matched block-shuffle null at the 99th percentile, gross' to the pre-registered pass criteria alongside random-sign. This mainly matters for long-biased crypto or trend candidates.",
+   "instruments": [
+    "ETHUSD",
+    "USDSGD"
+   ],
+   "horizon": "daily bars; positions held days to weeks (20-day trend)",
+   "data": [
+    {
+     "what": "ETHUSD and USDSGD broker D1 bars",
+     "status": "held",
+     "source": "IC Markets cTrader broker bars"
+    },
+    {
+     "what": "Measured spreads and swap rates for ETHUSD and USDSGD",
+     "status": "held",
+     "source": "engine cost measurements"
+    },
+    {
+     "what": "E07/E08 rule definitions to reconstruct position series",
+     "status": "held",
+     "source": "engine experiment records"
+    }
+   ],
+   "expected_effect": "Most likely, E07's gross Sharpe sits near or below the upper tail of its block-shuffle null, especially after 2022. The shuffle null's mean will likely be well above zero over 2018\u20132022 because ETH rose and the rule was mostly long. Any true timing component is probably small, and with few blocks it may be undetectable. That is why the oracle power check is mandatory.",
+   "evidence_quality": "Methodologically solid and self-checked. The paper includes positive controls with graded known edge and a negative control of random strategies, and reports its own data and harness artefacts. The empirical finding concerns LLM-generated strategies on three assets (S&P 500, gold, EUR/USD), 2014\u20132026, at a uniform 0.05% cost, not our instruments. The 198-strategy corpus means rates are only indicative. The transferable part is the null construction and its demonstrated power, not any edge.",
+   "confidence": 0.5,
+   "quotes_verified": [
+    "For each LLM audit, the position series is cut at every change of position, and the resulting blocks are concatenated in a random order, 200 times.",
+    "Each shu\ufb04e has exactly the time spent long, short and \ufb02at of the original strategy and the same blocks; only the timing di\ufb00ers.",
+    "Because two shu\ufb04ed blocks of equal sign can become adjacent and merge, a shu\ufb04e may trade less than the original and pay less in costs.",
+    "Symmetric random strategies are long half of the time; the LLM strategies are not.",
+    "On a market that trends up, a long bias earns the drift without any timing skill.",
+    "Oracles whose timing contributes a gross Sharpe ratio of about 0.5\u20130.6 are detected in 63\u201380% of runs at the 5% level",
+    "Prompting and scale change what a strategy holds; they do not make it choose its moments"
+   ],
+   "quotes_unverified": [],
+   "grounded": true,
+   "id": "2026-W44-1",
+   "red_team": {
+    "concerns": [
+     "Decision value for the account is low. A01 has already demoted E07 and E08, and no outcome of this test can reinstate them. The only lasting payoff is the method upgrade, a new pass criterion for future long-biased candidates. None exist right now, since E10 found no forward candidate and P1 is spent.",
+     "Power is the real risk. E07 trades about half as often as E05, so nine years may give only a few dozen constant-position blocks, and 2018 to 2022 even fewer. With so few blocks the shuffle distribution is coarse and the test may be unable to detect anything.",
+     "The paper's power figures (timing Sharpe 0.5 to 0.6 detected in 63 to 80% of runs) are at the 5% level. The card's bar is the 99th percentile, so power will be lower than quoted and must be calibrated at 1%, not borrowed from the paper.",
+     "The card's oracles (generic 20-day holds) do not reproduce E07's block structure. Power should be calibrated with oracles that keep E07's own block lengths and exposure and only plant timing accuracy. Otherwise the power estimate does not apply to the test actually run.",
+     "Shuffling over the full sample also destroys regime-scale timing. Being short or flat in the 2018 crash and long in 2020 to 2021 is arguably genuine trend timing, yet a full-sample shuffle scores it partly as exposure. Within-era shuffles (2018 to Sept 2022 and after, using A01's split) are needed to separate within-regime timing from regime-level exposure.",
+     "Calling the swap comparison 'fair' is moot: the test runs on gross returns, so the swap asymmetry plays no part. The card should not lean on that argument.",
+     "Selection: E07 was itself picked after seeing E05's results (no profit target), and N is 307. A shuffle p-value for a selected rule is not deflated, so 'genuine timing' should not be read as a tradeable edge.",
+     "Several p-values are planned: full sample, subperiod, and E08. Pre-specify which one is decisive (E07, within-era 2018 to 2022), and treat the rest as descriptive.",
+     "Overlap with the queue: the XAI audit-protocol card and the anytime-valid promotion-test card are also method upgrades to the audit and pass criteria. This card is not a duplicate, though: the exposure-matched null is a distinct and specific construction.",
+     "Evidence base: one unreplicated paper, a 198-strategy LLM corpus, a uniform 0.05% cost and different assets. Only the null construction transfers, not any edge. The method itself is a standard permutation idea and is sound."
+    ],
+    "fatal": null,
+    "kill": false,
+    "information": 3,
+    "value": 2,
+    "cost": 1,
+    "revised_test": "Diagnostic and method calibration, history only, no slot, no rule can be promoted or reinstated by any outcome. (1) Rebuild E07 (ETHUSD) and E08 (USDSGD) daily position series from held broker D1 bars. Verify that the trade count and gross P&L match the recorded E07 and E08 backtests exactly before going further. Report the number of constant-position blocks per series and per era. (2) Cut each series at every position change, flat periods included. Generate 10,000 block shuffles and compute gross Sharpe. p = (1 + number of shuffles >= actual) / 10,001. Run three nulls: full sample 2017 to 2026, within-era 2018 to 2022-09 only, and within-era 2022-09 to 2026. The decisive statistic is E07 within-era 2018 to 2022-09. The others, and all of E08, are descriptive. (3) Power: build oracles that keep E07's own block lengths and long/short/flat exposure, but assign each block's sign correctly with probability p in {0.55, 0.60, 0.70, 0.80}, 100 seeds each. Report detection rate at the 1% level against planted gross timing Sharpe. (4) Negative control: 100 exposure-matched random-sign assignments. The rejection rate at 1% must fall between 0% and 3%, or the harness is faulty. (5) Verdict rules, fixed in advance. If oracles with timing Sharpe of about 1.0 are detected in fewer than 80% of runs at 1%, the result is INCONCLUSIVE (underpowered) and the method is NOT added to pass criteria. If power is adequate and E07 within-era p < 0.01, record 'genuine timing in 2018 to 2022, since decayed'. If p >= 0.01, record 'random-sign pass was exposure'. (6) Adoption: if power is adequate, add 'beats its own exposure-matched block-shuffle null at the 99th percentile, gross, within each half' to the pass criteria for any candidate whose time-weighted net exposure exceeds 25% long or short, alongside the random-sign null. Log the run as diagnostic, outside N."
+   }
+  },
+  {
+   "identifier": "doi:10.1080/14697688.2015.1032543",
+   "url": "https://doi.org/10.1080/14697688.2015.1032543",
+   "title": "Optimal execution with limit and market orders",
+   "field": "foundations",
+   "via": "classic 'optimal execution'",
+   "read_depth": "abstract",
+   "triage": 2,
+   "claim": "For an investor executing a large order to a volume schedule (Almgren-Chriss), mixing limit orders, which earn the spread, with market orders, which keep inventory on schedule, beats the pure Almgren-Chriss price by about one to two and a half spreads per share on average.",
+   "mechanism": "Limit orders capture the spread instead of paying it. Market orders are used only when the inventory falls behind schedule, so execution risk stays bounded. The saving comes from the mix, not from any price prediction.",
+   "source_concept": "Optimal execution of a large parent order with a choice of limit or market child orders and of limit-order depth, measured against the Almgren-Chriss volume schedule.",
+   "market_analogue": "The engine's entries and exits on daily-signal rules, which currently cross the spread with market orders. The 'inventory schedule' maps to 'be filled by roughly the signal time'. 'Earning the spread' maps to resting a limit at the near touch (bid for a buy, ask for a sell) on the IC Markets quote. The analogy breaks in three ways. Our 0.01-lot orders have no market impact, so the Almgren-Chriss impact saving does not exist here. The counterparty is the broker's quote rather than a lit queue. And a passive order on a trend signal fills mostly when price moves against the signal (adverse selection) and misses when the signal is right.",
+   "hypothesis": "On EURGBP, AUDCAD and ETHUSD, entering at the 22:00-23:00 UTC daily signal time with a buy limit at the bid (sell limit at the ask) has a lower expected implementation shortfall than a market order. The order waits up to 15 minutes and then falls back to a market order. Shortfall is measured against the mid at decision time and includes the cost of the fallback fills. The saving must be at least 0.3 of the median spread per side, averaged over random-direction decisions. Falsified if the mean saving is at or below zero, or if the saving shrinks to zero once orders are signed by an actual trend signal (adverse selection).",
+   "test": "History first, with no live slot. Use the held top-of-book ticks. For each trading day, place a simulated decision at 22:30 UTC (away from the 21:00 rollover). Give it a random sign, and separately the sign of the 20-day trend. Count a passive buy as filled only if the ask trades at or below the limit price within 15 minutes, which is conservative because queue position is unknown. Otherwise fill at the ask at minute 15. Compute shortfall versus decision mid for passive-with-fallback and for immediate market, then take the paired difference. Null: mean paired difference <= 0, tested by block bootstrap over days. Failure: CI includes zero, or the trend-signed subset shows the saving cancelled by adverse selection. If history passes, run a small E04-style batch of live limit probes on EURGBP. Its purpose is to check that the broker actually fills limits at the touch the way the tick rule assumes, and that the 1.1 s latency does not make the touch stale. This is a cost-measurement experiment, not a strategy. It only matters because 14 of 20 candidates died on costs. It does nothing for financing on overnight holds, which remains the larger cost.",
+   "instruments": [
+    "EURGBP",
+    "AUDCAD",
+    "AUDNZD",
+    "EURCAD",
+    "ETHUSD"
+   ],
+   "horizon": "Execution window of seconds to 15 minutes around daily-signal decision times; relevant to rules held for days.",
+   "data": [
+    {
+     "what": "Top-of-book tick quotes for the affordable instruments",
+     "status": "held",
+     "source": "broker ticks"
+    },
+    {
+     "what": "Live limit-order fill records (fill rate, time to fill, price vs touch)",
+     "status": "unavailable",
+     "source": "would need new E04-style live probes"
+    },
+    {
+     "what": "Trade prints / queue position for FX",
+     "status": "unavailable",
+     "source": "not offered"
+    }
+   ],
+   "expected_effect": "At most about one spread saved per side on filled passive orders, minus adverse selection and the cost of fallback market orders. Probably a fraction of a spread net. The paper's 1 to 2.5 spread figure is against an impact-bearing large-order benchmark and should not be expected at 0.01 lots. On ETHUSD (spread about $3), any saving is small next to the roughly 20%/yr long financing.",
+   "evidence_quality": "Abstract only. A model-based optimal-control result for large orders, judged against a theoretical Almgren-Chriss benchmark. No venue, asset class, sample or cost data are given in the text, and nothing addresses CFD broker quotes or tiny orders. The direction (limits earn the spread) is uncontroversial. The size does not transfer.",
+   "confidence": 0.2,
+   "quotes_verified": [
+    "We develop an optimal execution policy for an investor seeking to execute a large order using limit and market orders.",
+    "The different strategies considered by the investor outperform the Almgren-Chriss price with an average savings per share of about one to two and a half times the spread.",
+    "This improvement over Almgren-Chriss is due to the strategies benefiting from the optimal mix of limit orders, which earn the spread, and market orders, which keep the investor's inventory schedule on target."
+   ],
+   "quotes_unverified": [],
+   "grounded": true,
+   "id": "2026-W44-2",
+   "red_team": {
+    "concerns": [
+     "The analogy fails at its core. The paper's saving comes from resting in a lit queue, where incoming market orders fill you while the price stays put. On a CFD broker with no trade prints, a buy limit at the bid fills only when the ask falls to that bid, so the mid must move a full spread against the decision price first. The proposed fill rule is therefore not 'conservative'; it is the broker's own rule, and it builds in adverse selection.",
+     "Under a martingale mid with a constant spread, optional stopping gives an expected fill price for passive-with-fallback of decision mid plus half a spread. That is identical to a market order. A random-sign test therefore measures only short-horizon quote mean reversion and changes in spread, not 'earning the spread'. Expect about zero.",
+     "Time-of-day confound. At 22:30 UTC spreads are still settling after the 21:00 rollover, when they are about ten times wider. A fallback at 22:45 may look cheaper only because spreads narrowed in those 15 minutes. The baseline must include a market order delayed by 15 minutes, not only an immediate one.",
+     "Latency. Sending takes 369 ms at minimum and fills take 1.1 s. A limit priced off the decision-time bid may already be stale or marketable when it arrives, which E04 never measured for limits. Simulated fills should require the ask to trade through the limit, or to hold at it for longer than the latency.",
+     "Data depth is unclear. The tick history held may cover only the engine's recording period, possibly months, which gives few independent days per instrument once block-bootstrapped. ETHUSD's long financing (about 20% a year) dwarfs any saving, as the card admits.",
+     "Value is low. No live rule exists after A01. The 14 candidates killed by costs were mostly killed by spread plus financing over many trades. A fraction of a 0.3-pip spread per side on daily-signal entries would not plausibly have flipped them, and it does nothing for swap.",
+     "Source quality is weak. The paper is an abstract-only, model-based optimal-control result for large orders against a theoretical Almgren-Chriss benchmark. It shows no out-of-sample result, no venue data and no replication. The 1 to 2.5 spread figure is impact savings that do not exist at 0.01 lots.",
+     "The trend-signed adverse-selection check uses a demoted rule (E07/E08 sign). That is acceptable as a proxy, but it is not a deployable use case."
+    ],
+    "fatal": null,
+    "kill": false,
+    "information": 3,
+    "value": 2,
+    "cost": 2,
+    "revised_test": "Cost-measurement study, not a strategy; it adds nothing to the N=307 rule count. It uses held top-of-book ticks only and reports the span of days available per instrument before any result. Instruments: EURGBP, AUDCAD, AUDNZD, EURCAD (ETHUSD reported separately, descriptive only). Decision times: 22:30 UTC each trading day, plus a control at 14:00 UTC to separate the post-rollover spread effect. Each decision gets a random sign, drawn from a fixed seed. At decision time t0 + 1.1 s (measured latency), place a buy limit at the bid (sell limit at the ask) observed at t0. It counts as filled only if the opposite touch trades strictly through the limit by at least one tick within 15 minutes. Otherwise fill at the touch at t0 + 15 min. Baselines: (a) market order at t0 + 1.1 s; (b) market order at t0 + 15 min. Shortfall is measured against the t0 mid, and every leg is marked to the t0 + 15 min mid so that horizons match. Primary statistic: mean paired saving versus BOTH baselines, in units of the median spread, with a block bootstrap over days (10,000 draws). Pass only if the lower 99% bound of the saving is above zero against both baselines in at least 3 of 4 FX pairs, at both decision times. Secondary: the same with orders signed by the 20-day trend, where a saving cancelled to at most zero falsifies use on trend entries. If it passes, run 20 live EURGBP limit probes in the E04 style. They check fill rate and fill price versus the touch against the simulator; a fill rate more than 10 points below the simulated rate voids the result."
+   }
+  }
+ ],
+ "synthesis": {
+  "connections": [
+   "The two cards come from different fields, statistics (W44-1) and execution theory (W44-2), but share one idea: a measured gain can come from something other than the skill being claimed, and the way to separate the two is to compare against a control that keeps the free part and scrambles the skill part. In W44-1 the free part is simply being long while ETH rose, so the block shuffle keeps time spent long and scrambles the timing. In W44-2 the free part is the spread saved by waiting with a limit order. Random-direction orders measure that saving, and signal-signed orders reveal whether the signal's timing gives it back through adverse selection. Both cards say the engine's current baselines (random signs; always crossing the spread) leave this confound uncontrolled.",
+   "Both cards point the same way about trend signals. W44-1 suspects E07's apparent timing skill is mostly exposure. W44-2 expects passive orders to fill mainly when the trend signal is wrong. If W44-1 finds real timing in E07, adverse selection in W44-2 should be stronger on ETHUSD. If W44-1 finds no timing, the signal-signed and random-direction results in W44-2 should look alike on ETHUSD. Running both on ETHUSD lets each result serve as a consistency check on the other.",
+   "W44-1 turns into a better promotion test. That connects it to the two top-priority queue items, W40-1 (a reproducible audit protocol for trading policies) and W42-3 (anytime-valid promotion tests). Only their titles are in the queue, so this link is a fit of purpose, not a demonstrated overlap of method."
+  ],
+  "belief_updates": [
+   "E07's pass against 10,000 random-sign runs should be downgraded from 'evidence of trend-timing skill' to 'evidence of something, possibly just long exposure during the 2018\u20132022 rise'. The random-sign null cannot tell those apart. Nothing has been tested yet, so this lowers confidence; it does not overturn the result.",
+   "The pass criteria and audit A01, which rely on the random-sign null, should be treated as too lenient for any strategy that spends most of its time on one side of a market that trended. Strategies that passed this way deserve the same suspicion as E07.",
+   "Even if E07 passes the block shuffle, that would show gross timing skill concentrated in a past period that has since faded. It would not show the strategy is profitable after the roughly 20% a year cost of holding crypto longs.",
+   "The engine's assumption that entries and exits must pay the full spread is unproven, but so is the alternative. The card itself names adverse selection as the likely way the limit-order saving disappears, so there is no reason yet to believe execution costs can be cut."
+  ],
+  "next_steps": [
+   {
+    "id": "2026-W44-1",
+    "why": "This is the cheapest card (cost 1) with the highest information score (3), and it directly tests whether the engine's best-looking result, E07, is real timing or just exposure. Use at least 2,000 shuffles, run the full sample and 2018\u20132022 separately, and include E08 as a no-edge check. Before trusting a 'no timing' verdict, confirm the test's power with oracle strategies of known edge, as the paper does. A 20-day trend rule over nine years has relatively few position changes to shuffle, so the test may simply lack the strength to detect a real effect."
+   },
+   {
+    "id": "2026-W42-3",
+    "why": "This is tied for the highest priority in the queue. If W44-1 shows the random-sign null is too lenient, the promotion rule needs rebuilding anyway, and an anytime-valid test, one that stays correct however often results are checked, is the natural frame for a stricter rule. Its content is known only from its title, so the first step is to read it and write a proper card."
+   },
+   {
+    "id": "2026-W44-2",
+    "why": "This is moderately cheap and fully specified with clear failure conditions. Run it only with the signal-signed arm included from the start. The random-direction saving alone would overstate the benefit, because adverse selection on trend signals is the expected failure mode. Starting with ETHUSD lets the result be read alongside W44-1."
+   }
+  ],
+  "gaps": [
+   "The block shuffle in W44-1 keeps time spent long but not when the strategy was long. Swap rates have changed over time, so the cost side is matched only approximately. The card runs on gross returns to sidestep this, which means a pass says nothing about net profitability.",
+   "No card says which other promoted or candidate strategies besides E07 and E08 passed through the random-sign null and would need re-auditing if W44-1 confirms the concern.",
+   "W44-2 needs a realistic model of when a resting limit order on the IC Markets quote would actually fill. The cards do not say whether intraday quote data at fine enough resolution is available to simulate this, or how the broker's quote differs from a real order book.",
+   "Nothing this week addresses whether E07's apparent edge has decayed for good, or how the engine should handle strategies whose evidence is concentrated in a single past period.",
+   "The queue items W40-1, W42-3 and regime-trend-6 have no cards, only titles, so any link to them is provisional. regime-trend-6 (drawdown-controlled portfolio selection) sits at priority 0 and connects to nothing this week."
+  ]
+ }
+}
