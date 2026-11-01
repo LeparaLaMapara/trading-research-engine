@@ -105,7 +105,41 @@ def publish(hour: int, head: str, n: int, model_sha: str, n_preds: int, scores: 
     S._post("forecast_scores", [{"hour_utc": t, "model_sha256": model_sha, **s} for s in scores], upsert=True)
 
 
+LOCK = "data/forecast/cycle.lock"
+LOCK_STALE_S = 900
+
+
+def _lock() -> bool:
+    """One cycle at a time across processes (the engine loop and the standalone loop)."""
+    import os
+    os.makedirs(os.path.dirname(LOCK), exist_ok=True)
+    try:
+        if time.time() - os.path.getmtime(LOCK) > LOCK_STALE_S:
+            os.remove(LOCK)
+    except OSError:
+        pass
+    try:
+        os.close(os.open(LOCK, os.O_CREAT | os.O_EXCL | os.O_WRONLY))
+        return True
+    except FileExistsError:
+        return False
+
+
 def run(snapshot_fn=None, now_hour: int | None = None, log=print) -> dict:
+    import os
+    if not _lock():
+        log("another cycle is running")
+        return {"skipped": True}
+    try:
+        return _run(snapshot_fn, now_hour, log)
+    finally:
+        try:
+            os.remove(LOCK)
+        except OSError:
+            pass
+
+
+def _run(snapshot_fn=None, now_hour: int | None = None, log=print) -> dict:
     hour = now_hour if now_hour is not None else hour_now()
     existing = L.lines()
     if any(x["kind"] == "prediction" and x["hour_utc"] == hour for x in existing) or \

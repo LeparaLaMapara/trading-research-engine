@@ -92,6 +92,25 @@ def _last_depth_ts() -> float:
         return 0.0
 
 
+_forecast: dict = {"proc": None, "hour": None}
+
+
+def maybe_forecast() -> None:
+    """E16: start the hourly forecast cycle once per UTC hour, from minute 1, in the
+    background; never two at once. The cycle itself refuses an hour already recorded."""
+    hour = int(time.time()) // 3600
+    p = _forecast["proc"]
+    if p is not None and p.poll() is None:
+        return
+    if _forecast["hour"] == hour or time.time() - hour * 3600 < 60:
+        return
+    _forecast["hour"] = hour
+    out = open(os.path.join(ROOT, "forecast.log"), "a", encoding="utf-8")
+    _forecast["proc"] = subprocess.Popen([PY, "-m", "forecast.cycle"], stdout=out, stderr=out,
+                                         creationflags=NO_WINDOW)
+    log("forecast cycle started")
+
+
 def record_slot() -> None:
     """Record for SLOT_S, restarting the recorder whenever it stalls."""
     env = dict(os.environ, TELEMETRY_DB=E03_DB)
@@ -106,6 +125,7 @@ def record_slot() -> None:
         while p.poll() is None:
             time.sleep(30)
             beat("recording")
+            maybe_forecast()
             if time.time() - started > STALL_S and time.time() - _last_depth_ts() > STALL_S:
                 log("recorder silent for 2 minutes; restarting it")
                 p.kill()
@@ -119,6 +139,7 @@ def wait_slot() -> None:
     while time.time() < end:
         time.sleep(60)
         beat("waiting")
+        maybe_forecast()
 
 
 def finalize_e03() -> None:
@@ -171,6 +192,7 @@ def main() -> int:
                 beat("waiting")
                 finalize_e03()
                 wait_slot()
+            maybe_forecast()
             beat("publishing")
             r = run(["-m", "scripts.push_live_state"], timeout=180)
             log("live state published" if r and r.returncode == 0 else "live state push failed")

@@ -17,19 +17,22 @@ def _digest(prev: str, body: dict) -> str:
     return hashlib.sha256((prev + json.dumps(body, sort_keys=True, separators=(",", ":"))).encode()).hexdigest()
 
 
-def lines(path: str = PATH) -> list[dict]:
+def lines(path: str | None = None) -> list[dict]:
+    path = path or PATH
     if not os.path.exists(path):
         return []
     with open(path, encoding="utf-8") as fh:
         return [json.loads(x) for x in fh if x.strip()]
 
 
-def head(path: str = PATH) -> tuple[str, int]:
+def head(path: str | None = None) -> tuple[str, int]:
+    path = path or PATH
     ls = lines(path)
     return (ls[-1]["sha"], len(ls)) if ls else (GENESIS, 0)
 
 
-def append(records: list[dict], path: str = PATH) -> tuple[str, int]:
+def append(records: list[dict], path: str | None = None) -> tuple[str, int]:
+    path = path or PATH
     prev, n = head(path)
     os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
     with open(path, "a", encoding="utf-8") as fh:
@@ -43,8 +46,9 @@ def append(records: list[dict], path: str = PATH) -> tuple[str, int]:
     return prev, n
 
 
-def verify(path: str = PATH) -> tuple[bool, int]:
+def verify(path: str | None = None) -> tuple[bool, int]:
     """(ok, number of lines checked). Stops at the first broken line."""
+    path = path or PATH
     prev = GENESIS
     ls = lines(path)
     for i, x in enumerate(ls):
