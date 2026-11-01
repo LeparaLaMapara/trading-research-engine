@@ -38,6 +38,8 @@ def world(tmp_path, monkeypatch):
                           [(s, "H1", float(t), p, p, p, p, 1) for t, p in zip(ts, px)])
             c.execute("insert into bars values (?,?,?,?,?,?,?,?)", (s, "D1", float(ts[0]), 1, 1, 1, 1, 1))
     monkeypatch.setattr(F, "MARKET_DB", db)
+    monkeypatch.setattr(C, "publish", lambda *a, **k: None)      # tests never reach Supabase
+    monkeypatch.setattr(C, "LOCK", str(tmp_path / "cycle.lock"))
     monkeypatch.setattr(L, "PATH", str(tmp_path / "ledger.jsonl"))
     monkeypatch.setattr(M, "DIR", str(tmp_path))
     monkeypatch.setattr(M, "CURRENT", str(tmp_path / "cur.json"))

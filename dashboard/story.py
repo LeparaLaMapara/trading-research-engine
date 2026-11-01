@@ -516,6 +516,51 @@ def _health(d: dict, prog: dict) -> str:
             f"<ul class='st-lights'>{li}</ul></section>")
 
 
+PLAYER_WORDS = {"xgb_v1": ("The blend", "mixes trend, snap-back, calm or wild, time of day and news days"),
+                "trend": ("Trend", "bets the last day's move carries on"),
+                "reversion": ("Snap-back", "bets the last hour's move reverses"),
+                "regime": ("Calm or wild", "trend when the market is calm, snap-back when it is wild")}
+SCORE_HOURS, SCORE_DAYS = 400, 28
+
+
+def _scoreboard(scores: list[dict] | None, chain: dict | None) -> str:
+    """E16: each player's locked hourly guesses, scored on what happened next."""
+    scores = scores or []
+    hours = sorted({r.get("hour_utc") for r in scores if r.get("hour_utc")})
+    first = _when(hours[0]) if hours else None
+    days = (datetime.now(first.tzinfo) - first).days if first else 0
+    rows = []
+    for key, (name, what) in PLAYER_WORDS.items():
+        rs = [r for r in scores if r.get("player") == key]
+        ics = [float(r["ic"]) for r in rs if r.get("ic") is not None]
+        hits = [float(r["hit_rate"]) for r in rs if r.get("hit_rate") is not None]
+        n_tr = sum(int(r.get("paper_trades") or 0) for r in rs)
+        pnl = [(float(r["paper_net_bps"]), int(r.get("paper_trades") or 0)) for r in rs
+               if r.get("paper_net_bps") is not None]
+        avg = (sum(a * n for a, n in pnl) / sum(n for _, n in pnl)) if pnl else None
+        right = f"{100 * sum(hits) / len(hits):.0f}% of guesses right" if hits else "no guesses scored yet"
+        paper = (f"{n_tr} paper trades, average {avg:+.1f} bps after the real spread"
+                 if avg is not None else "no paper trades yet")
+        rows.append(f"<li><strong>{esc(name)}</strong> <span class='st-cap'>{esc(what)}</span><br>"
+                    f"{esc(right)}; {esc(paper)}.</li>")
+    done = min(len(hours) / SCORE_HOURS, days / SCORE_DAYS, 1.0) if hours else 0.0
+    verdict = ("Too early to judge: the first check is after 4 weeks and 400 scored hours."
+               if done < 1 else "Enough hours to judge: see the results page.")
+    lock = ""
+    if chain:
+        t = _when(str(chain.get("published_at", "")))
+        at = (t + timedelta(hours=SA_OFFSET_H)).strftime("%d %b %H:%M") + " SA time" if t else ""
+        lock = (f"<p class='st-cap'>Latest lock: {esc(str(chain.get('n_lines', '')))} lines, "
+                f"fingerprint {esc(str(chain.get('head_sha256', ''))[:12])}, stamped "
+                f"{esc(at)} by the database.</p>")
+    return (f"<section class='st-card rv' id='scoreboard'><h3 class='st-h'>The scoreboard</h3>"
+            f"<p>Every hour four players guess where all the markets go next. Each guess is locked "
+            f"before the hour happens, then scored. No money moves; a paper trade pays the real "
+            f"buy and sell prices.</p><ul class='st-lights'>{''.join(rows)}</ul>"
+            f"<p><strong>{len(hours)}</strong> hours scored over <strong>{days}</strong> days. "
+            f"{esc(verdict)}</p>{lock}</section>")
+
+
 def read_universe(root: Path) -> dict | None:
     try:
         return json.loads((root / "docs" / "results" / "universe.json").read_text("utf-8"))
@@ -523,11 +568,12 @@ def read_universe(root: Path) -> dict | None:
         return None
 
 
-def story_html(d: dict, prog: dict, reg: dict, universe: dict | None) -> str:
+def story_html(d: dict, prog: dict, reg: dict, universe: dict | None,
+               scores: list[dict] | None = None, chain: dict | None = None) -> str:
     live, demoted = live_rules(reg or {})
     measured = {e.get("id") for e in (reg or {}).get("experiments", [])
                 if isinstance(e, dict) and e.get("kind") == "measurement"}
-    return ("<div class='st' id='story'>" + _hero(d) + _now(d, live, demoted) + _journey(d)
+    return ("<div class='st' id='story'>" + _hero(d) + _now(d, live, demoted) + _scoreboard(scores, chain) + _journey(d)
             + _tests(prog, demoted, measured) + _lessons(d, prog, universe, demoted, measured) + _afford(d, universe)
             + _health(d, prog) + "</div>" + STORY_CSS + STORY_JS)
 

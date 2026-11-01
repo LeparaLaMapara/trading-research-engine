@@ -147,7 +147,7 @@
       "prereg": "docs/programme/E11-fx-fix-reversal-prereg.md",
       "result": "docs/results/E11-fx-fix-reversal.json",
       "verdict": "FAIL",
-      "summary": "Out of sample 2020 to 2026-09 at Dukascopy bid/ask plus 0.35 bps commission, the EURUSD+GBPUSD book lost: mean -1.97 bps a day, net Sharpe -0.91, t -2.35, 1,734 days; under the random-timing null p95 (-0.62); negative in 6 of 7 years. Inside the paper's years (2015-2019) it was only +1.32 bps a day, t 1.35. All 9 diagnostics negative. The published reversal is gone after costs, as the authors' decay warning suggested."
+      "summary": "Owning the dollar before the European banks fix their exchange rates, then the euro or pound after, lost money in 2020 to 2026 after costs: about 2 cents per $100 traded each day, worse than trading at random times, and down in 6 of 7 years. A real pattern in the 2000s, gone now."
     },
     {
       "id": "E12",
@@ -158,7 +158,7 @@
       "prereg": "docs/programme/E12-fomc-day-dollar-prereg.md",
       "result": "docs/results/E12-fomc-day-dollar.json",
       "verdict": "FAIL",
-      "summary": "Short the dollar against 7 majors from 16:00 ET the day before each scheduled FOMC day to 16:00 ET on the day, 99 events 2014 to 2026-09: mean +5.70 bps net, t 0.97 (bar 2.0). It beats the random-day null p95 (4.55 bps), stays positive at 1.5x costs (4.45) and in both halves (5.8 and 5.6 bps), so the sign agrees with the paper, but 8 events a year cannot prove it. FAIL on criterion 1; deflated Sharpe 0.45. Not a forward candidate."
+      "summary": "Selling the dollar on the days the US central bank announces interest rates made a little (about 6 cents per $100 per announcement, 99 announcements) and did better than random days, but with only 8 announcements a year the result is too weak to call proven."
     },
     {
       "id": "E13",
@@ -169,7 +169,7 @@
       "prereg": "docs/programme/E13-hourly-window-search-prereg.md",
       "result": "docs/results/E13-hourly-window-search.json",
       "verdict": "FAIL",
-      "summary": "Searched all 28,728 hourly intraday rules on 7 FX majors in 2014-2022 at real bid/ask: 1,053 met the search bars, best t 4.49. The 10-rule short list was tested once on the sealed 2023-2026-09 vault: 0 passed; best vault t 0.95 (USDCHF), 3 of 10 negative. The second-best search rule, selling EURUSD 04:00-08:00 New York (owning the dollar into the ECB fix), had t 4.28 in 2014-2022 and t -0.04 in the vault: the fix effect E11 found dead out of sample, found again by blind search. No hourly clock edge left in majors at retail cost."
+      "summary": "Tried all 28,728 buy-at-this-hour, sell-at-that-hour rules on the 7 main currencies using 2014 to 2022, then tested the best 10 once on the locked years 2023 to 2026. Not one passed. The second best was the old European bank pattern from E11, found again by blind search and dead again in recent years."
     },
     {
       "id": "E14",
@@ -180,7 +180,7 @@
       "prereg": "docs/programme/E14-event-day-search-prereg.md",
       "result": "docs/results/E14-event-day-search.json",
       "verdict": "FAIL",
-      "summary": "6,800 rules on US jobs days, US inflation days, month end and month start (reaction follow/fade and clock windows, 7 FX majors) searched on 2014-2022: 427 met the search bars, but the best search t was only 2.86, about what 6,800 tries of pure noise produce. The 10-rule short list on the vault (44 events each): 0 passed; best vault t 1.40 (USDJPY month end), the top search rule had vault t -2.63. No event-day pattern in the majors at retail cost."
+      "summary": "Tried 6,800 rules for US jobs days, US inflation days, month end and month start. The best ones looked no better than luck in the older years, and none passed the locked years 2023 to 2026."
     },
     {
       "id": "E15",
@@ -191,7 +191,7 @@
       "prereg": "docs/programme/E15-crypto-hourly-search-prereg.md",
       "result": "docs/results/E15-crypto-hourly-search.json",
       "verdict": "FAIL",
-      "summary": "10,944 hourly rules on BTC and ETH (Binance prices, broker's measured spread 4.8 / 12.4 bps, flat before rollover) searched on 2017-2022: 383 met the search bars, best t 3.34. On the 2023-2026 vault all 10 short-listed rules lost money (mean -1.3 to -17.8 bps a trade, best t -0.38). No hourly clock edge in the two big coins at this broker's cost."
+      "summary": "Tried 10,944 hourly rules on Bitcoin and Ethereum at this broker's real costs. The best 10 from 2017 to 2022 all lost money in 2023 to 2026."
     },
     {
       "id": "E16",
