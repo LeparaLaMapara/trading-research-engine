@@ -17,6 +17,9 @@ dependencies = [
     # (ubunye-ai-ecosystems/tfilterspy), so this adds no third-party modelling dependency.
     # Verified not to disturb the protobuf 3.20.1 pin that ctrader-open-api requires.
     "tfilterspy>=1.0.6",
+    # E16 scoreboard model (forecast/model.py); trained weekly on GitHub Actions.
+    "xgboost>=3.0",
+    "requests>=2.31",
 ]
 
 [project.optional-dependencies]

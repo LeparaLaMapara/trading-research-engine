@@ -1,0 +1,102 @@
+name: retrain
+
+# E16: the weekly model retrain runs here, not on the engine PC (16 GB shared with everything
+# else; full-history training was the memory spike that got a download killed on 2026-11-01).
+# The PC keeps the live hourly cycle and the locked record; it downloads the small model file
+# this job publishes as the rolling release "model-latest" (forecast/pull_model.py).
+#
+# Public repo: nothing printed here may contain an account number, balance or key. Broker
+# output goes to files that are never uploaded; secrets are masked by GitHub as well.
+on:
+  schedule:
+    - cron: "15 2 * * 0"     # Sunday 02:15 UTC: markets closed, the week's bars complete
+  workflow_dispatch: {}
+
+permissions:
+  contents: write            # publish the model release, nothing else
+
+concurrency:
+  group: retrain
+  cancel-in-progress: false
+
+jobs:
+  train:
+    if: github.repository == 'LeparaLaMapara/trading-research-engine'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    # Keys are given ONLY to the step that needs them (not to install, train or publish), so a
+    # compromised package installed by pip never sees a broker or database key.
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Restore the hourly price history from last week
+        uses: actions/cache@v4
+        with:
+          path: data/market.db
+          key: retrain-bars-${{ github.run_id }}
+          restore-keys: |
+            retrain-bars-
+      - name: Install
+        run: pip install -e . > install.log 2>&1 || (tail -20 install.log; exit 1)
+      - name: Event dates (US jobs, inflation, Fed) from their official sources
+        run: |
+          python -m news.releases > releases.log 2>&1 || (tail -5 releases.log; exit 1)
+          python -m news.fomc > fomc.log 2>&1 || (tail -5 fomc.log; exit 1)
+          python -c "from forecast import features as F; e=F.event_dates(); print({k: len(v) for k, v in e.items()})"
+      - name: Daily bars decide the universe (64 instruments), then hourly bars for each
+        env:
+          CTRADER_CLIENT_ID: ${{ secrets.CTRADER_CLIENT_ID }}
+          CTRADER_CLIENT_SECRET: ${{ secrets.CTRADER_CLIENT_SECRET }}
+          CTRADER_ENV: live
+          CTRADER_ACCOUNT_ID: ${{ secrets.CTRADER_ACCOUNT_ID }}
+          CTRADER_ACCESS_TOKEN: ${{ secrets.CTRADER_ACCESS_TOKEN }}
+          CTRADER_REFRESH_TOKEN: ${{ secrets.CTRADER_REFRESH_TOKEN }}
+          TOKEN_STORE: data/tokens.json
+          SUPABASE_URL: https://bprargrqppufeuewryze.supabase.co
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: |
+          rm -f data/tokens.json        # use the shared token store, never a stale cached file
+          set +e
+          python -c "import sqlite3,os; os.makedirs('data',exist_ok=True); c=sqlite3.connect('data/market.db'); c.execute('create table if not exists bars (symbol text, period text, ts_utc real, open real, high real, low real, close real, volume integer, primary key (symbol, period, ts_utc))')"
+          HAVE=$(python -c "import sqlite3; print(sqlite3.connect('data/market.db').execute(\"select count(*) from bars where period='H1'\").fetchone()[0])")
+          DAYS=$([ "$HAVE" -gt 500000 ] && echo 21 || echo 1100)
+          echo "hourly bars already held: $HAVE; fetching the last $DAYS days"
+          OK=0; N=0
+          for S in $(cat config/universe64.txt); do
+            N=$((N+1))
+            python -m market.bars --symbol "$S" --period D1 --days 30 > /dev/null 2>&1
+            python -m market.bars --symbol "$S" --period H1 --days "$DAYS" > bars.log 2>&1 && grep -q "^stored [1-9]" bars.log && OK=$((OK+1))
+          done
+          rm -f data/tokens.json bars.log   # nothing with a token or account line survives the step
+          set -e
+          echo "instruments refreshed: $OK of $N"
+          [ "$OK" -ge 50 ] || { echo "too few instruments refreshed; not training"; exit 1; }
+      - name: Train (everything to date) and check it loads
+        run: |
+          python -m forecast.model --train 2>&1 | grep -v -i warning | cut -c1-200
+          python -c "from forecast import model as M; m, meta = M.load(); print('version', meta['version'], 'rows', meta['rows'], 'sha', meta['sha256'][:16])"
+      - name: Publish as the rolling release model-latest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          META=data/forecast/model-current.json
+          FILE=$(python -c "import json; print(json.load(open('$META'))['file'])")
+          cp "$FILE" model.json
+          cp "$META" model-meta.json
+          python - <<'PY'
+          import json, hashlib
+          m = json.load(open("model-meta.json"))
+          m["file"] = "model.json"
+          m["commit"] = __import__("os").environ["GITHUB_SHA"]
+          assert hashlib.sha256(open("model.json", "rb").read()).hexdigest() == m["sha256"]
+          json.dump(m, open("model-meta.json", "w"), indent=1)
+          PY
+          NOTES="Weekly E16 model. sha256 $(python -c "import json; print(json.load(open('model-meta.json'))['sha256'])"), commit ${GITHUB_SHA::12}. Built by the retrain workflow; the engine PC verifies the hash before using it."
+          if gh release view model-latest > /dev/null 2>&1; then
+            gh release upload model-latest model.json model-meta.json --clobber
+            gh release edit model-latest --notes "$NOTES"
+          else
+            gh release create model-latest model.json model-meta.json --title "E16 model (latest)" --notes "$NOTES" --prerelease
+          fi

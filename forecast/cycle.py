@@ -207,6 +207,9 @@ def _run(snapshot_fn=None, now_hour: int | None = None, log=print) -> dict:
     prev = [x for x in existing if x["kind"] == "prediction" and x["hour_utc"] == hour - 3600]
     traded = traded_last_hour(hour)
     res = resolve(prev, quotes, hour, traded, late)
+    if snapshot_fn is None:                         # real runs only: a new weekly model, if any
+        from forecast import pull_model
+        log(pull_model.check())
     xgb_model, meta = M.load()
     preds = [] if late else predictions(hour, quotes, xgb_model, meta, lag, traded)
     snap_line = {"kind": "snapshot", "hour_utc": hour, "n_quotes": len(quotes), "made_utc": time.time(),

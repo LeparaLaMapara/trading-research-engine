@@ -1,0 +1,32 @@
+name: tests
+
+# The full test suite runs here (it takes ~10 minutes and the engine PC reaps it for memory).
+# No secrets: tests use fake brokers, fake models and temporary files only.
+on:
+  push:
+    branches: [main]
+  pull_request: {}
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # some audit tests read git history
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install
+        run: pip install -e ".[dev,llm,dashboard]" > install.log 2>&1 || (tail -20 install.log; exit 1)
+      - name: Run every test
+        run: python -m pytest -q -p no:warnings -rfE --durations=10
