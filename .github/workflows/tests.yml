@@ -29,4 +29,11 @@ jobs:
       - name: Install
         run: pip install -e ".[dev,llm,dashboard]" > install.log 2>&1 || (tail -20 install.log; exit 1)
       - name: Run every test
-        run: python -m pytest -q -p no:warnings -rfE --durations=10
+        run: |
+          set +e
+          python -m pytest -q -p no:warnings -rfE --tb=line > pytest.log 2>&1
+          RC=$?
+          tail -40 pytest.log
+          # Public notes on the run (no keys exist in this job): which tests failed and why.
+          grep -E "^(FAILED|ERROR) " pytest.log | head -40 | cut -c1-300 | sed 's/^/::error title=test::/'
+          exit $RC

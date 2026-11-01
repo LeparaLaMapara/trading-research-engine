@@ -82,8 +82,17 @@ jobs:
           [ "$OK" -ge 50 ] || { echo "too few instruments refreshed; not training"; exit 1; }
       - name: Train (everything to date) and check it loads
         run: |
-          python -m forecast.model --train 2>&1 | grep -v -i warning | cut -c1-200
-          python -c "from forecast import model as M; m, meta = M.load(); print('version', meta['version'], 'rows', meta['rows'], 'sha', meta['sha256'][:16])"
+          # No keys exist in this step, so its errors are safe to show as public notes on the run
+          # (anonymous visitors cannot read job logs, but can read these).
+          set +e
+          python -m forecast.model --train > train.log 2>&1
+          RC=$?
+          python -c "from forecast import model as M; m, meta = M.load(); print('version', meta['version'], 'rows', meta['rows'], 'sha', meta['sha256'][:16])" >> train.log 2>&1 || RC=1
+          grep -v -i warning train.log | tail -5 | cut -c1-200
+          if [ "$RC" -ne 0 ]; then
+            grep -v -i warning train.log | tail -15 | cut -c1-250 | sed 's/^/::error title=train::/'
+            exit 1
+          fi
       - name: Publish as the rolling release model-latest
         env:
           GH_TOKEN: ${{ github.token }}
