@@ -189,9 +189,9 @@
       "trials": 10944,
       "title": "Every hourly intraday window on Bitcoin and Ethereum at the broker's measured spread, searched 2017-2022, short list tested once on the 2023-2026 vault",
       "prereg": "docs/programme/E15-crypto-hourly-search-prereg.md",
-      "result": null,
-      "verdict": null,
-      "summary": null
+      "result": "docs/results/E15-crypto-hourly-search.json",
+      "verdict": "FAIL",
+      "summary": "10,944 hourly rules on BTC and ETH (Binance prices, broker's measured spread 4.8 / 12.4 bps, flat before rollover) searched on 2017-2022: 383 met the search bars, best t 3.34. On the 2023-2026 vault all 10 short-listed rules lost money (mean -1.3 to -17.8 bps a trade, best t -0.38). No hourly clock edge in the two big coins at this broker's cost."
     }
   ]
 }

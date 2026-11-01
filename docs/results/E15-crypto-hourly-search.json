@@ -1,0 +1,329 @@
+{
+ "experiment": "E15",
+ "generated": "2026-11-01T06:26:13Z",
+ "prereg": "docs/programme/E15-crypto-hourly-search-prereg.md",
+ "spread_round_trip_bps": {
+  "BTCUSD": 4.82,
+  "ETHUSD": 12.42
+ },
+ "search_room": [
+  "2017-08-18",
+  "2022-12-31"
+ ],
+ "vault": [
+  "2023-01-01",
+  "2026-09-30"
+ ],
+ "rules_searched": 10944,
+ "eligible": 383,
+ "shortlist": [
+  {
+   "id": "BTCUSD:e1:k6:sell:wdall:p-1",
+   "sym": "BTCUSD",
+   "e": 1,
+   "k": 6,
+   "d": -1,
+   "wd": null,
+   "pr": -1,
+   "years_pos": 6,
+   "search_t": 3.342,
+   "vault": {
+    "n": 674,
+    "mean_bps": -6.573,
+    "t": -1.519
+   },
+   "vault_1p5x": {
+    "n": 674,
+    "mean_bps": -9.333,
+    "t": -2.157
+   },
+   "vault_years_pos": "1/4",
+   "p": 0.9356187520117114,
+   "dsr_at_N": 0.0,
+   "criteria": {
+    "1_holm": false,
+    "2_positive_1p5x": false,
+    "3_years": false
+   },
+   "pass": false
+  },
+  {
+   "id": "ETHUSD:e0:k3:buy:wd5:p0",
+   "sym": "ETHUSD",
+   "e": 0,
+   "k": 3,
+   "d": 1,
+   "wd": 5,
+   "pr": 0,
+   "years_pos": 4,
+   "search_t": 2.903,
+   "vault": {
+    "n": 195,
+    "mean_bps": -10.744,
+    "t": -1.672
+   },
+   "vault_1p5x": {
+    "n": 195,
+    "mean_bps": -17.304,
+    "t": -2.692
+   },
+   "vault_years_pos": "1/4",
+   "p": 0.9527378389634332,
+   "dsr_at_N": 0.0,
+   "criteria": {
+    "1_holm": false,
+    "2_positive_1p5x": false,
+    "3_years": false
+   },
+   "pass": false
+  },
+  {
+   "id": "BTCUSD:e7:k2:buy:wd2:p0",
+   "sym": "BTCUSD",
+   "e": 7,
+   "k": 2,
+   "d": 1,
+   "wd": 2,
+   "pr": 0,
+   "years_pos": 4,
+   "search_t": 2.612,
+   "vault": {
+    "n": 196,
+    "mean_bps": -1.319,
+    "t": -0.382
+   },
+   "vault_1p5x": {
+    "n": 196,
+    "mean_bps": -4.079,
+    "t": -1.183
+   },
+   "vault_years_pos": "2/4",
+   "p": 0.6487693176827898,
+   "dsr_at_N": 0.0,
+   "criteria": {
+    "1_holm": false,
+    "2_positive_1p5x": false,
+    "3_years": false
+   },
+   "pass": false
+  },
+  {
+   "id": "BTCUSD:e9:k1:buy:wd4:p0",
+   "sym": "BTCUSD",
+   "e": 9,
+   "k": 1,
+   "d": 1,
+   "wd": 4,
+   "pr": 0,
+   "years_pos": 5,
+   "search_t": 2.468,
+   "vault": {
+    "n": 195,
+    "mean_bps": -7.987,
+    "t": -2.438
+   },
+   "vault_1p5x": {
+    "n": 195,
+    "mean_bps": -10.747,
+    "t": -3.281
+   },
+   "vault_years_pos": "1/4",
+   "p": 0.9926156129964367,
+   "dsr_at_N": 0.0,
+   "criteria": {
+    "1_holm": false,
+    "2_positive_1p5x": false,
+    "3_years": false
+   },
+   "pass": false
+  },
+  {
+   "id": "BTCUSD:e3:k3:sell:wd3:p0",
+   "sym": "BTCUSD",
+   "e": 3,
+   "k": 3,
+   "d": -1,
+   "wd": 3,
+   "pr": 0,
+   "years_pos": 6,
+   "search_t": 2.467,
+   "vault": {
+    "n": 195,
+    "mean_bps": -7.836,
+    "t": -1.244
+   },
+   "vault_1p5x": {
+    "n": 195,
+    "mean_bps": -10.596,
+    "t": -1.682
+   },
+   "vault_years_pos": "1/4",
+   "p": 0.8932502185355145,
+   "dsr_at_N": 0.0,
+   "criteria": {
+    "1_holm": false,
+    "2_positive_1p5x": false,
+    "3_years": false
+   },
+   "pass": false
+  },
+  {
+   "id": "BTCUSD:e2:k2:sell:wd1:p0",
+   "sym": "BTCUSD",
+   "e": 2,
+   "k": 2,
+   "d": -1,
+   "wd": 1,
+   "pr": 0,
+   "years_pos": 5,
+   "search_t": 2.201,
+   "vault": {
+    "n": 196,
+    "mean_bps": -5.636,
+    "t": -1.024
+   },
+   "vault_1p5x": {
+    "n": 196,
+    "mean_bps": -8.396,
+    "t": -1.525
+   },
+   "vault_years_pos": "2/4",
+   "p": 0.8470823625458537,
+   "dsr_at_N": 0.0,
+   "criteria": {
+    "1_holm": false,
+    "2_positive_1p5x": false,
+    "3_years": false
+   },
+   "pass": false
+  },
+  {
+   "id": "BTCUSD:e18:k4:buy:wd6:p0",
+   "sym": "BTCUSD",
+   "e": 18,
+   "k": 4,
+   "d": 1,
+   "wd": 6,
+   "pr": 0,
+   "years_pos": 4,
+   "search_t": 2.131,
+   "vault": {
+    "n": 196,
+    "mean_bps": -3.821,
+    "t": -0.752
+   },
+   "vault_1p5x": {
+    "n": 196,
+    "mean_bps": -6.581,
+    "t": -1.296
+   },
+   "vault_years_pos": "1/4",
+   "p": 0.7739744706059967,
+   "dsr_at_N": 0.0,
+   "criteria": {
+    "1_holm": false,
+    "2_positive_1p5x": false,
+    "3_years": false
+   },
+   "pass": false
+  },
+  {
+   "id": "BTCUSD:e6:k3:sell:wd4:p0",
+   "sym": "BTCUSD",
+   "e": 6,
+   "k": 3,
+   "d": -1,
+   "wd": 4,
+   "pr": 0,
+   "years_pos": 5,
+   "search_t": 2.123,
+   "vault": {
+    "n": 195,
+    "mean_bps": -2.577,
+    "t": -0.539
+   },
+   "vault_1p5x": {
+    "n": 195,
+    "mean_bps": -5.337,
+    "t": -1.117
+   },
+   "vault_years_pos": "2/4",
+   "p": 0.7050565727227348,
+   "dsr_at_N": 0.0,
+   "criteria": {
+    "1_holm": false,
+    "2_positive_1p5x": false,
+    "3_years": false
+   },
+   "pass": false
+  },
+  {
+   "id": "BTCUSD:e1:k6:sell:wd6:p0",
+   "sym": "BTCUSD",
+   "e": 1,
+   "k": 6,
+   "d": -1,
+   "wd": 6,
+   "pr": 0,
+   "years_pos": 4,
+   "search_t": 1.86,
+   "vault": {
+    "n": 193,
+    "mean_bps": -11.478,
+    "t": -2.514
+   },
+   "vault_1p5x": {
+    "n": 193,
+    "mean_bps": -14.238,
+    "t": -3.119
+   },
+   "vault_years_pos": "0/4",
+   "p": 0.9940314783053619,
+   "dsr_at_N": 0.0,
+   "criteria": {
+    "1_holm": false,
+    "2_positive_1p5x": false,
+    "3_years": false
+   },
+   "pass": false
+  },
+  {
+   "id": "ETHUSD:e5:k8:sell:wd3:p0",
+   "sym": "ETHUSD",
+   "e": 5,
+   "k": 8,
+   "d": -1,
+   "wd": 3,
+   "pr": 0,
+   "years_pos": 5,
+   "search_t": 1.829,
+   "vault": {
+    "n": 195,
+    "mean_bps": -17.819,
+    "t": -1.805
+   },
+   "vault_1p5x": {
+    "n": 195,
+    "mean_bps": -24.379,
+    "t": -2.47
+   },
+   "vault_years_pos": "1/4",
+   "p": 0.9644626589834573,
+   "dsr_at_N": 0.0,
+   "criteria": {
+    "1_holm": false,
+    "2_positive_1p5x": false,
+    "3_years": false
+   },
+   "pass": false
+  }
+ ],
+ "forward_candidates": [],
+ "n_total": 47228,
+ "verdict": "FAIL",
+ "data": {
+  "BTCUSD": "3e89d6449bf21343814ea3a852791ef09b125e75591dab739d5a7b3858d58837",
+  "ETHUSD": "0a17a8d603f796b330a43823bb399ac51df35f27adf0e17711236c01bfd93290"
+ },
+ "seconds": 0.9
+}
