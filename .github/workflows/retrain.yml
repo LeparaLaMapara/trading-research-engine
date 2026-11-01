@@ -42,7 +42,9 @@ jobs:
       - name: Restore the hourly price history from last week
         uses: actions/cache@v4
         with:
-          path: data/market.db
+          path: |
+            data/market.db
+            data/full-depth.done
           key: retrain-bars-${{ github.run_id }}
           restore-keys: |
             retrain-bars-
@@ -69,7 +71,9 @@ jobs:
           set +e
           python -c "import sqlite3,os; os.makedirs('data',exist_ok=True); c=sqlite3.connect('data/market.db'); c.execute('create table if not exists bars (symbol text, period text, ts_utc real, open real, high real, low real, close real, volume integer, primary key (symbol, period, ts_utc))')"
           HAVE=$(python -c "import sqlite3; print(sqlite3.connect('data/market.db').execute(\"select count(*) from bars where period='H1'\").fetchone()[0])")
-          DAYS=$([ "$HAVE" -gt 500000 ] && echo 21 || echo 1100)
+          # E16 trains on ALL hourly history the broker holds (back to 2014 for many markets).
+          # The first fill walks back ~12 years; after that each week only adds the latest days.
+          DAYS=$([ -f data/full-depth.done ] && echo 21 || echo 4600)
           echo "hourly bars already held: $HAVE; fetching the last $DAYS days"
           OK=0; N=0
           for S in $(cat config/universe64.txt); do
@@ -78,6 +82,7 @@ jobs:
             python -m market.bars --symbol "$S" --period H1 --days "$DAYS" > bars.log 2>&1 && grep -q "^stored [1-9]" bars.log && OK=$((OK+1))
           done
           rm -f data/tokens.json bars.log   # nothing with a token or account line survives the step
+          [ "$DAYS" = "4600" ] && [ "$OK" -ge 50 ] && touch data/full-depth.done
           set -e
           echo "instruments refreshed: $OK of $N"
           [ "$OK" -ge 50 ] || { echo "too few instruments refreshed; not training"; exit 1; }
