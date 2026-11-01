@@ -25,6 +25,20 @@ MIN_QUOTES = 5          # fewer means the broker session failed: write nothing, 
 MAX_LAG_S = 900         # a snapshot more than 15 minutes after the hour is "late", not scored
 
 
+def code_version() -> str:
+    """The git commit the cycle runs from, with '+dirty' when tracked files under forecast/
+    differ from it; written on every snapshot and prediction so any line can be traced to code."""
+    import subprocess
+    try:
+        sha = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True,
+                             timeout=10, check=True).stdout.strip()
+        dirty = subprocess.run(["git", "status", "--porcelain", "--", "forecast"], capture_output=True,
+                               text=True, timeout=10).stdout.strip()
+        return sha[:12] + ("+dirty" if dirty else "")
+    except Exception:
+        return "unknown"
+
+
 def hour_now() -> int:
     return int(time.time()) // 3600 * 3600
 
@@ -83,6 +97,7 @@ def predictions(hour: int, quotes: dict, xgb_model, meta: dict, lag_s: float = 0
     bars = F.load_bars(since=hour - HISTORY_DAYS * 86400)
     bars = bars[bars.ts < hour]
     live = [s for s in quotes if traded is None or s in traded]
+    code = code_version()
     now = pd.DataFrame({"symbol": live, "ts": hour, "open": [quotes[s]["bid"] for s in live],
                         "close": np.nan})
     bars = pd.concat([bars, now], ignore_index=True).sort_values(["symbol", "ts"]).reset_index(drop=True)
@@ -100,7 +115,7 @@ def predictions(hour: int, quotes: dict, xgb_model, meta: dict, lag_s: float = 0
                         "bid": q["bid"], "ask": q["ask"], "spread_bps": round(spread_bps(q), 4),
                         "pred_z": round(float(zi), 6), "pred_bps": round(pb, 4),
                         "vol24": float(row.vol24), "trade": bool(abs(pb) > spread_bps(q)),
-                        "model": meta["sha256"], "version": meta.get("version"),
+                        "model": meta["sha256"], "version": meta.get("version"), "code": code,
                         "made_utc": time.time(), "lag_s": round(lag_s, 1)})
     return out
 
@@ -195,7 +210,7 @@ def _run(snapshot_fn=None, now_hour: int | None = None, log=print) -> dict:
     xgb_model, meta = M.load()
     preds = [] if late else predictions(hour, quotes, xgb_model, meta, lag, traded)
     snap_line = {"kind": "snapshot", "hour_utc": hour, "n_quotes": len(quotes), "made_utc": time.time(),
-                 "lag_s": round(lag, 1), "late": late}
+                 "lag_s": round(lag, 1), "late": late, "code": code_version()}
     head, n = L.append([snap_line] + res + preds)
     scores = score(res, {p["sha"]: p for p in prev})
     try:
