@@ -41,15 +41,13 @@ def main() -> int:
         if done == hour and minute < 55 and time.time() - last_read >= 300:
             last_read = time.time()
             with open(NEWS_LOG, "a", encoding="utf-8") as out:
-                out.write(time.strftime("%Y-%m-%d %H:%M:%SZ ", time.gmtime()) + "news reader
-")
+                out.write(time.strftime("%Y-%m-%d %H:%M:%SZ ", time.gmtime()) + "news reader" + chr(10))
                 out.flush()
                 try:
                     subprocess.run([PY, "-m", "news.reader"], stdout=out, stderr=out, timeout=270,
                                    creationflags=NO_WINDOW, check=False)
                 except subprocess.TimeoutExpired:
-                    out.write("news reader: stopped after 270 s; the rest waits for the next pass
-")
+                    out.write("news reader: stopped after 270 s; the rest waits for the next pass" + chr(10))
         time.sleep(30)
 
 

@@ -114,3 +114,10 @@ def test_news_player_locked_and_scored(world, tmp_path):
 def test_holm_step_down():
     lv = J._holm_levels({"a": 0.001, "b": 0.01, "c": 0.04, "d": 0.5})
     assert lv["a"] == 0.05 / 4 and lv["b"] == 0.05 / 3 and lv["c"] == 0.0 and lv["d"] == 0.0
+
+
+def test_loop_scripts_compile():
+    """The standalone loop is never imported by the other tests; a syntax slip once stopped it."""
+    import py_compile
+    for f in ("scripts/forecast_loop.py", "scripts/engine_loop.py"):
+        py_compile.compile(f, doraise=True)
