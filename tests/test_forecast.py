@@ -56,6 +56,8 @@ def test_cycle_locks_then_resolves(world):
     assert a["predictions"] == 6 * len(P.PLAYERS) and a["resolved"] == 0
     assert C.run(snapshot_fn=lambda h: q0, now_hour=end, log=lambda *_: None)["skipped"]
     q1 = {s: {"bid": p * 1.001 * 0.9999, "ask": p * 1.001 * 1.0001} for s, p in last.items()}
+    for s, p in last.items():                                          # every market traded
+        _bar(F.MARKET_DB, s, end, p)
     b = C.run(snapshot_fn=lambda h: q1, now_hour=end + 3600, log=lambda *_: None)
     assert b["resolved"] == 6 * len(P.PLAYERS)
     assert {s["player"] for s in b["scores"]} == set(P.PLAYERS)
@@ -63,3 +65,35 @@ def test_cycle_locks_then_resolves(world):
     assert ok and n == b["lines"]
     res = [x for x in L.lines() if x["kind"] == "resolution"]
     assert all(abs(r["real_bps"] - 10.0) < 0.01 for r in res)        # every mid rose 0.1%
+
+
+def _bar(db, sym, ts, px):
+    with sqlite3.connect(db) as c:
+        c.execute("insert or replace into bars values (?,?,?,?,?,?,?,?)", (sym, "H1", float(ts), px, px, px, px, 1))
+
+
+def test_closed_market_not_scored_failed_session_writes_nothing(world):
+    end, last = world
+    q0 = {s: {"bid": p * 0.9999, "ask": p * 1.0001} for s, p in last.items()}
+    C.run(snapshot_fn=lambda h: q0, now_hour=end, log=lambda *_: None)
+    n_before = len(L.lines())
+    assert C.run(snapshot_fn=lambda h: {}, now_hour=end + 3600, log=lambda *_: None)["failed"]
+    assert len(L.lines()) == n_before                                  # nothing written
+    for s, p in last.items():                                          # only EURUSD traded
+        if s == "EURUSD":
+            _bar(F.MARKET_DB, s, end, p)
+    C.run(snapshot_fn=lambda h: q0, now_hour=end + 3600, log=lambda *_: None)
+    res = [x for x in L.lines() if x["kind"] == "resolution"]
+    assert {r["status"] for r in res if r["symbol"] == "EURUSD"} == {"ok"}
+    assert {r["status"] for r in res if r["symbol"] != "EURUSD"} == {"closed"}
+
+
+def test_partial_last_line_set_aside(tmp_path):
+    p = str(tmp_path / "l.jsonl")
+    L.append([{"kind": "x", "v": 1}], p)
+    with open(p, "a") as fh:
+        fh.write('{"kind": "x", "v": 2, "pre')                         # crash mid-write
+    assert len(L.lines(p)) == 1
+    L.append([{"kind": "x", "v": 3}], p)
+    assert L.verify(p) == (True, 2)
+    assert open(p + ".partial").read().startswith('{"kind": "x", "v": 2')

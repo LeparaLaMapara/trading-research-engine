@@ -28,9 +28,11 @@ def main() -> int:
             with open(LOG, "a", encoding="utf-8") as out:
                 out.write(time.strftime("%Y-%m-%d %H:%M:%SZ ", time.gmtime()) + "standalone loop: cycle\n")
                 out.flush()
-                subprocess.run([PY, "-m", "forecast.cycle"], stdout=out, stderr=out, timeout=900,
-                               creationflags=NO_WINDOW, check=False)
-            done = hour
+                r = subprocess.run([PY, "-m", "forecast.cycle"], stdout=out, stderr=out, timeout=900,
+                                   creationflags=NO_WINDOW, check=False)
+            # Exit 2 = the broker session failed and nothing was written: retry until minute 15.
+            if r.returncode != 2 or time.time() - hour * 3600 > 900:
+                done = hour
         time.sleep(30)
 
 

@@ -1360,6 +1360,9 @@ def _story_block(d: dict | None) -> str:
                      "&order=hour_utc.desc&limit=5000")
         chain = (_sb("forecast_chain", "select=n_lines,head_sha256,published_at&order=id.desc&limit=1")
                  or [None])[0]
+        if chain is not None:
+            chain["hours"] = [r.get("hour_utc") for r in
+                              _sb("forecast_chain", "select=hour_utc&order=id&limit=20000")]
         return story_html(d, _programme_data(), reg or {}, read_universe(REPO_ROOT), scores, chain)
     except Exception:                             # noqa: BLE001
         return _family_block(d)

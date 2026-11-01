@@ -547,10 +547,17 @@ def _scoreboard(scores: list[dict] | None, chain: dict | None) -> str:
     verdict = ("Too early to judge: the first check is after 4 weeks and 400 scored hours."
                if done < 1 else "Enough hours to judge: see the results page.")
     lock = ""
+    seen = sorted({h for h in (chain or {}).get("hours", []) if h})
+    if seen:
+        t0, t1 = _when(seen[0]), _when(seen[-1])
+        expected = int((t1 - t0).total_seconds() // 3600) + 1 if t0 and t1 else len(seen)
+        missed = max(expected - len(seen), 0)
+        lock += (f"<p class='st-cap'>{len(seen)} hours recorded, {missed} missed "
+                 f"(the computer was off or the broker did not answer; missed hours are never filled in).</p>")
     if chain:
         t = _when(str(chain.get("published_at", "")))
         at = (t + timedelta(hours=SA_OFFSET_H)).strftime("%d %b %H:%M") + " SA time" if t else ""
-        lock = (f"<p class='st-cap'>Latest lock: {esc(str(chain.get('n_lines', '')))} lines, "
+        lock += (f"<p class='st-cap'>Latest lock: {esc(str(chain.get('n_lines', '')))} lines, "
                 f"fingerprint {esc(str(chain.get('head_sha256', ''))[:12])}, stamped "
                 f"{esc(at)} by the database.</p>")
     return (f"<section class='st-card rv' id='scoreboard'><h3 class='st-h'>The scoreboard</h3>"
