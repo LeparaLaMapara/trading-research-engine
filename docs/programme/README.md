@@ -22,8 +22,15 @@ changing venue alone does not rescue the signals we hold.
    done after the fact without leaving evidence.
 3. **One hypothesis per slot.** Variants tested inside one experiment are declared in its
    pre-registration and all counted in N.
-4. **A pass is not a trade.** Passing makes a strategy a candidate for demo paper trading. A
-   live order still needs the engine's deflated Sharpe bar (0.95) and the owner's signed grant.
+4. **A pass is not a trade.** Passing makes a strategy a candidate for paper trading on live
+   quotes. It earns a live slot when, **on its forward paper trades**, the mSPRT
+   (`learning/stats.py`) says "edge > 0" at 5% after a Holm correction for the number of
+   candidates running forward at the same time, and its paper result net of the broker's
+   measured live spread is positive. The signed limits and grant still apply.
+   *Owner approved 2026-11-01* (proposed in the E13 pre-registration). It replaces the old bar,
+   deflated Sharpe 0.95 at the programme's running N from backtest, which no wide search can
+   meet: the sealed vault (`research/vault.py`) and the forward stage now carry that job. The
+   deflated Sharpe at N is still reported for every result.
 5. **The stop rule.** If all 10 experiments are spent and none passes, the conclusion is written
    down: this account, at this broker, has no edge worth trading. The project then continues as a
    measurement lab (what retail trading really costs), not as a money maker. The audit reports

@@ -85,6 +85,15 @@ loss from looking like an edge; they are the means, not the goal. Plan (owner sa
    `scripts/trader_step.py` before opening and in `scripts/live_trade.py` on the real quote,
    and `CostModel.financing_annual` in `backtest/harness.py` (charged per rollover held).
 
+### Update 2026-11-01: the discovery machine and the forward gate
+
+Owner approved: search wide on 2014-2022 (every rule counted), test a short list ONCE on the
+sealed 2023-2026-09 vault (`research/vault.py`, log `docs/results/vault-log.jsonl`, a second
+opening per experiment is refused), then paper-trade survivors on live quotes. A rule goes live
+when the forward mSPRT says edge > 0 at 5% (Holm over the forward candidates) and its paper
+result net of live spread is positive: programme rule 4 in `docs/programme/README.md`.
+Plan: `docs/plans/discovery-machine-2026-11.md`. First search E13 (hourly windows): FAIL.
+
 ## The one constraint everything flows from
 
 The owner has stated he cannot verify strategy mathematics by inspection. So the system is
