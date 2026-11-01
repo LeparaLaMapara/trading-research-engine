@@ -74,5 +74,3 @@ pass threshold is then Holm-corrected over the versions running.
 * Hourly moves are mostly noise; a true IC of 0.02 needs many weeks to show. The most likely
   honest outcome after 4 weeks is "not yet", not "pass".
 * If the PC is off, hours are missed. Missed hours are counted and shown, never backfilled.
-</content>
-</invoke>
