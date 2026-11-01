@@ -167,9 +167,9 @@
       "trials": 28728,
       "title": "Every hourly intraday window on 7 FX majors, searched on 2014-2022, short list tested once on a sealed 2023-2026 vault",
       "prereg": "docs/programme/E13-hourly-window-search-prereg.md",
-      "result": null,
-      "verdict": null,
-      "summary": null
+      "result": "docs/results/E13-hourly-window-search.json",
+      "verdict": "FAIL",
+      "summary": "Searched all 28,728 hourly intraday rules on 7 FX majors in 2014-2022 at real bid/ask: 1,053 met the search bars, best t 4.49. The 10-rule short list was tested once on the sealed 2023-2026-09 vault: 0 passed; best vault t 0.95 (USDCHF), 3 of 10 negative. The second-best search rule, selling EURUSD 04:00-08:00 New York (owning the dollar into the ECB fix), had t 4.28 in 2014-2022 and t -0.04 in the vault: the fix effect E11 found dead out of sample, found again by blind search. No hourly clock edge left in majors at retail cost."
     }
   ]
 }

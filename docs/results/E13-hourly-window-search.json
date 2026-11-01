@@ -1,0 +1,351 @@
+{
+ "experiment": "E13",
+ "generated": "2026-11-01T02:03:59Z",
+ "prereg": "docs/programme/E13-hourly-window-search-prereg.md",
+ "search_room": [
+  "2014-01-01",
+  "2022-12-31"
+ ],
+ "vault": [
+  "2023-01-01",
+  "2026-09-30"
+ ],
+ "rules_searched": 28728,
+ "eligible": 1053,
+ "shortlist": [
+  {
+   "id": "GBPUSD:e7:k8:sell:wd4:p-1",
+   "sym": "GBPUSD",
+   "e": 7,
+   "k": 8,
+   "d": -1,
+   "wd": 4,
+   "pr": -1,
+   "years_pos": 8,
+   "search_t": 4.492,
+   "vault": {
+    "n": 98,
+    "mean_bps": -1.375,
+    "t": -0.451
+   },
+   "vault_1p5x": {
+    "n": 98,
+    "mean_bps": -2.023,
+    "t": -0.663
+   },
+   "vault_years_pos": "2/4",
+   "p": 0.674005225508074,
+   "dsr_at_N": 0.0,
+   "criteria": {
+    "1_holm": false,
+    "2_positive_1p5x": false,
+    "3_years": false
+   },
+   "pass": false
+  },
+  {
+   "id": "EURUSD:e10:k4:sell:wdall:p0",
+   "sym": "EURUSD",
+   "e": 10,
+   "k": 4,
+   "d": -1,
+   "wd": null,
+   "pr": 0,
+   "years_pos": 9,
+   "search_t": 4.275,
+   "vault": {
+    "n": 974,
+    "mean_bps": -0.022,
+    "t": -0.04
+   },
+   "vault_1p5x": {
+    "n": 974,
+    "mean_bps": -0.514,
+    "t": -0.929
+   },
+   "vault_years_pos": "1/4",
+   "p": 0.5159534368528308,
+   "dsr_at_N": 0.0,
+   "criteria": {
+    "1_holm": false,
+    "2_positive_1p5x": false,
+    "3_years": false
+   },
+   "pass": false
+  },
+  {
+   "id": "EURUSD:e6:k8:sell:wd2:p-1",
+   "sym": "EURUSD",
+   "e": 6,
+   "k": 8,
+   "d": -1,
+   "wd": 2,
+   "pr": -1,
+   "years_pos": 8,
+   "search_t": 3.226,
+   "vault": {
+    "n": 100,
+    "mean_bps": 0.755,
+    "t": 0.31
+   },
+   "vault_1p5x": {
+    "n": 100,
+    "mean_bps": 0.245,
+    "t": 0.101
+   },
+   "vault_years_pos": "3/4",
+   "p": 0.3782804781779807,
+   "dsr_at_N": 0.0002,
+   "criteria": {
+    "1_holm": false,
+    "2_positive_1p5x": true,
+    "3_years": true
+   },
+   "pass": false
+  },
+  {
+   "id": "GBPUSD:e7:k4:sell:wdall:p-1",
+   "sym": "GBPUSD",
+   "e": 7,
+   "k": 4,
+   "d": -1,
+   "wd": null,
+   "pr": -1,
+   "years_pos": 9,
+   "search_t": 2.833,
+   "vault": {
+    "n": 472,
+    "mean_bps": -1.44,
+    "t": -1.468
+   },
+   "vault_1p5x": {
+    "n": 472,
+    "mean_bps": -2.101,
+    "t": -2.142
+   },
+   "vault_years_pos": "1/4",
+   "p": 0.9289478885465677,
+   "dsr_at_N": 0.0,
+   "criteria": {
+    "1_holm": false,
+    "2_positive_1p5x": false,
+    "3_years": false
+   },
+   "pass": false
+  },
+  {
+   "id": "USDCHF:e16:k1:sell:wd4:p1",
+   "sym": "USDCHF",
+   "e": 16,
+   "k": 1,
+   "d": -1,
+   "wd": 4,
+   "pr": 1,
+   "years_pos": 8,
+   "search_t": 2.815,
+   "vault": {
+    "n": 102,
+    "mean_bps": 1.899,
+    "t": 0.947
+   },
+   "vault_1p5x": {
+    "n": 102,
+    "mean_bps": 0.925,
+    "t": 0.461
+   },
+   "vault_years_pos": "3/4",
+   "p": 0.171819389467178,
+   "dsr_at_N": 0.0008,
+   "criteria": {
+    "1_holm": false,
+    "2_positive_1p5x": true,
+    "3_years": true
+   },
+   "pass": false
+  },
+  {
+   "id": "EURUSD:e6:k8:sell:wd4:p0",
+   "sym": "EURUSD",
+   "e": 6,
+   "k": 8,
+   "d": -1,
+   "wd": 4,
+   "pr": 0,
+   "years_pos": 8,
+   "search_t": 2.712,
+   "vault": {
+    "n": 195,
+    "mean_bps": 0.529,
+    "t": 0.349
+   },
+   "vault_1p5x": {
+    "n": 195,
+    "mean_bps": 0.043,
+    "t": 0.028
+   },
+   "vault_years_pos": "1/4",
+   "p": 0.363544654783464,
+   "dsr_at_N": 0.0,
+   "criteria": {
+    "1_holm": false,
+    "2_positive_1p5x": true,
+    "3_years": false
+   },
+   "pass": false
+  },
+  {
+   "id": "USDJPY:e8:k6:buy:wd0:p-1",
+   "sym": "USDJPY",
+   "e": 8,
+   "k": 6,
+   "d": 1,
+   "wd": 0,
+   "pr": -1,
+   "years_pos": 9,
+   "search_t": 2.709,
+   "vault": {
+    "n": 93,
+    "mean_bps": 1.08,
+    "t": 0.419
+   },
+   "vault_1p5x": {
+    "n": 93,
+    "mean_bps": 0.551,
+    "t": 0.214
+   },
+   "vault_years_pos": "3/4",
+   "p": 0.33760806617587646,
+   "dsr_at_N": 0.0005,
+   "criteria": {
+    "1_holm": false,
+    "2_positive_1p5x": true,
+    "3_years": true
+   },
+   "pass": false
+  },
+  {
+   "id": "EURUSD:e7:k3:buy:wd1:p1",
+   "sym": "EURUSD",
+   "e": 7,
+   "k": 3,
+   "d": 1,
+   "wd": 1,
+   "pr": 1,
+   "years_pos": 8,
+   "search_t": 2.593,
+   "vault": {
+    "n": 96,
+    "mean_bps": 0.825,
+    "t": 0.513
+   },
+   "vault_1p5x": {
+    "n": 96,
+    "mean_bps": 0.333,
+    "t": 0.207
+   },
+   "vault_years_pos": "3/4",
+   "p": 0.3039756603462729,
+   "dsr_at_N": 0.0004,
+   "criteria": {
+    "1_holm": false,
+    "2_positive_1p5x": true,
+    "3_years": true
+   },
+   "pass": false
+  },
+  {
+   "id": "GBPUSD:e10:k2:buy:wd3:p1",
+   "sym": "GBPUSD",
+   "e": 10,
+   "k": 2,
+   "d": 1,
+   "wd": 3,
+   "pr": 1,
+   "years_pos": 7,
+   "search_t": 2.587,
+   "vault": {
+    "n": 96,
+    "mean_bps": 0.664,
+    "t": 0.452
+   },
+   "vault_1p5x": {
+    "n": 96,
+    "mean_bps": 0.002,
+    "t": 0.001
+   },
+   "vault_years_pos": "2/4",
+   "p": 0.32563449122032057,
+   "dsr_at_N": 0.0004,
+   "criteria": {
+    "1_holm": false,
+    "2_positive_1p5x": true,
+    "3_years": false
+   },
+   "pass": false
+  },
+  {
+   "id": "EURUSD:e10:k6:sell:wd1:p-1",
+   "sym": "EURUSD",
+   "e": 10,
+   "k": 6,
+   "d": -1,
+   "wd": 1,
+   "pr": -1,
+   "years_pos": 7,
+   "search_t": 2.572,
+   "vault": {
+    "n": 105,
+    "mean_bps": -0.004,
+    "t": -0.002
+   },
+   "vault_1p5x": {
+    "n": 105,
+    "mean_bps": -0.539,
+    "t": -0.249
+   },
+   "vault_years_pos": "2/4",
+   "p": 0.5007978840288801,
+   "dsr_at_N": 0.0,
+   "criteria": {
+    "1_holm": false,
+    "2_positive_1p5x": false,
+    "3_years": false
+   },
+   "pass": false
+  }
+ ],
+ "forward_candidates": [],
+ "n_total": 29484,
+ "verdict": "FAIL",
+ "data": {
+  "EURUSD": {
+   "bid": "3b25e16c8b3de8795c00010980972c9a29a65a34ce45aa3953e716636af8a1e4",
+   "ask": "9b5dfe47d177296fb07e681b1cc83c8cbda867ee3d1066e2ca6c5ca4bf9de6ce"
+  },
+  "GBPUSD": {
+   "bid": "4cb0200ceec5ade4cc742d5344f651518b439ad61d97c2dfed8dd2640fe19ddd",
+   "ask": "070568ad4ff2a146b0cced46bdadfa2cca85c76f7768ee0ebdf3ec3a8a5677fc"
+  },
+  "AUDUSD": {
+   "bid": "de2045a8fae439ae3231f519eab20354df06faad2d27e091e264b7c8e524843b",
+   "ask": "27e1bbc392b5cadf93eea542ed57f059d506a0653840caaa67e798ddc7afb816"
+  },
+  "NZDUSD": {
+   "bid": "9f324b86b8e3d49ea66ad49e6ad7dde5a4f1c485124238a1483880eae1d812aa",
+   "ask": "31749ca89258264cffb0773b98024f861f7a3a7cdb83936ceb6dd6475eb3edf8"
+  },
+  "USDJPY": {
+   "bid": "479ed8b250f1c84a914bcc07c5f5a712c5fc094ed798cd58ffbc1efae02274c5",
+   "ask": "a6d015c159ebbb304a4db4d6ca8a0fbbf9e705148efcce8ddd5f162947affd51"
+  },
+  "USDCHF": {
+   "bid": "1cc88a6a05c1d84e1b110318f829284ddd0b6dfaa6d1c93facfaa56d6befe11c",
+   "ask": "8ac189c815b4fa9f78e267b8fd4b09ffcf693dc838bff49363fe195d6e542d86"
+  },
+  "USDCAD": {
+   "bid": "a25339e94af0ac6b1e5d237a14fea8edf7f14c47437404d581fc0181bbfaae9a",
+   "ask": "598bb5a4d3100c9819fce63435a126589763617855225624140d06b7393b735e"
+  }
+ },
+ "seconds": 3.4
+}
