@@ -1,0 +1,357 @@
+{
+ "experiment": "E14",
+ "generated": "2026-11-01T02:20:47Z",
+ "prereg": "docs/programme/E14-event-day-search-prereg.md",
+ "events": {
+  "NFP": 152,
+  "CPI": 152,
+  "MEND": 153,
+  "MSTART": 153
+ },
+ "search_room": [
+  "2014-01-01",
+  "2022-12-31"
+ ],
+ "vault": [
+  "2023-01-01",
+  "2026-09-30"
+ ],
+ "rules_searched": 6800,
+ "eligible": 427,
+ "shortlist": [
+  {
+   "id": "B:CPI:AUDUSD:e8:k4:buy",
+   "kind": "clock",
+   "event": "CPI",
+   "sym": "AUDUSD",
+   "e": 8,
+   "k": 4,
+   "d": 1,
+   "years_pos": 6,
+   "search_t": 2.855,
+   "vault": {
+    "n": 44,
+    "mean_bps": -6.587,
+    "t": -2.631
+   },
+   "vault_1p5x": {
+    "n": 44,
+    "mean_bps": -7.664,
+    "t": -3.058
+   },
+   "vault_years_pos": "0/4",
+   "p": 0.9957432982002999,
+   "dsr_at_N": 0.0,
+   "criteria": {
+    "1_holm": false,
+    "2_positive_1p5x": false,
+    "3_years": false
+   },
+   "pass": false
+  },
+  {
+   "id": "A:NFP:r16:x19:fade:EURUSD",
+   "kind": "reaction",
+   "event": "NFP",
+   "sym": "EURUSD",
+   "r": 16,
+   "x": 19,
+   "mode": -1,
+   "years_pos": 8,
+   "search_t": 2.767,
+   "vault": {
+    "n": 44,
+    "mean_bps": -1.795,
+    "t": -0.369
+   },
+   "vault_1p5x": {
+    "n": 44,
+    "mean_bps": -2.326,
+    "t": -0.478
+   },
+   "vault_years_pos": "1/4",
+   "p": 0.6439361376133672,
+   "dsr_at_N": 0.0,
+   "criteria": {
+    "1_holm": false,
+    "2_positive_1p5x": false,
+    "3_years": false
+   },
+   "pass": false
+  },
+  {
+   "id": "A:CPI:r15:x18:fade:USDCAD",
+   "kind": "reaction",
+   "event": "CPI",
+   "sym": "USDCAD",
+   "r": 15,
+   "x": 18,
+   "mode": -1,
+   "years_pos": 8,
+   "search_t": 2.534,
+   "vault": {
+    "n": 44,
+    "mean_bps": -4.27,
+    "t": -1.417
+   },
+   "vault_1p5x": {
+    "n": 44,
+    "mean_bps": -5.052,
+    "t": -1.676
+   },
+   "vault_years_pos": "1/4",
+   "p": 0.921758536263457,
+   "dsr_at_N": 0.0,
+   "criteria": {
+    "1_holm": false,
+    "2_positive_1p5x": false,
+    "3_years": false
+   },
+   "pass": false
+  },
+  {
+   "id": "B:NFP:GBPUSD:e8:k8:sell",
+   "kind": "clock",
+   "event": "NFP",
+   "sym": "GBPUSD",
+   "e": 8,
+   "k": 8,
+   "d": -1,
+   "years_pos": 7,
+   "search_t": 2.495,
+   "vault": {
+    "n": 44,
+    "mean_bps": -10.103,
+    "t": -1.49
+   },
+   "vault_1p5x": {
+    "n": 44,
+    "mean_bps": -10.855,
+    "t": -1.601
+   },
+   "vault_years_pos": "0/4",
+   "p": 0.9318878820332744,
+   "dsr_at_N": 0.0,
+   "criteria": {
+    "1_holm": false,
+    "2_positive_1p5x": false,
+    "3_years": false
+   },
+   "pass": false
+  },
+  {
+   "id": "B:CPI:NZDUSD:e2:k8:buy",
+   "kind": "clock",
+   "event": "CPI",
+   "sym": "NZDUSD",
+   "e": 2,
+   "k": 8,
+   "d": 1,
+   "years_pos": 6,
+   "search_t": 2.126,
+   "vault": {
+    "n": 44,
+    "mean_bps": -3.343,
+    "t": -0.679
+   },
+   "vault_1p5x": {
+    "n": 44,
+    "mean_bps": -4.563,
+    "t": -0.927
+   },
+   "vault_years_pos": "2/4",
+   "p": 0.7514310690255194,
+   "dsr_at_N": 0.0,
+   "criteria": {
+    "1_holm": false,
+    "2_positive_1p5x": false,
+    "3_years": false
+   },
+   "pass": false
+  },
+  {
+   "id": "B:MEND:USDJPY:e9:k3:buy",
+   "kind": "clock",
+   "event": "MEND",
+   "sym": "USDJPY",
+   "e": 9,
+   "k": 3,
+   "d": 1,
+   "years_pos": 7,
+   "search_t": 2.107,
+   "vault": {
+    "n": 44,
+    "mean_bps": 6.339,
+    "t": 1.396
+   },
+   "vault_1p5x": {
+    "n": 44,
+    "mean_bps": 5.795,
+    "t": 1.276
+   },
+   "vault_years_pos": "3/4",
+   "p": 0.08135724757480689,
+   "dsr_at_N": 0.0433,
+   "criteria": {
+    "1_holm": false,
+    "2_positive_1p5x": true,
+    "3_years": true
+   },
+   "pass": false
+  },
+  {
+   "id": "B:MEND:AUDUSD:e7:k6:sell",
+   "kind": "clock",
+   "event": "MEND",
+   "sym": "AUDUSD",
+   "e": 7,
+   "k": 6,
+   "d": -1,
+   "years_pos": 7,
+   "search_t": 2.014,
+   "vault": {
+    "n": 44,
+    "mean_bps": 3.142,
+    "t": 0.687
+   },
+   "vault_1p5x": {
+    "n": 44,
+    "mean_bps": 2.058,
+    "t": 0.45
+   },
+   "vault_years_pos": "2/4",
+   "p": 0.24604136421255113,
+   "dsr_at_N": 0.0028,
+   "criteria": {
+    "1_holm": false,
+    "2_positive_1p5x": true,
+    "3_years": false
+   },
+   "pass": false
+  },
+  {
+   "id": "B:NFP:USDCHF:e15:k3:sell",
+   "kind": "clock",
+   "event": "NFP",
+   "sym": "USDCHF",
+   "e": 15,
+   "k": 3,
+   "d": -1,
+   "years_pos": 7,
+   "search_t": 1.997,
+   "vault": {
+    "n": 44,
+    "mean_bps": 6.034,
+    "t": 1.239
+   },
+   "vault_1p5x": {
+    "n": 44,
+    "mean_bps": 5.137,
+    "t": 1.055
+   },
+   "vault_years_pos": "3/4",
+   "p": 0.10767274903322083,
+   "dsr_at_N": 0.0103,
+   "criteria": {
+    "1_holm": false,
+    "2_positive_1p5x": true,
+    "3_years": true
+   },
+   "pass": false
+  },
+  {
+   "id": "B:MEND:GBPUSD:e13:k4:buy",
+   "kind": "clock",
+   "event": "MEND",
+   "sym": "GBPUSD",
+   "e": 13,
+   "k": 4,
+   "d": 1,
+   "years_pos": 6,
+   "search_t": 1.962,
+   "vault": {
+    "n": 44,
+    "mean_bps": 1.884,
+    "t": 0.447
+   },
+   "vault_1p5x": {
+    "n": 44,
+    "mean_bps": 1.27,
+    "t": 0.301
+   },
+   "vault_years_pos": "3/4",
+   "p": 0.3274375299470324,
+   "dsr_at_N": 0.0011,
+   "criteria": {
+    "1_holm": false,
+    "2_positive_1p5x": true,
+    "3_years": true
+   },
+   "pass": false
+  },
+  {
+   "id": "B:MEND:USDJPY:e0:k4:sell",
+   "kind": "clock",
+   "event": "MEND",
+   "sym": "USDJPY",
+   "e": 0,
+   "k": 4,
+   "d": -1,
+   "years_pos": 6,
+   "search_t": 1.918,
+   "vault": {
+    "n": 39,
+    "mean_bps": 0.352,
+    "t": 0.077
+   },
+   "vault_1p5x": {
+    "n": 39,
+    "mean_bps": -0.698,
+    "t": -0.152
+   },
+   "vault_years_pos": "2/4",
+   "p": 0.4693117724845505,
+   "dsr_at_N": 0.0006,
+   "criteria": {
+    "1_holm": false,
+    "2_positive_1p5x": false,
+    "3_years": false
+   },
+   "pass": false
+  }
+ ],
+ "forward_candidates": [],
+ "n_total": 36284,
+ "verdict": "FAIL",
+ "data": {
+  "EURUSD": {
+   "bid": "3b25e16c8b3de8795c00010980972c9a29a65a34ce45aa3953e716636af8a1e4",
+   "ask": "9b5dfe47d177296fb07e681b1cc83c8cbda867ee3d1066e2ca6c5ca4bf9de6ce"
+  },
+  "GBPUSD": {
+   "bid": "4cb0200ceec5ade4cc742d5344f651518b439ad61d97c2dfed8dd2640fe19ddd",
+   "ask": "070568ad4ff2a146b0cced46bdadfa2cca85c76f7768ee0ebdf3ec3a8a5677fc"
+  },
+  "AUDUSD": {
+   "bid": "de2045a8fae439ae3231f519eab20354df06faad2d27e091e264b7c8e524843b",
+   "ask": "27e1bbc392b5cadf93eea542ed57f059d506a0653840caaa67e798ddc7afb816"
+  },
+  "NZDUSD": {
+   "bid": "9f324b86b8e3d49ea66ad49e6ad7dde5a4f1c485124238a1483880eae1d812aa",
+   "ask": "31749ca89258264cffb0773b98024f861f7a3a7cdb83936ceb6dd6475eb3edf8"
+  },
+  "USDJPY": {
+   "bid": "479ed8b250f1c84a914bcc07c5f5a712c5fc094ed798cd58ffbc1efae02274c5",
+   "ask": "a6d015c159ebbb304a4db4d6ca8a0fbbf9e705148efcce8ddd5f162947affd51"
+  },
+  "USDCHF": {
+   "bid": "1cc88a6a05c1d84e1b110318f829284ddd0b6dfaa6d1c93facfaa56d6befe11c",
+   "ask": "8ac189c815b4fa9f78e267b8fd4b09ffcf693dc838bff49363fe195d6e542d86"
+  },
+  "USDCAD": {
+   "bid": "a25339e94af0ac6b1e5d237a14fea8edf7f14c47437404d581fc0181bbfaae9a",
+   "ask": "598bb5a4d3100c9819fce63435a126589763617855225624140d06b7393b735e"
+  }
+ },
+ "seconds": 1.7
+}

@@ -178,9 +178,9 @@
       "trials": 6800,
       "title": "US jobs, US inflation and month-end days: reaction and clock rules on 7 FX majors, searched 2014-2022, short list tested once on the 2023-2026 vault",
       "prereg": "docs/programme/E14-event-day-search-prereg.md",
-      "result": null,
-      "verdict": null,
-      "summary": null
+      "result": "docs/results/E14-event-day-search.json",
+      "verdict": "FAIL",
+      "summary": "6,800 rules on US jobs days, US inflation days, month end and month start (reaction follow/fade and clock windows, 7 FX majors) searched on 2014-2022: 427 met the search bars, but the best search t was only 2.86, about what 6,800 tries of pure noise produce. The 10-rule short list on the vault (44 events each): 0 passed; best vault t 1.40 (USDJPY month end), the top search rule had vault t -2.63. No event-day pattern in the majors at retail cost."
     }
   ]
 }
