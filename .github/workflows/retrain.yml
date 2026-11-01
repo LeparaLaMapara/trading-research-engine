@@ -11,6 +11,13 @@ on:
   schedule:
     - cron: "15 2 * * 0"     # Sunday 02:15 UTC: markets closed, the week's bars complete
   workflow_dispatch: {}
+  push:                      # the model's own code changed: retrain so the release matches it
+    branches: [main]
+    paths:
+      - forecast/features.py
+      - forecast/model.py
+      - forecast/players.py
+      - .github/workflows/retrain.yml
 
 permissions:
   contents: write            # publish the model release, nothing else
