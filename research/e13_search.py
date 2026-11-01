@@ -53,14 +53,14 @@ def slot_times(days: pd.DatetimeIndex, shift_h: int = 0) -> np.ndarray:
     return out
 
 
-def quote_grid(q: pd.DataFrame, times: np.ndarray):
+def quote_grid(q: pd.DataFrame, times: np.ndarray, max_spread: float = MAX_SPREAD_FRAC):
     idx = q.index.tz_convert("UTC").tz_localize(None) if q.index.tz is not None else q.index
     q = pd.DataFrame(q.to_numpy(), index=idx, columns=q.columns)
     flat = pd.DatetimeIndex(times.ravel())
     bid = q["bid"].reindex(flat).to_numpy().reshape(times.shape)
     ask = q["ask"].reindex(flat).to_numpy().reshape(times.shape)
     mid = (bid + ask) / 2
-    bad = ~(ask > bid) | ((ask - bid) / mid > MAX_SPREAD_FRAC)
+    bad = ~(ask > bid) | ((ask - bid) / mid > max_spread)
     bid, ask = np.where(bad, np.nan, bid), np.where(bad, np.nan, ask)
     return bid, ask, mid
 
@@ -76,15 +76,15 @@ def rule_id(sym, e, k, d, wd, pr) -> str:
 class Panel:
     """Per-instrument grids of fills, plus the filters, for every closing day."""
 
-    def __init__(self, quotes: dict, days: pd.DatetimeIndex):
+    def __init__(self, quotes: dict, days: pd.DatetimeIndex, max_spread: float = MAX_SPREAD_FRAC):
         self.days = days
         self.years = days.year.to_numpy()
         self.weekday = days.weekday.to_numpy()
         t, t24 = slot_times(days), slot_times(days, shift_h=24)
         self.g = {}
         for s, q in quotes.items():
-            bid, ask, mid = quote_grid(q, t)
-            _, _, mid24 = quote_grid(q, t24)
+            bid, ask, mid = quote_grid(q, t, max_spread)
+            _, _, mid24 = quote_grid(q, t24, max_spread)
             self.g[s] = (bid, ask, mid, np.sign(np.log(mid / mid24)))
 
     def returns(self, sym, e, k, d, cost_mult=1.0) -> np.ndarray:
@@ -127,15 +127,16 @@ def years_positive(r: np.ndarray, years: np.ndarray) -> tuple[int, int]:
     return pos, len(ys)
 
 
-def search(panel: Panel, in_room: np.ndarray, log=print):
+def search(panel: Panel, in_room: np.ndarray, log=print, syms=SYMS, weekdays=WEEKDAYS,
+           min_trades=MIN_TRADES, min_mean=MIN_MEAN, min_pos_years=MIN_POS_YEARS):
     """Score every rule on the search-room days. Returns (all per-obs Sharpes, eligible list)."""
     yrs = panel.years[in_room]
     sharpes, eligible = [], []
-    for s in SYMS:
+    for s in syms:
         for e, k in windows():
             for d in (1, -1):
                 base = panel.returns(s, e, k, d)[in_room]
-                for wd in WEEKDAYS:
+                for wd in weekdays:
                     for pr in PRIORS:
                         r = np.where(panel.mask(s, e, wd, pr)[in_room], base, np.nan)
                         x = r[~np.isnan(r)]
@@ -144,10 +145,10 @@ def search(panel: Panel, in_room: np.ndarray, log=print):
                             continue
                         mu, sd = x.mean(), x.std(ddof=1)
                         sharpes.append(float(mu / sd) if sd > 0 else 0.0)
-                        if len(x) < MIN_TRADES or mu < MIN_MEAN:
+                        if len(x) < min_trades or mu < min_mean:
                             continue
                         pos, _ = years_positive(r, yrs)
-                        if pos < MIN_POS_YEARS:
+                        if pos < min_pos_years:
                             continue
                         eligible.append({"id": rule_id(s, e, k, d, wd, pr), "sym": s, "e": e, "k": k,
                                          "d": d, "wd": wd, "pr": pr, "years_pos": pos,
