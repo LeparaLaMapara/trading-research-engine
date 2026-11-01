@@ -159,6 +159,17 @@
       "result": "docs/results/E12-fomc-day-dollar.json",
       "verdict": "FAIL",
       "summary": "Short the dollar against 7 majors from 16:00 ET the day before each scheduled FOMC day to 16:00 ET on the day, 99 events 2014 to 2026-09: mean +5.70 bps net, t 0.97 (bar 2.0). It beats the random-day null p95 (4.55 bps), stays positive at 1.5x costs (4.45) and in both halves (5.8 and 5.6 bps), so the sign agrees with the paper, but 8 events a year cannot prove it. FAIL on criterion 1; deflated Sharpe 0.45. Not a forward candidate."
+    },
+    {
+      "id": "E13",
+      "kind": "strategy",
+      "programme": "P2",
+      "trials": 28728,
+      "title": "Every hourly intraday window on 7 FX majors, searched on 2014-2022, short list tested once on a sealed 2023-2026 vault",
+      "prereg": "docs/programme/E13-hourly-window-search-prereg.md",
+      "result": null,
+      "verdict": null,
+      "summary": null
     }
   ]
 }
