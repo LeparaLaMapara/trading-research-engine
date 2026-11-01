@@ -20,17 +20,14 @@ jobs:
   run:
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    # Keys are NOT set for the whole job. Only the steps that talk to the broker or Supabase get
+    # them (the &keys block below), so checkout, setup and `pip install` (third-party code) never
+    # see them. Public repo: keys stay out of every step that does not need them.
     env:
-      CTRADER_CLIENT_ID: ${{ secrets.CTRADER_CLIENT_ID }}
-      CTRADER_CLIENT_SECRET: ${{ secrets.CTRADER_CLIENT_SECRET }}
       CTRADER_ENV: live
-      CTRADER_ACCOUNT_ID: ${{ secrets.CTRADER_ACCOUNT_ID }}
-      CTRADER_ACCESS_TOKEN: ${{ secrets.CTRADER_ACCESS_TOKEN }}
-      CTRADER_REFRESH_TOKEN: ${{ secrets.CTRADER_REFRESH_TOKEN }}
       TOKEN_STORE: data/tokens.json
       RESEARCH_PERIOD: D1   # H1 costs 20-30x more for the same rule; every H1 rule was over the cost ceiling
       SUPABASE_URL: https://bprargrqppufeuewryze.supabase.co
-      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -56,6 +53,13 @@ jobs:
       - name: Install
         run: pip install -e .
       - name: Snapshot account balance -> Supabase
+        env: &keys
+          CTRADER_CLIENT_ID: ${{ secrets.CTRADER_CLIENT_ID }}
+          CTRADER_CLIENT_SECRET: ${{ secrets.CTRADER_CLIENT_SECRET }}
+          CTRADER_ACCOUNT_ID: ${{ secrets.CTRADER_ACCOUNT_ID }}
+          CTRADER_ACCESS_TOKEN: ${{ secrets.CTRADER_ACCESS_TOKEN }}
+          CTRADER_REFRESH_TOKEN: ${{ secrets.CTRADER_REFRESH_TOKEN }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: |
           # The self-check needs the balance to judge "can it still trade". It was UNKNOWN
           # every day because nothing handed it over.
@@ -63,6 +67,7 @@ jobs:
           B=$(grep -o "balance=[0-9.]*" account.log | head -1 | cut -d= -f2)
           if [ -n "$B" ]; then echo "ACCOUNT_BALANCE_USD=$B" >> "$GITHUB_ENV"; fi
       - name: Refresh bar history
+        env: *keys
         run: |
           # Since 2026-09-22 this job no longer tests strategies. The daily search re-tested the
           # same five rules every day, they failed every day, and each repeat raised the bar a
@@ -90,6 +95,7 @@ jobs:
         # of green-but-dead runs. `if: always()` because a broken cycle is exactly when the
         # audit matters most.
         if: always()
+        env: *keys   # it checks the keys are present (not their values) and reads Supabase
         run: python -m ops.audit
       - name: Report job health (same-day alert)
         # Records job:research in ops_checks (dashboard banner) and opens or closes the

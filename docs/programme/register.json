@@ -203,6 +203,17 @@
       "result": null,
       "verdict": null,
       "summary": null
+    },
+    {
+      "id": "E17",
+      "kind": "strategy",
+      "programme": "P2",
+      "trials": 1,
+      "title": "News reader: a local AI model reads central bank and statistics releases and predicts the currencies, locked and judged only on the future",
+      "prereg": "docs/programme/E17-news-reader-prereg.md",
+      "result": null,
+      "verdict": null,
+      "summary": null
     }
   ]
 }
