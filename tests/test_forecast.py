@@ -43,6 +43,8 @@ def world(tmp_path, monkeypatch):
     monkeypatch.setattr(L, "PATH", str(tmp_path / "ledger.jsonl"))
     monkeypatch.setattr(M, "DIR", str(tmp_path))
     monkeypatch.setattr(M, "CURRENT", str(tmp_path / "cur.json"))
+    from news import reader as R
+    monkeypatch.setattr(R, "STORE", str(tmp_path / "news.jsonl"))   # empty: the news player has no view
     df = F.make_features(F.load_bars(db), events={"nfp": set(), "cpi": set(), "fomc": set()})
     M.save(M.fit(df), int(df.ts.max()), len(df), P.fit_slopes(df))
     last = {s: float(df[df.symbol == s].open.iloc[-1]) for s in syms}

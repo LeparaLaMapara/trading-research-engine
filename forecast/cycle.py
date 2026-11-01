@@ -107,25 +107,38 @@ def predictions(hour: int, quotes: dict, xgb_model, meta: dict, lag_s: float = 0
         return []
     preds = P.predict_all(rows, xgb_model, meta.get("slopes", {}))
     out = []
+    news_ids: list[str] = []
+    try:                                     # E17: a store that cannot be read means no view, never a crash
+        from news import reader as R
+        sig, news_ids = R.signal(hour)
+        nz = np.array([R.SIZE * R.instrument_signal(s, sig) for s in rows.symbol])
+        if (nz != 0).any():
+            preds[P.NEWS] = nz
+    except Exception:
+        pass
     for player, z in preds.items():
+        news = player == P.NEWS
         for (_, row), zi in zip(rows.iterrows(), z):
+            if news and zi == 0:                 # no view on this instrument
+                continue
             q = quotes[row.symbol]
             pb = float(zi) * float(row.vol24) * 1e4
             out.append({"kind": "prediction", "hour_utc": hour, "player": player, "symbol": row.symbol,
                         "bid": q["bid"], "ask": q["ask"], "spread_bps": round(spread_bps(q), 4),
                         "pred_z": round(float(zi), 6), "pred_bps": round(pb, 4),
                         "vol24": float(row.vol24), "trade": bool(abs(pb) > spread_bps(q)),
-                        "model": meta["sha256"], "version": meta.get("version"), "code": code,
-                        "made_utc": time.time(), "lag_s": round(lag_s, 1)})
+                        "model": meta["sha256"], "version": P.JUDGED[P.NEWS] if news else meta.get("version"),
+                        "code": code, "made_utc": time.time(), "lag_s": round(lag_s, 1)}
+                       | ({"news_items": news_ids} if news else {}))
     return out
 
 
 def score(resolutions: list[dict], preds_by_sha: dict) -> list[dict]:
     rows = []
-    # Only the current model version is judged (v1 was retired unjudged; its lines lack "version").
+    # Only the judged version of each player counts (v1 was retired unjudged; its lines lack "version").
     ok = [r for r in resolutions if r["status"] == "ok"
-          and preds_by_sha[r["pred_sha"]].get("version") == M.VERSION]
-    for player in P.PLAYERS:
+          and preds_by_sha[r["pred_sha"]].get("version") == P.JUDGED.get(r["player"])]
+    for player in P.JUDGED:
         rs = [r for r in ok if r["player"] == player]
         if not rs:
             continue

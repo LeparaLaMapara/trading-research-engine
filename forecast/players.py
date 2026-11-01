@@ -18,6 +18,9 @@ import pandas as pd
 from forecast import model as M
 
 PLAYERS = ("xgb_v2", "trend", "reversion", "regime")
+# E17's news reader (news/reader.py) is scored on the same board but is its own experiment.
+NEWS = "news"
+JUDGED = {p: M.VERSION for p in PLAYERS} | {NEWS: "n1"}   # player -> the version that is judged
 
 
 def _slope(x: pd.Series, y: pd.Series) -> float:

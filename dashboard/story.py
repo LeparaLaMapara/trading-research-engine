@@ -516,10 +516,11 @@ def _health(d: dict, prog: dict) -> str:
             f"<ul class='st-lights'>{li}</ul></section>")
 
 
-PLAYER_WORDS = {"xgb_v1": ("The blend", "mixes trend, snap-back, calm or wild, time of day and news days"),
+PLAYER_WORDS = {"xgb_v2": ("The blend", "mixes trend, snap-back, calm or wild, time of day and news days"),
                 "trend": ("Trend", "bets the last day's move carries on"),
                 "reversion": ("Snap-back", "bets the last hour's move reverses"),
-                "regime": ("Calm or wild", "trend when the market is calm, snap-back when it is wild")}
+                "regime": ("Calm or wild", "trend when the market is calm, snap-back when it is wild"),
+                "news": ("News reader", "a local AI reads central bank and statistics releases")}
 SCORE_HOURS, SCORE_DAYS = 400, 28
 
 

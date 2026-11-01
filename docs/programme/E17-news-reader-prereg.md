@@ -85,3 +85,9 @@ A later prompt, model or source list is a new version and a new counted trial.
 * A 9B model can misread a statement. The kept requests let every score be checked by hand.
 * The PC must be on. Hours it is off are missed, never backfilled; items fetched late are
   dated by when they were fetched, not when they were published.
+
+## Correction, 1 November 2026, before any item was scored
+
+A clerical slip: the kept requests and answers live in `data/forecast/llm-replay.jsonl` (the
+doorway's store), not `data/llm/replay.jsonl`. Nothing else changes. The first real pass marked
+287 items already in the feeds as backlog; the RBA feed currently lists almost nothing.
