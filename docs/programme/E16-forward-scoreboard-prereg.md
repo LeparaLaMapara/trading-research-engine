@@ -74,3 +74,16 @@ pass threshold is then Holm-corrected over the versions running.
 * Hourly moves are mostly noise; a true IC of 0.02 needs many weeks to show. The most likely
   honest outcome after 4 weeks is "not yet", not "pass".
 * If the PC is off, hours are missed. Missed hours are counted and shown, never backfilled.
+
+## Addendum, 1 November 2026, before the first live prediction
+
+At the owner's question about the approaches big firms use, three simple players run beside
+the XGBoost blend on the same scoreboard, each locked and scored identically
+(`forecast/players.py`): **trend** (slope x 24-hour return), **reversion** (slope x last-hour
+return), **regime** (trend when 24-hour volatility is below 120-hour volatility, else
+reversion). Each slope is one least-squares number fitted on the same history as the blend.
+Trials are now 4. A player passes only if both criteria hold at a Holm-corrected level over the
+4 players. Diagnostic before going live (train before 2025, score 2025 to 2026-09 on bar
+closes, not judged): the blend's mean hourly IC was 0.048, positive in 55% of hours. Bar closes
+can show a bounce between bid and ask that no one can trade, so this says nothing about profit;
+the paper book at live spreads is what decides.
