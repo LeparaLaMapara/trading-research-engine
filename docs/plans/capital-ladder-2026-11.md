@@ -1,7 +1,7 @@
 # The capital ladder: what real money follows a scoreboard pass
 
-**Status: written 1 November 2026 for the owner's signature. Not in force until signed.**
-It changes nothing on its own. No code sends an order for a scoreboard player today, and the
+**Status: signed by the owner on 4 November 2026. In force.**
+Signing changes nothing on its own. No code sends an order for a scoreboard player today, and the
 signed live limits in `risk/limits.py` (6% risk per trade, 2 positions, 40% drawdown halt,
 $20 floor) stay exactly as they are on every rung.
 
@@ -47,6 +47,8 @@ ceiling (now R2,000) needs a newly signed grant. The ladder never asks for money
 
 ## Signature
 
-Owner: ____________________   Date: ____________
+Owner: Thabang   Date: 4 November 2026
 
-(In a session, "I sign the capital ladder" is enough; it will be recorded here with the date.)
+Signed in a Claude Code session, in the owner's words: "approve the signature."
+This is the session signature the ladder allows. It is not the HMAC live grant in
+`ops/authority.py`, and it does not change the live limits or the R2,000 ceiling.
