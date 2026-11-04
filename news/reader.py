@@ -184,6 +184,25 @@ def instrument_signal(symbol: str, sig: dict[str, float]) -> float:
     return sig.get(a, 0.0) - sig.get(b, 0.0)
 
 
+LOCK = "data/news/reader.lock"
+LOCK_STALE_S = 600
+
+
+def _lock() -> bool:
+    """One reader at a time: the engine loop and the standalone loop can both start one."""
+    os.makedirs(os.path.dirname(LOCK), exist_ok=True)
+    try:
+        if time.time() - os.path.getmtime(LOCK) > LOCK_STALE_S:
+            os.remove(LOCK)
+    except OSError:
+        pass
+    try:
+        os.close(os.open(LOCK, os.O_CREAT | os.O_EXCL | os.O_WRONLY))
+        return True
+    except FileExistsError:
+        return False
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--status", action="store_true")
@@ -198,7 +217,16 @@ def main(argv: list[str] | None = None) -> int:
         sig, used = signal(int(time.time()) // 3600 * 3600 + 3600)
         print("signal for next hour:", {k: round(v, 3) for k, v in sig.items() if v}, f"({len(used)} items)")
         return 0
-    run_once()
+    if not _lock():
+        print("another news reader is running")
+        return 0
+    try:
+        run_once()
+    finally:
+        try:
+            os.remove(LOCK)
+        except OSError:
+            pass
     return 0
 
 

@@ -157,5 +157,31 @@ def refresh(refresh_token: str | None = None) -> dict[str, Any]:
     return tokens
 
 
+REFRESH_BEFORE_DAYS = 5
+
+
+def refresh_if_expiring(now: float | None = None, days: float = REFRESH_BEFORE_DAYS) -> bool:
+    """Refresh while the access token still works, not after the broker rejects it.
+
+    At expiry several processes would otherwise try to refresh at once, and a refresh on one
+    side kills the other's copy. True if it refreshed. A token with no known expiry is left
+    alone, and a failed refresh raises so the caller can report it.
+    """
+    current = load()
+    refresh_token = current.get("refresh_token")
+    obtained = _obtained(current)
+    try:
+        lifetime = float(current.get("expires_in") or 0)
+    except (TypeError, ValueError):
+        lifetime = 0.0
+    if not (refresh_token and obtained and lifetime):
+        return False
+    now = time.time() if now is None else now
+    if obtained + lifetime - now > days * 86400:
+        return False
+    refresh(refresh_token)
+    return True
+
+
 def access_token() -> str | None:
     return load().get("access_token")

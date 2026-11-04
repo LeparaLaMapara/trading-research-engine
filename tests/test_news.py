@@ -1,6 +1,7 @@
 """E17 news reader: feed parsing, the backlog and stale rules, the 'scored before the hour' cut,
 the instrument mapping, and the news player locked and scored in a real cycle."""
 import math
+import time
 
 from forecast import cycle as C, judge as J, ledger as L, players as P
 from news import feeds as FD, reader as R
@@ -51,7 +52,8 @@ def test_backlog_stale_and_cutoff(tmp_path, monkeypatch):
     monkeypatch.setattr(R, "STORE", str(tmp_path / "n.jsonl"))
     monkeypatch.setattr(R, "SOURCES", str(tmp_path / "s.json"))
     reply = {c: 0 for c in R.CODES} | {"USD": 1.0, "EUR": -0.5, "confidence": 0.8, "why": "hike"}
-    port, t0 = Port(reply), 1_793_520_000.0
+    # Scores carry the real clock, so a fixed date here broke this test a day after it was written.
+    port, t0 = Port(reply), time.time() - 700
     src = {"fed": [_item("fed", 0, t0 - 100)]}
     first = R.run_once(now=t0, fetch_fn=_feeds(src), text_fn=lambda u: "", port=port, log=lambda *_: None)
     assert first["first_run"] and first["scored"] == 0 and port.calls == 0     # backlog is never scored

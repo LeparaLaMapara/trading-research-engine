@@ -93,11 +93,36 @@ def _last_depth_ts() -> float:
 
 
 _forecast: dict = {"proc": None, "hour": None}
+_news: dict = {"proc": None, "last": 0.0}
+NEWS_EVERY_S = 300
+
+
+def maybe_news() -> None:
+    """E17: read the news every 5 minutes once this hour's cycle is done, and never in the last
+    5 minutes of an hour, so that it cannot delay the next cycle. Here as well as in
+    forecast_loop because that loop does not come back after a reboot, and this one does. The
+    reader's own lock keeps the two from overlapping."""
+    now = time.time()
+    hour = int(now) // 3600
+    cycle, reader = _forecast["proc"], _news["proc"]
+    if _forecast["hour"] != hour or (cycle is not None and cycle.poll() is None):
+        return
+    if (reader is not None and reader.poll() is None) or (now - hour * 3600) / 60 >= 55:
+        return
+    if now - _news["last"] < NEWS_EVERY_S:
+        return
+    _news["last"] = now
+    out = open(os.path.join(ROOT, "news.log"), "a", encoding="utf-8")
+    out.write(time.strftime("%Y-%m-%d %H:%M:%SZ ", time.gmtime()) + "news reader\n")
+    out.flush()
+    _news["proc"] = subprocess.Popen([PY, "-m", "news.reader"], stdout=out, stderr=out,
+                                     creationflags=NO_WINDOW)
 
 
 def maybe_forecast() -> None:
     """E16: start the hourly forecast cycle once per UTC hour, from minute 1, in the
     background; never two at once. The cycle itself refuses an hour already recorded."""
+    maybe_news()
     hour = int(time.time()) // 3600
     p = _forecast["proc"]
     if p is not None and p.poll() is None:
