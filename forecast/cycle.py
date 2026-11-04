@@ -191,6 +191,13 @@ def run(snapshot_fn=None, now_hour: int | None = None, log=print) -> dict:
         log("another cycle is running")
         return {"skipped": True}
     try:
+        # Under the cycle lock, so the loops on this PC cannot refresh at the same moment.
+        try:
+            from connection import tokens
+            if tokens.refresh_if_expiring():
+                log("cTrader token refreshed before expiry")
+        except Exception as exc:  # the old token still works: warn, and do not lose the hour
+            log(f"cTrader token refresh FAILED, re-authorise before it expires: {exc}")
         return _run(snapshot_fn, now_hour, log)
     finally:
         try:
