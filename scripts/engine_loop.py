@@ -52,6 +52,14 @@ def _alive(pid: int) -> bool:
     # The PID must belong to a python process. After a reboot Windows hands old PIDs to
     # unrelated processes (2026-09-25: the stale supervisor PID became a svchost, so the
     # supervisor thought it was already running, exited 0, and the engine stayed down ~19 h).
+    if os.name != "nt":
+        # Dual boot: a lock left by the Windows side holds a Windows PID, which can belong to
+        # any process here. Count it alive only if that PID runs one of this engine's modules.
+        try:
+            cmd = open(f"/proc/{pid}/cmdline", "rb").read().decode(errors="replace")
+        except OSError:
+            return False
+        return "python" in cmd and ("scripts.engine_" in cmd or "scripts.forecast_loop" in cmd)
     r = subprocess.run(["tasklist", "/FI", f"PID eq {pid}", "/FO", "CSV", "/NH"],
                        capture_output=True, text=True, creationflags=NO_WINDOW)
     for line in r.stdout.splitlines():
