@@ -1,0 +1,282 @@
+{
+ "tag": "2026-W45",
+ "stats": {
+  "harvested": 721,
+  "by_field": "121 applied and numerical mathematics, 76 computer science, 124 economics, 10 foundations, 36 mathematical and computational economics, 107 mathematics, 75 physics, 116 quantitative finance, 56 statistics",
+  "eligible": 2,
+  "full_text": 2,
+  "spend": "$3.63 over 33 calls"
+ },
+ "cards": [
+  {
+   "identifier": "arXiv:2611.01727v1",
+   "url": "http://arxiv.org/abs/2611.01727v1",
+   "title": "Singular Tracking of Fractional Brownian Motion under Proportional Costs",
+   "field": "mathematics",
+   "via": "arXiv math.PR",
+   "read_depth": "truncated at 120000 chars of 167837",
+   "triage": 3,
+   "claim": "The paper proves that when a controller tracks a rough target (fractional Brownian motion with Hurst H) and pays a proportional cost on every adjustment, the best achievable total cost scales as (cost per unit)^(2H/(1+H)), with tracking error of order cost^(H/(1+H)). For a Brownian target (H = 1/2) the optimal policy keeps the error inside a fixed band [-d*, d*] with d* = (3/2)^(1/3) in normalised units, and at the optimum the cost splits 1/3 tracking error and 2/3 adjustment. Knowing the target's past does not lower the long-run constant. The paper is a statement about tracking a known target. It says nothing about returns or about whether any target is worth tracking.",
+   "mechanism": "Under linear (proportional) costs it pays to do nothing while the gap between held position and target is small, then trade just enough to stay inside a band. Cost per unit time is the sum of tracking error, of order delta^2, and adjustment cost, of order lambda times delta^(1-1/H). Balancing the two gives the band width and the sublinear cost exponent. For H = 1/2 the optimal total cost grows as lambda^(2/3), not lambda.",
+   "source_concept": "Singular stochastic control: causal tracking of fractional Brownian motion with quadratic tracking loss and proportional (total-variation) adjustment cost. The optimal policy in the Brownian case is reflection at a band, with an explicit band width and cell constant.",
+   "market_analogue": "Theta = the position a pre-cost signal would like to hold (for example a volatility-scaled continuous signal). phi = the position actually held. lambda*b = half-spread plus commission per unit traded. a = the weight placed on deviating from the signal's position, which the paper takes as given; in a market it would have to be set from how fast the signal's edge decays, and the paper says nothing about that. sigma and H = the amplitude and roughness of the target path, not of the price. What the analogy could get wrong: (1) a quadratic tracking loss is not P&L, so a cheaper tracker can still lose all of the edge it fails to capture; (2) the engine's signals are mostly sign or threshold rules that jump, not fBm-like paths; (3) at about 85 dollars and a 0.01-lot minimum, held positions are effectively {-1, 0, +1} minimum lots, so a continuous band policy cannot really be implemented. The live account mostly reduces to choosing whether to hold one lot at all.",
+   "hypothesis": "On the 14 candidates classified as 'real edge before costs, removed by costs', recompute each as a continuous target position on its tradeable instruments (ETHUSD, ADAUSD, BCHUSD, LTCUSD, AUDCAD, AUDNZD, EURCAD, EURGBP, USDSGD). The candidates are not identified in the engine notes. Replace daily rebalancing with a no-trade band around the target whose half-width follows the paper's Brownian scaling, delta proportional to (cost_per_unit * sigma_target^2 / a)^(1/3). The hypothesis has two parts. (a) For at least one candidate, the band version's net Sharpe exceeds the 99th percentile of a random-sign null run through the same band and the same costs. (b) Re-optimising the band under doubled costs raises realised trading-cost drag by roughly 2^(2/3), about 1.6x, not 2x. Falsified if (a) fails for every candidate, or if the measured cost-scaling exponent at the optimum is near 1, outside about 0.5 to 0.8.",
+   "test": "History only, run on Databricks before using any slot. Data: broker D1 bars (held) and measured spread, commission and swap (held). Steps: (1) Rebuild the pre-cost target series of the cost-killed candidates. (2) Fit the band width on 2015-2020 for a grid of tracking weights a, choosing a single a per candidate on that window. (3) Evaluate once on 2021-2026 at measured and at doubled costs. (4) Null: the same band applied to random-sign targets with matched turnover and the same costs, 10,000 draws. Failure means any of: the band version is not above the 99th percentile of that null; it is not positive in most years; its deflated Sharpe does not survive N = 307 (N goes up with each a tried); or cost drag at doubled costs scales nearly linearly. Before step (2), do a cheap diagnostic: check whether realised tracking cost and adjustment cost at the fitted optimum split near 1/3 to 2/3. If they do not, the Brownian-band model does not describe these targets and H must be estimated. Main risk, stated in advance: lot granularity at this account size means even a passing backtest may not be implementable live, so a pass would at most justify a forward test at a larger notional.",
+   "instruments": [
+    "ETHUSD",
+    "ADAUSD",
+    "BCHUSD",
+    "LTCUSD",
+    "AUDCAD",
+    "AUDNZD",
+    "EURCAD",
+    "EURGBP",
+    "USDSGD"
+   ],
+   "horizon": "Daily bars; holding periods of days to weeks, set by the band width.",
+   "data": [
+    {
+     "what": "Broker D1 bars for the nine affordable instruments",
+     "status": "held",
+     "source": "IC Markets cTrader history"
+    },
+    {
+     "what": "Measured spreads, commission and swap rates",
+     "status": "held",
+     "source": "engine cost measurements (E04, tick data)"
+    },
+    {
+     "what": "Signal definitions of the 14 cost-killed candidates from the 20 September 2026 classification",
+     "status": "held",
+     "source": "engine results archive"
+    }
+   ],
+   "expected_effect": "At best, a turnover reduction that recovers part of the pre-cost edge on candidates that costs killed. It is not a new edge source. Since none of the 14 has been shown to survive a random-sign null even before trimming turnover, the most likely outcome is that cost falls but net results still fail the null.",
+   "evidence_quality": "Rigorous mathematical proofs, but entirely theoretical. The paper reports no empirical data, no link from tracking loss to trading P&L, and no estimate of H for any market series. Its conditions (continuous Gaussian target, continuous control, small cost limit) do not match lot-discrete positions on an 85-dollar account.",
+   "confidence": 0.12,
+   "quotes_verified": [
+    "We study the tracking of fractional Brownian motion by adapted controls of finite variation, with quadratic loss and proportional adjustment costs.",
+    "Reflection of $e=\\psi-B$ on $[-d_{*},d_{*}]$ is optimal in the long-run cell",
+    "For Brownian targets the split is $1/3$ for tracking and $2/3$ for variation.",
+    "Balancing these two rates suggests a tracking-error scale $\\delta_{\\lambda}$ and a value of order",
+    "This additional information can change finite-horizon values but not $\\kappa_{H}$ .",
+    "All asymptotically optimal controls have the same leading-order split between tracking and adjustment costs."
+   ],
+   "quotes_unverified": [],
+   "grounded": true,
+   "id": "2026-W45-1",
+   "red_team": {
+    "concerns": [
+     "Prior result contradicts it. The engine already re-scored the cost-killed signals at exchange-futures costs, which are far below this broker's, and they failed the holdout. A no-trade band is only another way to lower cost drag, and it also gives up some tracking. If cutting cost per trade outright did not rescue these signals, trimming turnover is very unlikely to.",
+     "Cannot be implemented on this account. With 85 dollars and a 0.01-lot minimum, the position is effectively -1, 0 or +1 minimum lots. A continuous reflection band around a continuous target collapses to entry and exit hysteresis on a sign rule. That is threshold tuning on rules that already failed, not the paper's policy. The card admits a pass would only justify a forward test at a larger notional this account does not have.",
+     "The model leaves out the dominant cost. The paper prices only proportional adjustment cost. Here the biggest cost for anything held overnight is financing: crypto longs pay about 20% a year. A band lengthens holding periods, so it moves cost from spread into swap, and the paper's optimum is computed for the wrong cost function.",
+     "The analogy is mostly decoration. No-trade bands under proportional costs are textbook (Davis-Norman; Garleanu-Pedersen partial adjustment). The paper adds exact constants for an fBm target, but those depend entirely on the tracking weight a, which the paper takes as given. In a market, a is exactly the unknown (how fast the edge decays), so the theory pins down nothing that matters for P&L.",
+     "Quadratic tracking loss is not P&L. A cheaper tracker can give up all of the edge it fails to capture. The 1/3 to 2/3 split and the lambda^(2/3) exponent are properties of the optimiser applied to the target path, not of the market. Part (b) of the hypothesis is close to a tautology and teaches nothing about returns.",
+     "The engine's signals are mostly jump-like sign or threshold rules. They are not continuous rough paths, so the Brownian-band scaling does not apply even in principle.",
+     "The candidate set is ill-defined and selected. The card says the 14 candidates are 'not identified in the engine notes' yet marks their definitions as held. Several were on instruments the account cannot afford (majors, gold, BTC, indices). Choosing the ones that were killed by costs, then sweeping a grid of a values per candidate, adds many trials to N = 307. Clearing the deflated Sharpe is implausible given that none of the 14 has shown it beats a random-sign null even before costs.",
+     "Several families in the pool (FX carry, trend on these crosses, pooled ML) are listed as 'do not propose again without new information'. A turnover band is not new information about their edge.",
+     "The paper is purely theoretical: no data, no out-of-sample result, no costs measured against a naive baseline, no replication, no estimate of H for any market series."
+    ],
+    "fatal": "The account cannot implement a continuous band (positions are 0 or \u00b11 minimum lots). The cost-killed signals already failed their holdout at exchange-futures costs, and that cheaper cost structure is a stronger rescue than a band. The paper's cost model also omits financing, which is the dominant cost here. A pass could not be traded, and a fail is already predicted by existing results.",
+    "kill": true,
+    "information": 2,
+    "value": 1,
+    "cost": 3,
+    "revised_test": ""
+   }
+  },
+  {
+   "identifier": "doi:10.1038/s41467-026-78489-7",
+   "url": "https://doi.org/10.1038/s41467-026-78489-7",
+   "title": "Estimating the resilience of non-stationary systems",
+   "field": "physics",
+   "via": "OpenAlex 'early warning signals critical transitions'",
+   "read_depth": "abstract",
+   "triage": 2,
+   "claim": "From the abstract only: the paper proposes a regression-based Langevin-equation estimator of system resilience (restoring rate, i.e. critical slowing down) that handles non-stationarity, irregular sampling, data gaps and time-varying noise, gives uncertainty bounds, and is offered as a drop-in replacement for autocorrelation-based resilience estimates. It is demonstrated on Earth-system data. No market evidence is given.",
+   "mechanism": "In a system near a tipping point, the restoring force toward equilibrium weakens, so perturbations decay more slowly. Lag-1 autocorrelation rises and the fitted drift coefficient of a Langevin model shrinks toward zero. The paper's contribution is estimating that drift while allowing a non-stationary forcing (for example seasonality) and time-varying noise, which plain rolling autocorrelation confounds.",
+   "source_concept": "Critical slowing down: the resilience (local restoring rate) of a non-stationary stochastic system, estimated as the drift coefficient of a Langevin equation via regression, with time-varying noise and uncertainty bounds.",
+   "market_analogue": "State variable: log price of a range-bound FX cross (AUDNZD, EURGBP, AUDCAD, EURCAD) as a deviation from a slow moving mean. Restoring rate: the speed of mean reversion of that deviation. Non-stationary forcing: drifting fair value and volatility regimes, plus intraday and rollover seasonality. Time-varying data uncertainty: time-varying volatility and spread. A tipping point would be a break out of the range into a sustained trend or a large move. Where the analogy could be wrong: markets have no fixed potential well. A falling estimated restoring rate may only be a volatility-clustering or trend-in-progress artefact rather than a precursor, and FX crosses may never sit 'near' a bifurcation in any meaningful sense. Note that a closely related idea (OU mean-reversion-speed 'small-gap regime' filter) is already killed in the queue, and trend following on these crosses already failed (3 of 5 lose before costs).",
+   "hypothesis": "On daily broker bars for AUDNZD, EURGBP, AUDCAD and EURCAD (2014 to 2026), fit the Langevin drift of the log-price deviation from its 60-day mean in a rolling 250-day window, with time-varying noise. When the estimated restoring rate is in its lowest quintile (lowest resilience), the next 20 trading days show a larger absolute log move than when it is in its top quintile. The estimator also predicts that move better than (a) rolling lag-1 autocorrelation and (b) trailing 20-day realised volatility. If it does not beat both baselines out of sample (2021 to 2026, after fitting choices on 2014 to 2020), the analogy adds nothing tradeable here.",
+   "test": "Cheapest honest test, run entirely on held history before spending the last P1 slot. It is a prediction check, not a strategy, so it costs no live risk. Data: held D1 bars for the four crosses. Step 1: compute the rolling Langevin restoring-rate estimate (an OLS regression of the daily change in deviation on the lagged deviation, with heteroskedastic weights from trailing volatility as a stand-in for the paper's time-varying uncertainty), plus rolling AR(1) and trailing realised volatility. Step 2: measure the Spearman rank correlation between each predictor and the forward 20-day absolute log return, using non-overlapping windows. Also run a regression of the forward move on all three predictors together. Null: a block-bootstrap (20-day blocks) of the predictor series, which breaks alignment with future moves. Failure if any of these hold: the restoring-rate coefficient is not significant at the 1% level after the joint regression with realised volatility; it fails in the 2021 to 2026 holdout; or it adds nothing over AR(1). Only if it passes would a trading form be pre-registered, for example a straddle-like breakout entry in the low-resilience state. That form would face the full criteria: random-sign null at the 99th percentile, doubled costs, most years positive, and a deflated Sharpe against N = 307. Expect it to fail, because vol clustering is the obvious confound and the killed OU-speed idea covers similar ground.",
+   "instruments": [
+    "AUDNZD",
+    "EURGBP",
+    "AUDCAD",
+    "EURCAD"
+   ],
+   "horizon": "Daily bars, 20-trading-day forward window, 250-day estimation window",
+   "data": [
+    {
+     "what": "Broker D1 bars for AUDNZD, EURGBP, AUDCAD, EURCAD 2014-2026",
+     "status": "held",
+     "source": "IC Markets cTrader broker bars"
+    },
+    {
+     "what": "Measured spreads and swap for the four crosses",
+     "status": "held",
+     "source": "engine cost measurements"
+    },
+    {
+     "what": "The paper's actual estimator specification (regression form, noise model, uncertainty bounds)",
+     "status": "unavailable",
+     "source": "full text not read (abstract only); would need the paper body or code"
+    }
+   ],
+   "expected_effect": "If the analogy holds: a positive rank correlation between low estimated resilience and the size of the subsequent 20-day move, incremental to realised volatility. Most likely outcome: no incremental effect, because the low-resilience signal collapses into volatility clustering and persistence already present in the price.",
+   "evidence_quality": "Very weak for markets. Abstract only, with no market data, no effect sizes and no out-of-sample results in any domain stated in the text. The method itself is a statistical estimation improvement, not evidence of an exploitable market pattern. It overlaps a killed queue item (OU mean-reversion-speed regimes) and a failed family (trend following on crosses). Any trading version faces cost as the binding constraint and a multiple-testing count of 307.",
+   "confidence": 0.05,
+   "quotes_verified": [
+    "A wide body of work has applied the concept of critical slowing down to estimate the stability of different Earth system components.",
+    "Here, we introduce a method to account for non-stationarity in estimating the resilience of diverse synthetic and real-world systems via a regression-based formulation of the Langevin equation.",
+    "Our method does not require extensive data pre-processing, is robust to gaps in the data record, and does not require regular time sampling.",
+    "We further show that our method can incorporate time-varying data uncertainties, derive uncertainty bounds for stability estimates, and can be natively extended to examine spatial systems.",
+    "Our method is a drop-in replacement for widely-used autocorrelation-based resilience estimates, and can be applied across diverse Earth system components."
+   ],
+   "quotes_unverified": [],
+   "grounded": true,
+   "id": "2026-W45-2",
+   "red_team": {
+    "concerns": [
+     "Disguised duplicate of a killed idea. The queue already killed the 'small-gap regime' filter, which uses a low Ornstein-Uhlenbeck mean-reversion speed fitted to prices to select instruments. This card has the same structure: a low estimated restoring rate on a range-bound price deviation, read as a regime signal.",
+     "The estimator as specified is AR(1) relabelled. An OLS regression of the daily change in deviation on the lagged deviation gives a slope of (phi - 1), so the 'restoring rate' and baseline (a), rolling lag-1 autocorrelation, are almost the same number. Weighting by trailing volatility does not separate them in any meaningful way. The test 'beats AR(1)' is therefore close to vacuous: any difference is noise from the weighting.",
+     "The paper's real contribution needs data we do not have. Its value is the non-stationary forcing, the time-varying noise model and the uncertainty bounds. The card admits that specification is unavailable (abstract only), so the proposed test cannot test the paper. What remains is an old idea under a new name.",
+     "The analogy is decoration. FX crosses have no fixed potential well and no known bifurcation. A falling restoring rate on a deviation from a 60-day mean mechanically means 'price is trending away from its moving average'. That is the trend state, not a precursor of a tipping point. Irregular sampling and data gaps, which the method handles well, are irrelevant to complete daily broker bars.",
+     "The target is volatility, not direction. A larger absolute 20-day move cannot be monetised on a CFD account without options. A 'straddle-like breakout entry' has to pick a direction, which turns it into trend or breakout following on these crosses. That family already failed on this instrument set (3 of 5 crosses lose before costs; E08 and A01 found USDSGD indistinguishable from zero; E10 found nothing).",
+     "Volatility clustering is the obvious confound. Low restoring rate co-occurs with trending, higher-volatility windows. Once trailing realised volatility is in the joint regression, an incremental effect is very unlikely, and the card itself expects failure.",
+     "Power is low. Non-overlapping 20-day windows give about 150 observations per pair over 2014 to 2026, and only about 70 per pair in the 2021 to 2026 holdout. The four crosses are correlated (AUD and EUR legs), so pooling adds less than it seems. A 1% significance threshold on an incremental coefficient will almost certainly not be met even if a small effect exists.",
+     "There is some lookahead risk. The 60-day mean and the quintile cut-offs must be strictly trailing. Quintiles computed over the full sample, or a centred mean, would leak the future.",
+     "The opportunity cost is high. This would spend the last P1 slot on a prediction check that is not a strategy, that is expected to fail, and whose success would still only lead to a direction-free signal that the account cannot trade cheaply.",
+     "The paper gives no market evidence at all: no out-of-sample result, no costs, no naive baseline in finance, no replication. It is a method paper for Earth-system data."
+    ],
+    "fatal": "Two problems combine. As specifiable, the restoring-rate estimator is lag-1 autocorrelation relabelled (an OLS slope of change on lagged deviation equals phi - 1), and the paper's non-stationary refinements are unavailable from the abstract. So the test cannot add information beyond the killed OU mean-reversion-speed item. Any tradeable form reduces to breakout or trend following on FX crosses, which already failed on this instrument set.",
+    "kill": true,
+    "information": 2,
+    "value": 1,
+    "cost": 2,
+    "revised_test": ""
+   }
+  },
+  {
+   "identifier": "doi:10.1017/s0022109026103391",
+   "url": "https://doi.org/10.1017/s0022109026103391",
+   "title": "Economic Fundamentals and Short-Run Exchange Rate Prediction: A Machine-Learning Perspective",
+   "field": "economics",
+   "via": "OpenAlex 'uncovered interest parity deviations'",
+   "read_depth": "full (open-access PDF)",
+   "triage": 2,
+   "claim": "Monthly US-dollar exchange rates for 10 developed currencies (1995 to 2020) are predictable out of sample once fundamentals are interacted with global state variables. The strongest predictor is the bill-yield differential interacted with global FX volatility (BILL.GVOL). When global FX volatility shocks upward, uncovered interest parity reasserts itself: high-yield currencies are expected to depreciate. In calm periods carry pays. A mean-variance portfolio using these forecasts beats an optimal carry portfolio, mostly after 2008, when plain carry flatlined.",
+   "mechanism": "This is a 'flight to fundamentals'. In quiet markets, carry traders hold high-yield currencies and uncovered interest parity fails, so carry earns. When FX volatility spikes, those speculators unwind, and high-yield currencies fall toward what interest parity implies. The other side is crowded carry capital. It is not arbitraged away because the losses cluster in stress months, when limits to arbitrage bind. The excess return is compensation for crash risk, not free money. The paper's portfolio evidence is a full 70-predictor ML model, not this single interaction. A one-variable rule is a simplification the paper does not test.",
+   "source_concept": "Panel elastic-net and DNN forecasts of monthly log USD exchange-rate changes from 10 country characteristics, each interacted with 6 global state variables. GVOL is the monthly average of daily cross-sectional mean absolute log FX changes, taken as an AR(1) residual. The top selected term is BILL.GVOL (coefficient +0.17 on standardized predictors).",
+   "market_analogue": "Carry on the account's affordable FX crosses (AUDCAD, AUDNZD, EURCAD, EURGBP), using 3-month interbank rate differentials from held FRED data. The trade is switched off in months that follow a large positive global-FX-volatility shock. GVOL can be rebuilt from held broker D1 bars of USD pairs. The analogy could break in two ways. First, the paper's predictability is in USD-based rates, and it reports weaker results for non-USD bases. Second, building a cross removes the common dollar component, which may be where most of the forecastability lives.",
+   "hypothesis": "On AUDCAD, AUDNZD, EURCAD and EURGBP, the rule holds the carry direction (sign of the 3-month rate differential) for one month. It goes flat in any month after GVOL's AR(1) residual lands in its expanding top quartile. Net of measured spread and swap, 2015 to 2026, this volatility-conditioned carry earns a pooled monthly return above the 99th percentile of a random-sign null. It also beats unconditioned carry on the same pairs. The 2020-10 to 2026 segment, which postdates the paper's sample, must be positive on its own.",
+   "test": "Data: broker D1 bars at 21:00 UTC month-ends for the 4 crosses. Broker D1 bars for the paper's USD majors are used to build GVOL (mean absolute daily log change across pairs, monthly average, then an AR(1) residual fitted on an expanding window). FRED 3-month interbank rates are held. Costs: measured spread plus actual broker swap for each side over the holding month. Rebalance at month-end, avoiding the 21:00 rollover by entering at the next liquid hour. Fix the rule entirely in advance: no fitted coefficients, quartile threshold on an expanding window. Null 1: 10,000 random-sign draws with the same holding pattern and costs. Null 2: unconditioned carry on the same pairs, which the engine already found a wash. Failure is any of the following: below the 99th-percentile random-sign result; no improvement over unconditioned carry; does not survive doubled costs; fewer than most years positive; or a negative 2020-10 to 2026 segment. Power caveat: roughly 140 months by 4 pairs, with the flat filter removing about a quarter, gives a deflated Sharpe at N=307 that will be hard to clear. Treat a pass as forward-test-worthy only. This runs fully on history before any live slot, but P1 has 1 slot left.",
+   "instruments": [
+    "AUDCAD",
+    "AUDNZD",
+    "EURCAD",
+    "EURGBP"
+   ],
+   "horizon": "monthly rebalance, one-month holding",
+   "data": [
+    {
+     "what": "Broker D1 bars for the 4 crosses and USD majors (for GVOL)",
+     "status": "held",
+     "source": "IC Markets cTrader history"
+    },
+    {
+     "what": "3-month interbank / policy rates for USD, EUR, GBP, AUD, NZD, CAD",
+     "status": "held",
+     "source": "FRED via data_ext/fetch.py"
+    },
+    {
+     "what": "Measured spreads and swap rates per pair",
+     "status": "held",
+     "source": "broker ticks and swap schedule"
+    },
+    {
+     "what": "CPI inflation differentials (for an optional INF.GVOL extension)",
+     "status": "free",
+     "source": "FRED / OECD"
+    },
+    {
+     "what": "Equity dividend yields per country (DP, the paper's second-largest term)",
+     "status": "unavailable",
+     "source": "not held; would need a licensed equity data vendor"
+    }
+   ],
+   "expected_effect": "Conditioned carry has a small positive net monthly return. Most of its edge over plain carry comes from avoiding losses in post-volatility-shock months. Expect a Sharpe well under the paper's 0.87 to 0.97 portfolio figures, because the rule uses one predictor, crosses only, and low leverage.",
+   "evidence_quality": "Strong for an academic paper: recursive out-of-sample forecasts from 1995 to 2020, Clark-West tests, and significant forecast gains that rise with GVOL. The weaknesses for this engine: the sample ends in 2020-09; the paper uses USD bases only and admits weaker results for other bases; the portfolio gains come from a 70-predictor model, not the single interaction tested here; final revised CPI data were used; and transaction-cost results sit only in the supplement. The engine's own unconditioned FX carry was a wash from 2017 to 2024. The new information here is the volatility conditioning.",
+   "confidence": 0.2,
+   "quotes_verified": [
+    "We show that fundamentals do matter, but their effects vary with global financial conditions.",
+    "In terms of magnitude, the most important predictor inFigure 2 is BILL.GVOL, with a coefficient estimate of 0.17.",
+    "The positive and sizable coefficient estimate indicates that, in more quiescent times (i.e., when GVOL is relatively low), investors can profit from the carry trade; however, when GVOL spikes, investors are exposed to large losses.",
+    "we find less predictive power when other currencies serve as the base (such as the Japanese yen and Swiss franc, as examined in Section IA.3 of the Supplementary Material).",
+    "Following Menkhoff et al. (2012a), global FX volatility (GVOL) is computed as the monthly average of daily cross-sectional averages of the absolute values of log exchange rate changes, across all currencies.",
+    "We follow Menkhoff et al. ( 2012a) and Mueller et al. ( 2017) by measuring GVOL, GILL, and GCOR as the residuals from fitted first-order autoregressive processes."
+   ],
+   "quotes_unverified": [],
+   "grounded": true,
+   "id": "2026-W45-3",
+   "red_team": {
+    "concerns": [
+     "Already contradicted twice. Plain FX carry with point-in-time rates was a wash from 2017 to 2024 before the programme, and E10 screened FX carry across the broker's instruments, 2015 to 2026, net of spread, commission and financing, with nothing IN. The card's only new information is the volatility filter, which can only skip about a quarter of the months of a strategy that has shown no net edge on these instruments.",
+     "Costs on these crosses: the rate differentials on AUDNZD, EURGBP and EURCAD are mostly well under 1 to 2 percent a year, and often close to zero or flipping sign from 2015 to 2021. The broker's swap is lopsided (USDSGD earns +0.44 long but pays -1.34 short), so the 'carry' side of a small-differential cross may still pay swap. The carry leg being switched on and off may be negative net before any timing.",
+     "Data: the card says 'actual broker swap for each side over the holding month', but only the current swap schedule appears to be held, not a monthly history from 2015. Historical swap would have to be modelled as rate differential minus an assumed markup, which is exactly the number that decides the result.",
+     "Point-in-time risk in the rates: the FRED/OECD 3-month interbank series are monthly averages, published with a lag, so the month-end sign must use the previous month's value. Several of these benchmarks also changed during 2015 to 2026 (LIBOR ended).",
+     "The analogy is weak where it matters. The paper's predictability sits in USD-based rates, it reports weaker results for other bases, and building a cross removes the common dollar component. The paper's portfolio gains come from a 70-predictor model, and the card admits it never tests the single BILL.GVOL interaction.",
+     "GVOL rebuilt from broker USD majors back to 2014, with an expanding AR(1) fit and an expanding quartile, needs a burn-in that leaves the early filter unstable. The top-quartile cut-off and the one-month lag are free choices the paper did not make.",
+     "Power: 4 crosses are not 4 independent bets. AUD is in two of them and EUR in two, and they all load on the same risk-on/off factor. That leaves about 11 years of roughly 1.5 effective independent bets a month, and a deflated Sharpe at N=307 is effectively unreachable, which the card concedes.",
+     "The account allows at most 2 positions, so the 4-pair pooled portfolio cannot be traded as tested.",
+     "This is a near-variant of the killed 'Beyond the Carry Trade' card: carry plus a conditioning signal on the same affordable crosses.",
+     "Paper quality: out of sample from 1995 to 2020 with Clark-West tests, but cost results are only in the supplement, there is no post-2020 evidence, and no independent replication of this specific interaction. The broader carry-crash/volatility link (Menkhoff et al. 2012) is well replicated but well known.",
+     "Opportunity cost: P1 has one slot left, and this test cannot meet its own pass bar even if the effect is real."
+    ],
+    "fatal": "The underlying carry on these crosses has already failed twice on this broker (pre-programme, and E10 from 2015 to 2026 net of financing). A volatility filter that removes about a quarter of months cannot create an edge where the net carry leg is near zero or negative after the broker's lopsided swap. On top of that, roughly 1.5 effective independent bets a month over 11 years cannot clear a deflated Sharpe at N=307. The last P1 slot would be spent on a test that cannot pass.",
+    "kill": true,
+    "information": 2,
+    "value": 2,
+    "cost": 2,
+    "revised_test": ""
+   }
+  }
+ ],
+ "synthesis": {
+  "connections": [
+   "Mathematics (W45-1) and economics (W45-3) hit the same wall: the cost of holding a position overnight. Both try to rescue a weak signal by trading it differently. W45-1 trades less often inside a no-trade band, and W45-3 sits out turbulent months. Both were killed because the cost that matters on this account is financing (the broker's overnight swap), which W45-1's cost model leaves out and which, by the red team's assessment, already makes net carry on these crosses near zero or negative. Changing when or how often you trade does not touch a cost that comes from holding the position at all.",
+   "Physics (W45-2) and economics (W45-3) both use a slow 'state of the market' reading as an on/off switch. In W45-2 that reading is how strongly prices are being pulled back toward their average. In W45-3 it is a shock to global currency volatility. On these four FX crosses, both switches can only be attached to things that have already failed here: the physics estimator reduces to lag-1 autocorrelation and repeats the killed OU mean-reversion-speed filter, and the economics filter sits on top of carry that has failed twice. A regime filter can only help a strategy that has something to filter, and neither base strategy does.",
+   "Mathematics (W45-1) and physics (W45-2) describe one picture from two sides: a quantity pulled back toward a target. In W45-1 the controller pulls the position back to the signal at the edge of a band. In W45-2 a restoring force pulls the price back toward its mean. Both assume a smooth, continuously adjustable quantity. The red team's objections point to the same mismatch: the engine's signals jump, and the account can only hold 0 or \u00b11 minimum lot. That mismatch matters more than the choice of model."
+  ],
+  "belief_updates": [
+   "No market test ran this week, so no belief about any market should move. All three kills follow from results the engine already holds.",
+   "Raise the importance of financing in the engine's cost model. W45-1's red team calls it the dominant cost on this account, and W45-3's red team cites the broker's lopsided swap. Before any new idea is weighed, it should be checked against overnight financing, not only against spread and commission.",
+   "Treat the account as a choice among three states (-1, 0, +1 minimum lot), not as continuous position sizing. With about 85 dollars and a 0.01-lot minimum, any idea that depends on fine sizing, such as bands, partial rebalancing, or scaling positions by volatility, cannot be implemented as written. The real question is whether to hold one lot.",
+   "Treat 'resilience', 'restoring rate' and 'critical slowing down' ideas from physics as the same as lag-1 autocorrelation or mean-reversion speed, unless the source supplies a specific non-stationary method beyond the abstract. On these FX crosses that family has already been killed once.",
+   "Accept that the statistical bar is now very high. The red team estimates that about 1.5 independent bets a month over 11 years cannot clear a deflated Sharpe ratio after 307 trials. Slow monthly ideas on four crosses are underpowered almost by construction. This argues for better testing methods before more ideas."
+  ],
+  "next_steps": [
+   {
+    "id": "2026-W42-3",
+    "why": "The binding problem this week was statistical power after 307 trials, not a shortage of ideas. Anytime-valid promotion tests address how to judge an adaptive research engine that keeps running tests. It is also the top-priority item in the queue (12.5)."
+   },
+   {
+    "id": "2026-W44-1",
+    "why": "Both W45-1 and W45-3 proposed random-sign nulls as the bar to beat. A null matched to the strategy's actual exposure is a stricter and fairer comparison. Adopting it first would keep a weak idea from passing just because it holds positions in a particular way."
+   },
+   {
+    "id": "2026-W45-1",
+    "why": "Do not run the killed band test. Instead, do the bookkeeping the card exposed. First, identify the 14 'real edge before costs, removed by costs' candidates, which are not named in the engine notes. Second, split each one's cost drag into spread/commission versus financing. If financing dominates, as the red team says, then execution-cost work such as queue item 2026-W44-2 (limit vs market orders) can be deprioritised with evidence rather than by assumption."
+   }
+  ],
+  "gaps": [
+   "The 14 cost-killed candidates are not identified anywhere in the engine notes. This blocks any rescue attempt and any check of which cost kills them.",
+   "No card or queue item models overnight financing directly, even though financing is described as the dominant cost.",
+   "Nothing in the room addresses the account's real decision: when to hold a single minimum lot versus stay flat. Most source papers assume positions can be sized continuously.",
+   "W45-1's paper takes the tracking weight 'a' as given. Nothing available says how to set it from how fast a signal's edge decays.",
+   "W45-2's non-stationary refinements were available only from the abstract. Without the full method, the idea cannot be told apart from lag-1 autocorrelation.",
+   "W45-3's paper reports weaker predictability for non-USD bases. Whether its forecasting power survives on crosses, which strip out the dollar component, is untested and unknown.",
+   "Queue item regime-trend-6 sits at priority 0.0 and nothing this week bears on it. It should be explicitly kept or dropped rather than left to linger."
+  ]
+ }
+}

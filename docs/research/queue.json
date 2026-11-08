@@ -1,5 +1,5 @@
 {
- "updated": "2026-W44",
+ "updated": "2026-W45",
  "items": [
   {
    "id": "2026-W40-1",
@@ -202,6 +202,19 @@
    "why_killed": "The combination of a weak signal (small-gap regime) and the engine's binding constraint of high trading costs (especially magnified by the D1 bar rollover) makes this idea highly likely to fail."
   },
   {
+   "id": "2026-W45-3",
+   "week": "2026-W45",
+   "status": "killed",
+   "title": "Economic Fundamentals and Short-Run Exchange Rate Prediction: A Machine-Learning Perspective",
+   "field": "economics",
+   "source": "doi:10.1017/s0022109026103391",
+   "url": "https://doi.org/10.1017/s0022109026103391",
+   "hypothesis": "On AUDCAD, AUDNZD, EURCAD and EURGBP, the rule holds the carry direction (sign of the 3-month rate differential) for one month. It goes flat in any month after GVOL's AR(1) residual lands in its expanding top quartile. Net of measured spread and swap, 2015 to 2026, this volatility-conditioned carry earns a pooled monthly return above the 99th percentile of a random-sign null. It also beats unconditioned carry on the same pairs. The 2020-10 to 2026 segment, which postdates the paper's sample, must be positive on its own.",
+   "test": "Data: broker D1 bars at 21:00 UTC month-ends for the 4 crosses. Broker D1 bars for the paper's USD majors are used to build GVOL (mean absolute daily log change across pairs, monthly average, then an AR(1) residual fitted on an expanding window). FRED 3-month interbank rates are held. Costs: measured spread plus actual broker swap for each side over the holding month. Rebalance at month-end, avoiding the 21:00 rollover by entering at the next liquid hour. Fix the rule entirely in advance: no fitted coefficients, quartile threshold on an expanding window. Null 1: 10,000 random-sign draws with the same holding pattern and costs. Null 2: unconditioned carry on the same pairs, which the engine already found a wash. Failure is any of the following: below the 99th-percentile random-sign result; no improvement over unconditioned carry; does not survive doubled costs; fewer than most years positive; or a negative 2020-10 to 2026 segment. Power caveat: roughly 140 months by 4 pairs, with the flat filter removing about a quarter, gives a deflated Sharpe at N=307 that will be hard to clear. Treat a pass as forward-test-worthy only. This runs fully on history before any live slot, but P1 has 1 slot left.",
+   "priority": 2.0,
+   "why_killed": "The underlying carry on these crosses has already failed twice on this broker (pre-programme, and E10 from 2015 to 2026 net of financing). A volatility filter that removes about a quarter of months cannot create an edge where the net carry leg is near zero or negative after the broker's lopsided swap. On top of that, roughly 1.5 effective independent bets a month over 11 years cannot clear a deflated Sharpe at N=307. The last P1 slot would be spent on a test that cannot pass."
+  },
+  {
    "id": "crypto-funding-6",
    "week": "crypto-funding",
    "status": "killed",
@@ -306,6 +319,19 @@
    "why_killed": "The idea card explicitly states 'Nothing testable' for the hypothesis and 'Not applicable' for the test, instruments, horizon, data, and expected effect. This means there is no actionable trading strategy or hypothesis for the engine to pursue."
   },
   {
+   "id": "2026-W45-2",
+   "week": "2026-W45",
+   "status": "killed",
+   "title": "Estimating the resilience of non-stationary systems",
+   "field": "physics",
+   "source": "doi:10.1038/s41467-026-78489-7",
+   "url": "https://doi.org/10.1038/s41467-026-78489-7",
+   "hypothesis": "On daily broker bars for AUDNZD, EURGBP, AUDCAD and EURCAD (2014 to 2026), fit the Langevin drift of the log-price deviation from its 60-day mean in a rolling 250-day window, with time-varying noise. When the estimated restoring rate is in its lowest quintile (lowest resilience), the next 20 trading days show a larger absolute log move than when it is in its top quintile. The estimator also predicts that move better than (a) rolling lag-1 autocorrelation and (b) trailing 20-day realised volatility. If it does not beat both baselines out of sample (2021 to 2026, after fitting choices on 2014 to 2020), the analogy adds nothing tradeable here.",
+   "test": "Cheapest honest test, run entirely on held history before spending the last P1 slot. It is a prediction check, not a strategy, so it costs no live risk. Data: held D1 bars for the four crosses. Step 1: compute the rolling Langevin restoring-rate estimate (an OLS regression of the daily change in deviation on the lagged deviation, with heteroskedastic weights from trailing volatility as a stand-in for the paper's time-varying uncertainty), plus rolling AR(1) and trailing realised volatility. Step 2: measure the Spearman rank correlation between each predictor and the forward 20-day absolute log return, using non-overlapping windows. Also run a regression of the forward move on all three predictors together. Null: a block-bootstrap (20-day blocks) of the predictor series, which breaks alignment with future moves. Failure if any of these hold: the restoring-rate coefficient is not significant at the 1% level after the joint regression with realised volatility; it fails in the 2021 to 2026 holdout; or it adds nothing over AR(1). Only if it passes would a trading form be pre-registered, for example a straddle-like breakout entry in the low-resilience state. That form would face the full criteria: random-sign null at the 99th percentile, doubled costs, most years positive, and a deflated Sharpe against N = 307. Expect it to fail, because vol clustering is the obvious confound and the killed OU-speed idea covers similar ground.",
+   "priority": 1.0,
+   "why_killed": "Two problems combine. As specifiable, the restoring-rate estimator is lag-1 autocorrelation relabelled (an OLS slope of change on lagged deviation equals phi - 1), and the paper's non-stationary refinements are unavailable from the abstract. So the test cannot add information beyond the killed OU mean-reversion-speed item. Any tradeable form reduces to breakout or trend following on FX crosses, which already failed on this instrument set."
+  },
+  {
    "id": "crypto-funding-3",
    "week": "crypto-funding",
    "status": "killed",
@@ -317,6 +343,19 @@
    "test": "Use historical daily ETHUSD closing prices (held data) and historical daily Google Trends search volume for 'Ethereum' (free data). Define a specific measure of 'investor attention' from the search volume (e.g., normalized daily search index). Test for Granger causality between past investor attention and future daily ETHUSD returns and/or volatility. Construct a simple long/short strategy based on investor attention signals. The null hypothesis is that the strategy's net Sharpe ratio after estimated trading costs (spread, overnight financing) is not positive, or it fails to beat a random-sign baseline at the 99th percentile, or it fails the doubled-cost test, or most years are negative. The test can be run on historical data.",
    "priority": 0.67,
    "why_killed": "The combination of the engine's extremely high trading costs for ETHUSD CFDs (spread and large overnight financing) and the lack of any quantitative evidence from the source paper that claimed 'significant economic values' survive costs, makes it highly probable that any potential edge would be entirely consumed by trading costs. This is consistent with the engine's historical experience where costs are the binding constraint, and further reinforced by the recent failure of existing ETHUSD strategies (E07/A01)."
+  },
+  {
+   "id": "2026-W45-1",
+   "week": "2026-W45",
+   "status": "killed",
+   "title": "Singular Tracking of Fractional Brownian Motion under Proportional Costs",
+   "field": "mathematics",
+   "source": "arXiv:2611.01727v1",
+   "url": "http://arxiv.org/abs/2611.01727v1",
+   "hypothesis": "On the 14 candidates classified as 'real edge before costs, removed by costs', recompute each as a continuous target position on its tradeable instruments (ETHUSD, ADAUSD, BCHUSD, LTCUSD, AUDCAD, AUDNZD, EURCAD, EURGBP, USDSGD). The candidates are not identified in the engine notes. Replace daily rebalancing with a no-trade band around the target whose half-width follows the paper's Brownian scaling, delta proportional to (cost_per_unit * sigma_target^2 / a)^(1/3). The hypothesis has two parts. (a) For at least one candidate, the band version's net Sharpe exceeds the 99th percentile of a random-sign null run through the same band and the same costs. (b) Re-optimising the band under doubled costs raises realised trading-cost drag by roughly 2^(2/3), about 1.6x, not 2x. Falsified if (a) fails for every candidate, or if the measured cost-scaling exponent at the optimum is near 1, outside about 0.5 to 0.8.",
+   "test": "History only, run on Databricks before using any slot. Data: broker D1 bars (held) and measured spread, commission and swap (held). Steps: (1) Rebuild the pre-cost target series of the cost-killed candidates. (2) Fit the band width on 2015-2020 for a grid of tracking weights a, choosing a single a per candidate on that window. (3) Evaluate once on 2021-2026 at measured and at doubled costs. (4) Null: the same band applied to random-sign targets with matched turnover and the same costs, 10,000 draws. Failure means any of: the band version is not above the 99th percentile of that null; it is not positive in most years; its deflated Sharpe does not survive N = 307 (N goes up with each a tried); or cost drag at doubled costs scales nearly linearly. Before step (2), do a cheap diagnostic: check whether realised tracking cost and adjustment cost at the fitted optimum split near 1/3 to 2/3. If they do not, the Brownian-band model does not describe these targets and H must be estimated. Main risk, stated in advance: lot granularity at this account size means even a passing backtest may not be implementable live, so a pass would at most justify a forward test at a larger notional.",
+   "priority": 0.67,
+   "why_killed": "The account cannot implement a continuous band (positions are 0 or \u00b11 minimum lots). The cost-killed signals already failed their holdout at exchange-futures costs, and that cheaper cost structure is a stronger rescue than a band. The paper's cost model also omits financing, which is the dominant cost here. A pass could not be traded, and a fail is already predicted by existing results."
   },
   {
    "id": "regime-trend-3",
