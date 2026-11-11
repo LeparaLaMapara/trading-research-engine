@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sqlite3
 import subprocess
 import sys
@@ -272,7 +273,8 @@ def upload_daily() -> None:
     except OSError:
         pass
     try:
-        log = open(r"T:\making-money\engine\dbx_upload.log", "a", encoding="utf-8")
+        log = open(os.path.join(settings.ARTIFACT_ROOT, "engine", "dbx_upload.log"), "a",
+                   encoding="utf-8")
         subprocess.Popen([PY, "-m", "scripts.upload_to_databricks"], stdout=log, stderr=log,
                          creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
         with open(marker, "w", encoding="utf-8") as fh:
