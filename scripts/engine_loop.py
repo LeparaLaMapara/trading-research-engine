@@ -233,7 +233,8 @@ def main() -> int:
             r = run(["-m", "scripts.trader_step"], timeout=900)
             if r is not None and r.stdout.strip():
                 log("trader: " + r.stdout.strip().splitlines()[-1][:400])
-            log(f"cycle done; E03 {hours_recorded():.1f} h recorded")
+            h = hours_recorded()
+            log("cycle done" if h >= TARGET_HOURS else f"cycle done; E03 {h:.1f} of {TARGET_HOURS:.0f} h recorded")
     finally:
         subprocess.run(["gh", "workflow", "enable", "live_state.yml"], capture_output=True,
                        creationflags=NO_WINDOW, check=False)
