@@ -1,0 +1,339 @@
+{
+ "tag": "2026-W46",
+ "stats": {
+  "harvested": 605,
+  "by_field": "111 applied and numerical mathematics, 70 computer science, 113 economics, 10 foundations, 17 mathematical and computational economics, 104 mathematics, 50 physics, 91 quantitative finance, 39 statistics",
+  "eligible": 3,
+  "full_text": 1,
+  "spend": "$2.96 over 31 calls"
+ },
+ "cards": [
+  {
+   "identifier": "doi:10.1145/3858063.3858879",
+   "url": "https://doi.org/10.1145/3858063.3858879",
+   "title": "Agent Policy-Value Audit: Separating Transition Composition from Event Selection in Financial LLM Agents",
+   "field": "statistics",
+   "via": "OpenAlex 'false discovery rate backtest'",
+   "read_depth": "abstract",
+   "triage": 3,
+   "claim": "Testing a trading agent's paired return against zero mixes up two things: what its mix of position changes would earn on any events (for example, being long in a market that drifts up) and genuine skill in choosing which events to act on. The proposed audit keeps the count of each ordered action change fixed (flat to long, long to flat, and so on) and reshuffles those changes randomly across the eligible events. The average payoff of the reshuffles is a 'composition benchmark'. Observed value minus that benchmark is 'selection value'. In the paper's semi-synthetic tests, the zero-centred test credited passive exposure as skill in 11.6% of no-skill runs, against 5.3% for the transition-matched audit. On 723 real earnings events, a +15.2 bps/event gross value split into +25.8 composition and -10.6 selection.",
+   "mechanism": "In an asset that drifts, any rule biased toward one direction earns the drift whether or not it times anything. A null that randomises the sign of positions, or tests against zero, removes the direction along with the timing. So the drift gets counted as skill. A null that keeps the rule's own counts of each transition type and randomises only where they fall keeps the rule's exposure and holding-time profile. What is left over is timing skill.",
+   "source_concept": "A permutation null matched on transitions: fixed counts of each ordered action-change type, reassigned across eligible events. Deployment value is split into a composition benchmark plus selection value.",
+   "market_analogue": "Events are the D1 bars (or signal dates) where the rule could act. Action changes are the rule's flat\u2192long, long\u2192flat, flat\u2192short and short\u2192flat transitions. The composition benchmark is the net P&L of randomly placed trades with the same transition counts, and therefore roughly the same time long and time short. Selection value is the timing edge the engine actually wants. Costs must be carried through each reshuffle: the spread per transition plus the lopsided swap (crypto longs pay about 20% a year, shorts pay nothing). That means composition includes the financing burden of a long-biased mix.",
+   "hypothesis": "(1) Calibration: on ETHUSD and BTCUSD broker D1 bars from 2017 to 2026, simulate no-skill rules whose transition counts match E07 and the E10 turn-of-month BTCUSD rule, with entries placed at random. The engine's current random-sign null at the 99th percentile will pass these no-skill rules more often than the nominal 1%. The transition-matched null will pass them at or below 1%. (2) Applied: E07's ETHUSD 20-day trend has a selection value (net of spread and swap) that does not exceed the 99th percentile of 10,000 transition-matched reshuffles in either half, 2018 to 2022 or September 2022 to 2026. That would mean even its 2018 to 2022 edge was mostly composition, not timing. Part (1) fails if the random-sign null's false-pass rate on no-skill rules is at or below 1.5% across 2,000 simulations. Part (2) is falsified if E07's selection value exceeds the 99th percentile in the 2018 to 2022 half.",
+   "test": "History only, no live slot. This is a methodology and audit check, not a new trading rule: it can only demote, and it adds no trial to N=307 except through its effect on the pass criteria. Step A, calibration: for ETHUSD, BTCUSD and USDSGD, generate 2,000 no-skill position series. Each copies a real rule's transition-count profile (E07, the E10 turn-of-month BTCUSD rule, E08) with random placement. Score each against (i) the current random-sign null at the 99th percentile and (ii) a transition-matched null at the 99th percentile. Use measured spread and swap throughout. Failure for the paper's idea: the two nulls give the same false-pass rate within Monte Carlo error. Step B, audit: decompose E07's and E08's realised net P&L into composition and selection, by half and by year. Report the selection-value percentile. Null: selection value is 0. Constraint: eligible events must exclude bars where the rule could not act, such as the 21:00 UTC rollover window for USDSGD.",
+   "instruments": [
+    "ETHUSD",
+    "BTCUSD",
+    "USDSGD"
+   ],
+   "horizon": "daily bars; holding periods as in E07/E08 (multi-day to multi-week)",
+   "data": [
+    {
+     "what": "Broker D1 bars for ETHUSD, BTCUSD, USDSGD 2014/2017\u20132026",
+     "status": "held",
+     "source": "IC Markets cTrader broker bars"
+    },
+    {
+     "what": "Measured spreads and swap rates per instrument",
+     "status": "held",
+     "source": "engine cost measurements (E04, swap table)"
+    },
+    {
+     "what": "E07/E08/E10 position and transition series",
+     "status": "held",
+     "source": "engine experiment records"
+    }
+   ],
+   "expected_effect": "Two expected results. First, the random-sign null's false-pass rate for drift-exposed no-skill rules on ETH and BTC sits above nominal, by analogy with the paper's 11.6% against 5.3%. Second, E07's 2018 to 2022 Sharpe of 0.80 shrinks once composition, the long exposure to ETH's drift net of swap, is taken out.",
+   "evidence_quality": "Abstract only. The evidence is semi-synthetic simulations on earnings-event returns plus one retrospective application to 723 events. No market-timing or FX/crypto evidence is given. The statistical argument is general and plausible. It overlaps heavily with the queued 'Indistinguishable from Chance' exposure-matched-null proposal for E07. The new element is matching on ordered transition counts, which also preserves turnover and therefore costs, rather than matching exposure alone. Both live rules are already demoted, so the main value is tightening the pass criteria for future rules.",
+   "confidence": 0.35,
+   "quotes_verified": [
+    "An agent that frequently changes positions from flat to long can earn a positive paired return from an upward-drifting event pool even when it selects events at random.",
+    "We propose the Agent Policy-Value Audit, which holds fixed the observed count of each ordered action-change type and randomly reassigns them across eligible events.",
+    "The average payoff from these reassignments is the composition benchmark; the difference between observed deployment value and this benchmark is selection value.",
+    "The agent does not detectably outperform matched random assignments.",
+    "Financial-agent evaluations should report deployment value separately from event-selection value."
+   ],
+   "quotes_unverified": [],
+   "grounded": true,
+   "id": "2026-W46-1",
+   "red_team": {
+    "concerns": [
+     "Overlap with the queue. Part (2), testing E07 against shuffles that keep its exposure, is almost the same test as the queued 'Indistinguishable from Chance' exposure-matched null for E07. The only new element is matching on ordered transition counts, which also preserves turnover and so spread cost. That belongs inside the queued item, not in a separate slot.",
+     "Part (2) cannot change anything. E07 and E08 are already demoted by A01, and audits can only demote. A01 already showed that E07's 2022 to 2026 half is negative. Splitting the 2018 to 2022 Sharpe into composition and selection is a diagnostic with no decision attached.",
+     "Half of Part (1) is true by construction. No-skill rules made by randomly placing the same transition counts are exchangeable under the transition-matched null, so that null will pass them at about 1% automatically. The only informative quantity is the false-pass rate of the engine's current random-sign null.",
+     "The construction is underspecified. Shuffling individual ordered transitions independently produces impossible position paths, for example two flat-to-long changes in a row. The honest version moves whole holding intervals (direction and duration) to random non-overlapping start bars.",
+     "Swap is lopsided. Crypto longs pay about 20% a year and shorts pay nothing, so a random-sign null that flips longs to shorts also changes the financing bill. The null and the reshuffles must charge swap by direction, or the comparison is biased in a direction nobody knows in advance.",
+     "The conditioning is on one path. All no-skill runs share ETH's single realised drift, which came mostly from 2017 and 2020 to 2021. The false-pass rate is therefore conditional on that history and should be reported for each half, not only pooled.",
+     "The paper's evidence is thin. It is an abstract only, with semi-synthetic earnings-event simulations at a 5% nominal level, no market-timing, FX or crypto evidence, and no replication. Its own real-data application found negative selection value. The 11.6% against 5.3% figures do not carry over to a 99th-percentile random-sign null on daily crypto.",
+     "The statistical argument is real, not decoration. A random-sign null removes directional drift along with timing, so a long-biased rule on an asset that drifts up can pass for being long. That is a legitimate worry for pass criteria on crypto, and for a BTC turn-of-month rule like E10's best (t 2.70)."
+    ],
+    "fatal": null,
+    "kill": false,
+    "information": 3,
+    "value": 2,
+    "cost": 2,
+    "revised_test": "Run this as a calibration of the engine's pass criteria. It uses no trading slot and should be merged with the queued 'Indistinguishable from Chance' item so that only one entry exists. Data: broker D1 bars for ETHUSD, BTCUSD and USDSGD, 2017 to 2026, with measured spread and swap charged by direction (crypto longs about 20% a year, shorts 0; USDSGD +0.44 long and -1.34 short points a lot a day). Eligible bars exclude the 21:00 UTC rollover for USDSGD. Profiles: take the realised holding intervals (direction and duration) of E07 (ETHUSD), E10's turn-of-month BTCUSD rule and E08 (USDSGD). For each profile, generate 2,000 no-skill position series by placing the same intervals at random non-overlapping start bars. Score each series net of costs against the engine's current random-sign null at the 99th percentile, using 2,000 draws and the same direction-specific swap. Report the false-pass rate with a 95% binomial interval, pooled and separately for 2017 to 2022 and September 2022 to 2026. Pre-registered decision: if the lower bound of that interval exceeds 1% for any profile, add an interval-matched null at the 99th percentile as an extra pass criterion for every future rule. Otherwise leave the criteria unchanged and close the idea. Descriptive only, with no demotion consequence: report the interval-matched selection-value percentile for E07 by half and for the E10 turn-of-month BTCUSD rule."
+   }
+  },
+  {
+   "identifier": "arXiv:2611.10367v1",
+   "url": "http://arxiv.org/abs/2611.10367v1",
+   "title": "Telling coordination from coincidence: a no-interaction twin for collective systems",
+   "field": "physics",
+   "via": "arXiv physics.soc-ph",
+   "read_depth": "abstract",
+   "triage": 2,
+   "claim": "The paper defines an interaction share S: the fraction of a no-interaction twin's forecast error that the real group law removes. The twin is the same members with every interaction removed. For linear forecasts S reduces to a 'memory gap' computed from two autocorrelation curves, with no twin to fit. In US stock markets S is small, about 1-3%, and this held up in pre-registered tests on unseen data. Read depth is the abstract only: no horizons, assets or trading results are given.",
+   "mechanism": "A group average such as an index can be predictable for two reasons. Its members may each have their own memory, or the members may interact, for example through lead-lag effects or contagion. Only the interaction part is extra predictability that exists at the group level and could not be seen by looking at each member alone. S measures that part. Time-shifting the members' series destroys their cross-dependence and keeps each member's own dynamics, which gives the twin. For linear forecasts the gap between the group's autocorrelation curve and the twin's autocorrelation curve gives S directly.",
+   "source_concept": "Emergence and collective order in statistical physics (magnets, oscillators, flocks, fish schools). The quantity is the share of the group variable's forecastable structure that comes from member interactions rather than from independent members. The construction relates S to KL divergence for Gaussian forecasts.",
+   "market_analogue": "Each mapping:\n- Members: the individual instruments, here the four affordable crypto CFDs ETHUSD, ADAUSD, BCHUSD and LTCUSD.\n- Group variable: their equal-weight log-return basket.\n- No-interaction twin: the same four return series, each randomly time-shifted relative to the others, so every cross-coin lead-lag is destroyed and each coin's own autocorrelation is kept.\n- Interaction share S: the extra basket predictability that comes from cross-coin lead-lag or contagion.\n\nWhere the analogy could be wrong:\n- Crypto co-movement is mostly a common factor, not interaction between coins. The time-shift twin removes the common factor too, so a 'real minus twin' gap may reflect contemporaneous correlation inflating the basket's variance rather than tradeable lead-lag.\n- The paper's own market result (S about 1-3%) suggests the effect is far too small to pay this broker's spreads.",
+   "hypothesis": "This is a diagnostic gate, not a strategy. On broker D1 bars (21:00 UTC close) for ETHUSD, ADAUSD, BCHUSD and LTCUSD, compute the memory-gap interaction share S for the equal-weight basket, using lags 1-5 and a linear forecast. The hypothesis that would justify a slot is S >= 0.05 in BOTH halves (2018-2022 and Sep 2022-2026). It is falsified if S < 0.05 in either half. That includes the paper's own reported market range of about 1-3%, which we would treat as untradeable here.\n\nIf, and only if, the gate passes, a second pre-registered hypothesis would follow. A next-day ETHUSD position in the sign of the basket's interaction-only forecast, short side preferred because crypto shorts pay no swap, would beat a random-sign null at the 99th percentile after measured spread and swap. The account allows at most 2 positions, so the 4-coin basket itself cannot be held; only one or two legs can be traded.",
+   "test": "Data: held broker D1 bars for the four coins.\n\nStep 1 (no slot spent, a pure diagnostic):\n- Compute the basket autocorrelation curve, lags 1-5.\n- Build 1,000 twins by independently circular-shifting each coin's return series by random offsets of at least 30 days. Compute the twin basket autocorrelation curve for each.\n- Form S as the paper's memory gap. The abstract states S is computable from the two curves, but the exact formula is not given in the abstract, so obtain it from the paper's public code.\n- Null: S drawn from the shifted-twin distribution, which has expectation zero.\n- Failure: S below 0.05, or not above the 99th percentile of the twin distribution, in either half. Expected outcome: failure, which costs nothing and closes the idea.\n\nStep 2 (runs only if Step 1 passes, and uses the 1 remaining P1 slot or a new programme slot):\n- Backtest the ETHUSD sign rule on history with measured spread (about 3 USD/ETH), long swap of about 20%/yr and zero short swap.\n- Requirements: beat 10,000 random-sign draws at the 99th percentile, survive doubled costs, be positive in most years and in both halves, and have a deflated Sharpe that survives N = 307 trials.\n\nEverything can run on history before any live slot is used.",
+   "instruments": [
+    "ETHUSD",
+    "ADAUSD",
+    "BCHUSD",
+    "LTCUSD"
+   ],
+   "horizon": "1 day (D1 bars, forecasts over lags 1-5 days)",
+   "data": [
+    {
+     "what": "Broker D1 bars for ETHUSD, ADAUSD, BCHUSD, LTCUSD",
+     "status": "held",
+     "source": "IC Markets cTrader broker bars"
+    },
+    {
+     "what": "Measured spread and swap for crypto CFDs",
+     "status": "held",
+     "source": "engine cost measurements"
+    },
+    {
+     "what": "Paper's memory-gap estimator code",
+     "status": "free",
+     "source": "paper states all code is public"
+    }
+   ],
+   "expected_effect": "Very small. The paper reports about 1-3% interaction share for US stock markets. A 1-3% reduction in forecast error at daily horizon is very unlikely to survive crypto spreads, and the engine's binding constraint is cost. The most likely result is that the diagnostic fails and the idea is closed at zero slot cost.",
+   "evidence_quality": "Abstract only. The authors claim pre-registered confirmation on unseen data and public hashed pre-registrations, which is methodologically strong. The market result, however, is a small effect on US equities, not on crypto CFDs or FX crosses. No horizon, cost or trading result is given.",
+   "confidence": 0.08,
+   "quotes_verified": [
+    "Measures of emergence based on information theory or causal closure ask whether a group variable has a predictable law of its own, but not whether that law was produced by the members' interactions",
+    "We introduce the interaction share S, the fraction of the forecast error of a system's no-interaction twin (the same members with every interaction removed) that the real group law eliminates",
+    "In 221 mouse brain areas and in US stock markets the shares are small (about 1-3%) and were confirmed in pre-registered tests on unseen data.",
+    "For linear forecasts the share is a memory gap, computable from two autocorrelation curves without fitting a twin; it matches measured shares (Spearman 0.97) and predicted fresh markets within 0.004."
+   ],
+   "quotes_unverified": [],
+   "grounded": true,
+   "id": "2026-W46-2",
+   "red_team": {
+    "concerns": [
+     "The gate measures the wrong thing. S is the predictability of the equal-weight four-coin basket. The account can hold at most 2 positions, so only one or two legs can be traded. Step 2 trades ETHUSD alone on a basket forecast, so a passing S says almost nothing about whether the ETHUSD rule has edge. The tradeable question is simply whether lagged ADA, BCH and LTC returns predict next-day ETH. That is a plain cross-autocorrelation regression and needs no twin.",
+     "It is largely a disguised variant of work already done or running. Lagged cross-instrument returns are standard inputs to the pooled models: pooled machine learning had a faint signal before costs that costs removed (do not repropose without new information). E16, the open forward scoreboard, already predicts every instrument every hour from pooled inputs. The paper adds a normalisation, not a new signal.",
+     "The analogy from physics is decoration. 'Interaction share' over a basket is Lo-MacKinlay cross-autocorrelation renamed. In US equities, index autocorrelation from lead-lag came largely from nonsynchronous trading (stale small-cap prices) and is known to be untradeable. That is a plausible source of the paper's 1-3%.",
+     "The mechanism that produces S in stocks is absent here. Crypto trades 24/7 and all four broker D1 bars close at the same 21:00 UTC instant, so there are no stale prices to create lead-lag. At daily horizon, cross-coin lead-lag in liquid coins is expected to be close to zero.",
+     "The 0.05 threshold is arbitrary and mis-argued. An S of 1-3% is roughly 1-3% incremental R-squared at daily horizon, which would be large in finance, not obviously untradeable. The gate is not tied to cost, so neither a pass nor a fail maps to a decision about tradeability.",
+     "The memory gap can be driven by the common factor rather than by lead-lag. The time-shift twin removes contemporaneous correlation, so the real basket's variance (the autocorrelation denominator) is inflated relative to the twin's. That changes the autocorrelation curves even with zero lead-lag, as the card itself suspects.",
+     "The estimator formula is not in the abstract. The read depth is abstract only, so the test depends on code that has not been inspected. Broker history for ADA and BCH may start late, which thins the 2018-2022 half.",
+     "The paper reports no out-of-sample trading result, no costs and no naive baseline. Its pre-registration confirms a measured share, not a profit. No replication on crypto or FX is known.",
+     "Costs: a daily-turnover ETH rule pays about 3 USD per ETH spread on each round trip, plus 20%/yr swap on long days. Restricting to shorts halves the exposure and needs a short-side edge, and E09 and A01 show ETH short timing has been hard to find."
+    ],
+    "fatal": "The diagnostic does not test anything this account can trade. Basket predictability cannot be held under the 2-position limit. The tradeable version, lagged alt-coin returns predicting next-day ETH, is cross-asset lagged-return prediction already covered by the failed pooled ML work and the running E16 scoreboard. The paper brings no new information beyond a physics relabelling of cross-autocorrelation, whose stock-market source (nonsynchronous trading) does not exist in synchronously closed 24/7 crypto bars.",
+    "kill": true,
+    "information": 2,
+    "value": 2,
+    "cost": 1,
+    "revised_test": ""
+   }
+  },
+  {
+   "identifier": "arXiv:2611.15657v1",
+   "url": "http://arxiv.org/abs/2611.15657v1",
+   "title": "Global Seasonality Factor Investing",
+   "field": "quantitative finance",
+   "via": "arXiv q-fin.ST",
+   "read_depth": "full",
+   "triage": 3,
+   "claim": "Across 50 global futures, five calendar-seasonality features are fitted per market with a Gaussian kernel regression and tested walk-forward from 1995 to June 2026. The fast features (day-of-week, day-of-month) earn money before costs but lose after them. The slow features (day-of-half-year, day-of-year) stay positive after costs. An equal-weight ensemble of the seasonality models, excluding day-of-week, has near-zero correlation with carry, momentum and skew. The paper's own tables locate the edge in energy, agriculture, bonds and equities, not in currencies.",
+   "mechanism": "The paper offers candidate explanations per feature but tests none of them:\n- day-of-week: a weekend information effect;\n- day-of-month: institutional rebalancing and month-end cash flows;\n- day-of-half-year and day-of-year: commodity demand and crop cycles, plus equity 'sell in May'.\nFor currencies it describes a spring peak and a fall decline but gives no mechanism, and the currency sector has no significant alpha.",
+   "source_concept": "Per-market Nadaraya-Watson kernel regression of forward volatility-adjusted returns on the integer day within a calendar period. Models are refit yearly, with an embargo, and predictions are averaged across forecast horizons of 1 to 6 months.",
+   "market_analogue": "This transfers directly, with no analogy needed. The feature is the calendar day; the target is the forward 21 to 126 day vol-adjusted return on the affordable FX crosses (AUDCAD, AUDNZD, EURCAD, EURGBP, USDSGD).\n\nThere are four differences from the paper's setting:\n- The paper traded USD-based currency futures, not crosses.\n- Crypto is absent from the paper.\n- Broker D1 history (2014 onward) is too short for the paper's 10-year training requirement.\n- The account cannot vol-size continuously at 0.01 lots, so positions must be sign-only.",
+   "hypothesis": "A slow-seasonality ensemble produces a net Sharpe on our FX crosses that beats a calendar-circular-shift null at the 99th percentile. The ensemble covers day-of-quarter, day-of-half-year and day-of-year, uses horizons of 21 to 126 days, is refit yearly, and trades the sign of the prediction. The crosses are AUDCAD, AUDNZD, EURCAD, EURGBP and USDSGD, net of measured spread and swap, out of sample 2005 to 2026.\n\nThe paper's own currency-sector result (ensemble alpha not significant) predicts this will FAIL. I do not expect it to pass.",
+   "test": "Data and construction:\n- Rebuild the five crosses daily from free FRED spot series: AUD, CAD, NZD, GBP, EUR and SGD against USD, from 1971, or 1999 for EUR.\n- Spot-check against broker D1 bars for 2016 to 2026.\n\nModel:\n- Replicate the paper's kernel setup: Gaussian kernel, bandwidth 0.5 on normalized features, 40-day EMA vol, latency of 2 days, embargo of m+1, annual refit, and at least 10 years of training before going out of sample.\n- Trade sign-only positions.\n- Charge the measured spread, rollover-avoiding execution, and the actual swap on each side.\n\nNull and failure criteria:\n- Null: the same pipeline on randomly circularly shifted calendar labels (at least 2,000 draws), plus random-sign positions with matched turnover.\n- It fails if any of these hold:\n  - net Sharpe is not above the 99th percentile of the null;\n  - the 2015 to 2026 half has net Sharpe at or below 0;\n  - it does not survive doubled costs;\n  - fewer than most years are positive;\n  - the deflated Sharpe at N=308 is not significant.\n\nThe whole test runs on history at near-zero cost before any live slot. Given the paper's null currency result, it should be run only if a slot is genuinely free.",
+   "instruments": [
+    "AUDCAD",
+    "AUDNZD",
+    "EURCAD",
+    "EURGBP",
+    "USDSGD"
+   ],
+   "horizon": "Daily signal; holding horizon 1 to 6 months (21 to 126 trading days)",
+   "data": [
+    {
+     "what": "Daily FX spot rates vs USD for AUD, CAD, NZD, GBP, EUR, SGD (long history for the 10-year training window)",
+     "status": "free",
+     "source": "FRED H.10 daily exchange rates"
+    },
+    {
+     "what": "Broker D1 bars for the five crosses (cost and level reconciliation, 2014 onward)",
+     "status": "held",
+     "source": "IC Markets cTrader"
+    },
+    {
+     "what": "Measured spreads and swap rates per cross",
+     "status": "held",
+     "source": "engine cost measurements"
+    }
+   ],
+   "expected_effect": "Near zero. The paper reports currency-sector alpha as insignificant for the ensemble and for each slow feature. It also says the seasonality factor underperformed in the most recent decade. The plausible outcome is a net Sharpe indistinguishable from the shifted-calendar null.",
+   "evidence_quality": "Moderate for the paper's claims about the overall portfolio:\n- 30 years walk-forward;\n- costs taken from live trading at about $100M AUM;\n- but no multiple-testing correction across 5 features x 8 horizons x 50 markets.\n\nWeak for this engine:\n- the currency-sector alpha is not significant;\n- the paper's edge lives in energy, agriculture, bonds and equities, which the account cannot afford;\n- there is no crypto evidence;\n- day-of-month results overlap E10's turn-of-month screen, which already failed here.",
+   "confidence": 0.08,
+   "quotes_verified": [
+    "In contrast, slower-moving seasonal patterns, such as day-of-quarter, day-of-half-year and day-of-year, produce positive gross performance and, with the exception of day-of-quarter, positive net performance.",
+    "In fact, with the exception of the currency sector, all other sectors display statistically significant alpha values.",
+    "Lastly, currency markets display a cyclical response pattern, with forward returns peaking in the spring and becoming generally negative in the fall.",
+    "However, as indicated by the regression analysis, the returns are not pervasive and instead are largely limited to the energy and agriculture sectors.",
+    "the turnover of the strategy is exorbitant, and therefore a naive application of the factor strategy results in substantial transaction costs, above and beyond the expected factor alpha.",
+    "Additionally, we observe an improvement in the net Sharpe ratio over every evaluation period, including the most recent decade, where the seasonality factor has underperformed relative to the other time series factors."
+   ],
+   "quotes_unverified": [],
+   "grounded": true,
+   "id": "2026-W46-3",
+   "red_team": {
+    "concerns": [
+     "The source contradicts the transfer. The paper's ensemble and each slow feature show no significant alpha in the currency sector. The edge sits in energy, agriculture, bonds and equity indices, and the account cannot afford any of them at 0.01 lots. The card itself expects failure, so there is no motivated prior to test.",
+     "Statistical power is close to zero. Day-of-year and day-of-half-year features give one observation per calendar cycle. The out-of-sample window of 2005 to 2026 holds about 21 annual cycles across 5 highly correlated crosses (AUD, CAD, NZD and EUR legs overlap). A deflated Sharpe at N=308 cannot plausibly be cleared by an effect the paper could not find in currencies with 30 years and many more markets. Both outcomes are therefore uninformative: a pass would be suspect and a fail was already known.",
+     "It overlaps closed work. The day-of-month and day-of-week variants overlap E10's turn-of-month and time-of-day screens, which found nothing at t\u22653.0. The slow features are new, but the paper itself says that recently 'the seasonality factor has underperformed relative to the other time series factors'.",
+     "Costs on multi-month FX holds are mostly swap. A sign-only seasonal position held 21 to 126 days on crosses picks up incidental carry exposure, and carry was a wash here from 2017 to 2024. Any net result would be partly an uncontrolled carry bet unless the carry sign were regressed out.",
+     "Account limits are ignored. Only 2 positions are allowed at once, so a 5-cross ensemble cannot be held as tested. A tradeable version needs a selection rule, which adds another degree of freedom.",
+     "Data mismatch. FRED H.10 gives noon New York fixes, not broker 21:00 UTC closes, and synthetic crosses from two USD legs add timing noise. This is minor for a 1 to 6 month horizon but means the test is not on the traded series.",
+     "Selection risk. The paper's bandwidth, horizons and feature set were chosen on full-sample global results (no multiple-testing correction over 5\u00d78\u00d750). Importing them is mild lookahead relative to the 2005 start.",
+     "Slots are scarce. P1 is effectively spent, and this card would take a programme slot on a hypothesis its author scores as a near-certain null."
+    ],
+    "fatal": "The paper's own evidence shows no significant currency-sector seasonality, and its edge lives in sectors this account cannot trade. With about 21 annual cycles out of sample and a deflated-Sharpe bar at N=308, the test cannot detect any effect small enough to be consistent with the paper's null currency result. Expected information and expected value are both near zero, so it should not take a slot.",
+    "kill": true,
+    "information": 1,
+    "value": 1,
+    "cost": 2,
+    "revised_test": ""
+   }
+  },
+  {
+   "identifier": "doi:10.1016/j.frl.2026.111041",
+   "url": "https://doi.org/10.1016/j.frl.2026.111041",
+   "title": "Implied directional accuracy for trading strategies with fixed holding periods",
+   "field": "quantitative finance",
+   "via": "OpenAlex 'cryptocurrency return predictability'",
+   "read_depth": "abstract",
+   "triage": 3,
+   "claim": "For strategies with a fixed holding period, the probability of missing a target Sharpe ratio equals the probability that the forecast's directional accuracy (DA) falls below a threshold implied by that target. The classical 'implied precision' sets that threshold too low because it ignores the spread of return sizes and transaction costs. The paper derives an 'implied DA' that includes both. It reports that this mapping is closer to backtested Sharpe ratios and that strategy risk under it is higher at every target Sharpe. No market effect or tradeable anomaly is claimed.",
+   "mechanism": "This is accounting, not a market effect. With a fixed holding period, each trade earns the signed return over that period minus costs. Returns vary in size and every trade pays costs, so a forecaster needs more than the hit rate that a constant-payoff, zero-cost formula implies. Ignoring either term understates the DA a strategy needs.",
+   "source_concept": "Implied directional accuracy: the minimum DA a fixed-holding sign forecaster needs to reach a target Sharpe ratio, given return-magnitude dispersion and transaction costs. Strategy risk is P(DA < implied DA).",
+   "market_analogue": "Direct. The engine's pooled hourly model (E16), and any daily sign rule held one D1 bar or a fixed N bars on the 9 affordable CFDs, is a fixed-holding sign forecaster. The cost input is the measured spread, commission and the lopsided swap. Return dispersion is the distribution of absolute N-bar returns per instrument.",
+   "hypothesis": "Not a trading hypothesis; this is a screening and audit tool. Falsifiable prediction: suppose a cost- and dispersion-aware implied-DA mapping is fitted on 2014-2022 broker D1 data for ETHUSD, LTCUSD, BCHUSD, ADAUSD, AUDCAD, AUDNZD, EURCAD, EURGBP and USDSGD. For fixed holding periods of 1 and 20 bars, its predicted net Sharpe will track the backtested net Sharpe of the engine's already-counted sign rules (E10/E13/E15 families) with smaller absolute error than the constant-payoff, zero-cost implied-precision mapping. On 2023-2026 its required DA will exceed the realised DA of every such rule at a net Sharpe target of 0.5.",
+   "test": "Run on history only; no live slot and no new trading rule, so N does not grow.\n1. Take the per-trade sign series already produced by E10/E13/E15 on held broker bars.\n2. For each rule, compute realised DA, mean absolute holding-period return and the measured cost per trade, including the swap by side.\n3. Write down the implied-DA formula. The abstract does not give it, so either obtain the full text or derive the fixed-holding sign-forecast Sharpe from first principles before looking at results. Pre-register it.\n4. Compute the analytical Sharpe at each rule's realised DA under both mappings and compare with the backtested net Sharpe.\n\nNull: the two mappings have equal mean absolute error (paired test across rules).\n\nThe tool fails if the implied-DA error is not smaller, or if its threshold moves outside the DA sampling error when parameters are re-estimated on 2023-2026. If it passes, use it as a pre-slot gate: no candidate gets a slot unless its in-sample DA confidence band clears implied DA at the target net Sharpe.",
+   "instruments": [
+    "ETHUSD",
+    "ADAUSD",
+    "BCHUSD",
+    "LTCUSD",
+    "AUDCAD",
+    "AUDNZD",
+    "EURCAD",
+    "EURGBP",
+    "USDSGD"
+   ],
+   "horizon": "Fixed holding of 1 D1 bar (21:00 UTC close to close) and 20 bars; hourly for E16 forecasts",
+   "data": [
+    {
+     "what": "Broker D1 and hourly bars for the 9 affordable instruments",
+     "status": "held",
+     "source": "cTrader broker bars"
+    },
+    {
+     "what": "Measured spreads, commission and swap by side",
+     "status": "held",
+     "source": "engine cost model, E04 fills"
+    },
+    {
+     "what": "Per-trade sign series from E10/E13/E15 and forward E16 forecasts",
+     "status": "held",
+     "source": "engine experiment records"
+    },
+    {
+     "what": "Exact implied-DA formula",
+     "status": "unavailable",
+     "source": "full text of doi:10.1016/j.frl.2026.111041 (abstract only read)"
+    }
+   ],
+   "expected_effect": "No P&L effect. Expected: the required DA after costs sits well above 50% on the daily CFDs, most of all for crypto longs that pay swap. Realised DA of past rules falls inside or below that threshold's sampling band. This would quantify the engine's finding that cost, not prediction, is the binding constraint, and would let weak candidates be rejected before they use a slot.",
+   "evidence_quality": "Abstract only. No formula, sample, asset class or effect sizes are given. Its claims are methodological (mapping accuracy, stability under drift) and are stated only 'on average'. It is plausible and cheap to check, but it offers nothing to trade.",
+   "confidence": 0.15,
+   "quotes_verified": [
+    "For strategies with fixed holding periods, the strategy risk is equivalent to the probability that the model\u2019s DA falls below the DA threshold implied by a given target Sharpe ratio.",
+    "this equation assumes a constant payoff and no transaction costs, thereby understating the threshold under the fixed holding setup.",
+    "Considering the dispersion of return magnitudes and transaction costs, we derive the implied DA and propose it as an appropriate candidate.",
+    "On average, the analytical mapping behind the proposed threshold is closer to the backtests of real forecasts than that behind the implied precision",
+    "Sharpe ratios derived from implied DA match backtested Sharpe ratios on average."
+   ],
+   "quotes_unverified": [],
+   "grounded": true,
+   "id": "2026-W46-4",
+   "red_team": {
+    "concerns": [
+     "The comparison is rigged by construction. A mapping that includes measured costs and return dispersion will track net backtested Sharpe better than a zero-cost, constant-payoff formula almost by definition. Rejecting the 'equal error' null would teach nothing, because the baseline is a strawman, not a competitor.",
+     "The second prediction is already known. Every E10, E13 and E15 rule failed out of sample. So 'required DA exceeds realised DA of every such rule in 2023-2026' is guaranteed and restates the engine fact that cost is the binding constraint.",
+     "The exact implied-DA formula is unavailable; only the abstract was read. Deriving it from first principles gives the identity Sharpe = (E[sign-correct x |r|] - cost) / sd. That is just net Sharpe rewritten, so the derived tool is circular with the backtest it is meant to predict.",
+     "A DA-based mapping that treats hit and magnitude as independent misses how the only rule that ever passed earned its edge. E07 gained by letting winners run: payoff size correlated with correctness, not hit rate. Most trend rules are also not fixed-holding, so the tool does not apply to the families that came closest.",
+     "Scope is mismatched. E10 families such as momentum, carry and turn of month, and E16's hourly forecasts, have variable or overlapping holding periods and mixed sides with lopsided crypto swap. Forcing them into a fixed-holding, sign-only frame either drops rules (a selection problem) or distorts their cost inputs.",
+     "As a pre-slot gate it is redundant. The engine already screens on net Sharpe with a random-sign null at the 99th percentile, doubled costs and a deflated Sharpe at N=307. Computing in-sample net Sharpe directly is simpler and strictly more informative than converting it into a DA threshold.",
+     "It overlaps with tools already in the queue: the anytime-valid promotion test and the exposure-matched null audit. Both address 'gate weak candidates before they use a slot' more rigorously.",
+     "Paper evidence is weak: abstract only, claims hold 'on average', and there is no stated asset class, sample, out-of-sample check or replication."
+    ],
+    "fatal": "The test cannot fail in an informative way. Both predictions are true by construction. The cost-aware mapping must beat a zero-cost strawman, and every rule it is checked against has already failed. The resulting gate is a re-expression of net Sharpe, which the engine already computes and screens on more strictly.",
+    "kill": true,
+    "information": 1,
+    "value": 1,
+    "cost": 2,
+    "revised_test": ""
+   }
+  }
+ ],
+ "synthesis": {
+  "connections": [
+   "The statistics card (2026-W46-1) and the physics card (2026-W46-2) build the same kind of control experiment. Each one scrambles the data in a way that keeps the boring structure and destroys only the effect being tested. W46-1 keeps how many times the rule switches between long, short and flat, which also fixes roughly how long it sits long or short, and then randomises when the switches happen. What is left to test is timing skill. W46-2 time-shifts each coin against the others. Each coin keeps its own memory, and only the coins' influence on one another is destroyed. Both ask how much of an apparent effect survives once you match everything except the mechanism you claim. That is the physicist's 'surrogate data' idea applied to trading rules.",
+   "The physics card's own caveat carries back into the statistics card. The W46-2 time-shift also wipes out the common factor (all crypto moving together), so a gap between the real data and the scrambled twin can come from that shared movement rather than from one coin leading another. W46-1 faces the same risk in another form. If its reshuffles do not preserve something real, such as the long-heavy mix and the financing cost that comes with it, the null will credit or blame timing for something that is really composition. That is why W46-1 insists on carrying spread and swap through every reshuffle.",
+   "The seasonality card (2026-W46-3) uses a calendar circular-shift null. This belongs to the same family: shift the calendar labels, keep the return series intact. Three of this week's four cards therefore converge on one method question, which the queued 2026-W44-1 ('exposure-matched nulls') also raises: is the engine's standard random-sign null matched closely enough to what each rule actually does?",
+   "The implied-accuracy card (2026-W46-4) and W46-1 share a cost point. Spread per trade and the one-sided swap (crypto longs pay about 20% a year, shorts pay nothing) set a hurdle that any timing skill must clear. W46-1 builds that hurdle into the null. W46-4 states it as a minimum hit rate. The red team judged W46-4 to be only a re-expression of net Sharpe, which the engine already computes."
+  ],
+  "belief_updates": [
+   "Treat the current random-sign null at the 99th percentile as possibly too lenient for rules with lopsided long/short/flat mixes, until tested. This is a hypothesis (W46-1 part 1), not a result. Nothing this week shows it leaks. But if it does, earlier passes such as E07's 2018\u20132022 ETHUSD trend edge may partly reflect which side the rule sat on, not when it traded.",
+   "Lower the prior that cross-coin lead-lag among ETHUSD, ADAUSD, BCHUSD and LTCUSD is a usable edge. The physics source's own market figure (interaction share around 1\u20133%) is below the card's 5% gate. Its classic stock-market cause, assets closing at different times, does not exist in synchronously closed 24/7 crypto bars. Under the 2-position limit the basket cannot be held anyway. Any tradeable remnant overlaps the failed pooled ML work and the E16 scoreboard.",
+   "Lower the prior on calendar seasonality in the affordable FX crosses. The source paper itself found currency-sector seasonality not significant. Our roughly 21 annual cycles of out-of-sample data cannot detect an effect small enough to fit that null result.",
+   "Do not add implied directional accuracy as a separate screening gate. Per the red team, it restates net Sharpe and cannot fail informatively against rules that have already failed."
+  ],
+  "next_steps": [
+   {
+    "id": "2026-W46-1",
+    "why": "This is the only card this week that survived the red team, with the highest information score (3) at moderate cost (2). Run part 1 first. Simulate no-skill rules whose switch counts match E07 and the E10 turn-of-month BTCUSD rule, and measure how often the current random-sign null wrongly passes them. If the false-pass rate is above the pre-registered 1.5%, the engine's main yardstick needs replacing, and that matters more than any single strategy. Only then run part 2 on E07."
+   },
+   {
+    "id": "2026-W44-1",
+    "why": "Its title (exposure-matched nulls for auditing LLM-generated strategies) points at the same question as W46-1. Before spending a separate slot, decide whether it can be folded into the W46-1 calibration as a second null design, so both are compared on the same no-skill simulations instead of tested twice."
+   },
+   {
+    "id": "2026-W42-3",
+    "why": "It is the joint top of the queue (priority 12.5) and complements W46-1. Once the null is right, anytime-valid tests address the other way false promotions happen: checking a backtest repeatedly and stopping when it looks good."
+   }
+  ],
+  "gaps": [
+   "No card tests whether the 'transition-matched' and 'exposure-matched' nulls (W46-1 vs W44-1) actually differ in practice. We only know they aim at the same problem.",
+   "W46-1 does not say how event eligibility is defined, for example whether a rule may switch on any bar or only on signal dates. The null's strictness depends on that choice.",
+   "Inconsistency in W46-3: it proposes an out-of-sample window of 2005\u20132026, but its own market analogue says broker D1 history starts in 2014. The card is killed, but the same data-length limit applies to any slow-calendar idea.",
+   "Nothing this week separates the crypto common factor from true coin-to-coin influence. W46-2's twin removes both together, and no card offers a null that keeps the shared movement while breaking lead-lag.",
+   "Two queue items (2026-W40-1 XAI audit protocol and regime-trend-6 drawdown-controlled portfolios) have only titles here. There is not enough information to link them or rank them against this week's cards.",
+   "This week contains no new candidate edge, only audit and method cards. The engine's search for positive timing skill made no progress."
+  ]
+ }
+}
