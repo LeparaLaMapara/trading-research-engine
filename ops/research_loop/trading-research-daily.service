@@ -1,0 +1,10 @@
+[Unit]
+Description=Trading research loop: one empirical experiment a day on branch research/lab
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/mnt/n/code/trading/tre-research/ops/research_loop/run.sh
+Environment=PATH=/home/thabang/.npm-global/bin:/usr/local/bin:/usr/bin:/bin
+Nice=10
+TimeoutStartSec=10800
