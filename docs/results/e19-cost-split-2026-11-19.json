@@ -1,0 +1,493 @@
+{
+ "panel": {
+  "instruments": 37,
+  "rows": 134740,
+  "classes": {
+   "fx_major": 11,
+   "index": 10,
+   "fx_cross": 9,
+   "bond": 2,
+   "metal": 2,
+   "energy": 2,
+   "ag": 1
+  }
+ },
+ "rules": {
+  "ewmac": {
+   "cfd": {
+    "gross": 0.111,
+    "net": -0.274,
+    "tcost_over_gross": 0.319,
+    "fcost_over_gross": 3.15,
+    "annual_turnover": 9.5,
+    "periods": {
+     "2004-2008": -0.05,
+     "2009-2016": -0.07,
+     "2017-2024": -0.79
+    }
+   },
+   "spread_only": {
+    "gross": 0.111,
+    "net": 0.076,
+    "tcost_over_gross": 0.319,
+    "fcost_over_gross": 0.0,
+    "annual_turnover": 9.5,
+    "periods": {
+     "2004-2008": 0.3,
+     "2009-2016": 0.21,
+     "2017-2024": -0.3
+    }
+   },
+   "by_class": {
+    "ag": {
+     "n": 1,
+     "gross": -1.149,
+     "net": -1.187,
+     "tcost_over_gross": null,
+     "fcost_over_gross": null,
+     "annual_turnover": 11.4,
+     "periods": {
+      "2004-2008": 0.0,
+      "2009-2016": 0.0,
+      "2017-2024": -1.19
+     }
+    },
+    "bond": {
+     "n": 2,
+     "gross": 0.021,
+     "net": -0.006,
+     "tcost_over_gross": 1.305,
+     "fcost_over_gross": 0.0,
+     "annual_turnover": 10.0,
+     "periods": {
+      "2004-2008": 0.0,
+      "2009-2016": 0.0,
+      "2017-2024": -0.01
+     }
+    },
+    "energy": {
+     "n": 2,
+     "gross": 0.168,
+     "net": 0.154,
+     "tcost_over_gross": 0.081,
+     "fcost_over_gross": 0.0,
+     "annual_turnover": 11.0,
+     "periods": {
+      "2004-2008": 0.75,
+      "2009-2016": -0.28,
+      "2017-2024": 0.15
+     }
+    },
+    "fx_cross": {
+     "n": 9,
+     "gross": 0.059,
+     "net": 0.033,
+     "tcost_over_gross": 0.441,
+     "fcost_over_gross": 0.0,
+     "annual_turnover": 9.3,
+     "periods": {
+      "2004-2008": 0.05,
+      "2009-2016": 0.17,
+      "2017-2024": -0.29
+     }
+    },
+    "fx_major": {
+     "n": 11,
+     "gross": 0.006,
+     "net": -0.019,
+     "tcost_over_gross": 4.395,
+     "fcost_over_gross": 0.0,
+     "annual_turnover": 9.5,
+     "periods": {
+      "2004-2008": 0.1,
+      "2009-2016": 0.29,
+      "2017-2024": -0.48
+     }
+    },
+    "index": {
+     "n": 10,
+     "gross": 0.077,
+     "net": 0.06,
+     "tcost_over_gross": 0.216,
+     "fcost_over_gross": 0.0,
+     "annual_turnover": 9.6,
+     "periods": {
+      "2004-2008": 0.39,
+      "2009-2016": -0.07,
+      "2017-2024": -0.01
+     }
+    },
+    "metal": {
+     "n": 2,
+     "gross": 0.303,
+     "net": 0.29,
+     "tcost_over_gross": 0.044,
+     "fcost_over_gross": 0.0,
+     "annual_turnover": 10.8,
+     "periods": {
+      "2004-2008": 0.27,
+      "2009-2016": 0.45,
+      "2017-2024": 0.19
+     }
+    }
+   }
+  },
+  "breakout": {
+   "cfd": {
+    "gross": 0.164,
+    "net": -0.343,
+    "tcost_over_gross": 0.791,
+    "fcost_over_gross": 2.301,
+    "annual_turnover": 52.4,
+    "periods": {
+     "2004-2008": -0.45,
+     "2009-2016": -0.15,
+     "2017-2024": -0.58
+    }
+   },
+   "spread_only": {
+    "gross": 0.164,
+    "net": 0.034,
+    "tcost_over_gross": 0.791,
+    "fcost_over_gross": 0.0,
+    "annual_turnover": 52.4,
+    "periods": {
+     "2004-2008": -0.06,
+     "2009-2016": 0.16,
+     "2017-2024": -0.09
+    }
+   },
+   "by_class": {
+    "ag": {
+     "n": 1,
+     "gross": -0.384,
+     "net": -0.501,
+     "tcost_over_gross": null,
+     "fcost_over_gross": null,
+     "annual_turnover": 69.6,
+     "periods": {
+      "2004-2008": 0.0,
+      "2009-2016": 0.0,
+      "2017-2024": -0.5
+     }
+    },
+    "bond": {
+     "n": 2,
+     "gross": 0.167,
+     "net": 0.078,
+     "tcost_over_gross": 0.535,
+     "fcost_over_gross": 0.0,
+     "annual_turnover": 52.3,
+     "periods": {
+      "2004-2008": 0.0,
+      "2009-2016": 0.0,
+      "2017-2024": 0.08
+     }
+    },
+    "energy": {
+     "n": 2,
+     "gross": 0.188,
+     "net": 0.138,
+     "tcost_over_gross": 0.264,
+     "fcost_over_gross": 0.0,
+     "annual_turnover": 59.8,
+     "periods": {
+      "2004-2008": 0.56,
+      "2009-2016": -0.17,
+      "2017-2024": 0.16
+     }
+    },
+    "fx_cross": {
+     "n": 9,
+     "gross": 0.127,
+     "net": 0.034,
+     "tcost_over_gross": 0.735,
+     "fcost_over_gross": 0.0,
+     "annual_turnover": 51.9,
+     "periods": {
+      "2004-2008": -0.34,
+      "2009-2016": 0.28,
+      "2017-2024": -0.28
+     }
+    },
+    "fx_major": {
+     "n": 11,
+     "gross": -0.006,
+     "net": -0.102,
+     "tcost_over_gross": null,
+     "fcost_over_gross": null,
+     "annual_turnover": 52.5,
+     "periods": {
+      "2004-2008": 0.11,
+      "2009-2016": -0.09,
+      "2017-2024": -0.27
+     }
+    },
+    "index": {
+     "n": 10,
+     "gross": -0.011,
+     "net": -0.072,
+     "tcost_over_gross": null,
+     "fcost_over_gross": null,
+     "annual_turnover": 54.5,
+     "periods": {
+      "2004-2008": -0.13,
+      "2009-2016": -0.16,
+      "2017-2024": 0.08
+     }
+    },
+    "metal": {
+     "n": 2,
+     "gross": 0.479,
+     "net": 0.439,
+     "tcost_over_gross": 0.083,
+     "fcost_over_gross": 0.0,
+     "annual_turnover": 51.3,
+     "periods": {
+      "2004-2008": 0.19,
+      "2009-2016": 0.74,
+      "2017-2024": 0.36
+     }
+    }
+   }
+  },
+  "tsmom_12m": {
+   "cfd": {
+    "gross": 0.312,
+    "net": -0.233,
+    "tcost_over_gross": 0.205,
+    "fcost_over_gross": 1.542,
+    "annual_turnover": 12.7,
+    "periods": {
+     "2004-2008": -0.04,
+     "2009-2016": -0.08,
+     "2017-2024": -0.61
+    }
+   },
+   "spread_only": {
+    "gross": 0.312,
+    "net": 0.248,
+    "tcost_over_gross": 0.205,
+    "fcost_over_gross": 0.0,
+    "annual_turnover": 12.7,
+    "periods": {
+     "2004-2008": 0.41,
+     "2009-2016": 0.33,
+     "2017-2024": 0.01
+    }
+   },
+   "by_class": {
+    "ag": {
+     "n": 1,
+     "gross": -0.168,
+     "net": -0.228,
+     "tcost_over_gross": null,
+     "fcost_over_gross": null,
+     "annual_turnover": 39.7,
+     "periods": {
+      "2004-2008": 0.0,
+      "2009-2016": 0.0,
+      "2017-2024": -0.23
+     }
+    },
+    "bond": {
+     "n": 2,
+     "gross": 0.421,
+     "net": 0.379,
+     "tcost_over_gross": 0.101,
+     "fcost_over_gross": 0.0,
+     "annual_turnover": 13.9,
+     "periods": {
+      "2004-2008": 0.0,
+      "2009-2016": 0.0,
+      "2017-2024": 0.38
+     }
+    },
+    "energy": {
+     "n": 2,
+     "gross": 0.162,
+     "net": 0.142,
+     "tcost_over_gross": 0.123,
+     "fcost_over_gross": 0.0,
+     "annual_turnover": 14.1,
+     "periods": {
+      "2004-2008": 0.43,
+      "2009-2016": 0.22,
+      "2017-2024": -0.19
+     }
+    },
+    "fx_cross": {
+     "n": 9,
+     "gross": 0.291,
+     "net": 0.24,
+     "tcost_over_gross": 0.174,
+     "fcost_over_gross": 0.0,
+     "annual_turnover": 13.5,
+     "periods": {
+      "2004-2008": 0.03,
+      "2009-2016": 0.41,
+      "2017-2024": 0.08
+     }
+    },
+    "fx_major": {
+     "n": 11,
+     "gross": -0.041,
+     "net": -0.085,
+     "tcost_over_gross": null,
+     "fcost_over_gross": null,
+     "annual_turnover": 12.9,
+     "periods": {
+      "2004-2008": 0.08,
+      "2009-2016": -0.07,
+      "2017-2024": -0.22
+     }
+    },
+    "index": {
+     "n": 10,
+     "gross": 0.177,
+     "net": 0.156,
+     "tcost_over_gross": 0.12,
+     "fcost_over_gross": 0.0,
+     "annual_turnover": 10.1,
+     "periods": {
+      "2004-2008": 0.61,
+      "2009-2016": 0.02,
+      "2017-2024": -0.02
+     }
+    },
+    "metal": {
+     "n": 2,
+     "gross": 0.443,
+     "net": 0.423,
+     "tcost_over_gross": 0.046,
+     "fcost_over_gross": 0.0,
+     "annual_turnover": 14.3,
+     "periods": {
+      "2004-2008": 0.65,
+      "2009-2016": 0.5,
+      "2017-2024": 0.31
+     }
+    }
+   }
+  },
+  "blend": {
+   "cfd": {
+    "gross": 0.199,
+    "net": -0.23,
+    "tcost_over_gross": 0.32,
+    "fcost_over_gross": 1.838,
+    "annual_turnover": 22.5,
+    "periods": {
+     "2004-2008": -0.13,
+     "2009-2016": -0.05,
+     "2017-2024": -0.61
+    }
+   },
+   "spread_only": {
+    "gross": 0.199,
+    "net": 0.135,
+    "tcost_over_gross": 0.32,
+    "fcost_over_gross": 0.0,
+    "annual_turnover": 22.5,
+    "periods": {
+     "2004-2008": 0.24,
+     "2009-2016": 0.24,
+     "2017-2024": -0.11
+    }
+   },
+   "by_class": {
+    "ag": {
+     "n": 1,
+     "gross": -0.466,
+     "net": -0.533,
+     "tcost_over_gross": null,
+     "fcost_over_gross": null,
+     "annual_turnover": 40.3,
+     "periods": {
+      "2004-2008": 0.0,
+      "2009-2016": 0.0,
+      "2017-2024": -0.53
+     }
+    },
+    "bond": {
+     "n": 2,
+     "gross": 0.254,
+     "net": 0.209,
+     "tcost_over_gross": 0.176,
+     "fcost_over_gross": 0.0,
+     "annual_turnover": 22.7,
+     "periods": {
+      "2004-2008": 0.0,
+      "2009-2016": 0.0,
+      "2017-2024": 0.21
+     }
+    },
+    "energy": {
+     "n": 2,
+     "gross": 0.224,
+     "net": 0.2,
+     "tcost_over_gross": 0.108,
+     "fcost_over_gross": 0.0,
+     "annual_turnover": 25.3,
+     "periods": {
+      "2004-2008": 0.73,
+      "2009-2016": -0.07,
+      "2017-2024": 0.06
+     }
+    },
+    "fx_cross": {
+     "n": 9,
+     "gross": 0.143,
+     "net": 0.098,
+     "tcost_over_gross": 0.315,
+     "fcost_over_gross": 0.0,
+     "annual_turnover": 22.7,
+     "periods": {
+      "2004-2008": -0.07,
+      "2009-2016": 0.27,
+      "2017-2024": -0.18
+     }
+    },
+    "fx_major": {
+     "n": 11,
+     "gross": -0.018,
+     "net": -0.064,
+     "tcost_over_gross": null,
+     "fcost_over_gross": null,
+     "annual_turnover": 22.6,
+     "periods": {
+      "2004-2008": 0.08,
+      "2009-2016": 0.07,
+      "2017-2024": -0.34
+     }
+    },
+    "index": {
+     "n": 10,
+     "gross": 0.092,
+     "net": 0.063,
+     "tcost_over_gross": 0.309,
+     "fcost_over_gross": 0.0,
+     "annual_turnover": 22.1,
+     "periods": {
+      "2004-2008": 0.32,
+      "2009-2016": -0.07,
+      "2017-2024": 0.05
+     }
+    },
+    "metal": {
+     "n": 2,
+     "gross": 0.423,
+     "net": 0.403,
+     "tcost_over_gross": 0.047,
+     "fcost_over_gross": 0.0,
+     "annual_turnover": 23.2,
+     "periods": {
+      "2004-2008": 0.41,
+      "2009-2016": 0.62,
+      "2017-2024": 0.29
+     }
+    }
+   }
+  }
+ }
+}
