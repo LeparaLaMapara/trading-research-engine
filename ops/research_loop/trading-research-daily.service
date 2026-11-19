@@ -3,6 +3,7 @@ Description=Trading research loop: one empirical experiment a day on branch rese
 After=network-online.target
 
 [Service]
+ExecStartPre=/bin/sh -c 'for i in $(seq 1 30); do [ -x /mnt/n/code/trading/tre-research/ops/research_loop/run.sh ] && [ -d /mnt/t/making-money ] && exit 0; sleep 10; done; exit 1'
 Type=oneshot
 ExecStart=/mnt/n/code/trading/tre-research/ops/research_loop/run.sh
 Environment=PATH=/home/thabang/.npm-global/bin:/usr/local/bin:/usr/bin:/bin

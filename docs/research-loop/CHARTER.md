@@ -1,6 +1,7 @@
 # Research loop charter (set 2026-11-19)
 
-A headless Claude run starts once a day on branch `research/lab` in its own worktree
+A headless Claude run starts once a day, inside a bwrap wall (live secrets and broker credentials
+hidden, live checkout read-only; see ops/research_loop/run.sh), on branch `research/lab` in its own worktree
 (`/mnt/n/code/trading/tre-research`). The live engine (`trading-research-engine`, branch it runs
 from, systemd `trading-engine.service`) keeps monitoring and is never touched by this loop.
 
@@ -10,12 +11,17 @@ show it with numbers, not opinion.
 ## Rules (binding on every run)
 1. **Empirical only.** Every claim in the journal carries a number from a run in this repo
    (script path + commit) or a cited source (URL). Opinions are labelled "hypothesis".
-2. **One experiment per day, finished.** Pick the top `ready` item in AGENDA.md, run it to a
-   verdict or to a clearly stated blocker, write the journal, commit. Small and finished beats
-   big and half-done.
-3. **Pre-register before testing.** Hypothesis, data, window, trial count, pass rule written
-   and committed BEFORE results are computed. Every variant run counts as a trial; record the
-   count in AGENDA.md and docs/programme/register.json when it becomes a real experiment.
+2. **One unit of work per day, finished.** Pick the top `ready` agenda item and finish it:
+   a cost table, a data check, a pre-registration, a scoping run, or ONE pre-registered test.
+   Small and finished beats big and half-done. This loop is not a daily search: the programme
+   rules in docs/programme/README.md and CLAUDE.md bind it.
+3. **Pre-register before testing, a day ahead.** A counted test runs only against a
+   pre-registration that was committed and PUSHED in an earlier run and entered in
+   docs/programme/register.json (it spends one of the programme's slots; P2 had 3 left on
+   2026-11-19, check `python -m research.programme`). Any run that prints performance on
+   development data counts as trials: write the count in the journal and fold it into the next
+   pre-registration's N. Never pick a rule because it scored best in a scoping run without
+   counting that choice. Run `python -m ops.audit` and `pytest -q` before pushing code.
 4. **The vault stays sealed.** Development uses data before the holdout start
    (scripts/train_zoo.HOLDOUT_START). Opening the vault is a once-per-shortlist event logged in
    research/vault.py, and only with a pre-registered shortlist.
@@ -35,3 +41,6 @@ show it with numbers, not opinion.
    NOT_DISTINGUISHABLE_FROM_LUCK, DATA_NOT_TRUSTWORTHY).
 10. **Report.** Email the owner (Gmail tool, to his own address) only when: a verdict lands, a
     blocker needs him, or every Sunday a 5-line weekly digest. Plain words, no jargon, no dashes.
+
+11. **The repo is PUBLIC.** No balances, account sizes, personal details, emails or employer
+    names in anything committed. Private notes go to ~/.config/trading-research-loop/.

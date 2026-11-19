@@ -14,7 +14,7 @@ researcher. Work in /mnt/n/code/trading/tre-research (branch research/lab). Toda
    evidence suggests), write docs/research-loop/journal/<today>.md (what was done, numbers,
    verdict, next), commit with a clear message ending with
    "Co-Authored-By: Claude <noreply@anthropic.com>", then `git push -u origin research/lab`.
-5. Email the owner (Gmail send_message to thabangline@gmail.com) only per charter rule 10.
+5. Email the owner (Gmail send_message to the address in $OWNER_EMAIL (given below)) only per charter rule 10.
    Subject starts "Trading research:". Plain words, short, no dashes.
 6. If something blocks you, write the blocker in the journal and the agenda and stop. Never
    place orders, never touch the live service, risk limits, ceiling, forecast/, news/.
