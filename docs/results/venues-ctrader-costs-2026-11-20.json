@@ -1,0 +1,256 @@
+{
+ "per_symbol": {
+  "COCOA": {
+   "asset_class": "ag",
+   "round_trip_bps": 12.0,
+   "financing_pct_yr": 1.0,
+   "cost_src": "model"
+  },
+  "BUND": {
+   "asset_class": "bond",
+   "round_trip_bps": 2.4,
+   "financing_pct_yr": 1.0,
+   "cost_src": "model"
+  },
+  "USTBOND": {
+   "asset_class": "bond",
+   "round_trip_bps": 2.4,
+   "financing_pct_yr": 1.0,
+   "cost_src": "model"
+  },
+  "XTIUSD": {
+   "asset_class": "energy",
+   "round_trip_bps": 3.504,
+   "financing_pct_yr": 22.262,
+   "cost_src": "model"
+  },
+  "XNGUSD": {
+   "asset_class": "energy",
+   "round_trip_bps": 12.7,
+   "financing_pct_yr": 4.78,
+   "cost_src": "override"
+  },
+  "EURAUD": {
+   "asset_class": "fx_cross",
+   "round_trip_bps": 1.016,
+   "financing_pct_yr": 0.785,
+   "cost_src": "model"
+  },
+  "AUDJPY": {
+   "asset_class": "fx_cross",
+   "round_trip_bps": 1.049,
+   "financing_pct_yr": 0.947,
+   "cost_src": "model"
+  },
+  "EURGBP": {
+   "asset_class": "fx_cross",
+   "round_trip_bps": 1.071,
+   "financing_pct_yr": 1.233,
+   "cost_src": "model"
+  },
+  "GBPJPY": {
+   "asset_class": "fx_cross",
+   "round_trip_bps": 1.307,
+   "financing_pct_yr": 1.106,
+   "cost_src": "model"
+  },
+  "EURJPY": {
+   "asset_class": "fx_cross",
+   "round_trip_bps": 1.365,
+   "financing_pct_yr": 0.679,
+   "cost_src": "model"
+  },
+  "AUDNZD": {
+   "asset_class": "fx_cross",
+   "round_trip_bps": 3.7,
+   "financing_pct_yr": 0.889,
+   "cost_src": "model"
+  },
+  "CADJPY": {
+   "asset_class": "fx_cross",
+   "round_trip_bps": 3.7,
+   "financing_pct_yr": 0.651,
+   "cost_src": "model"
+  },
+  "CHFJPY": {
+   "asset_class": "fx_cross",
+   "round_trip_bps": 3.7,
+   "financing_pct_yr": 0.693,
+   "cost_src": "model"
+  },
+  "EURCHF": {
+   "asset_class": "fx_cross",
+   "round_trip_bps": 3.7,
+   "financing_pct_yr": 1.378,
+   "cost_src": "model"
+  },
+  "EURUSD": {
+   "asset_class": "fx_major",
+   "round_trip_bps": 0.781,
+   "financing_pct_yr": 1.121,
+   "cost_src": "model"
+  },
+  "USDJPY": {
+   "asset_class": "fx_major",
+   "round_trip_bps": 0.792,
+   "financing_pct_yr": 1.128,
+   "cost_src": "model"
+  },
+  "USDCHF": {
+   "asset_class": "fx_major",
+   "round_trip_bps": 0.799,
+   "financing_pct_yr": 1.485,
+   "cost_src": "model"
+  },
+  "AUDUSD": {
+   "asset_class": "fx_major",
+   "round_trip_bps": 0.825,
+   "financing_pct_yr": 1.906,
+   "cost_src": "model"
+  },
+  "GBPUSD": {
+   "asset_class": "fx_major",
+   "round_trip_bps": 0.827,
+   "financing_pct_yr": 1.127,
+   "cost_src": "model"
+  },
+  "USDCAD": {
+   "asset_class": "fx_major",
+   "round_trip_bps": 0.951,
+   "financing_pct_yr": 1.035,
+   "cost_src": "model"
+  },
+  "NZDUSD": {
+   "asset_class": "fx_major",
+   "round_trip_bps": 0.981,
+   "financing_pct_yr": 1.156,
+   "cost_src": "model"
+  },
+  "USDNOK": {
+   "asset_class": "fx_major",
+   "round_trip_bps": 8.7,
+   "financing_pct_yr": 0.56,
+   "cost_src": "override"
+  },
+  "USDSEK": {
+   "asset_class": "fx_major",
+   "round_trip_bps": 8.7,
+   "financing_pct_yr": 1.268,
+   "cost_src": "override"
+  },
+  "USDMXN": {
+   "asset_class": "fx_major",
+   "round_trip_bps": 10.7,
+   "financing_pct_yr": 1.757,
+   "cost_src": "override"
+  },
+  "USDZAR": {
+   "asset_class": "fx_major",
+   "round_trip_bps": 10.7,
+   "financing_pct_yr": 1.406,
+   "cost_src": "override"
+  },
+  "DE40": {
+   "asset_class": "index",
+   "round_trip_bps": 1.088,
+   "financing_pct_yr": 6.826,
+   "cost_src": "model"
+  },
+  "US500": {
+   "asset_class": "index",
+   "round_trip_bps": 2.012,
+   "financing_pct_yr": 5.971,
+   "cost_src": "model"
+  },
+  "AUS200": {
+   "asset_class": "index",
+   "round_trip_bps": 2.675,
+   "financing_pct_yr": 4.88,
+   "cost_src": "model"
+  },
+  "F40": {
+   "asset_class": "index",
+   "round_trip_bps": 2.7,
+   "financing_pct_yr": 4.882,
+   "cost_src": "model"
+  },
+  "UK100": {
+   "asset_class": "index",
+   "round_trip_bps": 2.7,
+   "financing_pct_yr": 5.821,
+   "cost_src": "model"
+  },
+  "STOXX50": {
+   "asset_class": "index",
+   "round_trip_bps": 2.7,
+   "financing_pct_yr": 5.814,
+   "cost_src": "model"
+  },
+  "US30": {
+   "asset_class": "index",
+   "round_trip_bps": 2.7,
+   "financing_pct_yr": 5.501,
+   "cost_src": "model"
+  },
+  "USTEC": {
+   "asset_class": "index",
+   "round_trip_bps": 2.7,
+   "financing_pct_yr": 6.641,
+   "cost_src": "model"
+  },
+  "JP225": {
+   "asset_class": "index",
+   "round_trip_bps": 3.7,
+   "financing_pct_yr": 7.957,
+   "cost_src": "override"
+  },
+  "HK50": {
+   "asset_class": "index",
+   "round_trip_bps": 4.547,
+   "financing_pct_yr": 6.261,
+   "cost_src": "model"
+  },
+  "XAUUSD": {
+   "asset_class": "metal",
+   "round_trip_bps": 1.409,
+   "financing_pct_yr": 1.302,
+   "cost_src": "model"
+  },
+  "XAGUSD": {
+   "asset_class": "metal",
+   "round_trip_bps": 8.647,
+   "financing_pct_yr": 2.149,
+   "cost_src": "model"
+  }
+ },
+ "class_median": {
+  "ag": {
+   "round_trip_bps": 12.0,
+   "financing_pct_yr": 1.0
+  },
+  "bond": {
+   "round_trip_bps": 2.4,
+   "financing_pct_yr": 1.0
+  },
+  "energy": {
+   "round_trip_bps": 8.1,
+   "financing_pct_yr": 13.52
+  },
+  "fx_cross": {
+   "round_trip_bps": 1.37,
+   "financing_pct_yr": 0.89
+  },
+  "fx_major": {
+   "round_trip_bps": 0.95,
+   "financing_pct_yr": 1.16
+  },
+  "index": {
+   "round_trip_bps": 2.7,
+   "financing_pct_yr": 5.9
+  },
+  "metal": {
+   "round_trip_bps": 5.03,
+   "financing_pct_yr": 1.73
+  }
+ }
+}

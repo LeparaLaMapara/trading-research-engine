@@ -1,0 +1,101 @@
+{
+ "MES": {
+  "proxy": "US500",
+  "ref_date": "2024-09-13",
+  "ref_price": 5623.877,
+  "notional_usd": 28119,
+  "fees_round_trip_usd": 1.24,
+  "spread_1tick_usd": 1.25,
+  "round_trip_usd": 2.49,
+  "round_trip_bps": 0.89,
+  "fee_verified": true
+ },
+ "MNQ": {
+  "proxy": "USTEC",
+  "ref_date": "2024-09-13",
+  "ref_price": 19495.865,
+  "notional_usd": 38992,
+  "fees_round_trip_usd": 1.24,
+  "spread_1tick_usd": 0.5,
+  "round_trip_usd": 1.74,
+  "round_trip_bps": 0.45,
+  "fee_verified": true
+ },
+ "MYM": {
+  "proxy": "US30",
+  "ref_date": "2024-09-13",
+  "ref_price": 41400.213,
+  "notional_usd": 20700,
+  "fees_round_trip_usd": 1.24,
+  "spread_1tick_usd": 0.5,
+  "round_trip_usd": 1.74,
+  "round_trip_bps": 0.84,
+  "fee_verified": true
+ },
+ "MGC": {
+  "proxy": "XAUUSD",
+  "ref_date": "2024-09-13",
+  "ref_price": 2577.615,
+  "notional_usd": 25776,
+  "fees_round_trip_usd": 1.94,
+  "spread_1tick_usd": 1.0,
+  "round_trip_usd": 2.94,
+  "round_trip_bps": 1.14,
+  "fee_verified": true
+ },
+ "SIL": {
+  "proxy": "XAGUSD",
+  "ref_date": "2023-12-29",
+  "ref_price": 23.776,
+  "notional_usd": 23776,
+  "fees_round_trip_usd": 1.02,
+  "spread_1tick_usd": 5.0,
+  "round_trip_usd": 6.02,
+  "round_trip_bps": 2.53,
+  "fee_verified": false
+ },
+ "MCL": {
+  "proxy": "XTIUSD",
+  "ref_date": "2024-09-13",
+  "ref_price": 69.19,
+  "notional_usd": 6919,
+  "fees_round_trip_usd": 1.54,
+  "spread_1tick_usd": 1.0,
+  "round_trip_usd": 2.54,
+  "round_trip_bps": 3.67,
+  "fee_verified": true
+ },
+ "M6E": {
+  "proxy": "EURUSD",
+  "ref_date": "2024-09-13",
+  "ref_price": 1.10732,
+  "notional_usd": 13842,
+  "fees_round_trip_usd": 1.02,
+  "spread_1tick_usd": 1.25,
+  "round_trip_usd": 2.27,
+  "round_trip_bps": 1.64,
+  "fee_verified": true
+ },
+ "M6A": {
+  "proxy": "AUDUSD",
+  "ref_date": "2024-09-13",
+  "ref_price": 0.67022,
+  "notional_usd": 6702,
+  "fees_round_trip_usd": 1.02,
+  "spread_1tick_usd": 1.0,
+  "round_trip_usd": 2.02,
+  "round_trip_bps": 3.01,
+  "fee_verified": false
+ },
+ "M6B": {
+  "proxy": "GBPUSD",
+  "ref_date": "2024-09-13",
+  "ref_price": 1.31191,
+  "notional_usd": 8199,
+  "fees_round_trip_usd": 1.02,
+  "spread_1tick_usd": 0.625,
+  "round_trip_usd": 1.65,
+  "round_trip_bps": 2.01,
+  "fee_verified": false
+ }
+}
