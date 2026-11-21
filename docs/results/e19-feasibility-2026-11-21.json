@@ -67,6 +67,11 @@
      "10Y": 0.0
     },
     "cost_pct_cap_yr": 0.0,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.0,
+     "resizing": 0.0,
+     "rolls": 0.0
+    },
     "contracts_traded_yr": 0.0,
     "median_gross_notional_x_cap": 0.0,
     "median_margin_pct_cap_UNVERIFIED": 0.0,
@@ -91,6 +96,11 @@
      "10Y": 0.0
     },
     "cost_pct_cap_yr": 0.094,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.084,
+     "resizing": 0.0,
+     "rolls": 0.009
+    },
     "contracts_traded_yr": 4.4,
     "median_gross_notional_x_cap": 0.0,
     "median_margin_pct_cap_UNVERIFIED": 0.0,
@@ -115,6 +125,11 @@
      "10Y": 0.724
     },
     "cost_pct_cap_yr": 0.58,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.445,
+     "resizing": 0.001,
+     "rolls": 0.134
+    },
     "contracts_traded_yr": 46.2,
     "median_gross_notional_x_cap": 1.49,
     "median_margin_pct_cap_UNVERIFIED": 3.8,
@@ -139,6 +154,11 @@
      "10Y": 0.897
     },
     "cost_pct_cap_yr": 0.531,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.356,
+     "resizing": 0.025,
+     "rolls": 0.15
+    },
     "contracts_traded_yr": 56.7,
     "median_gross_notional_x_cap": 1.37,
     "median_margin_pct_cap_UNVERIFIED": 2.8,
@@ -163,6 +183,11 @@
      "10Y": 0.945
     },
     "cost_pct_cap_yr": 0.659,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.381,
+     "resizing": 0.09,
+     "rolls": 0.188
+    },
     "contracts_traded_yr": 114.8,
     "median_gross_notional_x_cap": 1.48,
     "median_margin_pct_cap_UNVERIFIED": 4.0,
@@ -187,6 +212,11 @@
      "10Y": 0.985
     },
     "cost_pct_cap_yr": 0.802,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.447,
+     "resizing": 0.118,
+     "rolls": 0.237
+    },
     "contracts_traded_yr": 256.4,
     "median_gross_notional_x_cap": 2.35,
     "median_margin_pct_cap_UNVERIFIED": 13.1,
@@ -211,6 +241,11 @@
      "10Y": 1.0
     },
     "cost_pct_cap_yr": 0.819,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.447,
+     "resizing": 0.128,
+     "rolls": 0.244
+    },
     "contracts_traded_yr": 387.8,
     "median_gross_notional_x_cap": 2.58,
     "median_margin_pct_cap_UNVERIFIED": 17.0,
@@ -235,6 +270,11 @@
      "10Y": 1.0
     },
     "cost_pct_cap_yr": 0.82,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.434,
+     "resizing": 0.137,
+     "rolls": 0.249
+    },
     "contracts_traded_yr": 514.2,
     "median_gross_notional_x_cap": 2.6,
     "median_margin_pct_cap_UNVERIFIED": 18.0,
@@ -259,6 +299,11 @@
      "10Y": 1.0
     },
     "cost_pct_cap_yr": 0.814,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.408,
+     "resizing": 0.158,
+     "rolls": 0.248
+    },
     "contracts_traded_yr": 775.4,
     "median_gross_notional_x_cap": 2.57,
     "median_margin_pct_cap_UNVERIFIED": 17.0,
@@ -283,6 +328,11 @@
      "10Y": 1.0
     },
     "cost_pct_cap_yr": 0.812,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.403,
+     "resizing": 0.162,
+     "rolls": 0.247
+    },
     "contracts_traded_yr": 1283.5,
     "median_gross_notional_x_cap": 2.55,
     "median_margin_pct_cap_UNVERIFIED": 16.7,
@@ -307,6 +357,11 @@
      "10Y": 1.0
     },
     "cost_pct_cap_yr": 0.81,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.402,
+     "resizing": 0.162,
+     "rolls": 0.247
+    },
     "contracts_traded_yr": 2564.0,
     "median_gross_notional_x_cap": 2.55,
     "median_margin_pct_cap_UNVERIFIED": 16.5,
@@ -331,6 +386,11 @@
      "10Y": 1.0
     },
     "cost_pct_cap_yr": 0.81,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.402,
+     "resizing": 0.162,
+     "rolls": 0.247
+    },
     "contracts_traded_yr": 5133.0,
     "median_gross_notional_x_cap": 2.54,
     "median_margin_pct_cap_UNVERIFIED": 16.5,
@@ -358,6 +418,11 @@
      "10Y": 0.0
     },
     "cost_pct_cap_yr": 0.0,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.0,
+     "resizing": 0.0,
+     "rolls": 0.0
+    },
     "contracts_traded_yr": 0.0,
     "median_gross_notional_x_cap": 0.0,
     "median_margin_pct_cap_UNVERIFIED": 0.0,
@@ -382,6 +447,11 @@
      "10Y": 0.0
     },
     "cost_pct_cap_yr": 0.0,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.0,
+     "resizing": 0.0,
+     "rolls": 0.0
+    },
     "contracts_traded_yr": 0.0,
     "median_gross_notional_x_cap": 0.0,
     "median_margin_pct_cap_UNVERIFIED": 0.0,
@@ -406,6 +476,11 @@
      "10Y": 0.0
     },
     "cost_pct_cap_yr": 0.047,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.042,
+     "resizing": 0.0,
+     "rolls": 0.005
+    },
     "contracts_traded_yr": 4.4,
     "median_gross_notional_x_cap": 0.0,
     "median_margin_pct_cap_UNVERIFIED": 0.0,
@@ -430,6 +505,11 @@
      "10Y": 0.289
     },
     "cost_pct_cap_yr": 0.266,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.227,
+     "resizing": 0.0,
+     "rolls": 0.039
+    },
     "contracts_traded_yr": 35.5,
     "median_gross_notional_x_cap": 0.0,
     "median_margin_pct_cap_UNVERIFIED": 0.0,
@@ -454,6 +534,11 @@
      "10Y": 0.827
     },
     "cost_pct_cap_yr": 0.27,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.194,
+     "resizing": 0.003,
+     "rolls": 0.073
+    },
     "contracts_traded_yr": 49.8,
     "median_gross_notional_x_cap": 0.6,
     "median_margin_pct_cap_UNVERIFIED": 1.5,
@@ -478,6 +563,11 @@
      "10Y": 0.945
     },
     "cost_pct_cap_yr": 0.33,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.191,
+     "resizing": 0.045,
+     "rolls": 0.094
+    },
     "contracts_traded_yr": 114.8,
     "median_gross_notional_x_cap": 0.74,
     "median_margin_pct_cap_UNVERIFIED": 2.0,
@@ -502,6 +592,11 @@
      "10Y": 0.968
     },
     "cost_pct_cap_yr": 0.389,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.219,
+     "resizing": 0.056,
+     "rolls": 0.114
+    },
     "contracts_traded_yr": 192.5,
     "median_gross_notional_x_cap": 1.01,
     "median_margin_pct_cap_UNVERIFIED": 4.8,
@@ -526,6 +621,11 @@
      "10Y": 0.985
     },
     "cost_pct_cap_yr": 0.401,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.223,
+     "resizing": 0.059,
+     "rolls": 0.119
+    },
     "contracts_traded_yr": 256.4,
     "median_gross_notional_x_cap": 1.17,
     "median_margin_pct_cap_UNVERIFIED": 6.6,
@@ -550,6 +650,11 @@
      "10Y": 1.0
     },
     "cost_pct_cap_yr": 0.41,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.224,
+     "resizing": 0.064,
+     "rolls": 0.122
+    },
     "contracts_traded_yr": 387.8,
     "median_gross_notional_x_cap": 1.29,
     "median_margin_pct_cap_UNVERIFIED": 8.5,
@@ -574,6 +679,11 @@
      "10Y": 1.0
     },
     "cost_pct_cap_yr": 0.404,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.208,
+     "resizing": 0.072,
+     "rolls": 0.124
+    },
     "contracts_traded_yr": 637.3,
     "median_gross_notional_x_cap": 1.31,
     "median_margin_pct_cap_UNVERIFIED": 8.8,
@@ -598,6 +708,11 @@
      "10Y": 1.0
     },
     "cost_pct_cap_yr": 0.406,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.201,
+     "resizing": 0.081,
+     "rolls": 0.124
+    },
     "contracts_traded_yr": 1283.5,
     "median_gross_notional_x_cap": 1.27,
     "median_margin_pct_cap_UNVERIFIED": 8.3,
@@ -622,6 +737,11 @@
      "10Y": 1.0
     },
     "cost_pct_cap_yr": 0.405,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.201,
+     "resizing": 0.081,
+     "rolls": 0.123
+    },
     "contracts_traded_yr": 2564.0,
     "median_gross_notional_x_cap": 1.27,
     "median_margin_pct_cap_UNVERIFIED": 8.3,
@@ -648,6 +768,11 @@
      "M6B": 0.0
     },
     "cost_pct_cap_yr": 0.0,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.0,
+     "resizing": 0.0,
+     "rolls": 0.0
+    },
     "contracts_traded_yr": 0.0,
     "median_gross_notional_x_cap": 0.0,
     "median_margin_pct_cap_UNVERIFIED": 0.0,
@@ -671,6 +796,11 @@
      "M6B": 0.082
     },
     "cost_pct_cap_yr": 0.174,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.152,
+     "resizing": 0.0,
+     "rolls": 0.022
+    },
     "contracts_traded_yr": 8.1,
     "median_gross_notional_x_cap": 0.0,
     "median_margin_pct_cap_UNVERIFIED": 0.0,
@@ -694,6 +824,11 @@
      "M6B": 0.831
     },
     "cost_pct_cap_yr": 0.565,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.43,
+     "resizing": 0.002,
+     "rolls": 0.133
+    },
     "contracts_traded_yr": 44.1,
     "median_gross_notional_x_cap": 1.49,
     "median_margin_pct_cap_UNVERIFIED": 3.8,
@@ -717,6 +852,11 @@
      "M6B": 0.936
     },
     "cost_pct_cap_yr": 0.571,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.384,
+     "resizing": 0.037,
+     "rolls": 0.15
+    },
     "contracts_traded_yr": 62.1,
     "median_gross_notional_x_cap": 1.92,
     "median_margin_pct_cap_UNVERIFIED": 4.1,
@@ -740,6 +880,11 @@
      "M6B": 0.989
     },
     "cost_pct_cap_yr": 0.721,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.42,
+     "resizing": 0.097,
+     "rolls": 0.203
+    },
     "contracts_traded_yr": 125.5,
     "median_gross_notional_x_cap": 1.75,
     "median_margin_pct_cap_UNVERIFIED": 6.9,
@@ -763,6 +908,11 @@
      "M6B": 0.996
     },
     "cost_pct_cap_yr": 0.826,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.459,
+     "resizing": 0.122,
+     "rolls": 0.246
+    },
     "contracts_traded_yr": 264.9,
     "median_gross_notional_x_cap": 2.65,
     "median_margin_pct_cap_UNVERIFIED": 15.2,
@@ -786,6 +936,11 @@
      "M6B": 1.0
     },
     "cost_pct_cap_yr": 0.871,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.469,
+     "resizing": 0.148,
+     "rolls": 0.254
+    },
     "contracts_traded_yr": 415.0,
     "median_gross_notional_x_cap": 2.87,
     "median_margin_pct_cap_UNVERIFIED": 18.7,
@@ -809,6 +964,11 @@
      "M6B": 1.0
     },
     "cost_pct_cap_yr": 0.862,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.451,
+     "resizing": 0.154,
+     "rolls": 0.257
+    },
     "contracts_traded_yr": 546.8,
     "median_gross_notional_x_cap": 2.88,
     "median_margin_pct_cap_UNVERIFIED": 19.5,
@@ -832,6 +992,11 @@
      "M6B": 1.0
     },
     "cost_pct_cap_yr": 0.848,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.43,
+     "resizing": 0.163,
+     "rolls": 0.255
+    },
     "contracts_traded_yr": 815.4,
     "median_gross_notional_x_cap": 2.78,
     "median_margin_pct_cap_UNVERIFIED": 18.0,
@@ -855,6 +1020,11 @@
      "M6B": 1.0
     },
     "cost_pct_cap_yr": 0.851,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.425,
+     "resizing": 0.172,
+     "rolls": 0.254
+    },
     "contracts_traded_yr": 1360.0,
     "median_gross_notional_x_cap": 2.79,
     "median_margin_pct_cap_UNVERIFIED": 18.2,
@@ -878,6 +1048,11 @@
      "M6B": 1.0
     },
     "cost_pct_cap_yr": 0.852,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.426,
+     "resizing": 0.172,
+     "rolls": 0.254
+    },
     "contracts_traded_yr": 2721.9,
     "median_gross_notional_x_cap": 2.8,
     "median_margin_pct_cap_UNVERIFIED": 18.3,
@@ -901,6 +1076,11 @@
      "M6B": 1.0
     },
     "cost_pct_cap_yr": 0.854,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.425,
+     "resizing": 0.174,
+     "rolls": 0.254
+    },
     "contracts_traded_yr": 5453.3,
     "median_gross_notional_x_cap": 2.8,
     "median_margin_pct_cap_UNVERIFIED": 18.2,
@@ -927,6 +1107,11 @@
      "M6B": 0.0
     },
     "cost_pct_cap_yr": 0.0,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.0,
+     "resizing": 0.0,
+     "rolls": 0.0
+    },
     "contracts_traded_yr": 0.0,
     "median_gross_notional_x_cap": 0.0,
     "median_margin_pct_cap_UNVERIFIED": 0.0,
@@ -950,6 +1135,11 @@
      "M6B": 0.0
     },
     "cost_pct_cap_yr": 0.0,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.0,
+     "resizing": 0.0,
+     "rolls": 0.0
+    },
     "contracts_traded_yr": 0.0,
     "median_gross_notional_x_cap": 0.0,
     "median_margin_pct_cap_UNVERIFIED": 0.0,
@@ -973,6 +1163,11 @@
      "M6B": 0.082
     },
     "cost_pct_cap_yr": 0.087,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.076,
+     "resizing": 0.0,
+     "rolls": 0.011
+    },
     "contracts_traded_yr": 8.1,
     "median_gross_notional_x_cap": 0.0,
     "median_margin_pct_cap_UNVERIFIED": 0.0,
@@ -996,6 +1191,11 @@
      "M6B": 0.492
     },
     "cost_pct_cap_yr": 0.278,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.229,
+     "resizing": 0.0,
+     "rolls": 0.049
+    },
     "contracts_traded_yr": 36.5,
     "median_gross_notional_x_cap": 0.45,
     "median_margin_pct_cap_UNVERIFIED": 1.3,
@@ -1019,6 +1219,11 @@
      "M6B": 0.905
     },
     "cost_pct_cap_yr": 0.264,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.186,
+     "resizing": 0.007,
+     "rolls": 0.071
+    },
     "contracts_traded_yr": 48.3,
     "median_gross_notional_x_cap": 0.82,
     "median_margin_pct_cap_UNVERIFIED": 1.7,
@@ -1042,6 +1247,11 @@
      "M6B": 0.989
     },
     "cost_pct_cap_yr": 0.36,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.21,
+     "resizing": 0.049,
+     "rolls": 0.102
+    },
     "contracts_traded_yr": 125.5,
     "median_gross_notional_x_cap": 0.87,
     "median_margin_pct_cap_UNVERIFIED": 3.5,
@@ -1065,6 +1275,11 @@
      "M6B": 0.993
     },
     "cost_pct_cap_yr": 0.401,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.229,
+     "resizing": 0.053,
+     "rolls": 0.119
+    },
     "contracts_traded_yr": 196.3,
     "median_gross_notional_x_cap": 1.16,
     "median_margin_pct_cap_UNVERIFIED": 6.2,
@@ -1088,6 +1303,11 @@
      "M6B": 0.996
     },
     "cost_pct_cap_yr": 0.413,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.229,
+     "resizing": 0.061,
+     "rolls": 0.123
+    },
     "contracts_traded_yr": 264.9,
     "median_gross_notional_x_cap": 1.32,
     "median_margin_pct_cap_UNVERIFIED": 7.6,
@@ -1111,6 +1331,11 @@
      "M6B": 1.0
     },
     "cost_pct_cap_yr": 0.435,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.234,
+     "resizing": 0.074,
+     "rolls": 0.127
+    },
     "contracts_traded_yr": 415.0,
     "median_gross_notional_x_cap": 1.44,
     "median_margin_pct_cap_UNVERIFIED": 9.3,
@@ -1134,6 +1359,11 @@
      "M6B": 1.0
     },
     "cost_pct_cap_yr": 0.429,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.218,
+     "resizing": 0.083,
+     "rolls": 0.128
+    },
     "contracts_traded_yr": 682.5,
     "median_gross_notional_x_cap": 1.43,
     "median_margin_pct_cap_UNVERIFIED": 9.6,
@@ -1157,6 +1387,11 @@
      "M6B": 1.0
     },
     "cost_pct_cap_yr": 0.426,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.212,
+     "resizing": 0.086,
+     "rolls": 0.127
+    },
     "contracts_traded_yr": 1360.0,
     "median_gross_notional_x_cap": 1.4,
     "median_margin_pct_cap_UNVERIFIED": 9.1,
@@ -1180,6 +1415,11 @@
      "M6B": 1.0
     },
     "cost_pct_cap_yr": 0.426,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.213,
+     "resizing": 0.086,
+     "rolls": 0.127
+    },
     "contracts_traded_yr": 2721.9,
     "median_gross_notional_x_cap": 1.4,
     "median_margin_pct_cap_UNVERIFIED": 9.1,
@@ -1207,6 +1447,11 @@
      "10Y": 0.0
     },
     "cost_pct_cap_yr": 0.0,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.0,
+     "resizing": 0.0,
+     "rolls": 0.0
+    },
     "contracts_traded_yr": 0.0,
     "median_gross_notional_x_cap": 0.0,
     "median_margin_pct_cap_UNVERIFIED": 0.0,
@@ -1231,6 +1476,11 @@
      "10Y": 0.0
     },
     "cost_pct_cap_yr": 0.09,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.084,
+     "resizing": 0.0,
+     "rolls": 0.006
+    },
     "contracts_traded_yr": 4.1,
     "median_gross_notional_x_cap": 0.0,
     "median_margin_pct_cap_UNVERIFIED": 0.0,
@@ -1255,6 +1505,11 @@
      "10Y": 0.724
     },
     "cost_pct_cap_yr": 0.749,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.592,
+     "resizing": 0.0,
+     "rolls": 0.157
+    },
     "contracts_traded_yr": 60.1,
     "median_gross_notional_x_cap": 1.21,
     "median_margin_pct_cap_UNVERIFIED": 3.8,
@@ -1279,6 +1534,11 @@
      "10Y": 0.897
     },
     "cost_pct_cap_yr": 0.867,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.634,
+     "resizing": 0.023,
+     "rolls": 0.21
+    },
     "contracts_traded_yr": 94.7,
     "median_gross_notional_x_cap": 2.03,
     "median_margin_pct_cap_UNVERIFIED": 30.5,
@@ -1303,6 +1563,11 @@
      "10Y": 0.945
     },
     "cost_pct_cap_yr": 1.07,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.678,
+     "resizing": 0.105,
+     "rolls": 0.286
+    },
     "contracts_traded_yr": 177.8,
     "median_gross_notional_x_cap": 2.4,
     "median_margin_pct_cap_UNVERIFIED": 33.2,
@@ -1327,6 +1592,11 @@
      "10Y": 0.985
     },
     "cost_pct_cap_yr": 1.062,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.588,
+     "resizing": 0.167,
+     "rolls": 0.307
+    },
     "contracts_traded_yr": 338.2,
     "median_gross_notional_x_cap": 2.52,
     "median_margin_pct_cap_UNVERIFIED": 38.1,
@@ -1351,6 +1621,11 @@
      "10Y": 1.0
     },
     "cost_pct_cap_yr": 1.091,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.573,
+     "resizing": 0.205,
+     "rolls": 0.312
+    },
     "contracts_traded_yr": 519.8,
     "median_gross_notional_x_cap": 2.53,
     "median_margin_pct_cap_UNVERIFIED": 37.7,
@@ -1375,6 +1650,11 @@
      "10Y": 1.0
     },
     "cost_pct_cap_yr": 1.082,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.564,
+     "resizing": 0.204,
+     "rolls": 0.313
+    },
     "contracts_traded_yr": 686.2,
     "median_gross_notional_x_cap": 2.53,
     "median_margin_pct_cap_UNVERIFIED": 38.8,
@@ -1399,6 +1679,11 @@
      "10Y": 1.0
     },
     "cost_pct_cap_yr": 1.076,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.556,
+     "resizing": 0.209,
+     "rolls": 0.312
+    },
     "contracts_traded_yr": 1025.7,
     "median_gross_notional_x_cap": 2.56,
     "median_margin_pct_cap_UNVERIFIED": 38.2,
@@ -1423,6 +1708,11 @@
      "10Y": 1.0
     },
     "cost_pct_cap_yr": 1.073,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.552,
+     "resizing": 0.21,
+     "rolls": 0.312
+    },
     "contracts_traded_yr": 1707.9,
     "median_gross_notional_x_cap": 2.55,
     "median_margin_pct_cap_UNVERIFIED": 38.2,
@@ -1447,6 +1737,11 @@
      "10Y": 1.0
     },
     "cost_pct_cap_yr": 1.078,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.552,
+     "resizing": 0.215,
+     "rolls": 0.312
+    },
     "contracts_traded_yr": 3426.0,
     "median_gross_notional_x_cap": 2.54,
     "median_margin_pct_cap_UNVERIFIED": 38.4,
@@ -1471,6 +1766,11 @@
      "10Y": 1.0
     },
     "cost_pct_cap_yr": 1.078,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.551,
+     "resizing": 0.215,
+     "rolls": 0.312
+    },
     "contracts_traded_yr": 6855.9,
     "median_gross_notional_x_cap": 2.55,
     "median_margin_pct_cap_UNVERIFIED": 38.3,
@@ -1498,6 +1798,11 @@
      "10Y": 0.0
     },
     "cost_pct_cap_yr": 0.0,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.0,
+     "resizing": 0.0,
+     "rolls": 0.0
+    },
     "contracts_traded_yr": 0.0,
     "median_gross_notional_x_cap": 0.0,
     "median_margin_pct_cap_UNVERIFIED": 0.0,
@@ -1522,6 +1827,11 @@
      "10Y": 0.0
     },
     "cost_pct_cap_yr": 0.0,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.0,
+     "resizing": 0.0,
+     "rolls": 0.0
+    },
     "contracts_traded_yr": 0.0,
     "median_gross_notional_x_cap": 0.0,
     "median_margin_pct_cap_UNVERIFIED": 0.0,
@@ -1546,6 +1856,11 @@
      "10Y": 0.0
     },
     "cost_pct_cap_yr": 0.045,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.042,
+     "resizing": 0.0,
+     "rolls": 0.003
+    },
     "contracts_traded_yr": 4.1,
     "median_gross_notional_x_cap": 0.0,
     "median_margin_pct_cap_UNVERIFIED": 0.0,
@@ -1570,6 +1885,11 @@
      "10Y": 0.289
     },
     "cost_pct_cap_yr": 0.284,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.242,
+     "resizing": 0.0,
+     "rolls": 0.043
+    },
     "contracts_traded_yr": 36.3,
     "median_gross_notional_x_cap": 0.0,
     "median_margin_pct_cap_UNVERIFIED": 0.0,
@@ -1594,6 +1914,11 @@
      "10Y": 0.827
     },
     "cost_pct_cap_yr": 0.421,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.325,
+     "resizing": 0.0,
+     "rolls": 0.095
+    },
     "contracts_traded_yr": 80.4,
     "median_gross_notional_x_cap": 0.85,
     "median_margin_pct_cap_UNVERIFIED": 7.6,
@@ -1618,6 +1943,11 @@
      "10Y": 0.945
     },
     "cost_pct_cap_yr": 0.535,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.339,
+     "resizing": 0.053,
+     "rolls": 0.143
+    },
     "contracts_traded_yr": 177.8,
     "median_gross_notional_x_cap": 1.2,
     "median_margin_pct_cap_UNVERIFIED": 16.6,
@@ -1642,6 +1972,11 @@
      "10Y": 0.968
     },
     "cost_pct_cap_yr": 0.55,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.317,
+     "resizing": 0.078,
+     "rolls": 0.156
+    },
     "contracts_traded_yr": 262.1,
     "median_gross_notional_x_cap": 1.24,
     "median_margin_pct_cap_UNVERIFIED": 19.4,
@@ -1666,6 +2001,11 @@
      "10Y": 0.985
     },
     "cost_pct_cap_yr": 0.531,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.294,
+     "resizing": 0.084,
+     "rolls": 0.153
+    },
     "contracts_traded_yr": 338.2,
     "median_gross_notional_x_cap": 1.26,
     "median_margin_pct_cap_UNVERIFIED": 19.0,
@@ -1690,6 +2030,11 @@
      "10Y": 1.0
     },
     "cost_pct_cap_yr": 0.545,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.287,
+     "resizing": 0.103,
+     "rolls": 0.156
+    },
     "contracts_traded_yr": 519.8,
     "median_gross_notional_x_cap": 1.27,
     "median_margin_pct_cap_UNVERIFIED": 18.8,
@@ -1714,6 +2059,11 @@
      "10Y": 1.0
     },
     "cost_pct_cap_yr": 0.538,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.279,
+     "resizing": 0.104,
+     "rolls": 0.156
+    },
     "contracts_traded_yr": 856.6,
     "median_gross_notional_x_cap": 1.28,
     "median_margin_pct_cap_UNVERIFIED": 19.1,
@@ -1738,6 +2088,11 @@
      "10Y": 1.0
     },
     "cost_pct_cap_yr": 0.537,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.276,
+     "resizing": 0.105,
+     "rolls": 0.156
+    },
     "contracts_traded_yr": 1707.9,
     "median_gross_notional_x_cap": 1.27,
     "median_margin_pct_cap_UNVERIFIED": 19.1,
@@ -1762,6 +2117,11 @@
      "10Y": 1.0
     },
     "cost_pct_cap_yr": 0.539,
+    "cost_split_pct_cap_yr": {
+     "sign_flips": 0.276,
+     "resizing": 0.107,
+     "rolls": 0.156
+    },
     "contracts_traded_yr": 3426.0,
     "median_gross_notional_x_cap": 1.27,
     "median_margin_pct_cap_UNVERIFIED": 19.2,

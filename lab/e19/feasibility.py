@@ -36,6 +36,7 @@ Fixed BEFORE the first run (2026-11-21), not tuned afterwards:
   Minimum capital = the smallest grid point that is feasible.
 
 Window: 2004-01-01 to scripts.train_zoo.HOLDOUT_START (vault stays sealed).
+Cost split (sign flips, resizing, rolls) added 2026-11-21 after the first run; cost only.
 Run: PYTHONPATH=. ARTIFACT_ROOT=/mnt/t/making-money nice python lab/e19/feasibility.py
 """
 import json
@@ -109,7 +110,9 @@ def run(cap, tau, fixed, use, mask=None):
     live = I.notna()
     held = {c: round(float((R[c].abs() >= 1)[live[c]].mean()), 3) for c in use}
     traded = R.fillna(0).diff().abs().fillna(0)
+    flip = np.sign(R.fillna(0)).diff().fillna(0) != 0         # trades on a sign change
     tcost = sum(float(traded[c].sum()) * RT[c] / 2 for c in use)
+    fcost = sum(float(traded[c][flip[c]].sum()) * RT[c] / 2 for c in use)
     rcost = sum(float(R[c].abs().fillna(0).sum()) / 260.0 * ROLLS[c] * RT[c] for c in use)
     cost = (tcost + rcost) / years / cap
     gross = float(((R.abs() * V).sum(axis=1)).median()) / cap
@@ -121,6 +124,9 @@ def run(cap, tau, fixed, use, mask=None):
            "ideal_vol_annual_pct": round(sd_i * np.sqrt(260) / cap * 100, 1),
            "markets_held_90pct": int(sum(h >= MIN_HELD_SHARE for h in held.values())),
            "held_share": held, "cost_pct_cap_yr": round(cost * 100, 3),
+           "cost_split_pct_cap_yr": {"sign_flips": round(fcost / years / cap * 100, 3),
+                                     "resizing": round((tcost - fcost) / years / cap * 100, 3),
+                                     "rolls": round(rcost / years / cap * 100, 3)},
            "contracts_traded_yr": round(float(traded.sum().sum()) / years, 1),
            "median_gross_notional_x_cap": round(gross, 2),
            "median_margin_pct_cap_UNVERIFIED": round(margin * 100, 1)}
