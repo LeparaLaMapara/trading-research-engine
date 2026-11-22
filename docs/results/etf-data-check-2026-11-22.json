@@ -1,0 +1,781 @@
+{
+ "generated": "2026-11-22",
+ "holdout_start": "2024-09-16",
+ "series": {
+  "STX40.JO": {
+   "currency": "ZAc",
+   "first": "2009-01-02",
+   "last": "2026-11-20",
+   "bars": 4458,
+   "nan_or_zero_close": 97,
+   "zero_volume_bars": 3774,
+   "gaps_over_7_days": [],
+   "n_gaps_over_7_days": 0,
+   "longest_identical_close_run": 1,
+   "daily_moves_over_20pct": [
+    {
+     "date": "2025-04-25",
+     "move": -0.99
+    },
+    {
+     "date": "2025-04-29",
+     "move": 99.722
+    }
+   ],
+   "unit_errors_100x": 2,
+   "splits": [],
+   "dividends": 105,
+   "dividend_steps_matched": 0,
+   "dividend_steps_checked": 105,
+   "adj_ratio_steps_off_dividend_dates": 0,
+   "adj_differs_from_close": true,
+   "implied_dividend_yield_by_year_RAW_yahoo": {
+    "2013": 0.0241,
+    "2014": 0.0492,
+    "2015": 0.0539,
+    "2016": 0.0438,
+    "2017": 0.0434,
+    "2018": 0.0601,
+    "2019": 0.0628,
+    "2020": 0.072,
+    "2021": 0.0839,
+    "2022": 0.0948,
+    "2023": 0.0625,
+    "2024": 0.0574,
+    "2025": 0.0274
+   },
+   "month_ends_missing": 0,
+   "class": "SA equity",
+   "role": "target",
+   "yahoo_firstTradeDate": "2009-01-01",
+   "single_bar_unit_prints_removed": [
+    "2025-04-25"
+   ],
+   "dividends_after_dedup": 55,
+   "implied_dividend_yield_by_year_dedup": {
+    "2013": 0.0241,
+    "2014": 0.0246,
+    "2015": 0.0269,
+    "2016": 0.0219,
+    "2017": 0.0191,
+    "2018": 0.031,
+    "2019": 0.0311,
+    "2020": 0.0264,
+    "2021": 0.0375,
+    "2022": 0.0404,
+    "2023": 0.0304,
+    "2024": 0.031,
+    "2025": 0.0273
+   }
+  },
+  "STXWDM.JO": {
+   "currency": "ZAc",
+   "first": "2017-07-25",
+   "last": "2026-11-20",
+   "bars": 2329,
+   "nan_or_zero_close": 7,
+   "zero_volume_bars": 1645,
+   "gaps_over_7_days": [],
+   "n_gaps_over_7_days": 0,
+   "longest_identical_close_run": 1,
+   "daily_moves_over_20pct": [],
+   "unit_errors_100x": 0,
+   "splits": [],
+   "dividends": 0,
+   "dividend_steps_matched": 0,
+   "dividend_steps_checked": 0,
+   "adj_ratio_steps_off_dividend_dates": 0,
+   "adj_differs_from_close": false,
+   "implied_dividend_yield_by_year_RAW_yahoo": {},
+   "month_ends_missing": 0,
+   "class": "global equity",
+   "role": "target",
+   "yahoo_firstTradeDate": "2017-07-25",
+   "single_bar_unit_prints_removed": [],
+   "dividends_after_dedup": 0,
+   "implied_dividend_yield_by_year_dedup": {}
+  },
+  "STX500.JO": {
+   "currency": "ZAc",
+   "first": "2017-07-25",
+   "last": "2026-11-20",
+   "bars": 2336,
+   "nan_or_zero_close": 0,
+   "zero_volume_bars": 4,
+   "gaps_over_7_days": [],
+   "n_gaps_over_7_days": 0,
+   "longest_identical_close_run": 2,
+   "daily_moves_over_20pct": [],
+   "unit_errors_100x": 0,
+   "splits": [],
+   "dividends": 0,
+   "dividend_steps_matched": 0,
+   "dividend_steps_checked": 0,
+   "adj_ratio_steps_off_dividend_dates": 0,
+   "adj_differs_from_close": false,
+   "implied_dividend_yield_by_year_RAW_yahoo": {},
+   "month_ends_missing": 0,
+   "class": "US equity",
+   "role": "target",
+   "yahoo_firstTradeDate": "2017-07-25",
+   "single_bar_unit_prints_removed": [],
+   "dividends_after_dedup": 0,
+   "implied_dividend_yield_by_year_dedup": {}
+  },
+  "STXGOV.JO": {
+   "currency": "ZAc",
+   "first": "2020-05-07",
+   "last": "2026-11-20",
+   "bars": 1635,
+   "nan_or_zero_close": 2,
+   "zero_volume_bars": 951,
+   "gaps_over_7_days": [],
+   "n_gaps_over_7_days": 0,
+   "longest_identical_close_run": 4,
+   "daily_moves_over_20pct": [],
+   "unit_errors_100x": 0,
+   "splits": [],
+   "dividends": 32,
+   "dividend_steps_matched": 0,
+   "dividend_steps_checked": 32,
+   "adj_ratio_steps_off_dividend_dates": 0,
+   "adj_differs_from_close": true,
+   "implied_dividend_yield_by_year_RAW_yahoo": {
+    "2021": 0.0908,
+    "2022": 0.2093,
+    "2023": 0.2053,
+    "2024": 0.1653,
+    "2025": 0.1003
+   },
+   "month_ends_missing": 0,
+   "class": "SA bonds",
+   "role": "target",
+   "yahoo_firstTradeDate": "2020-05-07",
+   "single_bar_unit_prints_removed": [],
+   "dividends_after_dedup": 22,
+   "implied_dividend_yield_by_year_dedup": {
+    "2021": 0.0908,
+    "2022": 0.1246,
+    "2023": 0.1083,
+    "2024": 0.0859,
+    "2025": 0.1003
+   }
+  },
+  "STXPRO.JO": {
+   "currency": "ZAc",
+   "first": "2017-02-28",
+   "last": "2026-11-20",
+   "bars": 2429,
+   "nan_or_zero_close": 8,
+   "zero_volume_bars": 1745,
+   "gaps_over_7_days": [],
+   "n_gaps_over_7_days": 0,
+   "longest_identical_close_run": 2,
+   "daily_moves_over_20pct": [],
+   "unit_errors_100x": 0,
+   "splits": [],
+   "dividends": 68,
+   "dividend_steps_matched": 0,
+   "dividend_steps_checked": 68,
+   "adj_ratio_steps_off_dividend_dates": 0,
+   "adj_differs_from_close": true,
+   "implied_dividend_yield_by_year_RAW_yahoo": {
+    "2018": 0.1312,
+    "2019": 0.1499,
+    "2020": 0.1406,
+    "2021": 0.1443,
+    "2022": 0.1489,
+    "2023": 0.1572,
+    "2024": 0.1161,
+    "2025": 0.0692
+   },
+   "month_ends_missing": 0,
+   "class": "SA property",
+   "role": "target",
+   "yahoo_firstTradeDate": "2017-02-28",
+   "single_bar_unit_prints_removed": [],
+   "dividends_after_dedup": 41,
+   "implied_dividend_yield_by_year_dedup": {
+    "2018": 0.084,
+    "2019": 0.0708,
+    "2020": 0.0897,
+    "2021": 0.0614,
+    "2022": 0.0783,
+    "2023": 0.0762,
+    "2024": 0.0723,
+    "2025": 0.0692
+   }
+  },
+  "GLD.JO": {
+   "currency": "ZAc",
+   "first": "2009-01-02",
+   "last": "2026-11-20",
+   "bars": 4352,
+   "nan_or_zero_close": 203,
+   "zero_volume_bars": 3668,
+   "gaps_over_7_days": [
+    {
+     "end": "2015-03-31",
+     "days": 32
+    },
+    {
+     "end": "2015-09-23",
+     "days": 23
+    },
+    {
+     "end": "2016-02-23",
+     "days": 11
+    }
+   ],
+   "n_gaps_over_7_days": 3,
+   "longest_identical_close_run": 1,
+   "daily_moves_over_20pct": [],
+   "unit_errors_100x": 0,
+   "splits": [],
+   "dividends": 0,
+   "dividend_steps_matched": 0,
+   "dividend_steps_checked": 0,
+   "adj_ratio_steps_off_dividend_dates": 0,
+   "adj_differs_from_close": false,
+   "implied_dividend_yield_by_year_RAW_yahoo": {},
+   "month_ends_missing": 0,
+   "class": "gold",
+   "role": "target",
+   "yahoo_firstTradeDate": "2009-01-02",
+   "single_bar_unit_prints_removed": [],
+   "dividends_after_dedup": 0,
+   "implied_dividend_yield_by_year_dedup": {}
+  },
+  "SYGWD.JO": {
+   "currency": "ZAc",
+   "first": "2009-01-02",
+   "last": "2026-11-20",
+   "bars": 4467,
+   "nan_or_zero_close": 88,
+   "zero_volume_bars": 3783,
+   "gaps_over_7_days": [
+    {
+     "end": "2017-02-20",
+     "days": 12
+    }
+   ],
+   "n_gaps_over_7_days": 1,
+   "longest_identical_close_run": 10,
+   "daily_moves_over_20pct": [],
+   "unit_errors_100x": 0,
+   "splits": [],
+   "dividends": 26,
+   "dividend_steps_matched": 6,
+   "dividend_steps_checked": 26,
+   "adj_ratio_steps_off_dividend_dates": 0,
+   "adj_differs_from_close": true,
+   "implied_dividend_yield_by_year_RAW_yahoo": {
+    "2013": 0.0144,
+    "2014": 0.014,
+    "2015": 0.0164,
+    "2016": 0.0149,
+    "2017": 0.0131,
+    "2018": 0.0077,
+    "2019": 0.0132,
+    "2020": 0.0118,
+    "2021": 0.0035,
+    "2022": 0.0032,
+    "2023": 0.0102,
+    "2024": 0.0039,
+    "2025": 0.0
+   },
+   "month_ends_missing": 0,
+   "class": "global equity",
+   "role": "proxy",
+   "yahoo_firstTradeDate": "2009-01-02",
+   "single_bar_unit_prints_removed": [],
+   "dividends_after_dedup": 26,
+   "implied_dividend_yield_by_year_dedup": {
+    "2013": 0.0144,
+    "2014": 0.014,
+    "2015": 0.0164,
+    "2016": 0.0149,
+    "2017": 0.0131,
+    "2018": 0.0077,
+    "2019": 0.0132,
+    "2020": 0.0118,
+    "2021": 0.0035,
+    "2022": 0.0032,
+    "2023": 0.0102,
+    "2024": 0.0039,
+    "2025": 0.0
+   }
+  },
+  "CSPROP.JO": {
+   "currency": "ZAc",
+   "first": "2011-05-30",
+   "last": "2026-11-20",
+   "bars": 3576,
+   "nan_or_zero_close": 362,
+   "zero_volume_bars": 2892,
+   "gaps_over_7_days": [
+    {
+     "end": "2011-06-30",
+     "days": 22
+    },
+    {
+     "end": "2011-07-29",
+     "days": 29
+    },
+    {
+     "end": "2011-08-31",
+     "days": 33
+    },
+    {
+     "end": "2011-09-26",
+     "days": 26
+    },
+    {
+     "end": "2011-10-31",
+     "days": 31
+    },
+    {
+     "end": "2011-11-30",
+     "days": 30
+    },
+    {
+     "end": "2011-12-22",
+     "days": 22
+    },
+    {
+     "end": "2011-12-30",
+     "days": 8
+    },
+    {
+     "end": "2012-01-31",
+     "days": 32
+    },
+    {
+     "end": "2012-02-29",
+     "days": 29
+    },
+    {
+     "end": "2012-03-26",
+     "days": 26
+    },
+    {
+     "end": "2012-04-30",
+     "days": 31
+    },
+    {
+     "end": "2012-05-31",
+     "days": 31
+    },
+    {
+     "end": "2012-06-25",
+     "days": 25
+    },
+    {
+     "end": "2012-07-31",
+     "days": 32
+    }
+   ],
+   "n_gaps_over_7_days": 16,
+   "longest_identical_close_run": 2,
+   "daily_moves_over_20pct": [],
+   "unit_errors_100x": 0,
+   "splits": [],
+   "dividends": 57,
+   "dividend_steps_matched": 4,
+   "dividend_steps_checked": 57,
+   "adj_ratio_steps_off_dividend_dates": 0,
+   "adj_differs_from_close": true,
+   "implied_dividend_yield_by_year_RAW_yahoo": {
+    "2013": 0.0573,
+    "2014": 0.056,
+    "2015": 0.0452,
+    "2016": 0.0435,
+    "2017": 0.032,
+    "2018": 0.0782,
+    "2019": 0.0977,
+    "2020": 0.0625,
+    "2021": 0.06,
+    "2022": 0.0725,
+    "2023": 0.0647,
+    "2024": 0.0307,
+    "2025": 0.0007
+   },
+   "month_ends_missing": 0,
+   "class": "SA property",
+   "role": "proxy",
+   "yahoo_firstTradeDate": "2011-05-30",
+   "single_bar_unit_prints_removed": [],
+   "dividends_after_dedup": 57,
+   "implied_dividend_yield_by_year_dedup": {
+    "2013": 0.0573,
+    "2014": 0.056,
+    "2015": 0.0452,
+    "2016": 0.0435,
+    "2017": 0.032,
+    "2018": 0.0782,
+    "2019": 0.0977,
+    "2020": 0.0625,
+    "2021": 0.06,
+    "2022": 0.0725,
+    "2023": 0.0647,
+    "2024": 0.0307,
+    "2025": 0.0007
+   }
+  },
+  "ETFBND.JO": {
+   "currency": "ZAc",
+   "first": "2019-06-04",
+   "last": "2026-11-20",
+   "bars": 1865,
+   "nan_or_zero_close": 3,
+   "zero_volume_bars": 1181,
+   "gaps_over_7_days": [],
+   "n_gaps_over_7_days": 0,
+   "longest_identical_close_run": 1,
+   "daily_moves_over_20pct": [],
+   "unit_errors_100x": 0,
+   "splits": [
+    {
+     "date": "2022-12-28",
+     "ratio": "1.0:1.22788"
+    }
+   ],
+   "dividends": 29,
+   "dividend_steps_matched": 0,
+   "dividend_steps_checked": 29,
+   "adj_ratio_steps_off_dividend_dates": 0,
+   "adj_differs_from_close": true,
+   "implied_dividend_yield_by_year_RAW_yahoo": {
+    "2020": 0.0737,
+    "2022": 0.0916,
+    "2023": 0.0937,
+    "2024": 0.0981,
+    "2025": 0.1413
+   },
+   "month_ends_missing": 0,
+   "class": "SA bonds",
+   "role": "proxy",
+   "yahoo_firstTradeDate": "2019-06-04",
+   "single_bar_unit_prints_removed": [],
+   "dividends_after_dedup": 25,
+   "implied_dividend_yield_by_year_dedup": {
+    "2020": 0.0737,
+    "2022": 0.0916,
+    "2023": 0.0937,
+    "2024": 0.0981,
+    "2025": 0.0944
+   }
+  },
+  "^J200.JO": {
+   "currency": "ZAR",
+   "first": "2000-01-03",
+   "last": "2026-11-20",
+   "bars": 6728,
+   "nan_or_zero_close": 153,
+   "zero_volume_bars": 6728,
+   "gaps_over_7_days": [],
+   "n_gaps_over_7_days": 0,
+   "longest_identical_close_run": 2,
+   "daily_moves_over_20pct": [],
+   "unit_errors_100x": 0,
+   "splits": [],
+   "dividends": 0,
+   "dividend_steps_matched": 0,
+   "dividend_steps_checked": 0,
+   "adj_ratio_steps_off_dividend_dates": 0,
+   "adj_differs_from_close": false,
+   "implied_dividend_yield_by_year_RAW_yahoo": {},
+   "month_ends_missing": 0,
+   "class": "SA equity",
+   "role": "proxy (price index)",
+   "yahoo_firstTradeDate": "1995-06-30",
+   "single_bar_unit_prints_removed": [],
+   "dividends_after_dedup": 0,
+   "implied_dividend_yield_by_year_dedup": {}
+  },
+  "URTH": {
+   "currency": "USD",
+   "first": "2012-01-12",
+   "last": "2026-11-20",
+   "bars": 3737,
+   "nan_or_zero_close": 0,
+   "zero_volume_bars": 198,
+   "gaps_over_7_days": [],
+   "n_gaps_over_7_days": 0,
+   "longest_identical_close_run": 10,
+   "daily_moves_over_20pct": [],
+   "unit_errors_100x": 0,
+   "splits": [],
+   "dividends": 31,
+   "dividend_steps_matched": 31,
+   "dividend_steps_checked": 31,
+   "adj_ratio_steps_off_dividend_dates": 0,
+   "adj_differs_from_close": true,
+   "implied_dividend_yield_by_year_RAW_yahoo": {
+    "2013": 0.0115,
+    "2014": 0.0232,
+    "2015": 0.0226,
+    "2016": 0.0224,
+    "2017": 0.0204,
+    "2018": 0.0205,
+    "2019": 0.0235,
+    "2020": 0.0178,
+    "2021": 0.0161,
+    "2022": 0.0159,
+    "2023": 0.0187,
+    "2024": 0.0155,
+    "2025": 0.0163
+   },
+   "month_ends_missing": 0,
+   "class": "global equity",
+   "role": "proxy (USD)",
+   "yahoo_firstTradeDate": "2012-01-12",
+   "single_bar_unit_prints_removed": [],
+   "dividends_after_dedup": 31,
+   "implied_dividend_yield_by_year_dedup": {
+    "2013": 0.0115,
+    "2014": 0.0232,
+    "2015": 0.0226,
+    "2016": 0.0224,
+    "2017": 0.0204,
+    "2018": 0.0205,
+    "2019": 0.0235,
+    "2020": 0.0178,
+    "2021": 0.0161,
+    "2022": 0.0159,
+    "2023": 0.0187,
+    "2024": 0.0155,
+    "2025": 0.0163
+   }
+  },
+  "USDZAR=X": {
+   "currency": "ZAR",
+   "first": "2003-12-01",
+   "last": "2026-11-21",
+   "bars": 5976,
+   "nan_or_zero_close": 20,
+   "zero_volume_bars": 5976,
+   "gaps_over_7_days": [],
+   "n_gaps_over_7_days": 0,
+   "longest_identical_close_run": 1,
+   "daily_moves_over_20pct": [
+    {
+     "date": "2024-11-18",
+     "move": 0.222
+    },
+    {
+     "date": "2025-01-20",
+     "move": 0.214
+    }
+   ],
+   "unit_errors_100x": 0,
+   "splits": [],
+   "dividends": 0,
+   "dividend_steps_matched": 0,
+   "dividend_steps_checked": 0,
+   "adj_ratio_steps_off_dividend_dates": 0,
+   "adj_differs_from_close": false,
+   "implied_dividend_yield_by_year_RAW_yahoo": {},
+   "month_ends_missing": 0,
+   "class": "fx",
+   "role": "converter",
+   "yahoo_firstTradeDate": "2003-12-01",
+   "single_bar_unit_prints_removed": [
+    "2024-11-15",
+    "2025-01-15",
+    "2025-01-16",
+    "2025-01-17"
+   ],
+   "dividends_after_dedup": 0,
+   "implied_dividend_yield_by_year_dedup": {}
+  },
+  "IR3TIB01ZAM156N": {
+   "first": "1980-12-01",
+   "last": "2026-10-01",
+   "months": 551,
+   "missing_months": 0,
+   "min": 2.977,
+   "max": 21.9029166666667
+  },
+  "IRLTLT01ZAM156N": {
+   "first": "1957-01-01",
+   "last": "2026-10-01",
+   "months": 838,
+   "missing_months": 0,
+   "min": 4.75,
+   "max": 18.3
+  }
+ },
+ "sha256": {
+  "STX40.JO": "4049741ebb7247f360d03d7004fe638df733001f7ca1fc07b6becb47a5832850",
+  "STXWDM.JO": "575d00fd1d3fde24b8e12e2aa9c6972dd1f812508c79462dc30ae0451d519926",
+  "STX500.JO": "f5468c94c71bee3d795922bd1a5fb8bb73195f487d51ecdfd4e5e0340a99ccc3",
+  "STXGOV.JO": "80c215657b46037050d8162f827bfffe5cef83e1d12a0b5534d1aa8c6c05db6c",
+  "STXPRO.JO": "10690f71f25770cd21f7bc451de4d09ac63c7bf990cd59f2b0cb4ac848f5cc86",
+  "GLD.JO": "08f7a72930f9f9005de345e357b2e5d8b1e8c8c270dbe8b027dbe5725c576e0a",
+  "SYGWD.JO": "6b5eadcc5244e8ca8fd1434a4acc516dd9844a3ec5be531fd6fc6032a58e3e4a",
+  "CSPROP.JO": "e17a3ebc03b69c30d68fd081b6b3acaed07f1565f140729adcf09dbda545c9b4",
+  "ETFBND.JO": "4704f208c0a23712bd926aa20aa1fc35492ec18415fb4d7b6dba06bd08e594de",
+  "^J200.JO": "0a37a6cb0324d673c86dd956798b6176e37622c7ba56356b8ff42a2f4e61242e",
+  "URTH": "c94139a5e8d41e5353823d99ed6861f3e7bca4e71d65722b0c25ad7063247612",
+  "USDZAR=X": "5bcaba1ea53d5e076f8d02c922b55a3dc8ab65dea0a43016ff5b667f9590a556",
+  "IR3TIB01ZAM156N": "cca8677867bac5a5e9951b32566957faa50df6e91015ca534c1a6ed07e14cfc2",
+  "IRLTLT01ZAM156N": "6a84c1fc144fb2ab33243bc97be9b48dd9f672b271cdb4ec83e619d525ff3967"
+ },
+ "notes": [
+  "Cash leg IR3TIB01ZAM156N covers 1980-12-01 to 2026-10-01."
+ ],
+ "tracking_pre_holdout_monthly": [
+  {
+   "proxy": "SYGWD.JO",
+   "target": "STXWDM.JO",
+   "months": 85,
+   "from": "2017-08-31",
+   "to": "2024-08-31",
+   "corr": 0.994,
+   "tracking_error_annual": 0.0183,
+   "vol_ratio": 1.013
+  },
+  {
+   "proxy": "CSPROP.JO",
+   "target": "STXPRO.JO",
+   "months": 90,
+   "from": "2017-03-31",
+   "to": "2024-08-31",
+   "corr": 0.974,
+   "tracking_error_annual": 0.0536,
+   "vol_ratio": 0.985
+  },
+  {
+   "proxy": "ETFBND.JO",
+   "target": "STXGOV.JO",
+   "months": 51,
+   "from": "2020-06-30",
+   "to": "2024-08-31",
+   "corr": 0.862,
+   "tracking_error_annual": 0.0432,
+   "vol_ratio": 0.857
+  },
+  {
+   "proxy": "SYNTH_BOND",
+   "target": "STXGOV.JO",
+   "months": 51,
+   "from": "2020-06-30",
+   "to": "2024-08-31",
+   "corr": 0.556,
+   "tracking_error_annual": 0.0767,
+   "vol_ratio": 0.901
+  },
+  {
+   "proxy": "SYNTH_BOND",
+   "target": "ETFBND.JO",
+   "months": 62,
+   "from": "2019-07-31",
+   "to": "2024-08-31",
+   "corr": 0.756,
+   "tracking_error_annual": 0.0668,
+   "vol_ratio": 1.139
+  },
+  {
+   "proxy": "^J200.JO",
+   "target": "STX40.JO",
+   "months": 187,
+   "from": "2009-02-28",
+   "to": "2024-08-31",
+   "corr": 0.997,
+   "tracking_error_annual": 0.0129,
+   "vol_ratio": 1.01
+  },
+  {
+   "proxy": "URTH_ZAR",
+   "target": "STXWDM.JO",
+   "months": 85,
+   "from": "2017-08-31",
+   "to": "2024-08-31",
+   "corr": 0.958,
+   "tracking_error_annual": 0.0465,
+   "vol_ratio": 0.959
+  },
+  {
+   "proxy": "URTH_ZAR",
+   "target": "SYGWD.JO",
+   "months": 151,
+   "from": "2012-02-29",
+   "to": "2024-08-31",
+   "corr": 0.94,
+   "tracking_error_annual": 0.0517,
+   "vol_ratio": 0.962
+  }
+ ],
+ "windows": {
+  "A_targets_only": {
+   "series": {
+    "SA equity": "STX40.JO",
+    "global equity": "STXWDM.JO",
+    "SA bonds": "STXGOV.JO",
+    "SA property": "STXPRO.JO",
+    "gold": "GLD.JO"
+   },
+   "class_starts": {
+    "SA equity": "2009-01-31",
+    "global equity": "2017-07-31",
+    "SA bonds": "2020-05-31",
+    "SA property": "2017-02-28",
+    "gold": "2009-01-31"
+   },
+   "window_start": "2020-05-31",
+   "window_end": "2026-11-30",
+   "months": 79,
+   "vault_last40_start": "2024-04-30",
+   "dev_months_if_last40": 47,
+   "dev_months_if_holdout_start": 52,
+   "vault_months_if_holdout_start": 27
+  },
+  "B_real_zar_proxies": {
+   "series": {
+    "SA equity": "STX40.JO",
+    "global equity": "SYGWD.JO",
+    "SA bonds": "ETFBND.JO",
+    "SA property": "CSPROP.JO",
+    "gold": "GLD.JO"
+   },
+   "class_starts": {
+    "SA equity": "2009-01-31",
+    "global equity": "2009-01-31",
+    "SA bonds": "2019-06-30",
+    "SA property": "2011-05-31",
+    "gold": "2009-01-31"
+   },
+   "window_start": "2019-06-30",
+   "window_end": "2026-11-30",
+   "months": 90,
+   "vault_last40_start": "2023-12-31",
+   "dev_months_if_last40": 54,
+   "dev_months_if_holdout_start": 63,
+   "vault_months_if_holdout_start": 27
+  },
+  "C_synthetic_bond": {
+   "series": {
+    "SA equity": "STX40.JO",
+    "global equity": "SYGWD.JO",
+    "SA bonds": "SYNTH_BOND",
+    "SA property": "CSPROP.JO",
+    "gold": "GLD.JO"
+   },
+   "class_starts": {
+    "SA equity": "2009-01-31",
+    "global equity": "2009-01-31",
+    "SA bonds": "1957-02-28",
+    "SA property": "2011-05-31",
+    "gold": "2009-01-31"
+   },
+   "window_start": "2011-05-31",
+   "window_end": "2026-11-30",
+   "months": 187,
+   "vault_last40_start": "2020-09-30",
+   "dev_months_if_last40": 112,
+   "dev_months_if_holdout_start": 160,
+   "vault_months_if_holdout_start": 27
+  }
+ }
+}

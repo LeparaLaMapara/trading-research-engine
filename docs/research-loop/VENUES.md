@@ -116,6 +116,10 @@ Sources: https://satrix.co.za/fund/mdd/STX40 (and /STXWDM, /STX500, /STXGOV, /ST
 https://resources.easyequities.co.za/ETFs/ETF%20Factsheets/ABSA/GLD.pdf. A 5-class window
 "from the latest inception" starts in May 2020 (STXGOV), too short for a monthly rule: item 3
 must use index histories or older bond proxies for the bond leg.
+Data check 2026-11-22 (`docs/results/etf-data-check-2026-11-22.md`): Yahoo .JO bars start 2009-01
+even where the fund is older; Yahoo adjclose is not dividend adjusted for JSE listings and lists
+about half the dividends twice, so total return must be rebuilt from close plus de-duplicated
+dividends. Oldest real SA bond ETF on Yahoo: ETFBND (1nvest), 2019-06.
 
 ## 4. Use in the cost gate (charter rule 5)
 
