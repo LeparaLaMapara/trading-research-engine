@@ -12,6 +12,12 @@ Sources
 * FRED fredgraph.csv: IR3TIB01ZAM156N (SA 3-month interbank, monthly, % p.a.) as the cash leg;
   IRLTLT01ZAM156N (SA long-term government bond yield, monthly) for a MODELLED bond series.
 
+Yahoo's JSE dividend record is incomplete (none before 2013, gaps, amounts in ZAR instead of ZAc
+from 2024 for some funds; added 2026-11-22 after the first run). The rebuilt total return is
+only trusted for years with a complete record; see years_with_bars_but_no_dividend,
+years_below_usual_count, suspect_unit_switch_events. The later date of a duplicate pair is
+ASSUMED to be the ex-date (UNVERIFIED; it can move a dividend across a month-end).
+
 Synthetic bond (a model, not data): r_m = y_{m-1}/1200 - D * (y_m - y_{m-1})/100, D = 7.0
 (ASSUMED modified duration of the SA all-bond index; checked only by tracking below).
 
@@ -244,6 +250,19 @@ def main():
             yd = {int(y): round(float(ann[y] / px[y]), 4) for y in ann.index
                   if y in px.index and pd.Timestamp(f"{y}-01-10") >= cc.index[0] and y < 2026}
         info["implied_dividend_yield_by_year_dedup"] = yd
+        # completeness of Yahoo's dividend record (only for series that distribute)
+        if len(dd):
+            yrs = range(cc.index[0].year, 2027)
+            cnt = dd.groupby(dd.index.year).size()
+            mode = int(cnt.mode().iloc[0])
+            per_event = dd / cc.reindex(dd.index, method="nearest")
+            med = float(per_event.median())
+            info["dividend_count_by_year"] = {int(y): int(cnt.get(y, 0)) for y in yrs}
+            info["years_with_bars_but_no_dividend"] = [int(y) for y in yrs if cnt.get(y, 0) == 0]
+            info["years_below_usual_count"] = [int(y) for y in yrs if 0 < cnt.get(y, 0) < mode]
+            # event yield < 1/20 of the median event yield: amount probably in ZAR, not ZAc
+            info["suspect_unit_switch_events"] = [str(d.date()) for d, v in per_event.items()
+                                                  if v < med / 20]
         tr = rebuild_tr(cc, dd) if len(dd) else cc / cc.iloc[0]
         g = tr if role != "converter" else cc
         adj_m[t] = g.resample("ME").last()
@@ -316,7 +335,8 @@ def main():
     for t, s in out["series"].items():
         if "dividends_after_dedup" in s:
             print(t, "dedup", s["dividends"], "->", s["dividends_after_dedup"], "bad prints",
-                  s["single_bar_unit_prints_removed"], "yield", s["implied_dividend_yield_by_year_dedup"])
+                  s["single_bar_unit_prints_removed"], "no-div years", s.get("years_with_bars_but_no_dividend"),
+                  "short years", s.get("years_below_usual_count"), "unit-switch", s.get("suspect_unit_switch_events"))
     for k, w in windows.items():
         print(k, {i: w[i] for i in w if i != "series"})
 
