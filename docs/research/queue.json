@@ -1,5 +1,5 @@
 {
- "updated": "2026-W46",
+ "updated": "2026-W47",
  "items": [
   {
    "id": "2026-W40-1",
@@ -63,6 +63,19 @@
    "url": "https://doi.org/10.1145/3858063.3858879",
    "hypothesis": "(1) Calibration: on ETHUSD and BTCUSD broker D1 bars from 2017 to 2026, simulate no-skill rules whose transition counts match E07 and the E10 turn-of-month BTCUSD rule, with entries placed at random. The engine's current random-sign null at the 99th percentile will pass these no-skill rules more often than the nominal 1%. The transition-matched null will pass them at or below 1%. (2) Applied: E07's ETHUSD 20-day trend has a selection value (net of spread and swap) that does not exceed the 99th percentile of 10,000 transition-matched reshuffles in either half, 2018 to 2022 or September 2022 to 2026. That would mean even its 2018 to 2022 edge was mostly composition, not timing. Part (1) fails if the random-sign null's false-pass rate on no-skill rules is at or below 1.5% across 2,000 simulations. Part (2) is falsified if E07's selection value exceeds the 99th percentile in the 2018 to 2022 half.",
    "test": "Run this as a calibration of the engine's pass criteria. It uses no trading slot and should be merged with the queued 'Indistinguishable from Chance' item so that only one entry exists. Data: broker D1 bars for ETHUSD, BTCUSD and USDSGD, 2017 to 2026, with measured spread and swap charged by direction (crypto longs about 20% a year, shorts 0; USDSGD +0.44 long and -1.34 short points a lot a day). Eligible bars exclude the 21:00 UTC rollover for USDSGD. Profiles: take the realised holding intervals (direction and duration) of E07 (ETHUSD), E10's turn-of-month BTCUSD rule and E08 (USDSGD). For each profile, generate 2,000 no-skill position series by placing the same intervals at random non-overlapping start bars. Score each series net of costs against the engine's current random-sign null at the 99th percentile, using 2,000 draws and the same direction-specific swap. Report the false-pass rate with a 95% binomial interval, pooled and separately for 2017 to 2022 and September 2022 to 2026. Pre-registered decision: if the lower bound of that interval exceeds 1% for any profile, add an interval-matched null at the 99th percentile as an extra pass criterion for every future rule. Otherwise leave the criteria unchanged and close the idea. Descriptive only, with no demotion consequence: report the interval-matched selection-value percentile for E07 by half and for the E10 turn-of-month BTCUSD rule.",
+   "priority": 3.0,
+   "why_killed": null
+  },
+  {
+   "id": "2026-W47-6",
+   "week": "2026-W47",
+   "status": "proposed",
+   "title": "Prospect Theory and Currency Returns: Empirical Evidence",
+   "field": "economics",
+   "source": "doi:10.1017/s0022109026103469",
+   "url": "https://doi.org/10.1017/s0022109026103469",
+   "hypothesis": "Gate (out of sample, after the paper's Feb 2018 end): from Mar 2019 to Aug 2026, the monthly low-minus-high prospect-theory spot-return spread across the freely available G10 currencies against the USD is positive. Paper construction: K=60 months, alpha=0.88, lambda=2.25, gamma=0.61, delta=0.69. Tradable version: each month, hold AUDCAD, AUDNZD, EURCAD and EURGBP in the direction of the leg with lower prospect-theory value, at 0.01 lots, entered away from the 21:00 UTC rollover. Prediction: positive net return, beating 99% of random-sign monthly allocations under the same costs, and surviving doubled costs.",
+   "test": "Pre-register as a history-only gate, counted in N (308). Data: FRED H.10 daily USD rates for AUD, NZD, CAD, EUR, GBP, JPY, CHF, SEK and NOK (DKK dropped as a peg), sampled on the last business day of each month from 2013-03. Signal: tk per the paper's eq. (1), K=60 monthly spot log returns, alpha=0.88, lambda=2.25, gamma=0.61, delta=0.69, with no retuning. Portfolio: each month-end, long the 3 lowest-tk currencies and short the 3 highest, equal weight, scored on next-month USD spot return. Out-of-sample window: 2018-03 to 2026-08, fixed before running. Sanity check, which does not count toward the decision: the sign over 2013-03 to 2018-02 should be positive. PASS requires all four of the following: (a) the out-of-sample mean spread is above 0; (b) it exceeds the 95th percentile of 10,000 random assignments of currencies to the long and short legs; (c) the mean is at least 0.15% a month; (d) the tk spread keeps a positive mean with t \u2265 1.5 after regressing it on two controls built the same way, using data available at each month-end: a carry tercile spread (FRED 3-month rates, on the 7 currencies that have them) and a 60-month cumulative-return reversal spread. Any failure kills the card with no further work. Step 2 runs only if all four pass. Apply the pairwise rule to AUDCAD, AUDNZD, EURCAD and EURGBP on broker D1 bars from 2018-03 onward. Use FRED-based tk ranks at month-end and enter the next broker day between 08:00 and 16:00 UTC. Charge measured spread plus actual swap. Require all of: beating the 99th percentile of a random-sign null under the same costs; surviving doubled costs; a majority of years positive; a deflated Sharpe at the running N. If everything passes except the deflated Sharpe, the rule goes only to the E16-style forward scoreboard, never to live money. Stated prior: most likely outcome is FAIL at step 1.",
    "priority": 3.0,
    "why_killed": null
   },
@@ -241,6 +254,32 @@
    "why_killed": "The underlying carry on these crosses has already failed twice on this broker (pre-programme, and E10 from 2015 to 2026 net of financing). A volatility filter that removes about a quarter of months cannot create an edge where the net carry leg is near zero or negative after the broker's lopsided swap. On top of that, roughly 1.5 effective independent bets a month over 11 years cannot clear a deflated Sharpe at N=307. The last P1 slot would be spent on a test that cannot pass."
   },
   {
+   "id": "2026-W47-4",
+   "week": "2026-W47",
+   "status": "killed",
+   "title": "Multiperiod portfolio optimization with multiple risky assets and general transaction costs",
+   "field": "foundations",
+   "source": "doi:10.1016/j.jbankfin.2016.04.002",
+   "url": "https://doi.org/10.1016/j.jbankfin.2016.04.002",
+   "hypothesis": "Take one pre-registered signal family from E10: time-series momentum on the affordable instruments ETHUSD, ADAUSD, BCHUSD, LTCUSD, AUDCAD, AUDNZD, EURCAD, EURGBP and USDSGD. Add one pre-fixed hysteresis band: enter when the signal crosses +k, exit only when it crosses back past -k, with k fixed in advance at the value that halves turnover on 2015-2020. The banded version will have a higher net-of-cost Sharpe than the unbanded version on 2021-2026. The hypothesis is falsified if the improvement is not positive, or if the banded rule fails the engine's own pass criteria: beat the 99th percentile of a random-sign null with the same costs, survive doubled costs, be positive in most years, and keep a deflated Sharpe positive at N=308.",
+   "test": "History only; no live slot. Use broker D1 bars (21:00 UTC) for the 9 affordable instruments with measured spread and swap, including crypto longs paying about 20% a year and shorts paying nothing. Set the band width on 2015-2020 using turnover alone, not P&L. Then run once on 2021-2026. Null 1: the unbanded rule has the same net Sharpe. Null 2: random-sign positions with the same band and the same turnover profile, at the 99th percentile. Any of these counts as failure: a net Sharpe gain of 0 or less; t below 3.0 for the banded rule; loss under doubled costs; a negative deflated Sharpe at N=308. P1 has no slots left, so this needs a slot in the next programme. Expect failure: banding cannot create the pre-cost forecast strength that E10 did not find.",
+   "priority": 2.0,
+   "why_killed": "The proposed signal family (time-series momentum / trend on the 9 affordable instruments) has no surviving pre-cost edge in the out-of-sample window: E08, E10 and A01, plus the pre-programme trend results. For week-long holds the dominant cost is swap, which a hysteresis band increases rather than reduces. The test cannot pass and teaches nothing we do not already know."
+  },
+  {
+   "id": "2026-W47-7",
+   "week": "2026-W47",
+   "status": "killed",
+   "title": "Trended Momentum",
+   "field": "quantitative finance",
+   "source": "doi:10.1017/s0022109026103275",
+   "url": "https://doi.org/10.1017/s0022109026103275",
+   "hypothesis": "Pooled panel: the broker's instruments with D1 history (FX crosses and majors plus crypto), 2015 to 2026. Each month, sort by sign of PRET (t-11 to t-1) and by TC tercile, then hold for 6 months. (a) Momentum positions (long positive PRET, short negative PRET) in the high-TC tercile earn a positive mean return net of measured spread, commission and swap. (b) That return beats the low-TC tercile's momentum return, with the high-minus-low spread significant. Restricted to the tradable nine (ETHUSD, ADAUSD, BCHUSD, LTCUSD, AUDCAD, AUDNZD, EURCAD, EURGBP, USDSGD), the high-TC filter should improve on unfiltered 12-1 time-series momentum. Falsified if high-TC net returns do not beat the random-sign null at the 99th percentile, if the high-minus-low TC gap is not positive, or if the deflated Sharpe does not survive N=307 trials.",
+   "test": "Run entirely on held history before any live slot. Data: broker D1 bars for the roughly 60 instruments with enough history, measured spreads and swap rates. Construction: at each month end compute PRET and TC, with at least 200 daily observations for TC to match the paper. Form overlapping 6-month positions (equal-risk, volatility-scaled) for high, mid and low TC terciles. Score both the time-series sign version and the cross-sectional winner-minus-loser version. Pre-register one primary statistic: the net Sharpe of high-TC time-series momentum on the pooled panel, plus the high-minus-low gap. Nulls: (1) random-sign positions with identical timing and costs, 10,000 draws, pass at the 99th percentile; (2) unconditional 12-1 momentum, which E10 already scored OUT or UNDECIDED. Failure conditions: high-TC is not above the 99th-percentile null; the result fails at doubled costs; fewer than most years are positive; the high-minus-low gap is not positive; or the result does not survive block bootstrap and both halves (pre and post September 2022, as in A01). Report separately with crypto restricted to short-only, because the 20% long swap may dominate the crypto long leg. Prior is low: trend following and FX momentum have already failed on this instrument set, and TC is a filter on a family that has no unconditional edge here.",
+   "priority": 2.0,
+   "why_killed": "It is a conditioning filter on 12-1 trend/momentum, a family that has already failed on this exact instrument set (trend history 2004-2024, E10, A01). The paper's own FX result weakens in the recent strong-dollar period that makes up our entire test window. The tradable cross-section is too small to clear a deflated Sharpe at N=307. No outcome of a test would justify a programme slot."
+  },
+  {
    "id": "crypto-funding-6",
    "week": "crypto-funding",
    "status": "killed",
@@ -358,6 +397,32 @@
    "why_killed": "Two problems combine. As specifiable, the restoring-rate estimator is lag-1 autocorrelation relabelled (an OLS slope of change on lagged deviation equals phi - 1), and the paper's non-stationary refinements are unavailable from the abstract. So the test cannot add information beyond the killed OU mean-reversion-speed item. Any tradeable form reduces to breakout or trend following on FX crosses, which already failed on this instrument set."
   },
   {
+   "id": "2026-W47-2",
+   "week": "2026-W47",
+   "status": "killed",
+   "title": "Anytime-valid inference for time series via self-normalization",
+   "field": "mathematics",
+   "source": "arXiv:2611.26536v1",
+   "url": "http://arxiv.org/abs/2611.26536v1",
+   "hypothesis": "There is no tradeable market hypothesis in this paper. What can be tested is whether the tool can serve as a monitoring gate for E16 and future forward tests. Applied with three-block, kappa=1/4, LIL weight, m=250 days and nominal 95%, the sequence for the mean daily return of random-sign, 20-day-persistent strategies on real broker D1 returns should keep its zero-crossing false-alarm rate at or below 7% over the full 2015-2026 history. The instruments are ETHUSD, ADAUSD, LTCUSD, BCHUSD, USDSGD, EURGBP, AUDCAD, AUDNZD and EURCAD. The hypothesis fails if the false-alarm rate exceeds 8% on any crypto instrument, or on the pooled FX set.",
+   "test": "Data: held broker D1 closes for the nine affordable instruments. For each instrument, generate 2,000 strategies whose sign is drawn at random and held for 20-day blocks. This is a true null with E[s*r]=0, and it keeps the persistence and volatility clustering of a trend rule. Simulate the Brownian critical value for three-block (kappa=1/4, LIL weight) once with 20,000 paths, as the paper does. Run the sequence from day 250 to the end of the data and record the fraction of null paths whose interval ever excludes zero. Repeat with the forward normalizer and m=500. Null: the false-alarm rate is about 5%. Failure: more than 8% on any crypto instrument or on the pooled FX set. That would show heavy tails or regime shifts break the calibration, and the tool must not gate promotions. Descriptive add-on, not a pass criterion: run it on the reconstructed E07 net series and report whether and when it would have excluded zero, and whether it ever reversed after September 2022. The point is to show its blindness to decay. This runs entirely on history on Databricks and uses no slot or live capital. It is a methodology check, so it should not add to N=307 as a strategy trial. It overlaps with the queued anytime-valid promotion-test item and should be merged with it.",
+   "priority": 1.0,
+   "why_killed": "Duplicate of the queued anytime-valid promotion-test item. This is the same gating question with a different variance construction, and the card itself asks to be merged. On daily P&L the method also needs roughly a decade of forward data to promote anything, so as a standalone card it cannot change a decision for this account. Hand the self-normalized construction, and a time-to-decision power calculation for daily versus hourly pooled (E16) outcomes, to the queued item as inputs."
+  },
+  {
+   "id": "2026-W47-3",
+   "week": "2026-W47",
+   "status": "killed",
+   "title": "Equity-market closures and cryptocurrency volatility",
+   "field": "quantitative finance",
+   "source": "doi:10.1016/j.iref.2026.106070",
+   "url": "https://doi.org/10.1016/j.iref.2026.106070",
+   "hypothesis": "On weekdays when major European and Asia-Pacific exchanges are both closed, |D1 return| of the broker's ETHUSD (and LTCUSD, BCHUSD, ADAUSD) bars is lower than on other weekdays of the same month and year. The prediction is a mean reduction of at least 20% of the instrument's mean |D1 return|, estimated with month-year fixed effects. This is a volatility fact, not a directional edge. On its own it gives no trade the engine can place, because a CFD account cannot sell volatility. At best it would condition stop or size choices in a future rule.",
+   "test": "Cheapest test, run on history only, with no live slot. Data: broker D1 bars for ETHUSD, LTCUSD, BCHUSD and ADAUSD, held from about 2017. Exchange holiday calendars for the main EU and APAC venues are free, for example the exchange_calendars package. Build the joint-closure weekday dummy, then regress |r_t| on it with month-year fixed effects. Run the test twice: once on 21:00 UTC broker bars and once on bars re-aggregated to the UTC calendar day from held ticks or H1 data. Null: closure-date mean |r| equals the mean of randomly drawn non-closure weekdays from the same year. Use 10,000 permutations and count the result as passing only beyond the 99th percentile. Failure: no reduction of at least 15% of mean |r| on ETHUSD, or a reduction present only in pre-2022 years. Even a pass only licenses a conditioning variable for a later pre-registered rule. With about 6 events a year, it is as underpowered as E12 for any standalone trade. It must also be counted toward N=307.",
+   "priority": 1.0,
+   "why_killed": "No path to P&L or cost reduction on this account. It is a volatility-size fact with no direction. CFDs cannot sell volatility, and there is no live rule whose stops or sizing it could condition. The available data also lies inside the paper's own sample, so even a pass would be a re-measurement, not new evidence."
+  },
+  {
    "id": "crypto-funding-3",
    "week": "crypto-funding",
    "status": "killed",
@@ -434,6 +499,32 @@
    "test": "Run on history only; no live slot and no new trading rule, so N does not grow.\n1. Take the per-trade sign series already produced by E10/E13/E15 on held broker bars.\n2. For each rule, compute realised DA, mean absolute holding-period return and the measured cost per trade, including the swap by side.\n3. Write down the implied-DA formula. The abstract does not give it, so either obtain the full text or derive the fixed-holding sign-forecast Sharpe from first principles before looking at results. Pre-register it.\n4. Compute the analytical Sharpe at each rule's realised DA under both mappings and compare with the backtested net Sharpe.\n\nNull: the two mappings have equal mean absolute error (paired test across rules).\n\nThe tool fails if the implied-DA error is not smaller, or if its threshold moves outside the DA sampling error when parameters are re-estimated on 2023-2026. If it passes, use it as a pre-slot gate: no candidate gets a slot unless its in-sample DA confidence band clears implied DA at the target net Sharpe.",
    "priority": 0.5,
    "why_killed": "The test cannot fail in an informative way. Both predictions are true by construction. The cost-aware mapping must beat a zero-cost strawman, and every rule it is checked against has already failed. The resulting gate is a re-expression of net Sharpe, which the engine already computes and screens on more strictly."
+  },
+  {
+   "id": "2026-W47-1",
+   "week": "2026-W47",
+   "status": "killed",
+   "title": "Multi-Period Trading via Convex Optimization",
+   "field": "foundations",
+   "source": "doi:10.1561/9781680833294",
+   "url": "https://doi.org/10.1561/9781680833294",
+   "hypothesis": "Nothing testable here. The paper offers no return predictor and no market effect. Its examples use forecasts built from realised returns, and it says its numbers should not be taken seriously. A cost-aware execution layer only adds value on top of a signal with edge before costs. No such signal currently survives on this engine's instruments, so no falsifiable trading hypothesis follows from this text alone.",
+   "test": "None now; do not spend a slot. If a future signal passes pre-registration with net edge, the cheap reuse is a historical check: compare that signal's raw positions against the same signal passed through a cost-penalised rebalancing step. Use broker D1 bars with measured spread and swap. The null is no improvement in net Sharpe, and failure is no gain at doubled costs. The trade-aversion multiplier must be fixed in advance, not grid-searched: the paper's 410-point and 390-point hyper-parameter searches would add to N=307.",
+   "priority": 0.5,
+   "why_killed": "There is no hypothesis to falsify. The paper deliberately supplies no forecast, the engine has no signal with net edge to feed it, and the account's 0.01-lot, two-position, integer constraints reduce the optimiser to a binary trade-or-don't threshold. A test would teach nothing and would spend a slot."
+  },
+  {
+   "id": "2026-W47-5",
+   "week": "2026-W47",
+   "status": "killed",
+   "title": "Parameter Uncertainty in Multiperiod Portfolio Optimization with Transaction Costs",
+   "field": "foundations",
+   "source": "doi:10.1017/s002210901500054x",
+   "url": "https://doi.org/10.1017/s002210901500054x",
+   "hypothesis": "Nothing testable here for this engine. The paper is a portfolio-construction method, not a source of return. Its gains require a positive expected-return vector, many assets, fractional rebalancing and quadratic impact costs. This engine has none of these: there is no surviving edge, positions come in 0.01-lot steps, at most 2 positions are allowed, and costs are spread plus swap. The one transferable insight, that high costs should make you trade less aggressively, is already embodied in the engine's finding that costs are the binding constraint. It does not create an edge where E10's 431-trial screen found none.",
+   "test": "No test recommended; spending a slot would add to N=307 without a plausible source of edge. If ever revisited, the only honest check would need several instruments with a pre-registered positive net drift. It would compare a fixed-fraction partial-adjustment rule against an all-at-once switch to the same target on D1 bars, with doubled costs and a random-sign null. That cannot run until such a target exists.",
+   "priority": 0.5,
+   "why_killed": "No positive expected-return input exists on this engine, and the mechanism needs a many-asset, fractionally rebalanced book under quadratic impact costs. The account has none of these (2 positions max, 0.01-lot steps, proportional spread plus swap costs), so there is nothing to test."
   },
   {
    "id": "crypto-funding-8",
