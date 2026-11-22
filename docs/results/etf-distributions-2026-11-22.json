@@ -1,0 +1,4135 @@
+{
+ "generated": "2026-11-22",
+ "holdout_start": "2024-09-16",
+ "documents": [
+  {
+   "file": "DOC_20040120110630_0e4feb354bd9.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20040120110630id_/http://www.satrix.co.za:80/products/satrix40/00091%20Satrix%2040-1.pdf",
+   "sha256": "0e4feb354bd9b073ec5246ea71e929829628640688f03738ac92863401f89148",
+   "as_at": "2002-12-31",
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "DOC_20060211223029_0e4feb354bd9.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20060211223029id_/http://www.satrix.co.za:80/satrix_40/financial_statements/00091%20Satrix%2040-1.pdf",
+   "sha256": "0e4feb354bd9b073ec5246ea71e929829628640688f03738ac92863401f89148",
+   "as_at": "2002-12-31",
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "DOC_20060211223456_26bd3520e8b9.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20060211223456id_/http://www.satrix.co.za:80/default/financial_info/fact_sheets/Fact%20Sheet%20-%20Satrix40%20-%20Dec2004.pdf",
+   "sha256": "26bd3520e8b984bb7a0734f4548b98557769369e64e9d87a63d1dd4c9f9809f8",
+   "as_at": null,
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "DOC_20060211223542_10d20b0f9a50.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20060211223542id_/http://www.satrix.co.za:80/default/financial_info/fact_sheets/Fact%20Sheet%20-%20Satrix40%20-%20Sept2004.pdf",
+   "sha256": "10d20b0f9a50a6dd4eed42aeff562f9146106fbfb8e15c323a7155bab5dcb61a",
+   "as_at": null,
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "DOC_20060211223547_66f3961c5d7c.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20060211223547id_/http://www.satrix.co.za:80/default/financial_info/fact_sheets/Fact%20Sheet%20-%20Satrix40%20-%20Dec%202003.pdf",
+   "sha256": "66f3961c5d7cfbe95f802a202eb05e7c12e031a3073876ab2c16d7e6f26d84ea",
+   "as_at": null,
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "DOC_20060211223557_d7046ce84abb.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20060211223557id_/http://www.satrix.co.za:80/default/financial_info/fact_sheets/Fact%20Sheet%20-%20Satrix40%20-%20June%202004.pdf",
+   "sha256": "d7046ce84abb6b39ad08076c682dc7655bd41eec828ced1d609d8272f9aefb4f",
+   "as_at": null,
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "DOC_20060211223604_b4011dc1a276.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20060211223604id_/http://www.satrix.co.za:80/default/financial_info/fact_sheets/Fact%20Sheet%20-%20Satrix40%20-%20March%202004.pdf",
+   "sha256": "b4011dc1a276d96a68cc1cd1d1050f0a2519c262eb7cd08ad403427f5b3ac457",
+   "as_at": null,
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "DOC_20060515023422_51523adef2fb.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20060515023422id_/http://www.satrix.co.za:80/default/financial_info/salient_dates/salient%20dates%20-%20Satrix%2040%20-%20Mar06.pdf",
+   "sha256": "51523adef2fbface49edc095c26c5b9b8a0d5f2f3f6a7016486ca1b29ab25f3d",
+   "as_at": null,
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "DOC_20060930005815_0d841be5a4ff.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20060930005815id_/http://www.satrix.co.za/default/financial_info/salient_dates/Satrix%2040_sept06.pdf",
+   "sha256": "0d841be5a4ff99e0bfafe9a6de97aa3947f0b3587150f8072d77d3fc7e71e09a",
+   "as_at": null,
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "DOC_20070421173227_8ef8d0fcf031.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20070421173227id_/http://www.satrix.co.za:80/default/financial_info/salient_dates/mar_07/Satrix%2040%20-%20Distribution%20salient%20dates%20-%20Mar07%20(00024905).pdf",
+   "sha256": "8ef8d0fcf03188494bcfde832c706649069ffa69b22dafc7367aa8aaf983b274",
+   "as_at": null,
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "DOC_20071025114726_1fb01962d409.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20071025114726id_/http://www.satrix.co.za/default/financial_info/salient_dates/sep_07/Satrix%2040%20-%20Distribution%20salient%20dates%20-%20Septembe07%20_00033485_.pdf",
+   "sha256": "1fb01962d4093ea76fb1a023fcc997d3cde4aa0661dd4be70d5b1fdc62c44a05",
+   "as_at": null,
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "DOC_20071025114809_abe7589f3aa3.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20071025114809id_/http://www.satrix.co.za/satrix_all/fact_sheet07/Fact%20Sheet%20-%20Satrix40%20-%20June2007.pdf",
+   "sha256": "abe7589f3aa3aed8d7bb444fb7999fa1d87a4cce5056a19b5b81ef9ac4a08189",
+   "as_at": "2007-06-30",
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 3
+  },
+  {
+   "file": "DOC_20071025191323_383fb2ff5eb9.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20071025191323id_/http://www.satrix.co.za/default/financial_info/fact_sheets/historical/Fact%20Sheet%20-%20Satrix40%20-%20Mar2005.pdf",
+   "sha256": "383fb2ff5eb99a5136fcde46e9a693081a3460e3c421052949308a68896256ee",
+   "as_at": null,
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "DOC_20071025191340_db15061a23a4.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20071025191340id_/http://www.satrix.co.za/satrix_all/fact_sheets06/Fact%20Sheet%20-%20Satrix40%20-%20Dec2006.pdf",
+   "sha256": "db15061a23a4d01fb485e6a62d1d23933b16bba7fcb87f1afb958ca00fd183fa",
+   "as_at": "2006-12-29",
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "DOC_20071025191423_3bd349ad3a39.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20071025191423id_/http://www.satrix.co.za/satrix_all/fact_sheet07/Fact%20Sheet%20-%20Satrix40%20-%20Mar2007.pdf",
+   "sha256": "3bd349ad3a39f70cdaae1d611e535b8dfa84b3d9cb29afbdedb9695e30f8f135",
+   "as_at": "2007-03-30",
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "DOC_20120524095803_eeaa700ca777.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20120524095803id_/http://www.satrix.co.za:80/documents/stx40%20june%202011%20distribution%20announcement%20-%20salient%20dates.pdf",
+   "sha256": "eeaa700ca777d74b92f77881d1f064f9a152ebdffa78771dd34b2a5acc7facad",
+   "as_at": null,
+   "n_dist": 0,
+   "n_ex": 1,
+   "n_ret": 0
+  },
+  {
+   "file": "DOC_20120813173045_f919890ee628.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20120813173045id_/http://www.satrix.co.za:80/documents/12-jun%20-%2012-jun%20-%20satrix%2040%20-%202012/06/08%20-%20distribution%20announcements%20salient%20dates.pdf",
+   "sha256": "f919890ee628ce4190c7ea49a2f202a6269e922c78b8e08f9c775315f476bb47",
+   "as_at": null,
+   "n_dist": 0,
+   "n_ex": 1,
+   "n_ret": 0
+  },
+  {
+   "file": "DOC_20120813182212_05642a959d35.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20120813182212id_/http://www.satrix.co.za:80/documents/june%202012%20-%20june%202012%20-%20satrix%2040%20-%202012/07/27%20-%20quarterly%20fact%20statement.pdf",
+   "sha256": "05642a959d356c0daa75bff772abd3fffac92adcb3489f7f07bee01162786c12",
+   "as_at": "2012-06-30",
+   "n_dist": 8,
+   "n_ex": 0,
+   "n_ret": 5
+  },
+  {
+   "file": "DOC_20131001125421_670a6838680e.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20131001125421id_/http://www.satrix.co.za:80/documents/13-mar%20-%2013-mar%20-%20satrix%2040%20-%202013/03/11%20-%20distribution%20announcements%20salient%20dates.pdf",
+   "sha256": "670a6838680e51fd64658363a8ce73891a95f86d55bd2a109df1e408e79c0127",
+   "as_at": null,
+   "n_dist": 0,
+   "n_ex": 1,
+   "n_ret": 0
+  },
+  {
+   "file": "DOC_20131126054522_ff5623fb5f8e.pdf",
+   "fund": "STXSWI",
+   "wayback": "http://web.archive.org/web/20131126054522id_/http://www.satrix.co.za:80/documents/september%202013%20-%20september%202013%20-%20satrix%20swix%20top%2040%20-%202013/10/09%20-%20quarterly%20fact%20statement.pdf",
+   "sha256": "ff5623fb5f8ecca9219b1b289a0f74089466c0bb32aea112da7735688bc82d0b",
+   "as_at": "2013-09-30",
+   "n_dist": 8,
+   "n_ex": 0,
+   "n_ret": 5
+  },
+  {
+   "file": "DOC_20140702121111_7d278994f7c4.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20140702121111id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Distribution%20Third%20Quarter%202013%202013-09-30.pdf",
+   "sha256": "7d278994f7c4a85cf18d49df6731a525ca76fa8983aea3bf510ba79bdc94e23e",
+   "as_at": null,
+   "n_dist": 0,
+   "n_ex": 1,
+   "n_ret": 0
+  },
+  {
+   "file": "DOC_20140702125629_9996a0d745ed.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20140702125629id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Quarterly%20Fact%20Sheet%20May%202013%202013-05-30.pdf",
+   "sha256": "9996a0d745edb1417199055f3e5aa7c273460645a09742d484fa1b269324cb5b",
+   "as_at": "2013-05-31",
+   "n_dist": 8,
+   "n_ex": 0,
+   "n_ret": 5
+  },
+  {
+   "file": "DOC_20140702130333_9b5755c6cb99.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20140702130333id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fund%20Fact%20Sheet%202014-04-30.pdf",
+   "sha256": "9b5755c6cb99f7737747d80a7a172afc2607ced02be3e0b9196767b957f35c9d",
+   "as_at": "2014-04-30",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 3
+  },
+  {
+   "file": "DOC_20140702133227_25d486234aa0.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20140702133227id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Quarterly%20Fact%20Sheet%20Oct%202013%202013-10-30.pdf",
+   "sha256": "25d486234aa08ee8e4883b94e15db485eba84d3d503c91235d61d32f998b91fd",
+   "as_at": "2013-10-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 3
+  },
+  {
+   "file": "DOC_20140702133858_9777a80e637d.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20140702133858id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Quarterly%20Fact%20Sheet%20Aug%202013%202013-08-30.pdf",
+   "sha256": "9777a80e637d75f3a3908eec65495a8add1d2ba532c0af13798a390ff561f6b3",
+   "as_at": "2013-08-31",
+   "n_dist": 8,
+   "n_ex": 0,
+   "n_ret": 5
+  },
+  {
+   "file": "DOC_20140702140521_f97cfc8e6741.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20140702140521id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Quarterly%20Fact%20Sheet%20Dec%202013%202013-12-30.pdf",
+   "sha256": "f97cfc8e6741292bcc337696f8557015b3a9da2f49391d99ec01fe01e7904252",
+   "as_at": "2013-12-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 3
+  },
+  {
+   "file": "DOC_20140702142034_660d8ca45957.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20140702142034id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fund%20Fact%20Sheet%202014-05-31.pdf",
+   "sha256": "660d8ca45957530e0ffb39d589b8e283de4f912f1ce4a2a086843c1c95bd00cb",
+   "as_at": "2014-05-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 3
+  },
+  {
+   "file": "DOC_20140702143546_f3bdb686a3c7.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20140702143546id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Quarterly%20Fact%20Sheet%20Apr%202013%202013-04-30.pdf",
+   "sha256": "f3bdb686a3c7efc87bf9aefba986a20b77888e4badfe48f542bd223a960969a7",
+   "as_at": "2013-04-30",
+   "n_dist": 8,
+   "n_ex": 0,
+   "n_ret": 5
+  },
+  {
+   "file": "DOC_20140702152209_26fa5da7e6b2.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20140702152209id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fund%20Fact%20Sheet%202014-03-28.pdf",
+   "sha256": "26fa5da7e6b23b5e6b7580e35e0bdbeecc780f7eacf49944e2a54482901d583e",
+   "as_at": "2014-03-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 3
+  },
+  {
+   "file": "DOC_20140702152918_0748e65bb7dd.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20140702152918id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fund%20Fact%20Sheet%202014-02-28.pdf",
+   "sha256": "0748e65bb7dd85e7bf060c0de366a9b4b8b2fa164548e28c90a9a4c6abd021a2",
+   "as_at": "2014-02-28",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 3
+  },
+  {
+   "file": "DOC_20140702170625_34fafec25ecb.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20140702170625id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Quarterly%20Fact%20Sheet%20Sep%202013%202013-09-30.pdf",
+   "sha256": "34fafec25ecb2a7c4335b4c9850b6727600b0aa7ad1a76548e20348c1c695f98",
+   "as_at": "2013-09-30",
+   "n_dist": 8,
+   "n_ex": 0,
+   "n_ret": 5
+  },
+  {
+   "file": "DOC_20140702174945_95690f5e9fc7.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20140702174945id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Quarterly%20Fact%20Sheet%20Jul%202013%202013-07-30.pdf",
+   "sha256": "95690f5e9fc712c4fe1ec5da06aa47348c0a88d371bc78d12270c7cc855a416e",
+   "as_at": "2013-07-31",
+   "n_dist": 8,
+   "n_ex": 0,
+   "n_ret": 5
+  },
+  {
+   "file": "DOC_20140702190623_7eae4e1046c8.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20140702190623id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Quarterly%20Fact%20Sheet%20Jun%202013%202013-06-30.pdf",
+   "sha256": "7eae4e1046c81f168cdf42f76ab990abce312af8df8d4c090b240d192366133b",
+   "as_at": "2013-06-30",
+   "n_dist": 8,
+   "n_ex": 0,
+   "n_ret": 5
+  },
+  {
+   "file": "DOC_20140702194916_f643d5f06f96.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20140702194916id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Salient%20Dates%20First%20Quarter%202014%202014-02-28.pdf",
+   "sha256": "f643d5f06f96b978189acca489d428732ddf1c405a1f9fdc78133a0e13e408ba",
+   "as_at": null,
+   "n_dist": 0,
+   "n_ex": 1,
+   "n_ret": 0
+  },
+  {
+   "file": "DOC_20140702195008_f0a38bc80d3a.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20140702195008id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Quarterly%20Fact%20Sheet%20Mar%202013%202013-03-30.pdf",
+   "sha256": "f0a38bc80d3a9206da9a217bea492a993b242c0db20de7150491c762d8468188",
+   "as_at": "2013-03-31",
+   "n_dist": 8,
+   "n_ex": 0,
+   "n_ret": 5
+  },
+  {
+   "file": "DOC_20140702195025_670a6838680e.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20140702195025id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Distribution%20First%20Quarter%202013%202013-03-30.pdf",
+   "sha256": "670a6838680e51fd64658363a8ce73891a95f86d55bd2a109df1e408e79c0127",
+   "as_at": null,
+   "n_dist": 0,
+   "n_ex": 1,
+   "n_ret": 0
+  },
+  {
+   "file": "DOC_20150317015623_2cd01d863095.pdf",
+   "fund": "STX500",
+   "wayback": "http://web.archive.org/web/20150317015623id_/http://satrix.co.za/documents/uploads/Satrix%20Equally%20Weighted%20Top%2040/Satrix%20Equally%20Weighted%20Top%2040%20Fund%20Fact%20Sheet%202014-06-30.pdf",
+   "sha256": "2cd01d863095e5a4ed990c51520f025ca0db515ff115b7c8a7c150d9783fac80",
+   "as_at": "2021-04-30",
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 2
+  },
+  {
+   "file": "DOC_20150317185557_660d8ca45957.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20150317185557id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202014-05-31.pdf",
+   "sha256": "660d8ca45957530e0ffb39d589b8e283de4f912f1ce4a2a086843c1c95bd00cb",
+   "as_at": "2014-05-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 3
+  },
+  {
+   "file": "DOC_20150317185724_e1d553dd5aae.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20150317185724id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Distribution%20Fourth%20Quarter%202013-12-03.pdf",
+   "sha256": "e1d553dd5aae4f1e822b72bb74c69cbd7dae220aeb12b781d13d4d160abc9c44",
+   "as_at": null,
+   "n_dist": 0,
+   "n_ex": 1,
+   "n_ret": 0
+  },
+  {
+   "file": "DOC_20150317190818_6b59ebf12b87.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20150317190818id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fund%20Fact%20Sheet%202014-10-31.pdf",
+   "sha256": "6b59ebf12b87a212feea0022a4b61631246e20530af89c4145b566461b7bd610",
+   "as_at": "2014-10-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 3
+  },
+  {
+   "file": "DOC_20150317192207_0fd86670cefa.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20150317192207id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202014-07-31.pdf",
+   "sha256": "0fd86670cefabd73e74b542842afc84cdbc603d77537a2e50e38a20bc63875d8",
+   "as_at": "2014-07-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 3
+  },
+  {
+   "file": "DOC_20150317193142_a468bd52f78a.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20150317193142id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Distribution%20Second%20Quarter%20%202013-06-30.pdf",
+   "sha256": "a468bd52f78aaa53364167955d628e248a843ed33fc550def6282e9b6ddb4bdd",
+   "as_at": null,
+   "n_dist": 0,
+   "n_ex": 1,
+   "n_ret": 0
+  },
+  {
+   "file": "DOC_20150317193250_b6e0175420e4.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20150317193250id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fund%20Fact%20Sheet%202015-01-12.pdf",
+   "sha256": "b6e0175420e4545c6bb3df15f14b6f240e1e6c44b9e3b27a9c5d3487f64d9ced",
+   "as_at": "2014-12-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 3
+  },
+  {
+   "file": "DOC_20150317193338_06be3726fa05.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20150317193338id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Distribution%20Second%20Quarter%202014-06-30.pdf",
+   "sha256": "06be3726fa056377b22d513e94c4cffbe9227b6ccea6339a8fee8fb62b6b63ec",
+   "as_at": null,
+   "n_dist": 0,
+   "n_ex": 1,
+   "n_ret": 0
+  },
+  {
+   "file": "DOC_20150317194730_a4e4d1b70864.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20150317194730id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202014-09-30.pdf",
+   "sha256": "a4e4d1b70864ac6cc3b93cee825ee3bfe506f17af2057672d114ac2c4a6eddbc",
+   "as_at": "2014-09-30",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 3
+  },
+  {
+   "file": "DOC_20150317194858_20f730e38b16.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20150317194858id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202014-01-31.pdf",
+   "sha256": "20f730e38b16386cab20f6dce8b66c00769847fc4d31d1d4376b042c00acbf6e",
+   "as_at": "2014-01-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 3
+  },
+  {
+   "file": "DOC_20150317201930_95db7c577930.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20150317201930id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Salient%20Dates%20First%20Quarter%202015-03-10.pdf",
+   "sha256": "95db7c577930c663c1d907b1bb9b1963f93cbc50f67be682bfdc1f7acb01e32a",
+   "as_at": null,
+   "n_dist": 0,
+   "n_ex": 1,
+   "n_ret": 0
+  },
+  {
+   "file": "DOC_20150317203922_9b5755c6cb99.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20150317203922id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202014-04-30.pdf",
+   "sha256": "9b5755c6cb99f7737747d80a7a172afc2607ced02be3e0b9196767b957f35c9d",
+   "as_at": "2014-04-30",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 3
+  },
+  {
+   "file": "DOC_20150317204958_b015ffc0a5c5.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20150317204958id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Distribution%20Third%20Quarter%202014-09-30.pdf",
+   "sha256": "b015ffc0a5c53c329cf5afad1a8dce95db7813b828c787e9143a4175a79779e7",
+   "as_at": null,
+   "n_dist": 0,
+   "n_ex": 1,
+   "n_ret": 0
+  },
+  {
+   "file": "DOC_20150317210832_297463c17879.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20150317210832id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fund%20Fact%20Sheet%202015-01-31.pdf",
+   "sha256": "297463c1787998fc7c7d35bd727160395018ff0510d25379c394c5348db20389",
+   "as_at": "2015-01-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 3
+  },
+  {
+   "file": "DOC_20150317212717_8da77647f55c.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20150317212717id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202014-08-31.pdf",
+   "sha256": "8da77647f55c73013927c2ca0d12ab360db414326414d86b2d20e43817ff5c39",
+   "as_at": "2014-08-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 3
+  },
+  {
+   "file": "DOC_20150317213322_7eae4e1046c8.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20150317213322id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-06-30.pdf",
+   "sha256": "7eae4e1046c81f168cdf42f76ab990abce312af8df8d4c090b240d192366133b",
+   "as_at": "2013-06-30",
+   "n_dist": 8,
+   "n_ex": 0,
+   "n_ret": 5
+  },
+  {
+   "file": "DOC_20150317215352_f3bdb686a3c7.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20150317215352id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-04-30.pdf",
+   "sha256": "f3bdb686a3c7efc87bf9aefba986a20b77888e4badfe48f542bd223a960969a7",
+   "as_at": "2013-04-30",
+   "n_dist": 8,
+   "n_ex": 0,
+   "n_ret": 5
+  },
+  {
+   "file": "DOC_20150317220717_9996a0d745ed.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20150317220717id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-05-30.pdf",
+   "sha256": "9996a0d745edb1417199055f3e5aa7c273460645a09742d484fa1b269324cb5b",
+   "as_at": "2013-05-31",
+   "n_dist": 8,
+   "n_ex": 0,
+   "n_ret": 5
+  },
+  {
+   "file": "DOC_20150317222615_f959cf62a069.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20150317222615id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%20%202014-06-30.pdf",
+   "sha256": "f959cf62a06947ac817e2038e193b1c041ed9f4045c37367246e80762e38f962",
+   "as_at": "2014-06-30",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 3
+  },
+  {
+   "file": "DOC_20150317230032_7e943d317f8a.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20150317230032id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Salient%20Dates%20Fourth%20Quarter%202014-12-31.pdf",
+   "sha256": "7e943d317f8a086d1aafcbc7acfc6dcd601be7e2ee96f4ef61912474fa7db481",
+   "as_at": null,
+   "n_dist": 0,
+   "n_ex": 1,
+   "n_ret": 0
+  },
+  {
+   "file": "DOC_20150317232128_9777a80e637d.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20150317232128id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-08-30.pdf",
+   "sha256": "9777a80e637d75f3a3908eec65495a8add1d2ba532c0af13798a390ff561f6b3",
+   "as_at": "2013-08-31",
+   "n_dist": 8,
+   "n_ex": 0,
+   "n_ret": 5
+  },
+  {
+   "file": "DOC_20150317233529_f97cfc8e6741.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20150317233529id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-12-30.pdf",
+   "sha256": "f97cfc8e6741292bcc337696f8557015b3a9da2f49391d99ec01fe01e7904252",
+   "as_at": "2013-12-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 3
+  },
+  {
+   "file": "DOC_20150317234443_f643d5f06f96.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20150317234443id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Distribution%20First%20Quarter%202014-02-28.pdf",
+   "sha256": "f643d5f06f96b978189acca489d428732ddf1c405a1f9fdc78133a0e13e408ba",
+   "as_at": null,
+   "n_dist": 0,
+   "n_ex": 1,
+   "n_ret": 0
+  },
+  {
+   "file": "DOC_20150317234723_0748e65bb7dd.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20150317234723id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202014-02-28.pdf",
+   "sha256": "0748e65bb7dd85e7bf060c0de366a9b4b8b2fa164548e28c90a9a4c6abd021a2",
+   "as_at": "2014-02-28",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 3
+  },
+  {
+   "file": "DOC_20150317235553_26fa5da7e6b2.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20150317235553id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202014-03-28.pdf",
+   "sha256": "26fa5da7e6b23b5e6b7580e35e0bdbeecc780f7eacf49944e2a54482901d583e",
+   "as_at": "2014-03-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 3
+  },
+  {
+   "file": "DOC_20150317235844_25d486234aa0.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20150317235844id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-10-30.pdf",
+   "sha256": "25d486234aa08ee8e4883b94e15db485eba84d3d503c91235d61d32f998b91fd",
+   "as_at": "2013-10-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 3
+  },
+  {
+   "file": "DOC_20150318011003_95690f5e9fc7.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20150318011003id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-07-30.pdf",
+   "sha256": "95690f5e9fc712c4fe1ec5da06aa47348c0a88d371bc78d12270c7cc855a416e",
+   "as_at": "2013-07-31",
+   "n_dist": 8,
+   "n_ex": 0,
+   "n_ret": 5
+  },
+  {
+   "file": "DOC_20150318011040_f0a38bc80d3a.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20150318011040id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-03-30.pdf",
+   "sha256": "f0a38bc80d3a9206da9a217bea492a993b242c0db20de7150491c762d8468188",
+   "as_at": "2013-03-31",
+   "n_dist": 8,
+   "n_ex": 0,
+   "n_ret": 5
+  },
+  {
+   "file": "DOC_20150318012039_34fafec25ecb.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20150318012039id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-09-30.pdf",
+   "sha256": "34fafec25ecb2a7c4335b4c9850b6727600b0aa7ad1a76548e20348c1c695f98",
+   "as_at": "2013-09-30",
+   "n_dist": 8,
+   "n_ex": 0,
+   "n_ret": 5
+  },
+  {
+   "file": "DOC_20151106143004_5d08fa409070.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20151106143004id_/http://www.satrix.co.za:80/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fund%20Fact%20Sheet%202015-02-28.pdf",
+   "sha256": "5d08fa4090700382d44f1ed91de754d10e6c153ba13e2120d268adc50e6166ab",
+   "as_at": "2015-02-28",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 3
+  },
+  {
+   "file": "DOC_20160412204618_95690f5e9fc7.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20160412204618id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-07-30.pdf",
+   "sha256": "95690f5e9fc712c4fe1ec5da06aa47348c0a88d371bc78d12270c7cc855a416e",
+   "as_at": "2013-07-31",
+   "n_dist": 8,
+   "n_ex": 0,
+   "n_ret": 5
+  },
+  {
+   "file": "DOC_20160412205034_7eae4e1046c8.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20160412205034id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-06-30.pdf",
+   "sha256": "7eae4e1046c81f168cdf42f76ab990abce312af8df8d4c090b240d192366133b",
+   "as_at": "2013-06-30",
+   "n_dist": 8,
+   "n_ex": 0,
+   "n_ret": 5
+  },
+  {
+   "file": "DOC_20160412210817_f0a38bc80d3a.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20160412210817id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-03-30.pdf",
+   "sha256": "f0a38bc80d3a9206da9a217bea492a993b242c0db20de7150491c762d8468188",
+   "as_at": "2013-03-31",
+   "n_dist": 8,
+   "n_ex": 0,
+   "n_ret": 5
+  },
+  {
+   "file": "DOC_20160412212108_f97cfc8e6741.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20160412212108id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-12-30.pdf",
+   "sha256": "f97cfc8e6741292bcc337696f8557015b3a9da2f49391d99ec01fe01e7904252",
+   "as_at": "2013-12-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 3
+  },
+  {
+   "file": "DOC_20160412212113_26fa5da7e6b2.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20160412212113id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202014-03-28.pdf",
+   "sha256": "26fa5da7e6b23b5e6b7580e35e0bdbeecc780f7eacf49944e2a54482901d583e",
+   "as_at": "2014-03-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 3
+  },
+  {
+   "file": "DOC_20160412213322_f3bdb686a3c7.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20160412213322id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-04-30.pdf",
+   "sha256": "f3bdb686a3c7efc87bf9aefba986a20b77888e4badfe48f542bd223a960969a7",
+   "as_at": "2013-04-30",
+   "n_dist": 8,
+   "n_ex": 0,
+   "n_ret": 5
+  },
+  {
+   "file": "DOC_20160412213328_34fafec25ecb.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20160412213328id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-09-30.pdf",
+   "sha256": "34fafec25ecb2a7c4335b4c9850b6727600b0aa7ad1a76548e20348c1c695f98",
+   "as_at": "2013-09-30",
+   "n_dist": 8,
+   "n_ex": 0,
+   "n_ret": 5
+  },
+  {
+   "file": "DOC_20160412213616_9996a0d745ed.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20160412213616id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-05-30.pdf",
+   "sha256": "9996a0d745edb1417199055f3e5aa7c273460645a09742d484fa1b269324cb5b",
+   "as_at": "2013-05-31",
+   "n_dist": 8,
+   "n_ex": 0,
+   "n_ret": 5
+  },
+  {
+   "file": "DOC_20160412213636_9777a80e637d.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20160412213636id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-08-30.pdf",
+   "sha256": "9777a80e637d75f3a3908eec65495a8add1d2ba532c0af13798a390ff561f6b3",
+   "as_at": "2013-08-31",
+   "n_dist": 8,
+   "n_ex": 0,
+   "n_ret": 5
+  },
+  {
+   "file": "DOC_20160412213640_25d486234aa0.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20160412213640id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-10-30.pdf",
+   "sha256": "25d486234aa08ee8e4883b94e15db485eba84d3d503c91235d61d32f998b91fd",
+   "as_at": "2013-10-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 3
+  },
+  {
+   "file": "MDD_20190715222538_5957dd0ccc15.pdf",
+   "fund": "STXWDM",
+   "wayback": "http://web.archive.org/web/20190715222538id_/https://satrix.co.za/media/32734?inline=true",
+   "sha256": "5957dd0ccc154410d44bd64e8cd18c7a4741def13ea3a76666363cbe629b497f",
+   "as_at": "2019-05-31",
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 1
+  },
+  {
+   "file": "MDD_20190719083330_1c904c2b18bb.pdf",
+   "fund": "STXWDM",
+   "wayback": "http://web.archive.org/web/20190719083330id_/https://satrix.co.za/media/33457?inline=true",
+   "sha256": "1c904c2b18bbabdf7d64a0fc48c02baedf0f31c680a569b61124eb7b8b47503c",
+   "as_at": "2019-06-30",
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 1
+  },
+  {
+   "file": "MDD_20191215152359_4606a47e5f84.pdf",
+   "fund": "STXILB",
+   "wayback": "http://web.archive.org/web/20191215152359id_/https://satrix.co.za/media/17916?inline=true",
+   "sha256": "4606a47e5f847a950a596d6740fcea0aeb3e556b381348c4bac8dbc359f3103f",
+   "as_at": "2017-08-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "MDD_20201023083622_bdbc1d67aace.pdf",
+   "fund": "STXWDM",
+   "wayback": "http://web.archive.org/web/20201023083622id_/https://satrix.co.za/media/45129?inline=true",
+   "sha256": "bdbc1d67aace4666e59190bc45ccc36705ef16b3fde59760063d25f7576a9635",
+   "as_at": "2020-08-31",
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 2
+  },
+  {
+   "file": "MDD_20210122032540_d5ba18c6ab74.pdf",
+   "fund": "STXWDM",
+   "wayback": "http://web.archive.org/web/20210122032540id_/https://satrix.co.za/media/46075?inline=true",
+   "sha256": "d5ba18c6ab74c2b2d3a3a9aa409c1db2fa2c7d72f8dbe63a79dc43d2d9b47635",
+   "as_at": "2020-09-30",
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 2
+  },
+  {
+   "file": "MDD_20210225033754_cc06440ddf9a.pdf",
+   "fund": "STXWDM",
+   "wayback": "http://web.archive.org/web/20210225033754id_/https://satrix.co.za/media/48902",
+   "sha256": "cc06440ddf9abecb4b458adf91e56ce610d65925750b151d060b6be177a586eb",
+   "as_at": "2020-12-31",
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 2
+  },
+  {
+   "file": "MDD_20210227121554_bbc1d88ab9e8.pdf",
+   "fund": "STXEMG",
+   "wayback": "http://web.archive.org/web/20210227121554id_/https://satrix.co.za/media/47831?inline=true",
+   "sha256": "bbc1d88ab9e85d071fe220f518a9259ac2f1e045e04b8cc222bc75e18b13a4c5",
+   "as_at": "2020-11-30",
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 2
+  },
+  {
+   "file": "MDD_20210504103111_77f88c6953cc.pdf",
+   "fund": "STX500",
+   "wayback": "http://web.archive.org/web/20210504103111id_/https://satrix.co.za/media/51763",
+   "sha256": "77f88c6953cc2b1273a89d6927e3cfc92c68787740046fc796c4646b03cfe662",
+   "as_at": "2021-03-31",
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 2
+  },
+  {
+   "file": "MDD_20210516190100_db920dc4e780.pdf",
+   "fund": "STXSWX",
+   "wayback": "http://web.archive.org/web/20210516190100id_/https://satrix.co.za/media/34380?inline=true",
+   "sha256": "db920dc4e780b0cb0e9d6329119a3a16125c3d6f967c4c1b6cec6e56c61dc5ad",
+   "as_at": "2019-06-30",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 3
+  },
+  {
+   "file": "MDD_20210623153904_e8c2bf414980.pdf",
+   "fund": "STXWDM",
+   "wayback": "http://web.archive.org/web/20210623153904id_/https://satrix.co.za/media/52620?inline=true",
+   "sha256": "e8c2bf4149808c343e87f76a2327f57229a35de1118cc6b68b6f1520dc86d8b1",
+   "as_at": "2021-04-30",
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 2
+  },
+  {
+   "file": "MDD_20220812145124_970bc233bdbf.pdf",
+   "fund": "STXIND",
+   "wayback": "http://web.archive.org/web/20220812145124id_/https://satrix.co.za/media/17911?inline=true",
+   "sha256": "970bc233bdbf49fa28c4cb280f26d13bb4748f64bfe4b8b472053dad0a9f543e",
+   "as_at": "2017-08-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 3
+  },
+  {
+   "file": "MDD_20220812150115_9a2acbe3d6c9.pdf",
+   "fund": "STXRES",
+   "wayback": "http://web.archive.org/web/20220812150115id_/https://satrix.co.za/media/17913?inline=true",
+   "sha256": "9a2acbe3d6c9df35e2f40ca639d9a466789b8a9110a24fc64c6d48c80f82cbc2",
+   "as_at": "2017-08-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 3
+  },
+  {
+   "file": "MDD_20220812155304_23cf02385ad2.pdf",
+   "fund": "STXDIV",
+   "wayback": "http://web.archive.org/web/20220812155304id_/https://satrix.co.za/media/17910?inline=true",
+   "sha256": "23cf02385ad28b179a723bec6dc4da75bad2e5e397dd019594bca0ed7848778f",
+   "as_at": "2017-08-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 3
+  },
+  {
+   "file": "MDD_20220812160056_4f8468723e1d.pdf",
+   "fund": "STXRAF",
+   "wayback": "http://web.archive.org/web/20220812160056id_/https://satrix.co.za/media/17912?inline=true",
+   "sha256": "4f8468723e1dd176e9c9e8deac943bf8cc497f1d2d52cb714cc8a5f45b835024",
+   "as_at": "2017-08-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 3
+  },
+  {
+   "file": "MDD_20240629024649_c37f443932a3.pdf",
+   "fund": "STXGBD",
+   "wayback": "http://web.archive.org/web/20240629024649id_/https://satrix.co.za/media/52625",
+   "sha256": "c37f443932a38f48696bcb74de1e0a36d79ca773b0abbf6fb741d4f745cf42b6",
+   "as_at": "2021-04-30",
+   "n_dist": 1,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "MDD_20240629054648_ec8f4e5b4adf.pdf",
+   "fund": "STXCHN",
+   "wayback": "http://web.archive.org/web/20240629054648id_/https://satrix.co.za/media/52626",
+   "sha256": "ec8f4e5b4adf043fc988e3e5426f24e80a091f77e192219b6a9e12adb8910a7f",
+   "as_at": "2021-04-30",
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "MDD_20240630093541_a0629ae57fde.pdf",
+   "fund": "STX500",
+   "wayback": "http://web.archive.org/web/20240630093541id_/https://satrix.co.za/media/52622",
+   "sha256": "a0629ae57fde9d722b4fcbc1ae3799d6ef98493903854593ca61a1ae077d7ca7",
+   "as_at": "2021-04-30",
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 2
+  },
+  {
+   "file": "MDD_20240701023043_60b9fb213f91.pdf",
+   "fund": "STXEMG",
+   "wayback": "http://web.archive.org/web/20240701023043id_/https://satrix.co.za/media/52623",
+   "sha256": "60b9fb213f918ecb5ecbb3bff3c4c15b8d3d45481dcbdb9a43f2cd9d1648bfea",
+   "as_at": "2021-04-30",
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 2
+  },
+  {
+   "file": "MDD_20240701182448_de58b337a4f2.pdf",
+   "fund": "STXEME",
+   "wayback": "http://web.archive.org/web/20240701182448id_/https://satrix.co.za/media/52628",
+   "sha256": "de58b337a4f26c234d3d3417a09a112ab0ed0d2534c420423f85a5bf7206d773",
+   "as_at": "2021-04-30",
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "MDD_20240704043843_72b38e277251.pdf",
+   "fund": "STXNDQ",
+   "wayback": "http://web.archive.org/web/20240704043843id_/https://satrix.co.za/media/52621",
+   "sha256": "72b38e277251292d010ef2d09e040f202655e082916b64dad6e74013d7ebffb7",
+   "as_at": "2021-04-30",
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 2
+  },
+  {
+   "file": "MDD_20240712230653_0f0aec3c6e3e.pdf",
+   "fund": "STXFIN",
+   "wayback": "http://web.archive.org/web/20240712230653id_/https://satrix.co.za/media/17935",
+   "sha256": "0f0aec3c6e3e43fe36a7b47b4d73ff5de284433708f65f16384fe1e3a0acc2b2",
+   "as_at": "2017-08-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 3
+  },
+  {
+   "file": "MDD_20240712235324_a5babe8d687a.pdf",
+   "fund": "STX500",
+   "wayback": "http://web.archive.org/web/20240712235324id_/https://satrix.co.za/media/48903",
+   "sha256": "a5babe8d687a24299de1830cb6a26352c24e703ad47a7c887b3d90c1fea0a681",
+   "as_at": "2020-12-31",
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 2
+  },
+  {
+   "file": "MDD_20240713212235_6e86fb587833.pdf",
+   "fund": "STXNDQ",
+   "wayback": "http://web.archive.org/web/20240713212235id_/https://satrix.co.za/media/48904",
+   "sha256": "6e86fb587833f1194f00554a3a876e3b4f8c1f7b9495ea1fe58b0c348c400843",
+   "as_at": "2020-12-31",
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 1
+  },
+  {
+   "file": "MDD_20240713221358_e53b7817bd7b.pdf",
+   "fund": "STXCHN",
+   "wayback": "http://web.archive.org/web/20240713221358id_/https://satrix.co.za/media/48907",
+   "sha256": "e53b7817bd7b8cb61d2b9b6de60cf5f539b9785f0cdddc27b9d63cbcd3acdcc2",
+   "as_at": "2020-12-31",
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "MDD_20240719183820_b2593da5b1c6.pdf",
+   "fund": "STXESG",
+   "wayback": "http://web.archive.org/web/20240719183820id_/https://satrix.co.za/media/48908",
+   "sha256": "b2593da5b1c67320dd295a0f8e976b1a6218e6dadbb8651dd09dec190f57b61a",
+   "as_at": "2020-12-31",
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "MDD_20240720192242_df09d25135b4.pdf",
+   "fund": "STXGBD",
+   "wayback": "http://web.archive.org/web/20240720192242id_/https://satrix.co.za/media/48950",
+   "sha256": "df09d25135b418739ed35ce11d92c57426656504e2766f0d042bb2e190fc090f",
+   "as_at": "2020-12-31",
+   "n_dist": 1,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "MDD_20240721222225_a049d3ae45ad.pdf",
+   "fund": "STXEME",
+   "wayback": "http://web.archive.org/web/20240721222225id_/https://satrix.co.za/media/48909",
+   "sha256": "a049d3ae45ad59061a5272aaee54883c3c6a6991ffa175ac7366e6c96459b605",
+   "as_at": "2020-12-31",
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "MDD_20241110182828_649343c7be74.pdf",
+   "fund": "STXWDM",
+   "wayback": "http://web.archive.org/web/20241110182828id_/https://satrix.co.za/media/25629",
+   "sha256": "649343c7be74cb8cd5e2e76d87926ab4d770b7b6cceb4616993f864050c8e718",
+   "as_at": "2018-07-31",
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 1
+  },
+  {
+   "file": "MDD_20250217080008_5b0d2aaabafd.pdf",
+   "fund": "STX500",
+   "wayback": "http://web.archive.org/web/20250217080008id_/https://satrix.co.za/media/39884?inline=true",
+   "sha256": "5b0d2aaabafd7df909b321253aa4a6e8adef1478d849ee22fbdffcf4efb1b383",
+   "as_at": "2020-02-29",
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 1
+  },
+  {
+   "file": "MDD_20260507224023_0ce7443bccc6.pdf",
+   "fund": "STXCAP",
+   "wayback": "http://web.archive.org/web/20260507224023id_/https://satrix.co.za/media/92452?inline=true",
+   "sha256": "0ce7443bccc68c07a8c7612f1d9b7ac512636c5899d320b219ea274f50edaf39",
+   "as_at": "2026-03-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "MDD_20260517232611_65d413cb63f1.pdf",
+   "fund": "STXINC",
+   "wayback": "http://web.archive.org/web/20260517232611id_/https://satrix.co.za/media/92048?inline=true",
+   "sha256": "65d413cb63f1786fa54ddd1b06ef6a971e8a22145883fd526ff2e021ee182143",
+   "as_at": "2025-12-31",
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "MDD_20260618083254_8cfc98213714.pdf",
+   "fund": "STXINC",
+   "wayback": "http://web.archive.org/web/20260618083254id_/https://satrix.co.za/media/92589?inline=true",
+   "sha256": "8cfc98213714f3231485588dc55dcab1c9042e352457266a05a088170c1f59bd",
+   "as_at": "2026-04-30",
+   "n_dist": 1,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "MDD_20260806190016_f4747e95a67a.pdf",
+   "fund": "STXCAP",
+   "wayback": "http://web.archive.org/web/20260806190016id_/https://satrix.co.za/media/92861?inline=true",
+   "sha256": "f4747e95a67a325298766950959cb8765336eeef48a78d7d232cda90b728d34b",
+   "as_at": "2026-06-30",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "MDD_20260830090204_6f22938c97eb.pdf",
+   "fund": "STXACW",
+   "wayback": "http://web.archive.org/web/20260830090204id_/https://satrix.co.za/media/93073?inline=true",
+   "sha256": "6f22938c97ebb53d36f4d170e66c6c5c1dcc54e1fcfc8f9ab169b296a197d9d2",
+   "as_at": "2026-07-31",
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "MDD_20261001074821_78146f37b533.pdf",
+   "fund": "STXCAP",
+   "wayback": "http://web.archive.org/web/20261001074821id_/https://satrix.co.za/media/93159?inline=true",
+   "sha256": "78146f37b533d23c9e07b4ab173496bd8928ffdca4a3cf5c539f5d3114fdfd51",
+   "as_at": "2026-08-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "STX40_20220629215840_801789445185.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20220629215840id_/https://satrix.co.za/media/65291?inline=true",
+   "sha256": "80178944518570155748698198d102856f8aba0d0fb161856297d8a719cfcfb8",
+   "as_at": "2022-05-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "STX40_20220812151621_4fee78033993.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20220812151621id_/https://satrix.co.za/media/17909?inline=true",
+   "sha256": "4fee78033993066529b7c28f42ad59ca44dc5158de882f1bbd69b03d7b64ef0f",
+   "as_at": "2017-08-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 3
+  },
+  {
+   "file": "STX40_20230111085420_57985959978c.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20230111085420id_/https://satrix.co.za/media/72642?inline=true",
+   "sha256": "57985959978c7d089d505b45f260bf9e2589dc8db6314c24e5cd5c810b4b6875",
+   "as_at": "2022-11-30",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "STX40_20230720195650_ffb05ffd2ab8.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20230720195650id_/https://satrix.co.za/media/79375",
+   "sha256": "ffb05ffd2ab880c721335c2c6acf9cee6f5e5250bc8e4a9e85d7351e377a3464",
+   "as_at": "2023-05-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "STX40_20240613204532_ec9b49c7818c.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20240613204532id_/https://satrix.co.za/media/89579",
+   "sha256": "ec9b49c7818c1eda56e18941fc509a82852e8e9f50380f305a8573451e6c67f2",
+   "as_at": "2024-04-30",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "STX40_20240730233144_5c44aeb0d632.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20240730233144id_/https://satrix.co.za/media/30879",
+   "sha256": "5c44aeb0d63257fc47c3d557674147352151bc77bd5b629251936cee6d8f8c7c",
+   "as_at": "2019-02-28",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 3
+  },
+  {
+   "file": "STX40_20241114023034_d4f935ca002d.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20241114023034id_/https://satrix.co.za/media/25616",
+   "sha256": "d4f935ca002d1d4101a36c399cbb2b042724e2824db867e984d13b2584edd96d",
+   "as_at": "2018-07-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 3
+  },
+  {
+   "file": "STX40_20250119181250_baf378d1597e.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20250119181250id_/https://satrix.co.za/media/90429?inline=true",
+   "sha256": "baf378d1597eda252ae59e3121302c358e90b6c4f5dbb42ac51d317f10f60c95",
+   "as_at": "2024-11-30",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "STX40_20250121121528_9f3d3aa66c5d.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20250121121528id_/https://satrix.co.za/media/84415?inline=true",
+   "sha256": "9f3d3aa66c5def88d91fc38a6beddbb48e12afd7c54f97ad9638048d51535bb7",
+   "as_at": "2023-10-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "STX40_20250220143727_8817bc47f419.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20250220143727id_/https://satrix.co.za/media/90520?inline=true",
+   "sha256": "8817bc47f41923439ac0d44b99654cd35dc5f591b6898ac2e16e08df44c0b685",
+   "as_at": "2024-12-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "STX40_20250402105605_84e1c9bc7a9b.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20250402105605id_/https://satrix.co.za/media/90785?inline=true",
+   "sha256": "84e1c9bc7a9b43e9f0e27289160ef397f2f1f05082bd8f37e3d6517a97e86f30",
+   "as_at": "2025-02-28",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "STX40_20250805023607_420cfe2d0a32.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20250805023607id_/https://satrix.co.za/media/60293",
+   "sha256": "420cfe2d0a3204950931ca8a74e56558331931953aa933e5557454f1de6448f1",
+   "as_at": "2021-12-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "STX40_20260517233231_5f61bb73becf.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20260517233231id_/https://satrix.co.za/media/67605?inline=true",
+   "sha256": "5f61bb73becf710bca1b9e01cbdd66fcfb7f907e88537adb95416cf9cb59d436",
+   "as_at": "2022-07-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "STX40_20260618080431_ac9b67eb53ae.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20260618080431id_/https://satrix.co.za/media/91512?inline=true",
+   "sha256": "ac9b67eb53ae05875d7cc673763b9271b37b7f6c78e450f4734bd76bc6330790",
+   "as_at": "2025-08-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "STX40_20260717082853_5b487d8d02d7.pdf",
+   "fund": "STX40",
+   "wayback": "http://web.archive.org/web/20260717082853id_/https://satrix.co.za/media/92451?inline=true",
+   "sha256": "5b487d8d02d78c6d0b55e9e1ff571ca0fba6d211f14c1378ea58cb30aa7aa585",
+   "as_at": "2026-04-30",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "STX40_LIVE20261122_3bf1ceb98252.pdf",
+   "fund": "STX40",
+   "wayback": "https://satrix.co.za/fund/mdd/STX40",
+   "sha256": "3bf1ceb98252a57e0e8e8d93a7e6686e20f1d27579232a4a94d0b7e1346509a4",
+   "as_at": "2026-10-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "STX500_20220131050847_f126bc90c97d.pdf",
+   "fund": "STX500",
+   "wayback": "http://web.archive.org/web/20220131050847id_/https://satrix.co.za/media/60362",
+   "sha256": "f126bc90c97de1734ecefb0053f40fe3e1ca63a6ab6deb7c26e1c040019015c3",
+   "as_at": "2021-12-31",
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "STXGOV_20220713204743_82870d542d3f.pdf",
+   "fund": "STXGOV",
+   "wayback": "http://web.archive.org/web/20220713204743id_/https://satrix.co.za/media/65305",
+   "sha256": "82870d542d3fe59ccaaaa3c4f9796a5c7d0654d6fa59519fb68f6bb037dd8fa9",
+   "as_at": "2022-05-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "STXGOV_20250616030213_b1333e7a68a4.pdf",
+   "fund": "STXGOV",
+   "wayback": "http://web.archive.org/web/20250616030213id_/https://satrix.co.za/media/91035?inline=true",
+   "sha256": "b1333e7a68a4997649ff7bb39bd030311c038caef0d5e83bac3b8fb09b18cbf1",
+   "as_at": "2025-04-30",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "STXGOV_20250616202659_baf52dfbed19.pdf",
+   "fund": "STXGVI",
+   "wayback": "http://web.archive.org/web/20250616202659id_/https://satrix.co.za/media/91034?inline=true",
+   "sha256": "baf52dfbed196e717b77b1728455c4087c18fe6771b3a6808cd6e1ec87a440d2",
+   "as_at": "2025-04-30",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "STXGOV_20250729115951_a4481b5a4901.pdf",
+   "fund": "STXGOV",
+   "wayback": "http://web.archive.org/web/20250729115951id_/https://satrix.co.za/media/91237?inline=true",
+   "sha256": "a4481b5a49014d367df0e85f967dcbb10615b41a1223fcf7598738f50d502142",
+   "as_at": "2025-06-30",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "STXGOV_20250729120805_bf0ae43bf144.pdf",
+   "fund": "STXGVI",
+   "wayback": "http://web.archive.org/web/20250729120805id_/https://satrix.co.za/media/91215?inline=true",
+   "sha256": "bf0ae43bf144d91a2838d3c672ce2109ad886958c805868638bc6571ae22dc19",
+   "as_at": "2025-06-30",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "STXGOV_20250922224618_9c616e0940b5.pdf",
+   "fund": "STXGOV",
+   "wayback": "http://web.archive.org/web/20250922224618id_/https://satrix.co.za/media/91541?inline=true",
+   "sha256": "9c616e0940b54ed89be697126ff345ad03fa19bb09066ba37861574affc9586b",
+   "as_at": "2025-08-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "STXGOV_20250922225806_6c95060379f4.pdf",
+   "fund": "STXGVI",
+   "wayback": "http://web.archive.org/web/20250922225806id_/https://satrix.co.za/media/91519?inline=true",
+   "sha256": "6c95060379f4f0df0bda68e5d7985e1458d41ad4852fffc84acaa47c4cb2742c",
+   "as_at": "2025-08-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "STXGOV_20260105123432_14494c07a098.pdf",
+   "fund": "STXGOV",
+   "wayback": "http://web.archive.org/web/20260105123432id_/https://satrix.co.za/media/91941?inline=true",
+   "sha256": "14494c07a09839772dd868eec4d265e28cdd85c87eaac27bd4abcce63550ee64",
+   "as_at": "2025-11-30",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "STXGOV_20260306163947_1e72a417ae41.pdf",
+   "fund": "STXGVI",
+   "wayback": "http://web.archive.org/web/20260306163947id_/https://satrix.co.za/media/92127?inline=true",
+   "sha256": "1e72a417ae418b70478b520263863a96d9df02762155419cc3535a7b311ac55d",
+   "as_at": "2026-01-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "STXGOV_20260306164013_8549305fe378.pdf",
+   "fund": "STXGOV",
+   "wayback": "http://web.archive.org/web/20260306164013id_/https://satrix.co.za/media/92148?inline=true",
+   "sha256": "8549305fe378e4269e2b0a33fe4861e12cfb643a2aad839ef7f387ddf44ef362",
+   "as_at": "2026-01-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "STXGOV_20261001073856_0bb213548b1d.pdf",
+   "fund": "STXGOV",
+   "wayback": "http://web.archive.org/web/20261001073856id_/https://satrix.co.za/media/93190?inline=true",
+   "sha256": "0bb213548b1dc94721f167ff09388b0af2d087f344876f1c8718e692817d65b1",
+   "as_at": "2026-08-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "STXGOV_LIVE20261122_18a6af79a198.pdf",
+   "fund": "STXGOV",
+   "wayback": "https://satrix.co.za/fund/mdd/STXGOV",
+   "sha256": "18a6af79a1987643688a6ee6e88aca2ce72c578602868216f6f2815a0f75f3d4",
+   "as_at": "2026-10-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "STXPRO_20210805011847_cf0496029a40.pdf",
+   "fund": "STXPRO",
+   "wayback": "http://web.archive.org/web/20210805011847id_/https://satrix.co.za/media/54462?inline=true",
+   "sha256": "cf0496029a4079616e02f193310cae55d02260cd26ee96ce3c7ee3ce25102c84",
+   "as_at": "2021-06-30",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 2
+  },
+  {
+   "file": "STXPRO_20220629225340_b7967ae25cec.pdf",
+   "fund": "STXPRO",
+   "wayback": "http://web.archive.org/web/20220629225340id_/https://satrix.co.za/media/64311?inline=true",
+   "sha256": "b7967ae25cec973970e9b8095047bc5c2186c3c41cfc78ec7bd89e4ac5f913ca",
+   "as_at": "2022-04-30",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "STXPRO_20241114061609_0bc56581f184.pdf",
+   "fund": "STXPRO",
+   "wayback": "http://web.archive.org/web/20241114061609id_/https://satrix.co.za/media/25624",
+   "sha256": "0bc56581f1846bd22944d77f0db72b8e889345f0774003be5a76dd4776666d09",
+   "as_at": "2018-07-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 1
+  },
+  {
+   "file": "STXPRO_20250118183720_e9181b5282af.pdf",
+   "fund": "STXPRO",
+   "wayback": "http://web.archive.org/web/20250118183720id_/https://satrix.co.za/media/90434?inline=true",
+   "sha256": "e9181b5282af2b74fd96e79e3698009288c44c115df551108f15bb8510ff2838",
+   "as_at": "2024-11-30",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "STXPRO_20250326110752_6517afa2ae05.pdf",
+   "fund": "STXPRO",
+   "wayback": "http://web.archive.org/web/20250326110752id_/https://satrix.co.za/media/90793?inline=true",
+   "sha256": "6517afa2ae053d6ac1e60946b5ca9a8925986a69b9da4dd9f0a2d13c8c5e3a55",
+   "as_at": "2025-02-28",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "STXPRO_20250616032351_3f59013e994a.pdf",
+   "fund": "STXPRO",
+   "wayback": "http://web.archive.org/web/20250616032351id_/https://satrix.co.za/media/91025?inline=true",
+   "sha256": "3f59013e994a5772551b244acb92735725f4c7cbe323425620a750b549d982a1",
+   "as_at": "2025-04-30",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "STXPRO_20250804212400_2b640275f4c0.pdf",
+   "fund": "STXPRO",
+   "wayback": "http://web.archive.org/web/20250804212400id_/https://satrix.co.za/media/90182",
+   "sha256": "2b640275f4c060c684b1ebb180a740e2f71f18295da518cd9f300e667a49901e",
+   "as_at": "2024-09-30",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "STXPRO_LIVE20261122_5237013599b3.pdf",
+   "fund": "STXPRO",
+   "wayback": "https://satrix.co.za/fund/mdd/STXPRO",
+   "sha256": "5237013599b377e70a0888a3c81f43a955b0343d3820d04fb6e03d730ac23f23",
+   "as_at": "2026-10-31",
+   "n_dist": 4,
+   "n_ex": 0,
+   "n_ret": 0
+  },
+  {
+   "file": "STXWDM_20220624224701_56cbef2f04a5.pdf",
+   "fund": "STXWDM",
+   "wayback": "http://web.archive.org/web/20220624224701id_/https://satrix.co.za/media/65300?inline=true",
+   "sha256": "56cbef2f04a55fa4881e82462e43f7e1ba8d95985f514059c578c8079619b4fc",
+   "as_at": "2022-05-31",
+   "n_dist": 0,
+   "n_ex": 0,
+   "n_ret": 0
+  }
+ ],
+ "funds": {
+  "STX40": {
+   "yahoo_sha256": "4049741ebb7247f360d03d7004fe638df733001f7ca1fc07b6becb47a5832850",
+   "exdate_test": {
+    "same_month": {
+     "pairs": 22,
+     "first_date_ret_over_yield": 0.37,
+     "second_date_ret_over_yield": -0.84,
+     "t_second_minus_first": -1.3
+    },
+    "cross_month": {
+     "pairs": 27,
+     "first_date_ret_over_yield": 0.2,
+     "second_date_ret_over_yield": -1.22,
+     "t_second_minus_first": -2.4
+    }
+   },
+   "issuer_periods": 51,
+   "first_period": "2010-09-30",
+   "last_period": "2026-09-30",
+   "conflicts": [
+    {
+     "period_end": "2014-12-31",
+     "cps": null,
+     "conflict": [
+      21.21,
+      21.65
+     ],
+     "ex_date": "2014-12-18"
+    }
+   ],
+   "by_year": {
+    "2010": {
+     "issuer": 2,
+     "match": 0,
+     "missing": 2,
+     "different": 0
+    },
+    "2011": {
+     "issuer": 4,
+     "match": 0,
+     "missing": 4,
+     "different": 0
+    },
+    "2012": {
+     "issuer": 4,
+     "match": 0,
+     "missing": 4,
+     "different": 0
+    },
+    "2013": {
+     "issuer": 4,
+     "match": 4,
+     "missing": 0,
+     "different": 0
+    },
+    "2014": {
+     "issuer": 3,
+     "match": 3,
+     "missing": 0,
+     "different": 0
+    },
+    "2016": {
+     "issuer": 2,
+     "match": 2,
+     "missing": 0,
+     "different": 0
+    },
+    "2017": {
+     "issuer": 4,
+     "match": 4,
+     "missing": 0,
+     "different": 0
+    },
+    "2018": {
+     "issuer": 4,
+     "match": 3,
+     "missing": 0,
+     "different": 1
+    },
+    "2021": {
+     "issuer": 4,
+     "match": 4,
+     "missing": 0,
+     "different": 0
+    },
+    "2022": {
+     "issuer": 4,
+     "match": 4,
+     "missing": 0,
+     "different": 0
+    },
+    "2023": {
+     "issuer": 4,
+     "match": 4,
+     "missing": 0,
+     "different": 0
+    },
+    "2024": {
+     "issuer": 4,
+     "match": 4,
+     "missing": 0,
+     "different": 0
+    },
+    "2025": {
+     "issuer": 4,
+     "match": 4,
+     "missing": 0,
+     "different": 0
+    },
+    "2026": {
+     "issuer": 3,
+     "match": 3,
+     "missing": 0,
+     "different": 0
+    }
+   },
+   "crosscheck": [
+    {
+     "period_end": "2010-09-30",
+     "cps": 21.23,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [],
+     "yahoo_dedup_match": [],
+     "status": "missing"
+    },
+    {
+     "period_end": "2010-12-31",
+     "cps": 8.19,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [],
+     "yahoo_dedup_match": [],
+     "status": "missing"
+    },
+    {
+     "period_end": "2011-03-31",
+     "cps": 9.54,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [],
+     "yahoo_dedup_match": [],
+     "status": "missing"
+    },
+    {
+     "period_end": "2011-06-30",
+     "cps": 16.98,
+     "conflict": null,
+     "ex_date": "2011-06-20",
+     "yahoo_raw": [],
+     "yahoo_dedup_match": [],
+     "status": "missing"
+    },
+    {
+     "period_end": "2011-09-30",
+     "cps": 26.82,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [],
+     "yahoo_dedup_match": [],
+     "status": "missing"
+    },
+    {
+     "period_end": "2011-12-31",
+     "cps": 11.52,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [],
+     "yahoo_dedup_match": [],
+     "status": "missing"
+    },
+    {
+     "period_end": "2012-03-31",
+     "cps": 13.86,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [],
+     "yahoo_dedup_match": [],
+     "status": "missing"
+    },
+    {
+     "period_end": "2012-06-30",
+     "cps": 24.8,
+     "conflict": null,
+     "ex_date": "2012-06-25",
+     "yahoo_raw": [],
+     "yahoo_dedup_match": [],
+     "status": "missing"
+    },
+    {
+     "period_end": "2012-09-30",
+     "cps": 33.08,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [],
+     "yahoo_dedup_match": [],
+     "status": "missing"
+    },
+    {
+     "period_end": "2012-12-31",
+     "cps": 11.52,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [],
+     "yahoo_dedup_match": [],
+     "status": "missing"
+    },
+    {
+     "period_end": "2013-03-31",
+     "cps": 15.55,
+     "conflict": null,
+     "ex_date": "2013-03-22",
+     "yahoo_raw": [
+      [
+       "2013-03-22",
+       15.549999
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2013-03-22"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2013-06-30",
+     "cps": 21.28,
+     "conflict": null,
+     "ex_date": "2013-06-24",
+     "yahoo_raw": [
+      [
+       "2013-06-24",
+       21.279999
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2013-06-24"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2013-09-30",
+     "cps": 40.07,
+     "conflict": null,
+     "ex_date": "2013-09-20",
+     "yahoo_raw": [
+      [
+       "2013-09-20",
+       40.07
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2013-09-20"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2013-12-31",
+     "cps": 13.1,
+     "conflict": null,
+     "ex_date": "2013-12-19",
+     "yahoo_raw": [
+      [
+       "2013-12-19",
+       13.099999
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2013-12-19"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2014-03-31",
+     "cps": 20.84,
+     "conflict": null,
+     "ex_date": "2014-03-24",
+     "yahoo_raw": [
+      [
+       "2014-03-24",
+       20.84
+      ],
+      [
+       "2014-03-31",
+       20.84
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2014-03-31"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2014-06-30",
+     "cps": 27.94,
+     "conflict": null,
+     "ex_date": "2014-06-23",
+     "yahoo_raw": [
+      [
+       "2014-06-23",
+       27.939999
+      ],
+      [
+       "2014-06-30",
+       27.939999
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2014-06-30"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2014-09-30",
+     "cps": 38.68,
+     "conflict": null,
+     "ex_date": "2014-09-19",
+     "yahoo_raw": [
+      [
+       "2014-09-19",
+       38.68
+      ],
+      [
+       "2014-09-30",
+       38.68
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2014-09-30"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2016-09-30",
+     "cps": 39.33,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2016-09-28",
+       39.329998
+      ],
+      [
+       "2016-09-30",
+       39.329998
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2016-09-30"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2016-12-31",
+     "cps": 14.77,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2016-12-28",
+       14.7699995
+      ],
+      [
+       "2016-12-30",
+       14.7699995
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2016-12-30"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2017-03-31",
+     "cps": 29.56,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2017-03-29",
+       29.56
+      ],
+      [
+       "2017-03-31",
+       29.56
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2017-03-31"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2017-06-30",
+     "cps": 21.82,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2017-06-28",
+       21.82
+      ],
+      [
+       "2017-06-30",
+       21.82
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2017-06-30"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2017-09-30",
+     "cps": 41.08,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2017-09-27",
+       41.08
+      ],
+      [
+       "2017-09-29",
+       41.08
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2017-09-29"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2017-12-31",
+     "cps": 25.09,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2017-12-29",
+       25.09
+      ],
+      [
+       "2018-01-10",
+       25.09
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2018-01-10"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2018-03-31",
+     "cps": 36.74,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2018-03-29",
+       36.739998
+      ],
+      [
+       "2018-04-11",
+       36.739998
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2018-04-11"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2018-06-30",
+     "cps": 32.33,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2018-06-29",
+       32.33
+      ],
+      [
+       "2018-07-11",
+       32.33
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2018-07-11"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2018-09-30",
+     "cps": 61.66,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2018-09-28",
+       61.659996
+      ],
+      [
+       "2018-10-17",
+       61.659996
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2018-10-17"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2018-12-31",
+     "cps": 16.6,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2018-12-31",
+       15.19
+      ],
+      [
+       "2019-01-23",
+       15.19
+      ]
+     ],
+     "yahoo_dedup_match": [],
+     "status": "different"
+    },
+    {
+     "period_end": "2021-03-31",
+     "cps": 57.23,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2021-03-31",
+       57.230003
+      ],
+      [
+       "2021-04-14",
+       57.230003
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2021-04-14"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2021-06-30",
+     "cps": 33.74,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2021-06-30",
+       33.739998
+      ],
+      [
+       "2021-07-14",
+       33.739998
+      ],
+      [
+       "2021-07-19",
+       33.739998
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2021-07-19"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2021-09-30",
+     "cps": 130.5,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2021-09-30",
+       130.5
+      ],
+      [
+       "2021-10-13",
+       130.5
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2021-10-13"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2021-12-31",
+     "cps": 20.71,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2021-12-31",
+       20.710001
+      ],
+      [
+       "2022-01-19",
+       20.710001
+      ],
+      [
+       "2022-01-24",
+       20.710001
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2022-01-24"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2022-03-31",
+     "cps": 69.48,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2022-03-31",
+       69.48
+      ],
+      [
+       "2022-04-20",
+       69.48
+      ],
+      [
+       "2022-04-22",
+       69.48
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2022-04-22"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2022-06-30",
+     "cps": 58.74,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2022-06-30",
+       58.74
+      ],
+      [
+       "2022-07-20",
+       58.74
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2022-07-20"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2022-09-30",
+     "cps": 111.73,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2022-09-30",
+       111.73
+      ],
+      [
+       "2022-10-19",
+       111.73
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2022-10-19"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2022-12-31",
+     "cps": 21.82,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2022-12-30",
+       21.82
+      ],
+      [
+       "2023-01-18",
+       21.82
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2023-01-18"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2023-03-31",
+     "cps": 38.37,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2023-03-31",
+       38.370003
+      ],
+      [
+       "2023-04-19",
+       38.370003
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2023-04-19"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2023-06-30",
+     "cps": 64.76,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2023-06-30",
+       64.76
+      ],
+      [
+       "2023-07-26",
+       64.76
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2023-07-26"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2023-09-30",
+     "cps": 90.16,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2023-09-29",
+       90.16
+      ],
+      [
+       "2023-10-18",
+       90.16
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2023-10-18"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2023-12-31",
+     "cps": 33.46,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2023-12-29",
+       33.46
+      ],
+      [
+       "2024-01-17",
+       33.46
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2024-01-17"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2024-03-31",
+     "cps": 37.31,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2024-03-28",
+       37.31
+      ],
+      [
+       "2024-04-24",
+       37.31
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2024-04-24"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2024-06-30",
+     "cps": 86.24,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2024-06-28",
+       86.24
+      ],
+      [
+       "2024-07-17",
+       86.24
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2024-07-17"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2024-09-30",
+     "cps": 69.79,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2024-09-30",
+       69.79
+      ],
+      [
+       "2024-10-16",
+       69.79
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2024-10-16"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2024-12-31",
+     "cps": 42.53,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2025-01-15",
+       42.53
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2025-01-15"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2025-03-31",
+     "cps": 32.72,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2025-04-15",
+       32.72
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2025-04-15"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2025-06-30",
+     "cps": 95.77,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2025-07-16",
+       95.770004
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2025-07-16"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2025-09-30",
+     "cps": 77.98,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2025-10-22",
+       77.98
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2025-10-22"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2025-12-31",
+     "cps": 55.71,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2026-01-21",
+       55.71
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2026-01-21"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2026-03-31",
+     "cps": 96.62,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2026-04-21",
+       96.62
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2026-04-21"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2026-06-30",
+     "cps": 98.31,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2026-07-22",
+       98.31
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2026-07-22"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2026-09-30",
+     "cps": 142.37,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2026-10-21",
+       142.37
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2026-10-21"
+     ],
+     "status": "match"
+    }
+   ],
+   "return_tests": [
+    {
+     "as_at": "2012-06-30",
+     "years": 1,
+     "stated": 6.47,
+     "rebuilt_yahoo": 3.67,
+     "rebuilt_issuer": 6.52,
+     "gap_yahoo": -2.8,
+     "gap_issuer": 0.05,
+     "source": "http://web.archive.org/web/20120813182212id_/http://www.satrix.co.za:80/documents/june%202012%20-%20june%202012%20-%20satrix%2040%20-%202012/07/27%20-%20quarterly%20fact%20statement.pdf"
+    },
+    {
+     "as_at": "2012-06-30",
+     "years": 2,
+     "stated": 15.43,
+     "rebuilt_yahoo": 12.8,
+     "rebuilt_issuer": 15.52,
+     "gap_yahoo": -2.63,
+     "gap_issuer": 0.09,
+     "source": "http://web.archive.org/web/20120813182212id_/http://www.satrix.co.za:80/documents/june%202012%20-%20june%202012%20-%20satrix%2040%20-%202012/07/27%20-%20quarterly%20fact%20statement.pdf"
+    },
+    {
+     "as_at": "2012-06-30",
+     "years": 3,
+     "stated": 17.03,
+     "rebuilt_yahoo": 14.58,
+     "rebuilt_issuer": 16.42,
+     "gap_yahoo": -2.45,
+     "gap_issuer": -0.61,
+     "source": "http://web.archive.org/web/20120813182212id_/http://www.satrix.co.za:80/documents/june%202012%20-%20june%202012%20-%20satrix%2040%20-%202012/07/27%20-%20quarterly%20fact%20statement.pdf"
+    },
+    {
+     "as_at": "2013-03-31",
+     "years": 1,
+     "stated": 22.03,
+     "rebuilt_yahoo": 19.39,
+     "rebuilt_issuer": 22.03,
+     "gap_yahoo": -2.64,
+     "gap_issuer": 0.0,
+     "source": "http://web.archive.org/web/20160412210817id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-03-30.pdf"
+    },
+    {
+     "as_at": "2013-03-31",
+     "years": 2,
+     "stated": 13.01,
+     "rebuilt_yahoo": 10.43,
+     "rebuilt_issuer": 13.05,
+     "gap_yahoo": -2.58,
+     "gap_issuer": 0.04,
+     "source": "http://web.archive.org/web/20160412210817id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-03-30.pdf"
+    },
+    {
+     "as_at": "2013-03-31",
+     "years": 3,
+     "stated": 13.65,
+     "rebuilt_yahoo": 11.2,
+     "rebuilt_issuer": 13.5,
+     "gap_yahoo": -2.45,
+     "gap_issuer": -0.15,
+     "source": "http://web.archive.org/web/20160412210817id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-03-30.pdf"
+    },
+    {
+     "as_at": "2013-03-31",
+     "years": 4,
+     "stated": 20.22,
+     "rebuilt_yahoo": 17.81,
+     "rebuilt_issuer": 19.64,
+     "gap_yahoo": -2.41,
+     "gap_issuer": -0.58,
+     "source": "http://web.archive.org/web/20160412210817id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-03-30.pdf"
+    },
+    {
+     "as_at": "2013-04-30",
+     "years": 1,
+     "stated": 15.03,
+     "rebuilt_yahoo": 12.54,
+     "rebuilt_issuer": 15.04,
+     "gap_yahoo": -2.49,
+     "gap_issuer": 0.01,
+     "source": "http://web.archive.org/web/20160412213322id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-04-30.pdf"
+    },
+    {
+     "as_at": "2013-04-30",
+     "years": 2,
+     "stated": 10.16,
+     "rebuilt_yahoo": 7.64,
+     "rebuilt_issuer": 10.19,
+     "gap_yahoo": -2.52,
+     "gap_issuer": 0.03,
+     "source": "http://web.archive.org/web/20160412213322id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-04-30.pdf"
+    },
+    {
+     "as_at": "2013-04-30",
+     "years": 3,
+     "stated": 12.65,
+     "rebuilt_yahoo": 10.22,
+     "rebuilt_issuer": 12.5,
+     "gap_yahoo": -2.43,
+     "gap_issuer": -0.15,
+     "source": "http://web.archive.org/web/20160412213322id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-04-30.pdf"
+    },
+    {
+     "as_at": "2013-04-30",
+     "years": 4,
+     "stated": 19.02,
+     "rebuilt_yahoo": 16.64,
+     "rebuilt_issuer": 18.44,
+     "gap_yahoo": -2.38,
+     "gap_issuer": -0.58,
+     "source": "http://web.archive.org/web/20160412213322id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-04-30.pdf"
+    },
+    {
+     "as_at": "2013-05-31",
+     "years": 1,
+     "stated": 31.87,
+     "rebuilt_yahoo": 29.01,
+     "rebuilt_issuer": 31.87,
+     "gap_yahoo": -2.86,
+     "gap_issuer": 0.0,
+     "source": "http://web.archive.org/web/20160412213616id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-05-30.pdf"
+    },
+    {
+     "as_at": "2013-05-31",
+     "years": 2,
+     "stated": 16.26,
+     "rebuilt_yahoo": 13.6,
+     "rebuilt_issuer": 16.3,
+     "gap_yahoo": -2.66,
+     "gap_issuer": 0.04,
+     "source": "http://web.archive.org/web/20160412213616id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-05-30.pdf"
+    },
+    {
+     "as_at": "2013-05-31",
+     "years": 3,
+     "stated": 18.68,
+     "rebuilt_yahoo": 16.12,
+     "rebuilt_issuer": 18.52,
+     "gap_yahoo": -2.56,
+     "gap_issuer": -0.16,
+     "source": "http://web.archive.org/web/20160412213616id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-05-30.pdf"
+    },
+    {
+     "as_at": "2013-05-31",
+     "years": 4,
+     "stated": 18.78,
+     "rebuilt_yahoo": 16.41,
+     "rebuilt_issuer": 18.21,
+     "gap_yahoo": -2.37,
+     "gap_issuer": -0.57,
+     "source": "http://web.archive.org/web/20160412213616id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-05-30.pdf"
+    },
+    {
+     "as_at": "2013-06-30",
+     "years": 1,
+     "stated": 21.2,
+     "rebuilt_yahoo": 19.56,
+     "rebuilt_issuer": 21.2,
+     "gap_yahoo": -1.64,
+     "gap_issuer": 0.0,
+     "source": "http://web.archive.org/web/20160412205034id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-06-30.pdf"
+    },
+    {
+     "as_at": "2013-06-30",
+     "years": 2,
+     "stated": 13.59,
+     "rebuilt_yahoo": 11.33,
+     "rebuilt_issuer": 13.63,
+     "gap_yahoo": -2.26,
+     "gap_issuer": 0.04,
+     "source": "http://web.archive.org/web/20160412205034id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-06-30.pdf"
+    },
+    {
+     "as_at": "2013-06-30",
+     "years": 3,
+     "stated": 17.37,
+     "rebuilt_yahoo": 15.01,
+     "rebuilt_issuer": 17.39,
+     "gap_yahoo": -2.36,
+     "gap_issuer": 0.02,
+     "source": "http://web.archive.org/web/20160412205034id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-06-30.pdf"
+    },
+    {
+     "as_at": "2013-06-30",
+     "years": 4,
+     "stated": 18.06,
+     "rebuilt_yahoo": 15.81,
+     "rebuilt_issuer": 17.6,
+     "gap_yahoo": -2.25,
+     "gap_issuer": -0.46,
+     "source": "http://web.archive.org/web/20160412205034id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-06-30.pdf"
+    },
+    {
+     "as_at": "2013-07-31",
+     "years": 1,
+     "stated": 24.29,
+     "rebuilt_yahoo": 22.61,
+     "rebuilt_issuer": 24.29,
+     "gap_yahoo": -1.68,
+     "gap_issuer": 0.0,
+     "source": "http://web.archive.org/web/20160412204618id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-07-30.pdf"
+    },
+    {
+     "as_at": "2013-07-31",
+     "years": 2,
+     "stated": 17.97,
+     "rebuilt_yahoo": 15.63,
+     "rebuilt_issuer": 18.01,
+     "gap_yahoo": -2.34,
+     "gap_issuer": 0.04,
+     "source": "http://web.archive.org/web/20160412204618id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-07-30.pdf"
+    },
+    {
+     "as_at": "2013-07-31",
+     "years": 3,
+     "stated": 16.22,
+     "rebuilt_yahoo": 13.88,
+     "rebuilt_issuer": 16.24,
+     "gap_yahoo": -2.34,
+     "gap_issuer": 0.02,
+     "source": "http://web.archive.org/web/20160412204618id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-07-30.pdf"
+    },
+    {
+     "as_at": "2013-07-31",
+     "years": 4,
+     "stated": 16.84,
+     "rebuilt_yahoo": 14.27,
+     "rebuilt_issuer": 16.03,
+     "gap_yahoo": -2.57,
+     "gap_issuer": -0.81,
+     "source": "http://web.archive.org/web/20160412204618id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-07-30.pdf"
+    },
+    {
+     "as_at": "2013-08-31",
+     "years": 1,
+     "stated": 24.27,
+     "rebuilt_yahoo": 22.59,
+     "rebuilt_issuer": 24.27,
+     "gap_yahoo": -1.68,
+     "gap_issuer": -0.0,
+     "source": "http://web.archive.org/web/20160412213636id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-08-30.pdf"
+    },
+    {
+     "as_at": "2013-08-31",
+     "years": 2,
+     "stated": 19.94,
+     "rebuilt_yahoo": 17.56,
+     "rebuilt_issuer": 19.98,
+     "gap_yahoo": -2.38,
+     "gap_issuer": 0.04,
+     "source": "http://web.archive.org/web/20160412213636id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-08-30.pdf"
+    },
+    {
+     "as_at": "2013-08-31",
+     "years": 3,
+     "stated": 19.02,
+     "rebuilt_yahoo": 16.62,
+     "rebuilt_issuer": 19.04,
+     "gap_yahoo": -2.4,
+     "gap_issuer": 0.02,
+     "source": "http://web.archive.org/web/20160412213636id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-08-30.pdf"
+    },
+    {
+     "as_at": "2013-08-31",
+     "years": 4,
+     "stated": 16.53,
+     "rebuilt_yahoo": 14.31,
+     "rebuilt_issuer": 16.08,
+     "gap_yahoo": -2.22,
+     "gap_issuer": -0.45,
+     "source": "http://web.archive.org/web/20160412213636id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-08-30.pdf"
+    },
+    {
+     "as_at": "2013-09-30",
+     "years": 1,
+     "stated": 28.25,
+     "rebuilt_yahoo": 27.83,
+     "rebuilt_issuer": 28.25,
+     "gap_yahoo": -0.42,
+     "gap_issuer": -0.0,
+     "source": "http://web.archive.org/web/20160412213328id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-09-30.pdf"
+    },
+    {
+     "as_at": "2013-09-30",
+     "years": 2,
+     "stated": 25.45,
+     "rebuilt_yahoo": 23.55,
+     "rebuilt_issuer": 25.46,
+     "gap_yahoo": -1.9,
+     "gap_issuer": 0.01,
+     "source": "http://web.archive.org/web/20160412213328id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-09-30.pdf"
+    },
+    {
+     "as_at": "2013-09-30",
+     "years": 3,
+     "stated": 17.52,
+     "rebuilt_yahoo": 15.48,
+     "rebuilt_issuer": 17.54,
+     "gap_yahoo": -2.04,
+     "gap_issuer": 0.02,
+     "source": "http://web.archive.org/web/20160412213328id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-09-30.pdf"
+    },
+    {
+     "as_at": "2013-09-30",
+     "years": 4,
+     "stated": 18.02,
+     "rebuilt_yahoo": 15.96,
+     "rebuilt_issuer": 17.75,
+     "gap_yahoo": -2.06,
+     "gap_issuer": -0.27,
+     "source": "http://web.archive.org/web/20160412213328id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-09-30.pdf"
+    },
+    {
+     "as_at": "2013-10-31",
+     "years": 1,
+     "stated": 26.13,
+     "rebuilt_yahoo": 25.72,
+     "rebuilt_issuer": 26.13,
+     "gap_yahoo": -0.41,
+     "gap_issuer": 0.0,
+     "source": "http://web.archive.org/web/20160412213640id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-10-30.pdf"
+    },
+    {
+     "as_at": "2013-10-31",
+     "years": 3,
+     "stated": 17.38,
+     "rebuilt_yahoo": 15.34,
+     "rebuilt_issuer": 17.4,
+     "gap_yahoo": -2.04,
+     "gap_issuer": 0.02,
+     "source": "http://web.archive.org/web/20160412213640id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-10-30.pdf"
+    },
+    {
+     "as_at": "2013-12-31",
+     "years": 1,
+     "stated": 22.1,
+     "rebuilt_yahoo": 22.1,
+     "rebuilt_issuer": 22.1,
+     "gap_yahoo": 0.0,
+     "gap_issuer": 0.0,
+     "source": "http://web.archive.org/web/20160412212108id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-12-30.pdf"
+    },
+    {
+     "as_at": "2013-12-31",
+     "years": 3,
+     "stated": 15.96,
+     "rebuilt_yahoo": 14.05,
+     "rebuilt_issuer": 15.98,
+     "gap_yahoo": -1.91,
+     "gap_issuer": 0.02,
+     "source": "http://web.archive.org/web/20160412212108id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-12-30.pdf"
+    },
+    {
+     "as_at": "2013-12-31",
+     "years": 5,
+     "stated": 18.98,
+     "rebuilt_yahoo": 16.63,
+     "rebuilt_issuer": 18.07,
+     "gap_yahoo": -2.35,
+     "gap_issuer": -0.91,
+     "source": "http://web.archive.org/web/20160412212108id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202013-12-30.pdf"
+    },
+    {
+     "as_at": "2014-01-31",
+     "years": 1,
+     "stated": 15.22,
+     "rebuilt_yahoo": 15.22,
+     "rebuilt_issuer": 15.22,
+     "gap_yahoo": 0.0,
+     "gap_issuer": 0.0,
+     "source": "http://web.archive.org/web/20150317194858id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202014-01-31.pdf"
+    },
+    {
+     "as_at": "2014-01-31",
+     "years": 3,
+     "stated": 15.81,
+     "rebuilt_yahoo": 13.91,
+     "rebuilt_issuer": 15.84,
+     "gap_yahoo": -1.9,
+     "gap_issuer": 0.03,
+     "source": "http://web.archive.org/web/20150317194858id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202014-01-31.pdf"
+    },
+    {
+     "as_at": "2014-01-31",
+     "years": 5,
+     "stated": 19.62,
+     "rebuilt_yahoo": 17.55,
+     "rebuilt_issuer": 19.0,
+     "gap_yahoo": -2.07,
+     "gap_issuer": -0.62,
+     "source": "http://web.archive.org/web/20150317194858id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202014-01-31.pdf"
+    },
+    {
+     "as_at": "2014-02-28",
+     "years": 1,
+     "stated": 24.26,
+     "rebuilt_yahoo": 24.26,
+     "rebuilt_issuer": 24.26,
+     "gap_yahoo": 0.0,
+     "gap_issuer": 0.0,
+     "source": "http://web.archive.org/web/20150317234723id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202014-02-28.pdf"
+    },
+    {
+     "as_at": "2014-02-28",
+     "years": 3,
+     "stated": 16.55,
+     "rebuilt_yahoo": 14.64,
+     "rebuilt_issuer": 16.58,
+     "gap_yahoo": -1.91,
+     "gap_issuer": 0.03,
+     "source": "http://web.archive.org/web/20150317234723id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202014-02-28.pdf"
+    },
+    {
+     "as_at": "2014-02-28",
+     "years": 5,
+     "stated": 23.55,
+     "rebuilt_yahoo": 21.41,
+     "rebuilt_issuer": 22.91,
+     "gap_yahoo": -2.14,
+     "gap_issuer": -0.64,
+     "source": "http://web.archive.org/web/20150317234723id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202014-02-28.pdf"
+    },
+    {
+     "as_at": "2014-03-31",
+     "years": 1,
+     "stated": 24.94,
+     "rebuilt_yahoo": 24.93,
+     "rebuilt_issuer": 24.94,
+     "gap_yahoo": -0.01,
+     "gap_issuer": 0.0,
+     "source": "http://web.archive.org/web/20160412212113id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202014-03-28.pdf"
+    },
+    {
+     "as_at": "2014-03-31",
+     "years": 3,
+     "stated": 16.86,
+     "rebuilt_yahoo": 15.07,
+     "rebuilt_issuer": 16.88,
+     "gap_yahoo": -1.79,
+     "gap_issuer": 0.02,
+     "source": "http://web.archive.org/web/20160412212113id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202014-03-28.pdf"
+    },
+    {
+     "as_at": "2014-03-31",
+     "years": 5,
+     "stated": 21.15,
+     "rebuilt_yahoo": 19.2,
+     "rebuilt_issuer": 20.68,
+     "gap_yahoo": -1.95,
+     "gap_issuer": -0.47,
+     "source": "http://web.archive.org/web/20160412212113id_/http://www.satrix.co.za:80/documents/uploads/STX40ETF/Satrix%2040%20ETF%20Fact%20Sheet%202014-03-28.pdf"
+    },
+    {
+     "as_at": "2014-04-30",
+     "years": 1,
+     "stated": 31.76,
+     "rebuilt_yahoo": 31.75,
+     "rebuilt_issuer": 31.76,
+     "gap_yahoo": -0.01,
+     "gap_issuer": 0.0,
+     "source": "http://web.archive.org/web/20150317203922id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202014-04-30.pdf"
+    },
+    {
+     "as_at": "2014-04-30",
+     "years": 3,
+     "stated": 16.93,
+     "rebuilt_yahoo": 15.14,
+     "rebuilt_issuer": 16.96,
+     "gap_yahoo": -1.79,
+     "gap_issuer": 0.03,
+     "source": "http://web.archive.org/web/20150317203922id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202014-04-30.pdf"
+    },
+    {
+     "as_at": "2014-04-30",
+     "years": 5,
+     "stated": 21.47,
+     "rebuilt_yahoo": 19.52,
+     "rebuilt_issuer": 21.0,
+     "gap_yahoo": -1.95,
+     "gap_issuer": -0.47,
+     "source": "http://web.archive.org/web/20150317203922id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202014-04-30.pdf"
+    },
+    {
+     "as_at": "2014-05-31",
+     "years": 1,
+     "stated": 21.72,
+     "rebuilt_yahoo": 21.71,
+     "rebuilt_issuer": 21.72,
+     "gap_yahoo": -0.01,
+     "gap_issuer": 0.0,
+     "source": "http://web.archive.org/web/20150317185557id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202014-05-31.pdf"
+    },
+    {
+     "as_at": "2014-05-31",
+     "years": 3,
+     "stated": 18.05,
+     "rebuilt_yahoo": 16.24,
+     "rebuilt_issuer": 18.08,
+     "gap_yahoo": -1.81,
+     "gap_issuer": 0.03,
+     "source": "http://web.archive.org/web/20150317185557id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202014-05-31.pdf"
+    },
+    {
+     "as_at": "2014-05-31",
+     "years": 5,
+     "stated": 19.37,
+     "rebuilt_yahoo": 17.45,
+     "rebuilt_issuer": 18.9,
+     "gap_yahoo": -1.92,
+     "gap_issuer": -0.47,
+     "source": "http://web.archive.org/web/20150317185557id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202014-05-31.pdf"
+    },
+    {
+     "as_at": "2014-06-30",
+     "years": 1,
+     "stated": 34.36,
+     "rebuilt_yahoo": 34.35,
+     "rebuilt_issuer": 34.36,
+     "gap_yahoo": -0.01,
+     "gap_issuer": -0.0,
+     "source": "http://web.archive.org/web/20150317222615id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%20%202014-06-30.pdf"
+    },
+    {
+     "as_at": "2014-06-30",
+     "years": 3,
+     "stated": 20.13,
+     "rebuilt_yahoo": 18.53,
+     "rebuilt_issuer": 20.15,
+     "gap_yahoo": -1.6,
+     "gap_issuer": 0.02,
+     "source": "http://web.archive.org/web/20150317222615id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%20%202014-06-30.pdf"
+    },
+    {
+     "as_at": "2014-06-30",
+     "years": 5,
+     "stated": 21.15,
+     "rebuilt_yahoo": 19.3,
+     "rebuilt_issuer": 20.77,
+     "gap_yahoo": -1.85,
+     "gap_issuer": -0.38,
+     "source": "http://web.archive.org/web/20150317222615id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%20%202014-06-30.pdf"
+    },
+    {
+     "as_at": "2014-07-31",
+     "years": 1,
+     "stated": 28.48,
+     "rebuilt_yahoo": 28.47,
+     "rebuilt_issuer": 28.48,
+     "gap_yahoo": -0.01,
+     "gap_issuer": -0.0,
+     "source": "http://web.archive.org/web/20150317192207id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202014-07-31.pdf"
+    },
+    {
+     "as_at": "2014-07-31",
+     "years": 3,
+     "stated": 21.37,
+     "rebuilt_yahoo": 19.76,
+     "rebuilt_issuer": 21.4,
+     "gap_yahoo": -1.61,
+     "gap_issuer": 0.03,
+     "source": "http://web.archive.org/web/20150317192207id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202014-07-31.pdf"
+    },
+    {
+     "as_at": "2014-07-31",
+     "years": 5,
+     "stated": 18.79,
+     "rebuilt_yahoo": 16.97,
+     "rebuilt_issuer": 18.42,
+     "gap_yahoo": -1.82,
+     "gap_issuer": -0.37,
+     "source": "http://web.archive.org/web/20150317192207id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202014-07-31.pdf"
+    },
+    {
+     "as_at": "2014-08-31",
+     "years": 1,
+     "stated": 23.59,
+     "rebuilt_yahoo": 23.58,
+     "rebuilt_issuer": 23.59,
+     "gap_yahoo": -0.01,
+     "gap_issuer": 0.0,
+     "source": "http://web.archive.org/web/20150317212717id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202014-08-31.pdf"
+    },
+    {
+     "as_at": "2014-08-31",
+     "years": 3,
+     "stated": 21.15,
+     "rebuilt_yahoo": 19.54,
+     "rebuilt_issuer": 21.17,
+     "gap_yahoo": -1.61,
+     "gap_issuer": 0.02,
+     "source": "http://web.archive.org/web/20150317212717id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202014-08-31.pdf"
+    },
+    {
+     "as_at": "2014-08-31",
+     "years": 5,
+     "stated": 17.91,
+     "rebuilt_yahoo": 16.11,
+     "rebuilt_issuer": 17.54,
+     "gap_yahoo": -1.8,
+     "gap_issuer": -0.37,
+     "source": "http://web.archive.org/web/20150317212717id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202014-08-31.pdf"
+    },
+    {
+     "as_at": "2014-09-30",
+     "years": 1,
+     "stated": 14.6,
+     "rebuilt_yahoo": 14.63,
+     "rebuilt_issuer": 14.6,
+     "gap_yahoo": 0.03,
+     "gap_issuer": -0.0,
+     "source": "http://web.archive.org/web/20150317194730id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202014-09-30.pdf"
+    },
+    {
+     "as_at": "2014-09-30",
+     "years": 3,
+     "stated": 21.72,
+     "rebuilt_yahoo": 20.5,
+     "rebuilt_issuer": 21.73,
+     "gap_yahoo": -1.22,
+     "gap_issuer": 0.01,
+     "source": "http://web.archive.org/web/20150317194730id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202014-09-30.pdf"
+    },
+    {
+     "as_at": "2014-09-30",
+     "years": 5,
+     "stated": 17.33,
+     "rebuilt_yahoo": 15.69,
+     "rebuilt_issuer": 17.11,
+     "gap_yahoo": -1.64,
+     "gap_issuer": -0.22,
+     "source": "http://web.archive.org/web/20150317194730id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fact%20Sheet%202014-09-30.pdf"
+    },
+    {
+     "as_at": "2014-10-31",
+     "years": 1,
+     "stated": 11.75,
+     "rebuilt_yahoo": 11.78,
+     "rebuilt_issuer": 11.75,
+     "gap_yahoo": 0.03,
+     "gap_issuer": -0.0,
+     "source": "http://web.archive.org/web/20150317190818id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fund%20Fact%20Sheet%202014-10-31.pdf"
+    },
+    {
+     "as_at": "2014-10-31",
+     "years": 3,
+     "stated": 18.09,
+     "rebuilt_yahoo": 16.91,
+     "rebuilt_issuer": 18.1,
+     "gap_yahoo": -1.18,
+     "gap_issuer": 0.01,
+     "source": "http://web.archive.org/web/20150317190818id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fund%20Fact%20Sheet%202014-10-31.pdf"
+    },
+    {
+     "as_at": "2014-10-31",
+     "years": 5,
+     "stated": 16.06,
+     "rebuilt_yahoo": 14.45,
+     "rebuilt_issuer": 15.85,
+     "gap_yahoo": -1.61,
+     "gap_issuer": -0.21,
+     "source": "http://web.archive.org/web/20150317190818id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fund%20Fact%20Sheet%202014-10-31.pdf"
+    },
+    {
+     "as_at": "2014-12-31",
+     "years": 1,
+     "stated": 8.58,
+     "rebuilt_yahoo": 8.6,
+     "rebuilt_issuer": 8.56,
+     "gap_yahoo": 0.02,
+     "gap_issuer": -0.02,
+     "source": "http://web.archive.org/web/20150317193250id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fund%20Fact%20Sheet%202015-01-12.pdf"
+    },
+    {
+     "as_at": "2014-12-31",
+     "years": 3,
+     "stated": 18.49,
+     "rebuilt_yahoo": 17.46,
+     "rebuilt_issuer": 18.49,
+     "gap_yahoo": -1.03,
+     "gap_issuer": -0.0,
+     "source": "http://web.archive.org/web/20150317193250id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fund%20Fact%20Sheet%202015-01-12.pdf"
+    },
+    {
+     "as_at": "2014-12-31",
+     "years": 5,
+     "stated": 14.6,
+     "rebuilt_yahoo": 13.04,
+     "rebuilt_issuer": 14.43,
+     "gap_yahoo": -1.56,
+     "gap_issuer": -0.17,
+     "source": "http://web.archive.org/web/20150317193250id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fund%20Fact%20Sheet%202015-01-12.pdf"
+    },
+    {
+     "as_at": "2015-01-31",
+     "years": 1,
+     "stated": 13.79,
+     "rebuilt_yahoo": 13.82,
+     "rebuilt_issuer": 13.79,
+     "gap_yahoo": 0.03,
+     "gap_issuer": -0.0,
+     "source": "http://web.archive.org/web/20150317210832id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fund%20Fact%20Sheet%202015-01-31.pdf"
+    },
+    {
+     "as_at": "2015-01-31",
+     "years": 3,
+     "stated": 17.21,
+     "rebuilt_yahoo": 16.19,
+     "rebuilt_issuer": 17.21,
+     "gap_yahoo": -1.02,
+     "gap_issuer": -0.0,
+     "source": "http://web.archive.org/web/20150317210832id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fund%20Fact%20Sheet%202015-01-31.pdf"
+    },
+    {
+     "as_at": "2015-01-31",
+     "years": 5,
+     "stated": 16.08,
+     "rebuilt_yahoo": 14.51,
+     "rebuilt_issuer": 15.92,
+     "gap_yahoo": -1.57,
+     "gap_issuer": -0.16,
+     "source": "http://web.archive.org/web/20150317210832id_/http://satrix.co.za/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fund%20Fact%20Sheet%202015-01-31.pdf"
+    },
+    {
+     "as_at": "2015-02-28",
+     "years": 1,
+     "stated": 12.96,
+     "rebuilt_yahoo": 12.99,
+     "rebuilt_issuer": 12.96,
+     "gap_yahoo": 0.03,
+     "gap_issuer": -0.0,
+     "source": "http://web.archive.org/web/20151106143004id_/http://www.satrix.co.za:80/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fund%20Fact%20Sheet%202015-02-28.pdf"
+    },
+    {
+     "as_at": "2015-02-28",
+     "years": 3,
+     "stated": 18.38,
+     "rebuilt_yahoo": 17.44,
+     "rebuilt_issuer": 18.47,
+     "gap_yahoo": -0.94,
+     "gap_issuer": 0.09,
+     "source": "http://web.archive.org/web/20151106143004id_/http://www.satrix.co.za:80/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fund%20Fact%20Sheet%202015-02-28.pdf"
+    },
+    {
+     "as_at": "2015-02-28",
+     "years": 5,
+     "stated": 17.16,
+     "rebuilt_yahoo": 15.57,
+     "rebuilt_issuer": 16.99,
+     "gap_yahoo": -1.59,
+     "gap_issuer": -0.17,
+     "source": "http://web.archive.org/web/20151106143004id_/http://www.satrix.co.za:80/documents/uploads/Satrix%2040%20ETF/Satrix%2040%20ETF%20Fund%20Fact%20Sheet%202015-02-28.pdf"
+    },
+    {
+     "as_at": "2017-08-31",
+     "years": 1,
+     "stated": 10.44,
+     "rebuilt_yahoo": 10.44,
+     "rebuilt_issuer": 10.44,
+     "gap_yahoo": -0.0,
+     "gap_issuer": -0.0,
+     "source": "http://web.archive.org/web/20220812151621id_/https://satrix.co.za/media/17909?inline=true"
+    },
+    {
+     "as_at": "2017-08-31",
+     "years": 3,
+     "stated": 5.6,
+     "rebuilt_yahoo": 5.63,
+     "rebuilt_issuer": 5.61,
+     "gap_yahoo": 0.03,
+     "gap_issuer": 0.01,
+     "source": "http://web.archive.org/web/20220812151621id_/https://satrix.co.za/media/17909?inline=true"
+    },
+    {
+     "as_at": "2017-08-31",
+     "years": 5,
+     "stated": 12.58,
+     "rebuilt_yahoo": 12.29,
+     "rebuilt_issuer": 12.59,
+     "gap_yahoo": -0.29,
+     "gap_issuer": 0.01,
+     "source": "http://web.archive.org/web/20220812151621id_/https://satrix.co.za/media/17909?inline=true"
+    },
+    {
+     "as_at": "2018-07-31",
+     "years": 1,
+     "stated": 7.92,
+     "rebuilt_yahoo": 7.91,
+     "rebuilt_issuer": 7.91,
+     "gap_yahoo": -0.01,
+     "gap_issuer": -0.01,
+     "source": "http://web.archive.org/web/20241114023034id_/https://satrix.co.za/media/25616"
+    },
+    {
+     "as_at": "2018-07-31",
+     "years": 3,
+     "stated": 5.95,
+     "rebuilt_yahoo": 5.96,
+     "rebuilt_issuer": 5.96,
+     "gap_yahoo": 0.01,
+     "gap_issuer": 0.01,
+     "source": "http://web.archive.org/web/20241114023034id_/https://satrix.co.za/media/25616"
+    },
+    {
+     "as_at": "2018-07-31",
+     "years": 5,
+     "stated": 9.56,
+     "rebuilt_yahoo": 9.57,
+     "rebuilt_issuer": 9.57,
+     "gap_yahoo": 0.01,
+     "gap_issuer": 0.01,
+     "source": "http://web.archive.org/web/20241114023034id_/https://satrix.co.za/media/25616"
+    },
+    {
+     "as_at": "2019-02-28",
+     "years": 1,
+     "stated": -0.33,
+     "rebuilt_yahoo": -0.36,
+     "rebuilt_issuer": -0.32,
+     "gap_yahoo": -0.03,
+     "gap_issuer": 0.01,
+     "source": "http://web.archive.org/web/20240730233144id_/https://satrix.co.za/media/30879"
+    },
+    {
+     "as_at": "2019-02-28",
+     "years": 3,
+     "stated": 7.02,
+     "rebuilt_yahoo": 6.97,
+     "rebuilt_issuer": 6.99,
+     "gap_yahoo": -0.05,
+     "gap_issuer": -0.03,
+     "source": "http://web.archive.org/web/20240730233144id_/https://satrix.co.za/media/30879"
+    },
+    {
+     "as_at": "2019-02-28",
+     "years": 5,
+     "stated": 5.74,
+     "rebuilt_yahoo": 5.75,
+     "rebuilt_issuer": 5.75,
+     "gap_yahoo": 0.01,
+     "gap_issuer": 0.01,
+     "source": "http://web.archive.org/web/20240730233144id_/https://satrix.co.za/media/30879"
+    }
+   ],
+   "median_abs_gap_issuer": 0.02,
+   "median_abs_gap_yahoo": 1.79,
+   "max_abs_gap_issuer": 0.91,
+   "covered_windows": {
+    "n": 59,
+    "median_abs_gap": 0.01,
+    "max_abs_gap": 0.09,
+    "yahoo_only_median_abs_gap": 1.22,
+    "yahoo_only_max_abs_gap": 2.86,
+    "from_2013_n": 21,
+    "from_2013_yahoo_only_median": 0.01,
+    "from_2013_yahoo_only_max": 0.05
+   }
+  },
+  "STXPRO": {
+   "yahoo_sha256": "10690f71f25770cd21f7bc451de4d09ac63c7bf990cd59f2b0cb4ac848f5cc86",
+   "exdate_test": {
+    "cross_month": {
+     "pairs": 26,
+     "first_date_ret_over_yield": 0.2,
+     "second_date_ret_over_yield": -0.86,
+     "t_second_minus_first": -3.9
+    }
+   },
+   "issuer_periods": 21,
+   "first_period": "2017-09-30",
+   "last_period": "2026-09-30",
+   "conflicts": [],
+   "by_year": {
+    "2017": {
+     "issuer": 2,
+     "match": 2,
+     "missing": 0,
+     "different": 0
+    },
+    "2018": {
+     "issuer": 2,
+     "match": 2,
+     "missing": 0,
+     "different": 0
+    },
+    "2020": {
+     "issuer": 2,
+     "match": 2,
+     "missing": 0,
+     "different": 0
+    },
+    "2021": {
+     "issuer": 4,
+     "match": 4,
+     "missing": 0,
+     "different": 0
+    },
+    "2022": {
+     "issuer": 1,
+     "match": 1,
+     "missing": 0,
+     "different": 0
+    },
+    "2023": {
+     "issuer": 1,
+     "match": 1,
+     "missing": 0,
+     "different": 0
+    },
+    "2024": {
+     "issuer": 4,
+     "match": 4,
+     "missing": 0,
+     "different": 0
+    },
+    "2025": {
+     "issuer": 2,
+     "match": 2,
+     "missing": 0,
+     "different": 0
+    },
+    "2026": {
+     "issuer": 3,
+     "match": 3,
+     "missing": 0,
+     "different": 0
+    }
+   },
+   "crosscheck": [
+    {
+     "period_end": "2017-09-30",
+     "cps": 17.05,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2017-09-27",
+       17.049
+      ],
+      [
+       "2017-09-29",
+       17.05
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2017-09-27",
+      "2017-09-29"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2017-12-31",
+     "cps": 38.44,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2017-12-29",
+       38.440002
+      ],
+      [
+       "2018-01-10",
+       38.440002
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2018-01-10"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2018-03-31",
+     "cps": 28.0,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2018-03-29",
+       28.0
+      ],
+      [
+       "2018-04-11",
+       28.0
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2018-04-11"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2018-06-30",
+     "cps": 31.35,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2018-06-29",
+       31.349998
+      ],
+      [
+       "2018-07-11",
+       31.349998
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2018-07-11"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2020-09-30",
+     "cps": 4.15,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2020-09-30",
+       4.1499996
+      ],
+      [
+       "2020-10-21",
+       4.1499996
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2020-10-21"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2020-12-31",
+     "cps": 12.71,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2020-12-31",
+       12.710001
+      ],
+      [
+       "2021-01-13",
+       12.710001
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2021-01-13"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2021-03-31",
+     "cps": 9.99,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2021-03-31",
+       9.99
+      ],
+      [
+       "2021-04-14",
+       9.99
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2021-04-14"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2021-06-30",
+     "cps": 14.93,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2021-06-30",
+       14.929999
+      ],
+      [
+       "2021-07-14",
+       14.929999
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2021-07-14"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2021-09-30",
+     "cps": 18.81,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2021-09-30",
+       18.81
+      ],
+      [
+       "2021-10-13",
+       18.81
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2021-10-13"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2021-12-31",
+     "cps": 32.46,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2021-12-31",
+       32.460003
+      ],
+      [
+       "2022-01-24",
+       32.460003
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2022-01-24"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2022-03-31",
+     "cps": 3.91,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2022-03-31",
+       3.9099998
+      ],
+      [
+       "2022-04-20",
+       3.9099998
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2022-04-20"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2023-12-31",
+     "cps": 29.49,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2023-12-29",
+       29.49
+      ],
+      [
+       "2024-01-17",
+       29.49
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2024-01-17"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2024-03-31",
+     "cps": 3.25,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2024-03-28",
+       3.25
+      ],
+      [
+       "2024-04-24",
+       3.25
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2024-04-24"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2024-06-30",
+     "cps": 33.56,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2024-06-28",
+       33.559998
+      ],
+      [
+       "2024-07-17",
+       33.559998
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2024-07-17"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2024-09-30",
+     "cps": 8.77,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2024-09-30",
+       8.77
+      ],
+      [
+       "2024-10-16",
+       8.77
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2024-10-16"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2024-12-31",
+     "cps": 32.87,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2025-01-15",
+       32.87
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2025-01-15"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2025-03-31",
+     "cps": 8.47,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2025-04-15",
+       8.47
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2025-04-15"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2025-12-31",
+     "cps": 34.31,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2026-01-21",
+       34.31
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2026-01-21"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2026-03-31",
+     "cps": 10.54,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2026-04-21",
+       10.5368
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2026-04-21"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2026-06-30",
+     "cps": 23.74,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2026-07-22",
+       23.74
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2026-07-22"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2026-09-30",
+     "cps": 10.04,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2026-10-21",
+       10.04
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2026-10-21"
+     ],
+     "status": "match"
+    }
+   ],
+   "return_tests": [
+    {
+     "as_at": "2018-07-31",
+     "years": 1,
+     "stated": -12.07,
+     "rebuilt_yahoo": -11.36,
+     "rebuilt_issuer": -12.07,
+     "gap_yahoo": 0.71,
+     "gap_issuer": -0.0,
+     "source": "http://web.archive.org/web/20241114061609id_/https://satrix.co.za/media/25624"
+    },
+    {
+     "as_at": "2021-06-30",
+     "years": 1,
+     "stated": 23.02,
+     "rebuilt_yahoo": 23.02,
+     "rebuilt_issuer": 23.02,
+     "gap_yahoo": 0.0,
+     "gap_issuer": 0.0,
+     "source": "http://web.archive.org/web/20210805011847id_/https://satrix.co.za/media/54462?inline=true"
+    },
+    {
+     "as_at": "2021-06-30",
+     "years": 3,
+     "stated": -14.75,
+     "rebuilt_yahoo": -14.23,
+     "rebuilt_issuer": -14.23,
+     "gap_yahoo": 0.52,
+     "gap_issuer": 0.52,
+     "source": "http://web.archive.org/web/20210805011847id_/https://satrix.co.za/media/54462?inline=true"
+    }
+   ],
+   "median_abs_gap_issuer": 0.0,
+   "median_abs_gap_yahoo": 0.52,
+   "max_abs_gap_issuer": 0.52,
+   "covered_windows": {
+    "n": 3,
+    "median_abs_gap": 0.0,
+    "max_abs_gap": 0.52,
+    "yahoo_only_median_abs_gap": 0.52,
+    "yahoo_only_max_abs_gap": 0.71,
+    "from_2013_n": 3,
+    "from_2013_yahoo_only_median": 0.52,
+    "from_2013_yahoo_only_max": 0.71
+   }
+  },
+  "STXGOV": {
+   "yahoo_sha256": "80c215657b46037050d8162f827bfffe5cef83e1d12a0b5534d1aa8c6c05db6c",
+   "exdate_test": {
+    "cross_month": {
+     "pairs": 9,
+     "first_date_ret_over_yield": 0.11,
+     "second_date_ret_over_yield": -0.88,
+     "t_second_minus_first": -8.8
+    }
+   },
+   "issuer_periods": 14,
+   "first_period": "2020-06-30",
+   "last_period": "2026-09-30",
+   "conflicts": [],
+   "by_year": {
+    "2020": {
+     "issuer": 2,
+     "match": 2,
+     "missing": 0,
+     "different": 0
+    },
+    "2021": {
+     "issuer": 2,
+     "match": 2,
+     "missing": 0,
+     "different": 0
+    },
+    "2024": {
+     "issuer": 3,
+     "match": 3,
+     "missing": 0,
+     "different": 0
+    },
+    "2025": {
+     "issuer": 4,
+     "match": 4,
+     "missing": 0,
+     "different": 0
+    },
+    "2026": {
+     "issuer": 3,
+     "match": 3,
+     "missing": 0,
+     "different": 0
+    }
+   },
+   "crosscheck": [
+    {
+     "period_end": "2020-06-30",
+     "cps": 26.28,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2020-07-22",
+       26.28
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2020-07-22"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2020-12-31",
+     "cps": 36.07,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2021-01-13",
+       36.07
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2021-01-13"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2021-06-30",
+     "cps": 37.69,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2021-07-14",
+       37.69
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2021-07-14"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2021-12-31",
+     "cps": 47.71,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2022-01-19",
+       47.710003
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2022-01-19"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2024-06-30",
+     "cps": 5.88,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2024-06-28",
+       5.88
+      ],
+      [
+       "2024-07-17",
+       5.88
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2024-07-17"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2024-09-30",
+     "cps": 25.9,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2024-09-30",
+       25.9
+      ],
+      [
+       "2024-10-16",
+       25.9
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2024-10-16"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2024-12-31",
+     "cps": 13.14,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2025-01-15",
+       13.14
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2025-01-15"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2025-03-31",
+     "cps": 34.89,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2025-04-15",
+       34.89
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2025-04-15"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2025-06-30",
+     "cps": 4.57,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2025-07-16",
+       4.5699997
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2025-07-16"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2025-09-30",
+     "cps": 36.17,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2025-10-22",
+       36.17
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2025-10-22"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2025-12-31",
+     "cps": 1.58,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2026-01-21",
+       1.5799999
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2026-01-21"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2026-03-31",
+     "cps": 38.08,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2026-04-21",
+       38.08
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2026-04-21"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2026-06-30",
+     "cps": 1.12,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2026-07-22",
+       1.12
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2026-07-22"
+     ],
+     "status": "match"
+    },
+    {
+     "period_end": "2026-09-30",
+     "cps": 38.21,
+     "conflict": null,
+     "ex_date": null,
+     "yahoo_raw": [
+      [
+       "2026-10-21",
+       38.21
+      ]
+     ],
+     "yahoo_dedup_match": [
+      "2026-10-21"
+     ],
+     "status": "match"
+    }
+   ],
+   "return_tests": [],
+   "median_abs_gap_issuer": null,
+   "median_abs_gap_yahoo": null,
+   "max_abs_gap_issuer": null,
+   "covered_windows": {
+    "n": 0,
+    "median_abs_gap": null,
+    "max_abs_gap": null,
+    "yahoo_only_median_abs_gap": null,
+    "yahoo_only_max_abs_gap": null,
+    "from_2013_n": 0,
+    "from_2013_yahoo_only_median": null,
+    "from_2013_yahoo_only_max": null
+   }
+  }
+ },
+ "exdate_test_ETFBND": {}
+}
