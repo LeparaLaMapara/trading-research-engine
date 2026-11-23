@@ -1,0 +1,415 @@
+{
+ "seed": 20261123,
+ "paths": 4000,
+ "cash": 0.07,
+ "broker_side": 0.0038,
+ "half_spread": 0.0025,
+ "cases": {
+  "155m null cash=mmf half_spread=0.0025": {
+   "gross": {
+    "C1": 0.639,
+    "C2": 0.608,
+    "C1C2": 0.485,
+    "C1C2C3": 0.2,
+    "U1": 0.52,
+    "U1C2": 0.442,
+    "median_sharpe_gain": -0.062,
+    "median_ddratio": 0.616,
+    "median_return_gap_pa": 0.012
+   },
+   "net": {
+    "C1": 0.265,
+    "C2": 0.059,
+    "C1C2": 0.046,
+    "C1C2C3": 0.02,
+    "U1": 0.143,
+    "U1C2": 0.043,
+    "median_sharpe_gain": -0.355,
+    "median_ddratio": 0.891,
+    "median_return_gap_pa": 0.036
+   },
+   "cost_pa_rule_minus_bh": 0.024,
+   "switches_per_asset_pa": 1.955,
+   "invested": 0.669,
+   "sharpe_cost": 0.293,
+   "gate_ratio": -0.211
+  },
+  "155m null_fat cash=mmf half_spread=0.0025": {
+   "gross": {
+    "C1": 0.557,
+    "C2": 0.637,
+    "C1C2": 0.45,
+    "C1C2C3": 0.262,
+    "U1": 0.474,
+    "U1C2": 0.417,
+    "median_sharpe_gain": -0.051,
+    "median_ddratio": 0.662,
+    "median_return_gap_pa": 0.01
+   },
+   "net": {
+    "C1": 0.302,
+    "C2": 0.093,
+    "C1C2": 0.075,
+    "C1C2C3": 0.049,
+    "U1": 0.167,
+    "U1C2": 0.071,
+    "median_sharpe_gain": -0.322,
+    "median_ddratio": 0.866,
+    "median_return_gap_pa": 0.032
+   },
+   "cost_pa_rule_minus_bh": 0.021,
+   "switches_per_asset_pa": 1.703,
+   "invested": 0.719,
+   "sharpe_cost": 0.271,
+   "gate_ratio": -0.189
+  },
+  "155m alt cash=mmf half_spread=0.0025": {
+   "gross": {
+    "C1": 0.85,
+    "C2": 0.879,
+    "C1C2": 0.796,
+    "C1C2C3": 0.557,
+    "U1": 0.779,
+    "U1C2": 0.756,
+    "median_sharpe_gain": 0.113,
+    "median_ddratio": 0.436,
+    "median_return_gap_pa": -0.002
+   },
+   "net": {
+    "C1": 0.629,
+    "C2": 0.415,
+    "C1C2": 0.388,
+    "C1C2C3": 0.234,
+    "U1": 0.503,
+    "U1C2": 0.368,
+    "median_sharpe_gain": -0.148,
+    "median_ddratio": 0.598,
+    "median_return_gap_pa": 0.02
+   },
+   "cost_pa_rule_minus_bh": 0.022,
+   "switches_per_asset_pa": 1.742,
+   "invested": 0.661,
+   "sharpe_cost": 0.262,
+   "gate_ratio": 0.433
+  },
+  "155m alt_mild cash=mmf half_spread=0.0025": {
+   "gross": {
+    "C1": 0.76,
+    "C2": 0.763,
+    "C1C2": 0.657,
+    "C1C2C3": 0.34,
+    "U1": 0.662,
+    "U1C2": 0.614,
+    "median_sharpe_gain": 0.011,
+    "median_ddratio": 0.537,
+    "median_return_gap_pa": 0.007
+   },
+   "net": {
+    "C1": 0.417,
+    "C2": 0.179,
+    "C1C2": 0.155,
+    "C1C2C3": 0.068,
+    "U1": 0.281,
+    "U1C2": 0.146,
+    "median_sharpe_gain": -0.268,
+    "median_ddratio": 0.766,
+    "median_return_gap_pa": 0.03
+   },
+   "cost_pa_rule_minus_bh": 0.023,
+   "switches_per_asset_pa": 1.877,
+   "invested": 0.665,
+   "sharpe_cost": 0.278,
+   "gate_ratio": 0.038
+  },
+  "155m null cash=acct half_spread=0.0025": {
+   "gross": {
+    "C1": 0.65,
+    "C2": 0.603,
+    "C1C2": 0.484,
+    "C1C2C3": 0.197,
+    "U1": 0.512,
+    "U1C2": 0.436,
+    "median_sharpe_gain": -0.063,
+    "median_ddratio": 0.615,
+    "median_return_gap_pa": 0.013
+   },
+   "net": {
+    "C1": 0.381,
+    "C2": 0.127,
+    "C1C2": 0.108,
+    "C1C2C3": 0.048,
+    "U1": 0.213,
+    "U1C2": 0.098,
+    "median_sharpe_gain": -0.273,
+    "median_ddratio": 0.776,
+    "median_return_gap_pa": 0.03
+   },
+   "cost_pa_rule_minus_bh": 0.017,
+   "switches_per_asset_pa": 1.955,
+   "invested": 0.669,
+   "sharpe_cost": 0.21,
+   "gate_ratio": -0.3
+  },
+  "155m null_fat cash=acct half_spread=0.0025": {
+   "gross": {
+    "C1": 0.563,
+    "C2": 0.644,
+    "C1C2": 0.459,
+    "C1C2C3": 0.268,
+    "U1": 0.476,
+    "U1C2": 0.426,
+    "median_sharpe_gain": -0.05,
+    "median_ddratio": 0.663,
+    "median_return_gap_pa": 0.01
+   },
+   "net": {
+    "C1": 0.382,
+    "C2": 0.174,
+    "C1C2": 0.14,
+    "C1C2C3": 0.093,
+    "U1": 0.231,
+    "U1C2": 0.125,
+    "median_sharpe_gain": -0.243,
+    "median_ddratio": 0.784,
+    "median_return_gap_pa": 0.025
+   },
+   "cost_pa_rule_minus_bh": 0.015,
+   "switches_per_asset_pa": 1.684,
+   "invested": 0.721,
+   "sharpe_cost": 0.193,
+   "gate_ratio": -0.26
+  },
+  "155m alt cash=acct half_spread=0.0025": {
+   "gross": {
+    "C1": 0.852,
+    "C2": 0.873,
+    "C1C2": 0.796,
+    "C1C2C3": 0.554,
+    "U1": 0.786,
+    "U1C2": 0.759,
+    "median_sharpe_gain": 0.112,
+    "median_ddratio": 0.436,
+    "median_return_gap_pa": -0.002
+   },
+   "net": {
+    "C1": 0.707,
+    "C2": 0.532,
+    "C1C2": 0.485,
+    "C1C2C3": 0.343,
+    "U1": 0.572,
+    "U1C2": 0.456,
+    "median_sharpe_gain": -0.086,
+    "median_ddratio": 0.542,
+    "median_return_gap_pa": 0.014
+   },
+   "cost_pa_rule_minus_bh": 0.016,
+   "switches_per_asset_pa": 1.742,
+   "invested": 0.659,
+   "sharpe_cost": 0.199,
+   "gate_ratio": 0.566
+  },
+  "155m alt_mild cash=acct half_spread=0.0025": {
+   "gross": {
+    "C1": 0.762,
+    "C2": 0.76,
+    "C1C2": 0.654,
+    "C1C2C3": 0.331,
+    "U1": 0.652,
+    "U1C2": 0.601,
+    "median_sharpe_gain": 0.012,
+    "median_ddratio": 0.541,
+    "median_return_gap_pa": 0.006
+   },
+   "net": {
+    "C1": 0.52,
+    "C2": 0.28,
+    "C1C2": 0.241,
+    "C1C2C3": 0.136,
+    "U1": 0.365,
+    "U1C2": 0.221,
+    "median_sharpe_gain": -0.197,
+    "median_ddratio": 0.684,
+    "median_return_gap_pa": 0.023
+   },
+   "cost_pa_rule_minus_bh": 0.017,
+   "switches_per_asset_pa": 1.858,
+   "invested": 0.668,
+   "sharpe_cost": 0.21,
+   "gate_ratio": 0.059
+  },
+  "155m null cash=mmf half_spread=0.005": {
+   "gross": {
+    "C1": 0.649,
+    "C2": 0.61,
+    "C1C2": 0.488,
+    "C1C2C3": 0.208,
+    "U1": 0.518,
+    "U1C2": 0.444,
+    "median_sharpe_gain": -0.059,
+    "median_ddratio": 0.61,
+    "median_return_gap_pa": 0.012
+   },
+   "net": {
+    "C1": 0.17,
+    "C2": 0.022,
+    "C1C2": 0.019,
+    "C1C2C3": 0.007,
+    "U1": 0.077,
+    "U1C2": 0.017,
+    "median_sharpe_gain": -0.457,
+    "median_ddratio": 1.027,
+    "median_return_gap_pa": 0.046
+   },
+   "cost_pa_rule_minus_bh": 0.034,
+   "switches_per_asset_pa": 1.935,
+   "invested": 0.671,
+   "sharpe_cost": 0.397,
+   "gate_ratio": -0.149
+  },
+  "155m alt cash=mmf half_spread=0.005": {
+   "gross": {
+    "C1": 0.847,
+    "C2": 0.875,
+    "C1C2": 0.792,
+    "C1C2C3": 0.546,
+    "U1": 0.775,
+    "U1C2": 0.751,
+    "median_sharpe_gain": 0.109,
+    "median_ddratio": 0.439,
+    "median_return_gap_pa": -0.002
+   },
+   "net": {
+    "C1": 0.509,
+    "C2": 0.267,
+    "C1C2": 0.245,
+    "C1C2C3": 0.13,
+    "U1": 0.394,
+    "U1C2": 0.238,
+    "median_sharpe_gain": -0.249,
+    "median_ddratio": 0.692,
+    "median_return_gap_pa": 0.028
+   },
+   "cost_pa_rule_minus_bh": 0.03,
+   "switches_per_asset_pa": 1.742,
+   "invested": 0.661,
+   "sharpe_cost": 0.359,
+   "gate_ratio": 0.305
+  },
+  "155m alt cash=mmf half_spread=0.0": {
+   "gross": {
+    "C1": 0.85,
+    "C2": 0.879,
+    "C1C2": 0.796,
+    "C1C2C3": 0.553,
+    "U1": 0.783,
+    "U1C2": 0.76,
+    "median_sharpe_gain": 0.112,
+    "median_ddratio": 0.436,
+    "median_return_gap_pa": -0.003
+   },
+   "net": {
+    "C1": 0.728,
+    "C2": 0.597,
+    "C1C2": 0.546,
+    "C1C2C3": 0.351,
+    "U1": 0.623,
+    "U1C2": 0.52,
+    "median_sharpe_gain": -0.051,
+    "median_ddratio": 0.523,
+    "median_return_gap_pa": 0.011
+   },
+   "cost_pa_rule_minus_bh": 0.014,
+   "switches_per_asset_pa": 1.742,
+   "invested": 0.66,
+   "sharpe_cost": 0.163,
+   "gate_ratio": 0.689
+  },
+  "155m alt cash=acct half_spread=0.0": {
+   "gross": {
+    "C1": 0.846,
+    "C2": 0.865,
+    "C1C2": 0.789,
+    "C1C2C3": 0.542,
+    "U1": 0.773,
+    "U1C2": 0.748,
+    "median_sharpe_gain": 0.104,
+    "median_ddratio": 0.442,
+    "median_return_gap_pa": -0.002
+   },
+   "net": {
+    "C1": 0.745,
+    "C2": 0.611,
+    "C1C2": 0.561,
+    "C1C2C3": 0.4,
+    "U1": 0.631,
+    "U1C2": 0.53,
+    "median_sharpe_gain": -0.043,
+    "median_ddratio": 0.513,
+    "median_return_gap_pa": 0.011
+   },
+   "cost_pa_rule_minus_bh": 0.013,
+   "switches_per_asset_pa": 1.742,
+   "invested": 0.661,
+   "sharpe_cost": 0.147,
+   "gate_ratio": 0.71
+  },
+  "45m null cash=mmf half_spread=0.0025": {
+   "gross": {
+    "C1": 0.478,
+    "C2": 0.487,
+    "C1C2": 0.336,
+    "C1C2C3": 0.12,
+    "U1": 0.392,
+    "U1C2": 0.31,
+    "median_sharpe_gain": -0.108,
+    "median_ddratio": 0.713,
+    "median_return_gap_pa": 0.015
+   },
+   "net": {
+    "C1": 0.245,
+    "C2": 0.162,
+    "C1C2": 0.107,
+    "C1C2C3": 0.036,
+    "U1": 0.166,
+    "U1C2": 0.097,
+    "median_sharpe_gain": -0.391,
+    "median_ddratio": 0.925,
+    "median_return_gap_pa": 0.038
+   },
+   "cost_pa_rule_minus_bh": 0.023,
+   "switches_per_asset_pa": 1.933,
+   "invested": 0.672,
+   "sharpe_cost": 0.283,
+   "gate_ratio": -0.38
+  },
+  "45m alt cash=mmf half_spread=0.0025": {
+   "gross": {
+    "C1": 0.589,
+    "C2": 0.671,
+    "C1C2": 0.509,
+    "C1C2C3": 0.261,
+    "U1": 0.531,
+    "U1C2": 0.487,
+    "median_sharpe_gain": 0.029,
+    "median_ddratio": 0.617,
+    "median_return_gap_pa": 0.004
+   },
+   "net": {
+    "C1": 0.424,
+    "C2": 0.375,
+    "C1C2": 0.3,
+    "C1C2C3": 0.137,
+    "U1": 0.346,
+    "U1C2": 0.282,
+    "median_sharpe_gain": -0.219,
+    "median_ddratio": 0.783,
+    "median_return_gap_pa": 0.024
+   },
+   "cost_pa_rule_minus_bh": 0.02,
+   "switches_per_asset_pa": 1.667,
+   "invested": 0.672,
+   "sharpe_cost": 0.248,
+   "gate_ratio": 0.118
+  }
+ }
+}
